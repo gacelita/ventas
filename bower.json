@@ -1,0 +1,6 @@
+{
+  "name": "ventas",
+  "dependencies": {
+    "normalize-css": "^5.0.0"
+  }
+}
