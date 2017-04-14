@@ -117,12 +117,21 @@
   (init-aliases)
   :done)
 
+(defmacro start-frontend []
+  '(do (mount/start #'ventas.user/figwheel #'ventas.user/sass)))
+
+(defmacro reset-frontend []
+  '(do (mount/stop #'ventas.user/figwheel #'ventas.user/sass)
+      (tn/refresh)
+      (start-frontend)
+      (init-aliases)
+      :resetted)) 
+
 (defmacro start-backend []
-  '(do 
-      (mount/start #'ventas.database/db #'ventas.server/server)))
+  '(do (mount/start #'ventas.database/db #'ventas.server/server #'ventas.config/config)))
 
 (defmacro reset-backend []
-  '(do (mount/stop #'ventas.database/db #'ventas.server/server)
+  '(do (mount/stop #'ventas.database/db #'ventas.server/server #'ventas.config/config)
       (tn/refresh)
       (start-backend)
       (init-aliases)

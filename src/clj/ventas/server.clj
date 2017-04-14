@@ -34,7 +34,7 @@
             [pantomime.mime :refer [mime-type-of]]
 
             [org.httpkit.server :as http-kit]
-            [ventas.config :as config]
+            [ventas.config :refer [config]]
             [clojure.tools.logging :as log]
             [ventas.pretty :refer [print-info]]
             [ventas.util :as util]
@@ -155,14 +155,14 @@
     (map (fn [b]
       (let [a (:image.tag/image b)]
         {:id (:db/id a)
-         :url (str config/base-url "images/" (:db/id a) "." (name (get-in a [:image/extension :db/ident])))}
+         :url (str (:base-url config) "images/" (:db/id a) "." (name (get-in a [:image/extension :db/ident])))}
         )) (:image.tag/_target results))))
 
 (defmethod ws-request-handler :users.own-images.list [message state]
   (let [results (db/pull (quote [{:image/_source [:db/id {:image/extension [:db/ident]}]}]) (get-in message [:params :id]))]
     (map (fn [a]
       {:id (:db/id a)
-       :url (str config/base-url "images/" (:db/id a) "." (name (get-in a [:image/extension :db/ident])))}) (:image/_source results))))
+       :url (str (:base-url config) "images/" (:db/id a) "." (name (get-in a [:image/extension :db/ident])))}) (:image/_source results))))
 
 (defmethod ws-request-handler :users.friends.list [message state]
   (let [results (db/pull (quote [{:friendship/_target [{:friendship/source [:db/id :user/email :user/name]}]
@@ -328,7 +328,7 @@
   "If the debug mode is enabled, wraps a Ring request
    with the Prone library"
   [handler]
-  (if config/debug
+  (if (:debug config)
     (prone/wrap-exceptions handler {:app-namespaces ["ventas"]})
     handler))
 
@@ -371,7 +371,7 @@
 
 (defn start-server! [& [port]]
   (print-info "Starting server")
-  (let [port (Integer. (or port config/http-port 10555))
+  (let [port (Integer. (or port (:http-port config) 10555))
         ring-handler (var http-handler)]
     (infof "URI: `%s`" (format "http://localhost:%s/" port))
     (http-kit/run-server ring-handler {:port port :join? false})))

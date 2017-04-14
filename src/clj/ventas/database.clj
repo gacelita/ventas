@@ -10,7 +10,7 @@
     [adi.core :as adi]
     [buddy.hashers :as hashers]
     [mount.core :as mount :refer [defstate]]
-    [ventas.config :as config]
+    [ventas.config :refer [config]]
     [ventas.util :as util]
     [ventas.pretty :refer [print-info]]
     [slingshot.slingshot :refer [throw+ try+]]
@@ -82,7 +82,7 @@
 
 (defn start-db! []
   (print-info "Starting database")
-  (adi/connect! config/database-url schema false false))
+  (adi/connect! (get-in config [:database :url]) schema false false))
 (defn stop-db! [db]
   (print-info "Stopping database"))
 (defstate db :start (start-db!) :stop (stop-db! db))
@@ -233,7 +233,7 @@
 (defmethod entity-postquery :default [entity] entity)
 (defmethod entity-postquery :image [entity] 
   (-> entity
-      (assoc :url (str config/base-url "img/" (:id entity) "." (name (:extension entity))))
+      (assoc :url (str (:base-url config) "img/" (:id entity) "." (name (:extension entity))))
       (assoc :tags (entity-query :image.tag {:image (:id entity)}))))
   
 

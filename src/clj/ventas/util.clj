@@ -1,4 +1,5 @@
-(ns ventas.util)
+(ns ventas.util
+  (:require [io.aviso.ansi :as clansi]))
 
 (defn filter-vals
   [pred m]
@@ -22,3 +23,5 @@
 		(for [[k v] ks]
 			[(qualify-keyword k ns) v])))
 
+(defn print-info [str]
+  (println (clansi/green str)))

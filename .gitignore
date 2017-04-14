@@ -24,3 +24,4 @@ pom.xml.asc
 /resources/generation/images
 /resources/public/images
 /resources/*.pem
+/resources/config.edn

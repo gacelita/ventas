@@ -2,7 +2,7 @@
   (:require
     [datomic.api :as d]
     [io.rkn.conformity :as c]
-    [ventas.config :refer [database-url]]
+    [ventas.config :refer [config]]
     [ventas.database :only [db]]))
 
 
@@ -190,12 +190,13 @@
 (defn migrate 
   ([] (migrate false))
   ([recreate]
-    (when recreate
-      (println "Deleting database " database-url)
-      (d/delete-database database-url)
-      (println "Creating database " database-url)
-      (d/create-database database-url))
-    (let [connection (d/connect database-url)]
-      (doseq [migration migrations]
-        (println "Running migration" (first (keys migration)))
-        (println (c/ensure-conforms connection migration))))))
+    (let [database-url (get-in config [:database :url])]
+      (when recreate
+        (println "Deleting database " database-url)
+        (d/delete-database database-url)
+        (println "Creating database " database-url)
+        (d/create-database database-url))
+      (let [connection (d/connect database-url)]
+        (doseq [migration migrations]
+          (println "Running migration" (first (keys migration)))
+          (println (c/ensure-conforms connection migration)))))))

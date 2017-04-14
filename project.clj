@@ -65,7 +65,7 @@
                  [compojure "1.5.2"]
 
                  ;; Secrets
-                 [com.outpace/config "0.10.0"]
+                 [cprop "0.1.10"]
 
                  ;; Reagent
                  [reagent "0.6.0"]
