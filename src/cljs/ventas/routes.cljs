@@ -1,32 +1,59 @@
 (ns ventas.routes
   (:require [clojure.string :as s]))
 
-(defn pre-compile-routes [routes]
-  (vec (map vec (map #(mapcat identity %) (partition 2 (partition-by keyword? routes))))))
+(comment
+  ["/" {"admin/" {"" :backend
+                  "login/" :backend.login
+                  "register/" :backend.register
+                  "users/" {"" :backend.users
+                            [:id "edit"] :backend.users.edit}
+                  "playground/" :backend.playground}
+        "frontend" {"" :frontend
+                    "index" :frontend.index}
+        :not-found true}])
 
-(defn compile-route
-  ([route] (compile-route route []))
-  ([route acc] 
-    (let [
-      kw (conj acc (get route 0))
-      handler (keyword (s/join "." (map name kw)))
-      url (get route 1)
-      subroutes (get route 2)]
-      (if (empty? subroutes)
-        [url handler]
-        [url (vec (conj (map #(compile-route % kw) (pre-compile-routes subroutes)) ["" handler]))]))))
+(defn route-parents [route]
+  ":backend.users.something -> [:backend :backend.users :backend.users.something]"
+  (map (fn [a] (keyword (clojure.string/join "." a))) (reduce (fn [acc i] (conj acc (conj (vec (last acc)) i))) [] (clojure.string/split (name route) #"\."))))
+
+(defn index-urls [routes]
+  (reduce (fn [acc {:keys [route url] :as item}] (conj acc [route url])) {} routes))
+
+(defn reducer [acc {:keys [route url] :as item} indexed-urls]
+  (let [parents (drop-last (route-parents route))]
+    (if (seq parents)
+      (update-in acc (map #(% indexed-urls) parents) conj [url {"" route}])
+      (conj acc [url {"" route}]))))
 
 (defn compile-routes [routes]
-  (first (map compile-route (pre-compile-routes routes))))
+  (let [indexed-urls (index-urls routes)]
+    ["/" (reduce (fn [acc item] (reducer acc item indexed-urls)) {} routes)]))
 
-(def app-routes (compile-routes
-   [:backend "/admin/" [
-      :users "users" [
-        :edit ["/" :id "/edit"]
-      ]
-      :login "login"
-      :register "register"
-      :playground "playground"]
-    :not-found true
-    :frontend "/" [
-      :index "index"]]))
+(def routes (compile-routes [
+
+  {:route :backend
+   :url "admin/"}
+
+  {:route :backend.users
+   :url "users/"}
+
+  {:route :backend.users.edit
+   :url [:id "/edit"]}
+  
+  {:route :backend.login
+   :url "login/"}
+
+  {:route :backend.register
+   :url "register/"}
+
+  {:route :backend.playground
+   :url "playground/"}
+
+  {:route :not-found
+   :url true}
+
+  {:route :frontend
+   :url "frontend/"}
+
+  {:route :frontend.index
+   :url "index"}]))

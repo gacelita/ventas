@@ -25,7 +25,7 @@
             [clairvoyant.core :refer-macros [trace-forms]]
             [re-frame-tracer.core :refer [tracer]]
 
-            [ventas.routes :refer [app-routes]]
+            [ventas.routes :refer [route-parents routes]]
             [ventas.pages.interface :as p]
 
             )
@@ -53,18 +53,13 @@
   :backend.register "Registro"
 })
 
-
-(defn route-parents [route]
-  ":backend.users.something -> [:backend :backend.users :backend.users.something]"
-  (map (fn [a] (keyword (clojure.string/join "." a))) (reduce (fn [acc i] (conj acc (conj (vec (last acc)) i))) [] (s/split (name route) #"\."))))
-
 (defn breadcrumbs [current-route route-params]
-  (map (fn [route] {:url (apply bidi/path-for (concat [app-routes route] (first (seq route-params))))
+  (map (fn [route] {:url (apply bidi/path-for (concat [routes route] (first (seq route-params))))
                     :name (get route-names route)
                     :route route}) (route-parents current-route)))
 
 
-(debug "Rutas:" app-routes)
+(debug "Rutas:" routes)
 
 
 ;; RE-FRAME ABSTRACT
@@ -168,7 +163,7 @@
 
 (rf/reg-fx :go-to
   (fn effect-go-to [data]
-    (go-to app-routes (get data 0) (get data 1))))
+    (go-to routes (get data 0) (get data 1))))
 
 
 ;; Events
@@ -363,7 +358,7 @@
               (for [item [{:route :backend :name "Inicio"}
                           {:route :backend.users :name "Usuarios"}
                           {:route :backend.playground :name "Dev playground"}]]
-                ^{:key (:route item)} [sa/MenuItem {:link true :href (bidi/path-for app-routes (:route item))} (:name item)])]]]
+                ^{:key (:route item)} [sa/MenuItem {:link true :href (bidi/path-for routes (:route item))} (:name item)])]]]
         [sa/Container {:class "bu main"}
           [sa/Breadcrumb
             (util/interpose-fn (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
@@ -379,14 +374,14 @@
   (accountant/configure-navigation!
    {:nav-handler (fn
                    [path]
-                   (let [match (bidi/match-route app-routes path)
+                   (let [match (bidi/match-route routes path)
                          current-page (:handler match)
                          route-params (:route-params match)]
                      (rf/dispatch [:navigation-start current-page (:current-page (session/get :route))])
                      (session/put! :route {:current-page current-page
                                            :route-params route-params})))
     :path-exists? (fn [path]
-                    (boolean (bidi/match-route app-routes path)))})
+                    (boolean (bidi/match-route routes path)))})
 
   ;; Init websocket communication, then navigate to current route and render the page
   (ws/init

@@ -7,7 +7,7 @@
             [ventas.pages.interface :refer [pages]]
             [soda-ash.core :as sa]
             [ventas.util :refer [go-to dispatch-page-event]]
-            [ventas.routes :refer [app-routes]]))
+            [ventas.routes :refer [routes]]))
 
 (defn users-datatable [action-column sub-key]
   [dt/datatable (keyword (gensym "users")) [sub-key]
@@ -31,11 +31,11 @@
     (let [action-column
       (fn [_ row]
         [:div
-          [sa/Button {:icon true :on-click #(go-to app-routes :backend.users.edit {:id (:id row)})}
+          [sa/Button {:icon true :on-click #(go-to routes :backend.users.edit {:id (:id row)})}
             [sa/Icon {:name "edit"}]]
           [sa/Button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:users]])}
             [sa/Icon {:name "remove"}]]])]
       (fn []
         [:div
           [users-datatable action-column :app.users/users]
-          [sa/Button {:onClick #(go-to app-routes :backend.users.edit {:id 0})} "Crear usuario"]]))))
+          [sa/Button {:onClick #(go-to routes :backend.users.edit {:id 0})} "Crear usuario"]]))))
