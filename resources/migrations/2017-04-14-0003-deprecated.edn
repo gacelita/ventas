@@ -1,0 +1,11 @@
+[
+
+  {:db/ident :schema/deprecated
+   :db/valueType :db.type/boolean
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :schema/see-instead
+   :db/valueType :db.type/keyword
+   :db/cardinality :db.cardinality/one}
+
+]

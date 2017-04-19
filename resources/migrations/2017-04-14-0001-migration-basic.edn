@@ -1,0 +1,65 @@
+[
+
+  {:db/ident :user/name
+   :db/valueType :db.type/string
+   :db/fulltext true
+   :db/index true
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :user/password
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :user/email
+   :db/valueType :db.type/string
+   :db/index true
+   :db/unique :db.unique/identity
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :user/friends
+   :db/valueType :db.type/ref,
+   :db/cardinality :db.cardinality/many}
+
+  ;; Images
+
+  {:db/ident :user/avatar
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :image/extension
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :image.extension/png}
+  {:db/ident :image.extension/jpg}
+  {:db/ident :image.extension/gif}
+  {:db/ident :image.extension/tiff}
+
+  ;; Status
+
+  {:db/ident :user/status
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :user.status/pending}
+  {:db/ident :user.status/active}
+  {:db/ident :user.status/inactive}
+  {:db/ident :user.status/cancelled}
+
+  ;; Comments
+
+  {:db/ident :user/comments
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/many
+   :db/isComponent true}
+
+  {:db/ident :comment/content
+   :db/valueType :db.type/string
+   :db/fulltext true
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :comment/target
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/one}
+  
+]
