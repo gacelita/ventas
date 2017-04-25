@@ -111,6 +111,8 @@
                  ;; GraphQL
                  [com.walmartlabs/lacinia "0.15.0" :exclusions [clojure-future-spec]]
 
+                 [clj-time "0.13.0"]
+
 
                  ;;
                  ;; Debugging
