@@ -108,6 +108,9 @@
                  [byte-streams "0.2.2"]
                  [com.novemberain/pantomime "2.9.0"]
 
+                 ;; GraphQL
+                 [com.walmartlabs/lacinia "0.15.0" :exclusions [clojure-future-spec]]
+
 
                  ;;
                  ;; Debugging
