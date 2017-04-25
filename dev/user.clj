@@ -5,7 +5,7 @@
             [me.raynes.conch.low-level :as sh]
             [clojure.tools.namespace.repl :as tn]
             [clojure.stacktrace :as st :refer [print-stack-trace]]
-            [ventas.pretty :refer [print-info]]
+            [ventas.util :refer [print-info]]
             [adi.core :as adi]))
 
 ;; Let Clojure warn you when it needs to reflect on types, or when it does math
