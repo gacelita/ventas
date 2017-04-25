@@ -29,31 +29,43 @@
   (let [indexed-urls (index-urls routes)]
     ["/" (reduce (fn [acc item] (reducer acc item indexed-urls)) {} routes)]))
 
-(def routes (compile-routes [
-
+(def raw-routes [
   {:route :backend
+   :name "Administración"
    :url "admin/"}
 
   {:route :backend.users
+   :name "Usuarios"
    :url "users/"}
 
   {:route :backend.users.edit
+   :name "Editar usuario"
    :url [:id "/edit"]}
   
   {:route :backend.login
+   :name "Iniciar sesión"
    :url "login/"}
 
   {:route :backend.register
+   :name "Registro"
    :url "register/"}
 
   {:route :backend.playground
+   :name "Playground"
    :url "playground/"}
 
-  {:route :not-found
-   :url true}
-
   {:route :frontend
+   :name "Inicio"
    :url "frontend/"}
 
   {:route :frontend.index
-   :url "index"}]))
+   :name "Índice"
+   :url "index"}
+
+  {:route :not-found
+   :url true}])
+
+(def routes (compile-routes raw-routes))
+
+(defn raw-route [route-kw]
+  (first (filter #(= (:route %) route-kw) raw-routes)))

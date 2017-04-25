@@ -4,7 +4,9 @@
             [re-frame.core :as rf]
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
-            [ventas.pages.interface :refer [pages]]))
+            [ventas.pages.interface :refer [pages]]
+            [ventas.pages.frontend :as frontend]))
 
 (defmethod pages :frontend.index []
-  [:h2 "Test"])
+  [frontend/skeleton
+    [:h2 "Test frontend index"]])

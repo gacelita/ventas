@@ -53,13 +53,10 @@
   :backend.register "Registro"
 })
 
-(defn breadcrumbs [current-route route-params]
-  (map (fn [route] {:url (apply bidi/path-for (concat [routes route] (first (seq route-params))))
-                    :name (get route-names route)
-                    :route route}) (route-parents current-route)))
 
 
-(debug "Rutas:" routes)
+
+(debug "Rutas:" (with-out-str (cljs.pprint/pprint routes)))
 
 
 ;; RE-FRAME ABSTRACT
@@ -327,45 +324,15 @@
 ;; Multimethod para definir "páginas" asociadas a rutas
 
 
-(defn bu-debugger []
-  "Displays the contents of the app database"
-  (reagent/with-let [collapsed (reagent/atom true)]
-    [:div {:class (s/join " " ["bu" "debugger" (if @collapsed "closed" "open")])
-           :on-click #(reset! collapsed (not @collapsed))}
-          [:pre @(rf/subscribe [:all])]]))
 
-(defn bu-notificator []
-  "Displays notifications"
-  [:div {:class "bu notificator"}
-    (for [notification @(rf/subscribe [:app/notifications])]
-      [:div {:class (s/join " " ["bu" "notification" (:theme notification)])}
-        [sa/Icon {:class "bu close" :name (:icon notification) :on-click #(rf/dispatch [:app/notifications.remove (:sym notification)])}]
-        [:p {:class "bu message"} (:message notification)]
-      ])])
+
+
 
 (defn page []
   (info "Rendering...")
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
-    [:div {:class "bu root"}
-      ; [bu-debugger]
-      [bu-notificator]
-      [:div {:class "bu wrapper"}
-        [sa/Menu {:vertical true :inverted true :sticky true :class "bu menu"}
-          [sa/MenuItem
-            "Administración"
-            [sa/MenuMenu
-              (for [item [{:route :backend :name "Inicio"}
-                          {:route :backend.users :name "Usuarios"}
-                          {:route :backend.playground :name "Dev playground"}]]
-                ^{:key (:route item)} [sa/MenuItem {:link true :href (bidi/path-for routes (:route item))} (:name item)])]]]
-        [sa/Container {:class "bu main"}
-          [sa/Breadcrumb
-            (util/interpose-fn (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
-              (for [breadcrumb (breadcrumbs current-page route-params)]
-                [sa/BreadcrumbSection {:key (:route breadcrumb) :href (:url breadcrumb)} (:name breadcrumb)]))]
-          [sa/Divider]
-          ^{:key current-page} [p/pages current-page]]]]))
+    [p/pages current-page]))
 
 ;; Lifecycle
 
@@ -377,6 +344,7 @@
                    (let [match (bidi/match-route routes path)
                          current-page (:handler match)
                          route-params (:route-params match)]
+                         (info "Current page: " current-page)
                      (rf/dispatch [:navigation-start current-page (:current-page (session/get :route))])
                      (session/put! :route {:current-page current-page
                                            :route-params route-params})))

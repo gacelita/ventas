@@ -3,6 +3,7 @@
             [accountant.core :as accountant]
             [reagent.session :as session]
             [re-frame.core :as rf]
+            [ventas.routes :refer [route-parents routes raw-route]]
             [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
                                                        trace debug info warn error]]))
 
@@ -53,3 +54,8 @@
                                   (swap! (:model data) assoc (keyword (:name data))
                                       (do (debug "setting " (-> field-data .-value)) (js->clj (-> field-data .-value))))
                                   (js/console.log "Value now: " @(:model data))))))
+
+(defn breadcrumbs [current-route route-params]
+  (map (fn [route] {:url (apply bidi/path-for (concat [routes route] (first (seq route-params))))
+                    :name (:name (raw-route route))
+                    :route route}) (route-parents current-route)))
