@@ -339,12 +339,6 @@
   (s/keys :req [:user/name :user/password :user/email :user/status]
           :opt [:user/description :user/roles]))
 
-(s/def :friendship/source
-  (s/with-gen integer? #(gen/elements (map :id (entity-query :user)))))
-(s/def :friendship/target
-  (s/with-gen integer? #(gen/elements (map :id (entity-query :user)))))
-(s/def :schema.type/friendship
-  (s/keys :req [:friendship/source :friendship/target]))
 
 (s/def :comment/source
   (s/with-gen integer? #(gen/elements (map :id (entity-query :user)))))
