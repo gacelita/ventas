@@ -1,0 +1,3 @@
+[
+  {:db/ident :schema.type/product}
+]

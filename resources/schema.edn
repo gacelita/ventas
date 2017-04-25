@@ -1,25 +1,34 @@
 {:enums
- {:episode
-  {:description "The episodes of the original Star Wars trilogy."
-   :values [:NEWHOPE :EMPIRE :JEDI]}}
-
+ {:condition
+  {:description "Product conditions"
+   :values [:new :used :refurbished]}}
  :objects
- {:droid
-  {:fields {:primary_functions {:type (list String)}
-            :id {:type Int}
+ {:product
+  {:fields {:id {:type String}
             :name {:type String}
-            :appears_in {:type (list :episode)}}}
+            :reference {:type String}
+            :ean13 {:type String}
+            :active {:type Boolean}
+            :condition {:type (list :condition)}
+            :description {:type String}
+            :tags {:type (list String)}
+            :brand {:type :brand}
+            :tax {:type :tax}}}
+  :brand
+  {:fields {:id {:type String}
+            :name {:type String}
+            :description {:type String}
+            :logo {:type :file}}}
 
-  :human
-  {:fields {:id {:type Int}
+  :tax
+  {:fields {:id {:type String}
             :name {:type String}
-            :home_planet {:type String}
-            :appears_in {:type (list :episode)}}}}
+            :percentage {:type Float}}}
+  :file
+  {:fields {:id {:type String}
+            :url {:type String}}}}
 
  :queries
- {:hero {:type (non-null :human)
-         :args {:episode {:type :episode}}
-         :resolve :get-hero}
-  :droid {:type :droid
-          :args {:id {:type String :default-value "2001"}}
-          :resolve :get-droid}}}
+ {:product {:type (non-null :product)
+         :args {:id {:type String}}
+         :resolve :get-product}}}
