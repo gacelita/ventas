@@ -19,14 +19,6 @@
       ; [bu-debugger]
       [ventas.components.notificator/bu-notificator]
       [:div {:class "bu wrapper"}
-        [sa/Menu {:vertical true :inverted true :sticky true :class "bu menu"}
-          [sa/MenuItem
-            "Administración"
-            [sa/MenuMenu
-              (for [item [{:route :backend :name "Inicio"}
-                          {:route :backend.users :name "Usuarios"}
-                          {:route :backend.playground :name "Dev playground"}]]
-                ^{:key (:route item)} [sa/MenuItem {:link true :href (bidi/path-for routes (:route item))} (:name item)])]]]
         [sa/Container {:class "bu main"}
           [sa/Breadcrumb
             (util/interpose-fn (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])

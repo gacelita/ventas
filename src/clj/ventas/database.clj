@@ -261,8 +261,11 @@
 
 (defn seed []
   "Seeds the database with sample data"
-  (info "Seeding products")
-  (doseq [product (generate-n :schema.type/product 10)] (entity-create :product product)))
+  (info "Seeding brands")
+  (doseq [brands (generate-n :schema.type/brand 10)]
+    (entity-create brands brands))
+  (doseq [product (generate-n :schema.type/product 10)] (entity-create :product product))
+  )
 
 
 

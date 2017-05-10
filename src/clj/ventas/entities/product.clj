@@ -10,8 +10,7 @@
 (s/def :product/active boolean?)
 (s/def :product/description string?)
 (s/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
-(s/def :product/tags
-  (s/with-gen integer? #(gen/elements (map :id (db/entity-query :tag)))))
+(s/def :product/tags string?)
 (s/def :product/brand
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :brand)))))
 (s/def :product/tax

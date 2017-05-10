@@ -47,9 +47,16 @@
    :db/valueType :db.type/string
    :db/cardinality :db.cardinality/one}
 
-  {:db/ident :tax/percentage
+  {:db/ident :tax/amount
    :db/valueType :db.type/float
    :db/cardinality :db.cardinality/one}
+
+  {:db/ident :tax/type
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/one}
+
+  {:db/ident :tax.type/percentage}
+  {:db/ident :tax.type/amount}
 
   {:db/ident :product/tax
    :db/valueType :db.type/ref

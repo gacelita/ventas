@@ -4,10 +4,8 @@
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]))
 
-(s/def :image/extension #{:image.extension/jpg :image.extension/gif :image.extension/png :image.extension/tiff})
-(s/def :image/source
-  (s/with-gen integer? #(gen/elements (map :id (db/entity-query :user)))))
-(s/def :schema.type/image
-  (s/keys :req [:image/extension :image/source]))
+(s/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
+(s/def :schema.type/file
+  (s/keys :req [:file/extension]))
 
 
