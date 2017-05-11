@@ -140,7 +140,7 @@
 
   :min-lein-version "2.6.1"
 
-  :source-paths ["src/clj" "src/cljs" "src/cljc" "custom-lib"]
+  :source-paths ["src/clj" "src/cljs" "src/cljc" "custom-lib" "plugins"]
 
   :test-paths ["test/clj" "test/cljc"]
 

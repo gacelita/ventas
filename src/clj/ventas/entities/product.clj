@@ -15,6 +15,14 @@
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :brand)))))
 (s/def :product/tax
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :tax)))))
+
 (s/def :schema.type/product
   (s/keys :req [:product/name]
-          :opt [:product/reference :product/ean13 :product/active :product/description :product/condition :product/tags :product/brand :product/tax]))
+          :opt [:product/reference
+                :product/ean13
+                :product/active
+                :product/description
+                :product/condition
+                :product/tags
+                :product/brand
+                :product/tax]))
