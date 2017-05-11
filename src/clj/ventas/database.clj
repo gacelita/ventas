@@ -17,7 +17,8 @@
     [clojure.spec.test :as stest]
     [clojure.test.check.generators :as gen]
     [com.gfredericks.test.chuck.generators :as gen']
-    [taoensso.timbre :as timbre :refer (trace debug info warn error)]))
+    [taoensso.timbre :as timbre :refer (trace debug info warn error)])
+  (:import [java.io File]))
 
 ;; Require all client
 
@@ -259,13 +260,36 @@
     (entity-update (entity-find (:id data)) (dissoc data :id))
     (entity-create type data)))
 
+(defn copy-file [source-path dest-path]
+  (io/copy (io/file source-path) (io/file dest-path)))
+
+(defn find-files*
+  "Find files in `path` by `pred`."
+  [path pred]
+  (filter pred (-> path io/file file-seq)))
+
+(defn find-files
+  "Find files matching given `pattern`."
+  [path pattern]
+  (find-files* path #(re-matches pattern (.getName ^File %))))
+
 (defn seed []
   "Seeds the database with sample data"
+  (info "Seeding taxes")
+  (doseq [tax (generate-n :schema.type/tax 10)]
+    (entity-create :tax tax))
+  (info "Seeding files")
+  (let [seed-files (find-files "resources/seeds/files" (re-pattern ".*?"))]
+    (doseq [entity-data (generate-n :schema.type/file 10)]
+      (let [entity (entity-create :file (-> entity-data (assoc :file/extension :file.extension/jpg)))
+            file (rand-nth seed-files)]
+        (io/copy file (io/file (str "resources/public/img/" (:id entity) ".jpg"))))))
   (info "Seeding brands")
-  (doseq [brands (generate-n :schema.type/brand 10)]
-    (entity-create brands brands))
-  (doseq [product (generate-n :schema.type/product 10)] (entity-create :product product))
-  )
+  (doseq [brand (generate-n :schema.type/brand 10)]
+    (entity-create :brand brand))
+  (info "Seeding products")
+  (doseq [product (generate-n :schema.type/product 10)]
+    (entity-create :product product)))
 
 
 

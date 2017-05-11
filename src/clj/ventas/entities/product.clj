@@ -10,11 +10,14 @@
 (s/def :product/active boolean?)
 (s/def :product/description string?)
 (s/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
-(s/def :product/tags string?)
+(s/def :product/tags (s/and (s/* string?) #(< (count %) 7) #(> (count %) 2)))
 (s/def :product/brand
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :brand)))))
 (s/def :product/tax
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :tax)))))
+(s/def :product/images
+  (s/with-gen (s/and (s/* integer?) #(< (count %) 7) #(> (count %) 2))
+              #(gen/elements (map :id (db/entity-query :file)))))
 (s/def :schema.type/product
   (s/keys :req [:product/name]
           :opt [:product/reference :product/ean13 :product/active :product/description :product/condition :product/tags :product/brand :product/tax]))
