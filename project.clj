@@ -157,13 +157,13 @@
   ;; nREPL by default starts in the :main namespace, we want to start in `user`
   ;; because that's where our development helper functions like (run) and
   ;; (browser-repl) live.
-  :repl-options {:init-ns user}
+  :repl-options {:init-ns user :port 4001 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
   :aliases {"config" ["run" "-m" "outpace.config.generate"]}
 
   :cljsbuild {:builds
               [{:id "app"
-                :source-paths ["src/cljs" "src/cljc" "custom-lib"]
+                :source-paths ["src/cljs" "src/cljc" "custom-lib" "plugins"]
 
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
 
@@ -176,13 +176,13 @@
                            :preloads [devtools.preload]}}
 
                {:id "test"
-                :source-paths ["src/cljs" "test/cljs" "src/cljc" "test/cljc" "custom-lib"]
+                :source-paths ["src/cljs" "test/cljs" "src/cljc" "test/cljc" "custom-lib" "plugins"]
                 :compiler {:output-to "resources/public/js/compiled/testable.js"
                            :main ventas.test-runner
                            :optimizations :none}}
 
                {:id "min"
-                :source-paths ["src/cljs" "src/cljc" "custom-lib"]
+                :source-paths ["src/cljs" "src/cljc" "custom-lib" "plugins"]
                 :jar true
                 :compiler {:main ventas.core
                            :output-to "resources/public/js/compiled/ventas.js"
@@ -253,8 +253,7 @@
                     :plugins [[lein-figwheel "0.5.4-4"]
                               [lein-doo "0.1.6"]]
 
-                    :source-paths ["dev"]
-                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}
+                    :source-paths ["dev"]}
 
               :repl {:dependencies [[org.clojure/test.check "0.9.0"]
                                     [com.gfredericks/test.chuck "0.2.7"]]}

@@ -118,10 +118,10 @@
   :done)
 
 (defmacro start-frontend []
-  '(do (mount/start #'ventas.user/figwheel #'ventas.user/sass)))
+  '(do (mount/start #'user/figwheel #'user/sass)))
 
 (defmacro reset-frontend []
-  '(do (mount/stop #'ventas.user/figwheel #'ventas.user/sass)
+  '(do (mount/stop #'user/figwheel #'user/sass)
       (tn/refresh)
       (start-frontend)
       (init-aliases)

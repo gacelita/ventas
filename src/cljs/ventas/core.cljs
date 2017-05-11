@@ -31,7 +31,7 @@
             )
   (:require-macros
     [cljs.core.async.macros :as asyncm :refer (go go-loop)]
-    [ventas.util-macros :as util-macros :refer [swap-input-value! require-pages]]))
+    [ventas.util-macros :as util-macros :refer [swap-input-value! require-pages require-plugins]]))
 
 (enable-console-print!)
 (timbre/set-level! :debug)
@@ -40,8 +40,8 @@
 ;; PROBLEM: Bidi's native syntax is about as readable as assembly
 ;; SOLUTION: Compile from new syntax to BAF (Bidi Assembly Format)
 
-;; (map (fn [a] (require [(symbol (str a))])) (filter #(.contains (str %) "ventas.pages") (all-ns)))
 (require-pages)
+(require-plugins)
 
 (def route-names {
   :frontend "Frontend"
