@@ -1,5 +1,7 @@
 (ns ventas.routes
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
+                                                       trace debug info warn error]]))
 
 (comment
   ["/" {"admin/" {"" :backend
@@ -66,6 +68,8 @@
    :url true}])
 
 (def routes (compile-routes raw-routes))
+
+(debug routes)
 
 (defn raw-route [route-kw]
   (first (filter #(= (:route %) route-kw) raw-routes)))

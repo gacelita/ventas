@@ -1,13 +1,10 @@
-(ns ventas.plugin)
-
-(defmulti widget
-  "Widgets multimethod" [name]
-  (fn [name] name))
+(ns ventas.plugin
+  (:refer-clojure :exclude [filter]))
 
 (defmulti action
-  "Actions multimethod" [name]
-  (fn [name] name))
+  "Actions multimethod"
+  (fn [name action] name))
 
 (defmulti filter
-  "Filters multimethod" [name]
-  (fn [name] name))
+  "Filters multimethod"
+  (fn [name filter] name))
