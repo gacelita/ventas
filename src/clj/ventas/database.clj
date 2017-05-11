@@ -103,7 +103,8 @@
                   (d/db db) system-ns)))))
 
 (defn get-enum-values [enum]
-  "Gets the values of a database enum"
+  "Gets the values of a database enum
+   Usage: (get-enum-values \"schema.type\""
   (d/q '[:find ?id ?ident ?value
          :in $ ?enum
          :where [?id :db/ident ?ident]
@@ -154,6 +155,9 @@
 
 (declare entity-query)
 
+(defmulti entity-preseed (fn entity-preseed [data] (keyword (name (:schema/type data)))))
+(defmethod entity-preseed :default [data] data)
+
 (defmulti entity-precreate (fn entity-precreate [data] (keyword (name (:schema/type data)))))
 (defmethod entity-precreate :default [data] data)
 
@@ -174,6 +178,9 @@
 
 (defmulti entity-postquery (fn entity-postquery [entity] (keyword (name (:type entity)))))
 (defmethod entity-postquery :default [entity] entity)
+
+(defmulti entity-postseed (fn entity-postseed [entity] (keyword (name (:type entity)))))
+(defmethod entity-postseed :default [entity] entity)
 
 (defmulti entity-query
   "Multimethod for querying entities"
@@ -260,36 +267,20 @@
     (entity-update (entity-find (:id data)) (dissoc data :id))
     (entity-create type data)))
 
-(defn copy-file [source-path dest-path]
-  (io/copy (io/file source-path) (io/file dest-path)))
-
-(defn find-files*
-  "Find files in `path` by `pred`."
-  [path pred]
-  (filter pred (-> path io/file file-seq)))
-
-(defn find-files
-  "Find files matching given `pattern`."
-  [path pattern]
-  (find-files* path #(re-matches pattern (.getName ^File %))))
+(defn seed-type [type n]
+  "Seeds the database with n entities of a type"
+  (info "Seeding " type)
+  (doseq [entity-data (generate-n (keyword "schema.type" (name type)) n)]
+    (let [entity-data (entity-preseed entity-data)
+          entity (entity-create type entity-data)]
+      (entity-postseed entity))))
 
 (defn seed []
   "Seeds the database with sample data"
-  (info "Seeding taxes")
-  (doseq [tax (generate-n :schema.type/tax 10)]
-    (entity-create :tax tax))
-  (info "Seeding files")
-  (let [seed-files (find-files "resources/seeds/files" (re-pattern ".*?"))]
-    (doseq [entity-data (generate-n :schema.type/file 10)]
-      (let [entity (entity-create :file (-> entity-data (assoc :file/extension :file.extension/jpg)))
-            file (rand-nth seed-files)]
-        (io/copy file (io/file (str "resources/public/img/" (:id entity) ".jpg"))))))
-  (info "Seeding brands")
-  (doseq [brand (generate-n :schema.type/brand 10)]
-    (entity-create :brand brand))
-  (info "Seeding products")
-  (doseq [product (generate-n :schema.type/product 10)]
-    (entity-create :product product)))
+  (seed-type :tax 10)
+  (seed-type :file 10)
+  (seed-type :brand 10)
+  (seed-type :product 10))
 
 
 

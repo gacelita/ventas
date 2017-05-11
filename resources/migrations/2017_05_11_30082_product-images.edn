@@ -1,0 +1,5 @@
+[
+  {:db/ident :product/images
+   :db/valueType :db.type/ref
+   :db/cardinality :db.cardinality/many}
+ ]
