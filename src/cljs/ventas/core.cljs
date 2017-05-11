@@ -28,6 +28,15 @@
             [ventas.routes :refer [route-parents routes]]
             [ventas.pages.interface :as p]
 
+            ;; @todo: Desarrollar algo para automatizar esto
+            [ventas.plugins.featured-products.core]
+            [ventas.pages.backend]
+            [ventas.pages.backend.playground]
+            [ventas.pages.backend.users]
+            [ventas.pages.backend.users.edit]
+            [ventas.pages.frontend]
+            [ventas.pages.frontend.index]
+
             )
   (:require-macros
     [cljs.core.async.macros :as asyncm :refer (go go-loop)]
@@ -37,11 +46,11 @@
 (timbre/set-level! :debug)
 ;; (trace-forms {:tracer (tracer :color "green")}
 
+;; (require-pages)
+;; (require-plugins)
+
 ;; PROBLEM: Bidi's native syntax is about as readable as assembly
 ;; SOLUTION: Compile from new syntax to BAF (Bidi Assembly Format)
-
-(require-pages)
-(require-plugins)
 
 (def route-names {
   :frontend "Frontend"

@@ -30,6 +30,8 @@
 
 (defmethod pages :frontend []
   [skeleton
-    [:h2 "Test frontend"]
-    [plugin/widget :plugins.featured-products/list]])
+    [:div
+      [:h2 "Test frontend"]
+      [plugin/widget :plugins.featured-products/list]
+      [:h3 "Test"]]])
 
