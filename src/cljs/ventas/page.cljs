@@ -1,4 +1,4 @@
-(ns ventas.pages.interface
+(ns ventas.page
   (:require [reagent.session :as session]))
 
 (defmulti pages identity)

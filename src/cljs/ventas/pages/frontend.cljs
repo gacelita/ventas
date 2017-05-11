@@ -5,7 +5,7 @@
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [taoensso.timbre :as timbre :refer-macros [trace debug info warn error]]
-            [ventas.pages.interface :refer [pages]]
+            [ventas.page :refer [pages]]
             [ventas.routes :refer [route-parents routes]]
             [ventas.components.notificator]
             [ventas.util :as util]

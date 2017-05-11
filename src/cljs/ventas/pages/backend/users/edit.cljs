@@ -7,7 +7,7 @@
             [soda-ash.core :as sa]
             [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
                                                        trace debug info warn error]]
-            [ventas.pages.interface :refer [pages]]
+            [ventas.page :refer [pages]]
             [ventas.pages.backend.users :as users-page]
             [ventas.routes :refer [routes]]
             [ventas.util :refer [go-to dispatch-page-event wrap-sa-with-model]]

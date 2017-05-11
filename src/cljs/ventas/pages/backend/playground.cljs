@@ -4,7 +4,7 @@
             [re-frame.core :as rf]
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
-            [ventas.pages.interface :refer [pages]]
+            [ventas.page :refer [pages]]
             [ventas.util :refer [go-to dispatch-page-event]]))
 
 (defmethod pages :backend.playground []

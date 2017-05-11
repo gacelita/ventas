@@ -26,7 +26,7 @@
             [re-frame-tracer.core :refer [tracer]]
 
             [ventas.routes :refer [route-parents routes]]
-            [ventas.pages.interface :as p]
+            [ventas.page :as p]
 
             ;; @todo: Desarrollar algo para automatizar esto
             [ventas.plugins.featured-products.core]
