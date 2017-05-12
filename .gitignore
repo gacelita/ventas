@@ -22,6 +22,6 @@ pom.xml.asc
 
 /resources/public/lib
 /resources/generation/images
-/resources/public/images
+/resources/public/img
 /resources/*.pem
 /resources/config.edn

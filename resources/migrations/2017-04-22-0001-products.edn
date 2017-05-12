@@ -38,7 +38,7 @@
   ;; Tags
 
   {:db/ident :product/tags
-   :db/valueType :db.type/ref
+   :db/valueType :db.type/string
    :db/cardinality :db.cardinality/many}
 
   ;; Taxes

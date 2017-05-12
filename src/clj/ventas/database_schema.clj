@@ -22,9 +22,9 @@
   ([code initial-contents]
     (let [now (time/now)
           date (time-format/unparse (time-format/formatter "yyyy_MM_dd") now)
-          hours (read-string (time-format/unparse (time-format/formatter "hh") now))
-          minutes (read-string (time-format/unparse (time-format/formatter "mm") now))
-          seconds (read-string (time-format/unparse (time-format/formatter "ss") now))
+          hours (read-string (time-format/unparse (time-format/formatter "h") now))
+          minutes (read-string (time-format/unparse (time-format/formatter "m") now))
+          seconds (read-string (time-format/unparse (time-format/formatter "s") now))
           dt-identifier (str date "_" (+ (* 60 60 hours) (* 60 minutes) seconds))]
       (spit (str "resources/migrations/" dt-identifier "_" code ".edn") initial-contents))))
 
