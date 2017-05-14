@@ -156,8 +156,8 @@
 
 (declare entity-query)
 
-(defmulti entity-preseed (fn entity-preseed [data] (keyword (name (:schema/type data)))))
-(defmethod entity-preseed :default [data] data)
+(defmulti entity-preseed (fn entity-preseed [type data] type))
+(defmethod entity-preseed :default [type data] data)
 
 (defmulti entity-precreate (fn entity-precreate [data] (keyword (name (:schema/type data)))))
 (defmethod entity-precreate :default [data] data)
@@ -182,6 +182,15 @@
 
 (defmulti entity-postseed (fn entity-postseed [entity] (keyword (name (:type entity)))))
 (defmethod entity-postseed :default [entity] entity)
+
+(defmulti entity-json
+  "This should return a map to be JSON-encoded and most likely
+   sent to the client. Useful for hiding attributes, resolving EIDs
+   or formatting attributes"
+  (fn [entity] (keyword (name (:type entity)))))
+(defmethod entity-json :default [entity]
+  (-> entity
+    (dissoc :type)))
 
 (defmulti entity-query
   "Multimethod for querying entities"
@@ -272,7 +281,7 @@
   "Seeds the database with n entities of a type"
   (info "Seeding " type)
   (doseq [entity-data (generate-n (keyword "schema.type" (name type)) n)]
-    (let [entity-data (entity-preseed entity-data)
+    (let [entity-data (entity-preseed type entity-data)
           entity (entity-create type entity-data)]
       (entity-postseed entity))))
 

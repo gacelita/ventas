@@ -58,11 +58,11 @@
 
   {:route :frontend
    :name "Inicio"
-   :url "frontend/"}
+   :url "frontend"}
 
   {:route :frontend.index
    :name "Índice"
-   :url "index"}
+   :url "/index"}
 
   {:route :not-found
    :url true}])

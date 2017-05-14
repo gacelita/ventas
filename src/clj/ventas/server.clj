@@ -172,6 +172,9 @@
        :email (:user/email a)}) (concat (map :friendship/target (:friendship/_source results))
                                         (map :friendship/source (:friendship/_target results))))))
 
+(defmethod ws-request-handler :products/list [message state]
+  (db/entity-query :product))
+
 ;; As of now this function is insecure (leaks sensitive data)
 ;; @todo Implement db-wide auth filter
 (defmethod ws-request-handler :db.pull [message state]
