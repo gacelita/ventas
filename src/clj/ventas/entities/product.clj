@@ -50,5 +50,13 @@
       (dissoc :type)
       (dissoc :created-at)
       (dissoc :updated-at)
-      (update :condition #(keyword (name %)))
-      (update :tax #(db/entity-json (db/entity-find %)))))
+      (#(if-let [c (:condition %1)]
+          (assoc %1 :condition (keyword (name c)))
+          %1))
+      (#(if-let [t (:tax %1)]
+          (assoc %1 :tax (db/entity-json (db/entity-find t)))
+          %1))
+      (#(if-let [imgs (:images %1)]
+          (assoc %1 :images (map (comp db/entity-json db/entity-find) imgs))
+          %1))
+))
