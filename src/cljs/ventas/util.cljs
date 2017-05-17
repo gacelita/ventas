@@ -11,6 +11,9 @@
   (debug "Going to" route route-params)
   (accountant/navigate! (apply bidi/path-for (concat [routes route] (first (seq route-params))))))
 
+(defn route-param [kw]
+  (get-in (session/get :route) [:route-params kw]))
+
 (defn dispatch-page-event [data]
   (debug "Dispatching: " (keyword (:current-page (session/get :route)) (name (get data 0))))
   (rf/dispatch (assoc data 0 (keyword (:current-page (session/get :route)) (name (get data 0))))))

@@ -36,6 +36,7 @@
             [ventas.pages.backend.users.edit]
             [ventas.pages.frontend]
             [ventas.pages.frontend.index]
+            [ventas.pages.frontend.product]
 
             )
   (:require-macros

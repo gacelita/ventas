@@ -1,5 +1,5 @@
 (defproject ventas "0.0.1"
-  :description "The Bubbles Social Network"
+  :description "The Ventas eCommerce platform"
   :url "https://kazer.es"
   :license {:name "GPL"
             :url "https://opensource.org/licenses/GPL-2.0"}
@@ -25,9 +25,12 @@
                                                     com.sun.jmdk/jmxtools
                                                     com.sun.jmx/jmxri]]
 
-                 ;; JSON and Transit
+                 ;; JSON, Transit and Fressian
                  [org.clojure/data.json "0.2.6"]
+                 [cheshire "5.5.0"]
                  [com.cognitect/transit-clj "0.8.297"]
+                 [com.cognitect/transit-cljs "0.8.220"]
+                 [org.clojure/data.fressian "0.2.1"]
 
                  ;; Server-side HTTP requests
                  [clj-http "2.3.0"]
@@ -44,12 +47,6 @@
                  ; Authentication
                  [buddy "1.2.0"]
 
-                 [cheshire "5.5.0"]
-
-                 [com.cognitect/transit-clj "0.8.275"]
-                 [com.cognitect/transit-cljs "0.8.220"]
-                 
-                 [org.clojure/data.fressian "0.2.1"]
                  ;; [longshi "0.1.4"]
                  ; [net.unit8/fressian-cljs "0.2.0"]
 
@@ -93,7 +90,6 @@
                  ;; Database
                  [com.datomic/datomic-pro "0.9.5394" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.4.0"]
-                 [im.chit/adi "0.3.4"]
 
                  ;; Text colors
                  [io.aviso/pretty "0.1.33"]
@@ -108,11 +104,15 @@
                  [byte-streams "0.2.2"]
                  [com.novemberain/pantomime "2.9.0"]
 
-                 ;; GraphQL
-                 [com.walmartlabs/lacinia "0.15.0" :exclusions [clojure-future-spec]]
-
+                 ;; DateTime
                  [clj-time "0.13.0"]
 
+                 ;; LocalStorage
+                 [alandipert/storage-atom "2.0.1"]
+
+                 ;; Generators
+                 [org.clojure/test.check "0.9.0"]
+                 [com.gfredericks/test.chuck "0.2.7"]
 
                  ;;
                  ;; Debugging
@@ -127,10 +127,6 @@
                  ;; re-frame debugging
                  [org.clojars.stumitchell/clairvoyant "0.2.0"]
                  [day8/re-frame-tracer "0.1.1-SNAPSHOT"]
-
-                 ;; Generators
-                 [org.clojure/test.check "0.9.0"]
-                 [com.gfredericks/test.chuck "0.2.7"]
 
                 ]
 

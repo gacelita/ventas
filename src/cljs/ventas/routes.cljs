@@ -64,6 +64,10 @@
    :name "Índice"
    :url "/index"}
 
+  {:route :frontend.product
+   :name "Producto"
+   :url ["/product/" :id]}
+
   {:route :not-found
    :url true}])
 
