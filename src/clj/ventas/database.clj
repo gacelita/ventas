@@ -30,29 +30,75 @@
   (print-info "Stopping database"))
 (defstate db :start (start-db!) :stop (stop-db! db))
 
-(defn entity-spec [data]
+(defn entity-spec
   "Checks that an entity complies with its spec"
+  [data]
   (if (s/valid? (:schema/type data) data)
      data
      (throw+ {:type ::spec-invalid :message (s/explain (:schema/type data) data)})))
 
-(defn generate-1 [spec]
+(defn generate-1
   "Generate one sample of a given spec"
+  [spec]
   (gen/generate (s/gen spec)))
 
-(defn generate-n [spec n]
+(defn generate-n
   "Generates n samples of given spec"
+  [spec n]
   (let [generator (s/gen spec)]
     (map (fn [_] (gen/generate generator)) (range n))))
 
-(defn get-partitions []
+(defn basis-t
+  "Gets the last t"
+  []
+  (-> db d/db d/basis-t))
+
+(defn get-transaction
+  "Gets a transaction by t"
+  [t]
+  (-> db d/log (d/tx-range t nil) first))
+
+(defn datom->map
+  [^datomic.Datom datom]
+  (let [e  (.e datom)
+        a  (.a datom)
+        v  (.v datom)
+        tx (.tx datom)
+        added (.added datom)]
+    {:e (or (d/ident (d/db db) e) e)
+     :a (or (d/ident (d/db db) a) a)
+     :v (or (and (= :db.type/ref (:db/valueType (d/entity (d/db db) a)))
+              (d/ident (d/db db) v))
+         v)
+     :tx (d/tx->t tx)
+     :added added}))
+
+(defn rollback
+  "Reassert retracted datoms and retract asserted datoms in a transaction,
+  effectively 'undoing' the transaction."
+  ([] (rollback (basis-t)))
+  ([t]
+    (let [tx (get-transaction t)
+          tx-eid   (-> tx :t d/t->tx)
+          new-datoms (->> (:data tx)
+                          ; Remove transaction-metadata datoms
+                          (remove #(= (:e %) tx-eid))
+                          ; Invert the datoms add/retract state.
+                          (map #(do [(if (:added %) :db/retract :db/add) (:e %) (:a %) (:v %)]))
+                          ; Reverse order of inverted datoms.
+                          reverse)]
+      @(d/transact db new-datoms))))
+
+(defn get-partitions
   "Gets the partitions of the database"
+  []
   (d/q '[:find ?ident :where [:db.part/db :db.install/partition ?p]
                              [?p :db/ident ?ident]]
        (d/db db)))
 
-(defn entity-dates [eid]
+(defn entity-dates
   "First and last dates associated with an eid"
+  [eid]
   (first (d/q '[:find (min ?tx-time) (max ?tx-time)
                 :in $ ?e
                 :where
@@ -60,38 +106,44 @@
                   [?tx :db/txInstant ?tx-time]]
             (d/history (d/db db)) eid)))
 
-(defn touch-eid [eid]
+(defn touch-eid
   "Touches an entity by EID"
+  [eid]
   (into {} (d/touch (d/entity (d/db db) eid))))
 
-(defn get-entity [eid]
+(defn get-entity
   "Gets an entity with ID and dates"
+  [eid]
   (let [dates (entity-dates eid)]
     (-> (touch-eid eid)
         (assoc :id eid)
         (assoc :created-at (get dates 0))
         (assoc :updated-at (get dates 1)))))
 
-(defn EntityMaps->eids [m]
+(defn EntityMaps->eids
   "EntityMap -> eid"
+  [m]
   (into {}
     (for [[k v] m]
       [k (if (instance? datomic.query.EntityMap v) (:db/id v) v)])))
 
-(defn process-db-entity [data]
+(defn process-db-entity
   "Processes an entity from the database"
+  [data]
   (-> data
       (util/dequalify-keywords)
       (EntityMaps->eids)))
 
-(defn process-transaction [type tx tempid]
+(defn process-transaction
   "Returns an entity from a transaction"
+  [type tx tempid]
   (-> (d/resolve-tempid (d/db db) (:tempids tx) tempid)
       (get-entity)
       (process-db-entity)))
 
-(defn get-schema []
+(defn get-schema
   "Gets the current database schema"
+  []
   (let [system-ns #{"db" "db.alter" "db.sys" "db.type" "db.install" "db.part" 
                     "db.lang" "fressian" "db.unique" "db.excise" "db.cardinality" "db.fn"}]
     (map touch-eid
@@ -103,9 +155,10 @@
                           [_ :db.install/attribute ?e]]
                   (d/db db) system-ns)))))
 
-(defn get-enum-values [enum]
+(defn get-enum-values
   "Gets the values of a database enum
    Usage: (get-enum-values \"schema.type\""
+  [enum]
   (d/q '[:find ?id ?ident ?value
          :in $ ?enum
          :where [?id :db/ident ?ident]
@@ -113,16 +166,19 @@
                 [(namespace ?ident) ?ns]
                 [(= ?ns ?enum)]] (d/db db) enum))
 
-(defn retract-entity [eid]
+(defn retract-entity
   "Retract an entity by eid"
+  [eid]
   @(d/transact db [[:db.fn/retractEntity eid]]))
 
-(defn pull [& args]
+(defn pull
   "Small pull helper"
+  [& args]
   (apply d/pull (concat [(d/db db)] args)))
 
-(defn read-changes [{:keys [db-after tx-data] :as report} query]
+(defn read-changes
   "Given a report from tx-report-queue and a query, gets the changes"
+  [{:keys [db-after tx-data] :as report} query]
   (d/q query
        db-after
        tx-data))
@@ -208,8 +264,9 @@
     (let [results (entity-filtered-query type wheres params)]
       (map (fn [[eid]] (entity-postquery (process-db-entity (get-entity eid)))) results))))
 
-(defn entity-find [eid]
+(defn entity-find
   "Finds entities by eid"
+  [eid]
   (process-db-entity (get-entity eid)))
 
 (defmulti entity-create

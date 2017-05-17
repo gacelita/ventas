@@ -18,9 +18,10 @@
 (defn qualify-keyword [kw ns]
   (keyword (name ns) (name kw)))
 
-(defn qualify-map-keywords [ks ns]
+(defn qualify-map-keywords
 	"Qualifies the keywords used as keys in a map.
 	 Accepts a map with keywords as keys and a namespace represented as keyword."
+  [ks ns]
 	(into {}
 		(for [[k v] ks]
 			[(qualify-keyword k ns) v])))

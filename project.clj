@@ -128,6 +128,10 @@
                  [org.clojars.stumitchell/clairvoyant "0.2.0"]
                  [day8/re-frame-tracer "0.1.1-SNAPSHOT"]
 
+                 ;; Generators
+                 [org.clojure/test.check "0.9.0"]
+                 [com.gfredericks/test.chuck "0.2.7"]
+
                 ]
 
   :plugins [[lein-cljsbuild "1.1.3"]
@@ -140,7 +144,7 @@
 
   :min-lein-version "2.6.1"
 
-  :source-paths ["src/clj" "src/cljs" "src/cljc" "custom-lib" "plugins"]
+  :source-paths ["src/clj" "src/cljs" "src/cljc" "custom-lib"]
 
   :test-paths ["test/clj" "test/cljc"]
 
@@ -163,7 +167,7 @@
 
   :cljsbuild {:builds
               [{:id "app"
-                :source-paths ["src/cljs" "src/cljc" "custom-lib" "plugins"]
+                :source-paths ["src/cljs" "src/cljc" "custom-lib"]
 
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
 
@@ -176,13 +180,13 @@
                            :preloads [devtools.preload]}}
 
                {:id "test"
-                :source-paths ["src/cljs" "test/cljs" "src/cljc" "test/cljc" "custom-lib" "plugins"]
+                :source-paths ["src/cljs" "test/cljs" "src/cljc" "test/cljc" "custom-lib"]
                 :compiler {:output-to "resources/public/js/compiled/testable.js"
                            :main ventas.test-runner
                            :optimizations :none}}
 
                {:id "min"
-                :source-paths ["src/cljs" "src/cljc" "custom-lib" "plugins"]
+                :source-paths ["src/cljs" "src/cljc" "custom-lib"]
                 :jar true
                 :compiler {:main ventas.core
                            :output-to "resources/public/js/compiled/ventas.js"
@@ -254,9 +258,6 @@
                               [lein-doo "0.1.6"]]
 
                     :source-paths ["dev"]}
-
-              :repl {:dependencies [[org.clojure/test.check "0.9.0"]
-                                    [com.gfredericks/test.chuck "0.2.7"]]}
 
               :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                         :prep-tasks ["compile" ["cljsbuild" "once" "min"]]

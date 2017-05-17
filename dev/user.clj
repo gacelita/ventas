@@ -6,7 +6,8 @@
             [clojure.tools.namespace.repl :as tn]
             [clojure.stacktrace :as st :refer [print-stack-trace]]
             [ventas.util :refer [print-info]]
-            [adi.core :as adi]))
+            [adi.core :as adi]
+            [clojure.repl :refer :all]))
 
 ;; Let Clojure warn you when it needs to reflect on types, or when it does math
 ;; on unboxed numbers. In both cases you should add type annotations to prevent
@@ -25,10 +26,11 @@
 ;; - For changing the configuration (originally fetched from config.edn), use the "set-config" macro below
 ;; - You can load some useful aliases by calling "init-aliases"
 
-(defmacro init-aliases []
+(defmacro init-aliases
   "A macro for initializing any aliases that may be useful during development.
    Very different from (:requiring :as...) in this namespace's ns form, since that 
    would make our REPL unbootable if the application does not compile"
+  []
   `(do
       (~'ns-unalias ~''user ~''config)
       (~'ns-unalias ~''user ~''server)
@@ -45,16 +47,18 @@
       (~'alias ~''adi 'adi.core)
       (~'alias ~''util 'ventas.util)))
 
-(defmacro set-config [k v]
+(defmacro set-config
   "A macro for setting configuration values on runtime.
   Usage: (set-config cljs-port 3001)"
+  [k v]
   `(do (~'ns ventas.config)
        (~'def ~k ~v)
        (~'ns ~'user)))
 
-(defmacro add-dependency [dependency]
+(defmacro add-dependency
   "A macro for adding a dependency via Pomegranate.
    Usage: (add-dependency [incanter \"1.2.3\"])"
+  [dependency]
   `(do (~'use '[cemerick.pomegranate :only (~'add-dependencies)])
        (~'add-dependencies :coordinates '[~dependency]
          :repositories (~'merge cemerick.pomegranate.aether/maven-central
@@ -86,7 +90,7 @@
 (defn sass-start []
   (future
     (print-info "Starting SASS")
-    (def sass-process (sh/proc "lein" "auto" "sassc" "once"))))
+    (alter-var-root #'sass-process (sh/proc "lein" "auto" "sassc" "once"))))
 
 (defn sass-stop []
   (future

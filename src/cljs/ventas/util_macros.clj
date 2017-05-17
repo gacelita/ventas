@@ -1,6 +1,4 @@
-(ns ventas.util-macros
-  (:require [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
-                                                       trace debug info warn error]]))
+(ns ventas.util-macros)
 
 (defmacro swap-input-value! [where name e]
   `(~'swap! ~where ~'assoc ~name (~'-> ~e .-target .-value)))

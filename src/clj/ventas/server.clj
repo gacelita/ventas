@@ -103,10 +103,6 @@
 ;; Multimétodo para eventos enviados por ws (dispatch on name)
 (defmulti ws-event-handler (fn [message client-id ws-channel req] (:name message)))
 
-;; Event handler, doing totally nothing for the time being
-(defn ws-event-handler [message state]
-  true)
-
 ;; Request handler, which is a multimethod
 (defmulti ws-request-handler (fn [message state] (:name message)))
 
@@ -367,9 +363,9 @@
 (def http-debug-handler (wrap-reload http-handler {:dirs ["src/clj"]}))
 
 ;; Server lifecycle
-(defn stop-server! [server]
+(defn stop-server! [stop-fn]
   (print-info "Stopping server")
-  (when (ifn? server) (server)))
+  (when (ifn? stop-fn) (stop-fn)))
 
 (defn start-server! [& [port]]
   (print-info "Starting server")
