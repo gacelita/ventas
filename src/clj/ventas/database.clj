@@ -271,26 +271,34 @@
       (entity-postdelete (entity-type this) this)
       (:id this)))
 
-(defn entity-upsert [type data]
+(defn entity-upsert
   "Entity upsert. Calls entity-update if necessary, entity-create otherwise"
+  [type data]
   (if (:id data)
     (entity-update (entity-find (:id data)) (dissoc data :id))
     (entity-create type data)))
 
-(defn seed-type [type n]
+(defn seed-type
   "Seeds the database with n entities of a type"
+  [type n]
   (info "Seeding " type)
   (doseq [entity-data (generate-n (keyword "schema.type" (name type)) n)]
     (let [entity-data (entity-preseed type entity-data)
           entity (entity-create type entity-data)]
       (entity-postseed entity))))
 
-(defn seed []
+(defn seed
   "Seeds the database with sample data"
+  []
   (seed-type :tax 10)
   (seed-type :file 10)
   (seed-type :brand 10)
-  (seed-type :product 10))
+  (seed-type :configuration 20)
+  (seed-type :attribute 10)
+  (seed-type :attribute-value 10)
+  (seed-type :category 10)
+  (seed-type :product 10)
+  (seed-type :product-variation 10))
 
 
 
