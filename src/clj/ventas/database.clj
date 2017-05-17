@@ -73,6 +73,9 @@
      :tx (d/tx->t tx)
      :added added}))
 
+(defn transaction->map [tx]
+  (update tx :data #(map datom->map %)))
+
 (defn rollback
   "Reassert retracted datoms and retract asserted datoms in a transaction,
   effectively 'undoing' the transaction."
@@ -112,11 +115,14 @@
   (into {} (d/touch (d/entity (d/db db) eid))))
 
 (defn get-entity
-  "Gets an entity with ID and dates"
+  "Gets an entity with its ID"
   [eid]
-  (let [dates (entity-dates eid)]
-    (-> (touch-eid eid)
-        (assoc :id eid)
+  (-> (touch-eid eid)
+      (assoc :id eid)))
+
+(defn assoc-entity-dates [entity]
+  (let [dates (entity-dates (:id entity))]
+    (-> entity
         (assoc :created-at (get dates 0))
         (assoc :updated-at (get dates 1)))))
 
@@ -125,14 +131,24 @@
   [m]
   (into {}
     (for [[k v] m]
-      [k (if (instance? datomic.query.EntityMap v) (:db/id v) v)])))
+      [k (cond
+           (instance? datomic.query.EntityMap v) (:db/id v)
+           (set? v)
+             (cond
+               (instance? datomic.query.EntityMap (first v)) (map :db/id v)
+               :else v)
+           :else v)])))
 
 (defn process-db-entity
-  "Processes an entity from the database"
+  "Processes an entity from the database:
+    - Dequalifies keywords (schema.type -> type)
+    - Converts EntityMaps to simple eids
+    - Assocs created-at and updated-at"
   [data]
   (-> data
       (util/dequalify-keywords)
-      (EntityMaps->eids)))
+      (EntityMaps->eids)
+      (assoc-entity-dates)))
 
 (defn process-transaction
   "Returns an entity from a transaction"
@@ -154,6 +170,16 @@
                           [((comp not contains?) ?system-ns ?ns)]
                           [_ :db.install/attribute ?e]]
                   (d/db db) system-ns)))))
+
+(defn get-attributes
+  "Gets all attributes. This is a superset of the schema."
+  []
+  (map touch-eid
+       (sort (d/q '[:find [?ident ...]
+                    :where [?e :db/ident ?ident]
+                    [(namespace ?ident) ?ns]
+                    [_ :db.install/attribute ?e]]
+                  (d/db db)))))
 
 (defn get-enum-values
   "Gets the values of a database enum
@@ -193,15 +219,21 @@
                '(:in) (:in m)
                '(:where) (:where m))))
 
+(defn- filtered-query* [wheres filters]
+  (map->query {:in (concat ['$] (remove nil? (map keyword->db-symbol (keys filters))))
+               :where wheres
+               :find '(?id)}))
+
 (defn filtered-query
   "Filtered query.
    Usage: (filtered-query (quote ([?id :user/email ?email])) {:email \"some-email@example.com\"})"
   ([] (filtered-query '() {}))
   ([wheres] (filtered-query wheres {}))
   ([wheres filters]
-   (let [ins (concat ['$] (remove nil? (map keyword->db-symbol (keys filters))))
-         query (map->query {:in ins :where wheres :find '(?id)})]
-     (apply d/q (concat [query (d/db db)] (vals filters))))))
+    (let [query (filtered-query* wheres filters)]
+      (apply d/q (concat [query (d/db db)] (vals filters))))))
+
+
 
 (defn entity-filtered-query
   "@todo Refactor me"
@@ -243,7 +275,9 @@
   "This should return a map to be JSON-encoded and most likely
    sent to the client. Useful for hiding attributes, resolving EIDs
    or formatting attributes"
-  (fn [entity] (keyword (name (:type entity)))))
+  (fn [entity]
+    (println entity)
+    (keyword (name (:type entity)))))
 (defmethod entity-json :default [entity]
   (-> entity
     (dissoc :type)))
