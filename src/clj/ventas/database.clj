@@ -7,7 +7,6 @@
     [clojure.walk :as walk]
     [clojure.pprint :as p]
     [datomic.api :as d]
-    [adi.core :as adi]
     [buddy.hashers :as hashers]
     [mount.core :as mount :refer [defstate]]
     [ventas.config :refer [config]]

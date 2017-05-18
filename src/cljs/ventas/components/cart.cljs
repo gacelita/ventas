@@ -4,7 +4,8 @@
             [clojure.string :as s]
             [soda-ash.core :as sa]
             [bidi.bidi :as bidi]
-            [ventas.routes :refer [routes]]))
+            [ventas.routes :refer [routes]]
+            [ventas.local-storage :as storage]))
 
 (rf/reg-sub :components/cart
   (fn [db _] (-> db :components/cart)))
@@ -14,11 +15,11 @@
     {:ws-request {:name :products/list
                   :success-fn #(rf/dispatch [:app/entity-query.next [:components/product-list] %])}}))
 
-(defn cart []
+(defn sidebar []
   "Cart"
   (rf/dispatch [:components/cart])
   (fn []
-    [:div.bu.product-list
+    [:div.ventas.cart-sidebar
      (for [product @(rf/subscribe [:components/product-list])]
        [:div.bu.product-listing
         [:a {:href (bidi/path-for routes :frontend.product :id (:id product)) } (:name product)]

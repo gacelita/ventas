@@ -9,6 +9,7 @@
             [ventas.routes :refer [route-parents routes]]
             [ventas.components.notificator]
             [ventas.components.product-listing :refer [products-list]]
+            [ventas.components.cart :as cart]
             [ventas.util :as util]
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
@@ -17,17 +18,18 @@
   (info "Rendering...")
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
-    [:div {:class "bu root"}
+    [:div.bu.root
       ; [bu-debugger]
       [ventas.components.notificator/bu-notificator]
-      [:div {:class "bu wrapper"}
+      [:div.bu.wrapper
         [sa/Container {:class "bu main"}
           [sa/Breadcrumb
             (util/interpose-fn (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
               (for [breadcrumb (util/breadcrumbs current-page route-params)]
                 [sa/BreadcrumbSection {:key (:route breadcrumb) :href (:url breadcrumb)} (:name breadcrumb)]))]
           [sa/Divider]
-          ^{:key current-page} contents]]]))
+          ^{:key current-page} contents]
+       [cart/sidebar]]]))
 
 (defmethod pages :frontend []
   [skeleton

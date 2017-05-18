@@ -6,7 +6,6 @@
             [clojure.tools.namespace.repl :as tn]
             [clojure.stacktrace :as st :refer [print-stack-trace]]
             [ventas.util :refer [print-info]]
-            [adi.core :as adi]
             [clojure.repl :refer :all]))
 
 ;; Let Clojure warn you when it needs to reflect on types, or when it does math
@@ -44,7 +43,6 @@
       (~'alias ~''db 'ventas.database)
       (~'alias ~''schema 'ventas.database-schema)
       (~'alias ~''d 'datomic.api)
-      (~'alias ~''adi 'adi.core)
       (~'alias ~''util 'ventas.util)))
 
 (defmacro set-config
