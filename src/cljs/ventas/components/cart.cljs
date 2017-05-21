@@ -12,16 +12,11 @@
 
 (rf/reg-event-fx :components/cart
   (fn [cofx [_]]
-    {:ws-request {:name :products/list
-                  :success-fn #(rf/dispatch [:app/entity-query.next [:components/product-list] %])}}))
+    {:db (assoc-in cofx [:db :cart] (get-in cofx [:local-storage :cart]))}))
 
 (defn sidebar []
   "Cart"
   (rf/dispatch [:components/cart])
   (fn []
     [:div.ventas.cart-sidebar
-     (for [product @(rf/subscribe [:components/product-list])]
-       [:div.bu.product-listing
-        [:a {:href (bidi/path-for routes :frontend.product :id (:id product)) } (:name product)]
-        (for [image (:images product)]
-          [:img {:src (:url image)}])])]))
+     [:pre (.stringify js/JSON (clj->js @(rf/subscribe [:components/cart])) nil 2)]]))

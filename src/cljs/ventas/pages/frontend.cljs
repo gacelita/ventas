@@ -22,14 +22,27 @@
       ; [bu-debugger]
       [ventas.components.notificator/bu-notificator]
       [:div.bu.wrapper
+
+        [ventas.themes.mariscosriasbajas.components.preheader/preheader]
+
+        [:div.ventas.header
+          [:div.ui.container
+            [:div.ventas.header__logo
+              [:a {:href (util/get-configuration :site-title)}
+                [:img {:src (util/get-resource-url :logo)}]]]
+            [:div.ventas.header__info
+              [:div.ventas.header__shipping
+                ]]
+            ]]
+
         [sa/Container {:class "bu main"}
           [sa/Breadcrumb
             (util/interpose-fn (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
               (for [breadcrumb (util/breadcrumbs current-page route-params)]
                 [sa/BreadcrumbSection {:key (:route breadcrumb) :href (:url breadcrumb)} (:name breadcrumb)]))]
           [sa/Divider]
-          ^{:key current-page} contents]
-       [cart/sidebar]]]))
+          ^{:key current-page} contents]]
+      [cart/sidebar]]))
 
 (defmethod pages :frontend []
   [skeleton

@@ -1,0 +1,17 @@
+[
+
+ {:db/ident :resource/keyword
+  :db/valueType :db.type/keyword
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :resource/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :resource/file
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one}
+
+ {:db/ident :schema.type/resource}
+
+ ]

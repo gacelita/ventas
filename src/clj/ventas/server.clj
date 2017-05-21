@@ -168,6 +168,18 @@
        :email (:user/email a)}) (concat (map :friendship/target (:friendship/_source results))
                                         (map :friendship/source (:friendship/_target results))))))
 
+;; @todo
+;;   Returns null pointer exception on unexistent keyword
+;;   Exception when not given the keyword parameter
+(defmethod ws-request-handler :resource/get [message state]
+  (db/entity-json (first (db/entity-query :resource {:keyword (get-in message [:params :keyword])}))))
+
+;; @todo
+;;   Returns null pointer exception on unexistent keyword
+;;   Exception when not given the key parameter
+(defmethod ws-request-handler :configuration/get [message state]
+  (db/entity-json (first (db/entity-query :configuration {:key (get-in message [:params :key])}))))
+
 (defmethod ws-request-handler :products/get [message state]
   (db/entity-json (db/entity-find (read-string (get-in message [:params :id])))))
 

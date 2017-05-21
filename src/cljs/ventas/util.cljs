@@ -44,13 +44,15 @@
   ([sep coll]
    (drop 1 (interleave (repeatedly sep) coll))))
 
-(defn wrap-with-model [data]
+(defn wrap-with-model
   "Wraps a component with a model binding"
+  [data]
     (-> data (assoc :default-value (get @(:model data) (keyword (:name data))))
              (assoc :on-change #(swap! (:model data) assoc (keyword (:name data)) (do (debug "setting " (-> % .-target .-value)) (-> % .-target .-value))))))
 
-(defn wrap-sa-with-model [data]
+(defn wrap-sa-with-model
   "Wraps a Soda-Ash component with a model binding"
+  [data]
   (-> data (assoc :default-value (get @(:model data) (keyword (:name data))))
              (assoc :on-change (fn [e field-data]
                                   (js/console.log "field-data: " field-data)
@@ -62,3 +64,22 @@
   (map (fn [route] {:url (apply bidi/path-for (concat [routes route] (first (seq route-params))))
                     :name (:name (raw-route route))
                     :route route}) (route-parents current-route)))
+
+(defn get-resource-url [resourceId]
+  (debug "get-resource-url")
+  (let [sub-kw (keyword "resources" (str resourceId))]
+    (rf/reg-sub sub-kw
+                (fn [db _] (-> db sub-kw)))
+    (rf/dispatch [:effects/ws-request {:name :resource/get
+                               :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
+    @(rf/subscribe [sub-kw])))
+
+(defn get-configuration [kw]
+  (debug "get-configuration")
+  (let [sub-kw (keyword "configuration" (str kw))]
+    (rf/reg-sub sub-kw
+      (fn [db _] (-> db sub-kw)))
+    (rf/dispatch [:effects/ws-request {:name :configuration/get
+                               :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
+    @(rf/subscribe [sub-kw])))
+

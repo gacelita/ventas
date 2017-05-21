@@ -384,6 +384,7 @@
   (seed-type :file 10)
   (seed-type :brand 10)
   (seed-type :configuration 20)
+  (seed-type :resource 5)
   (seed-type :attribute 10)
   (seed-type :attribute-value 10)
   (seed-type :category 10)

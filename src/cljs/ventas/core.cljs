@@ -37,6 +37,7 @@
             [ventas.pages.frontend]
             [ventas.pages.frontend.index]
             [ventas.pages.frontend.product]
+            [ventas.themes.mariscosriasbajas.components.preheader]
 
             )
   (:require-macros
