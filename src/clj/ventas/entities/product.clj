@@ -58,5 +58,4 @@
           %1))
       (#(if-let [imgs (:images %1)]
           (assoc %1 :images (map (comp db/entity-json db/entity-find) imgs))
-          %1))
-))
+          %1))))

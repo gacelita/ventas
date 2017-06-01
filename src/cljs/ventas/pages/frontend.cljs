@@ -8,6 +8,7 @@
             [ventas.page :refer [pages]]
             [ventas.routes :refer [route-parents routes]]
             [ventas.components.notificator]
+            [ventas.components.popup]
             [ventas.components.product-listing :refer [products-list]]
             [ventas.components.cart :as cart]
             [ventas.util :as util]
@@ -20,21 +21,11 @@
         route-params (:route-params (session/get :route))]
     [:div.bu.root
       ; [bu-debugger]
-      [ventas.components.notificator/bu-notificator]
+      [ventas.components.notificator/notificator]
+      [ventas.components.popup/popup]
       [:div.bu.wrapper
-
         [ventas.themes.mariscosriasbajas.components.preheader/preheader]
-
-        [:div.ventas.header
-          [:div.ui.container
-            [:div.ventas.header__logo
-              [:a {:href (util/get-configuration :site-title)}
-                [:img {:src (util/get-resource-url :logo)}]]]
-            [:div.ventas.header__info
-              [:div.ventas.header__shipping
-                ]]
-            ]]
-
+        [ventas.themes.mariscosriasbajas.components.header/header]
         [sa/Container {:class "bu main"}
           [sa/Breadcrumb
             (util/interpose-fn (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])

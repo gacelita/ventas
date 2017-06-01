@@ -28,6 +28,8 @@
             [ventas.routes :refer [route-parents routes]]
             [ventas.page :as p]
 
+            [forest.macros :refer-macros [defstylesheet]]
+
             ;; @todo: Desarrollar algo para automatizar esto
             [ventas.plugins.featured-products.core]
             [ventas.pages.backend]
@@ -37,7 +39,9 @@
             [ventas.pages.frontend]
             [ventas.pages.frontend.index]
             [ventas.pages.frontend.product]
+            [ventas.pages.datadmin]
             [ventas.themes.mariscosriasbajas.components.preheader]
+            [ventas.themes.mariscosriasbajas.components.header]
 
             )
   (:require-macros
@@ -127,11 +131,16 @@
 
 (defn effect-ws-request [request]
   (ws/send-request!
-    {:name (:name request)
-     :params (:params request)
-     :request-params (:request-params request)
-     :callback  #(cond (:success request) (rf/dispatch [(:success request) (:data %1)])
-                       (:success-fn request) ((:success-fn request) (:data %1)))}))
+   {:name (:name request)
+    :params (:params request)
+    :request-params (:request-params request)
+    :callback (fn [data] (cond
+                           (not (:success data))
+                             (rf/dispatch [:components.popup/show "Error" (:data data)])
+                           (:success request)
+                             (rf/dispatch [(:success request) (:data data)])
+                           (:success-fn request)
+                             ((:success-fn request) (:data data))))}))
 
 (def ws-upload-chunk-size (* 1024 50))
 (defn effect-ws-upload-request
@@ -240,21 +249,6 @@
 (defmethod page-end :default [_ _]
   (debug "No end function")
   {})
-
-(rf/reg-event-db :app/notifications.add
-  (fn event-notifications-add [db [_ notification]]
-    (let [sym (gensym)
-          notification (assoc notification :sym sym)]
-      (go
-        (<! (timeout 4000))
-        (rf/dispatch [:app/notifications.remove sym]))
-      (if (vector? (:notifications db))
-        (assoc db :notifications (conj (:notifications db) notification))
-        (assoc db :notifications [notification])))))
-
-(rf/reg-event-db :app/notifications.remove
-  (fn event-notifications-remove [db [_ sym]]
-    (assoc db :notifications (remove #(= (:sym %) sym) (:notifications db)))))
 
 (rf/reg-event-fx :backend.users/edit
   (fn event-users-edit [cofx [_ data]]

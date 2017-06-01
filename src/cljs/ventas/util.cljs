@@ -65,21 +65,23 @@
                     :name (:name (raw-route route))
                     :route route}) (route-parents current-route)))
 
-(defn get-resource-url [resourceId]
+(defn sub-resource-url [resourceId]
   (debug "get-resource-url")
   (let [sub-kw (keyword "resources" (str resourceId))]
     (rf/reg-sub sub-kw
                 (fn [db _] (-> db sub-kw)))
     (rf/dispatch [:effects/ws-request {:name :resource/get
-                               :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
-    @(rf/subscribe [sub-kw])))
+                                       :params {:keyword resourceId}
+                                       :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
+    sub-kw))
 
-(defn get-configuration [kw]
+(defn sub-configuration [kw]
   (debug "get-configuration")
   (let [sub-kw (keyword "configuration" (str kw))]
     (rf/reg-sub sub-kw
       (fn [db _] (-> db sub-kw)))
     (rf/dispatch [:effects/ws-request {:name :configuration/get
-                               :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
-    @(rf/subscribe [sub-kw])))
+                                       :params {:key kw}
+                                       :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
+    sub-kw))
 

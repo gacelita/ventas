@@ -6,7 +6,10 @@
             [clojure.tools.namespace.repl :as tn]
             [clojure.stacktrace :as st :refer [print-stack-trace]]
             [ventas.util :refer [print-info]]
-            [clojure.repl :refer :all]))
+            [clojure.repl :refer :all]
+            [async-watch.core :as watch]
+            [clojure.core.async :refer [>! <! go close!]]
+            [fqcss.core :as fqcss]))
 
 ;; Let Clojure warn you when it needs to reflect on types, or when it does math
 ;; on unboxed numbers. In both cases you should add type annotations to prevent
@@ -82,6 +85,28 @@
 (defstate figwheel :start (figwheel-start) :stop (figwheel-stop))
 
 
+;; FQCSS
+
+(defn fqcss-start []
+  (print-info "Starting fqcss")
+  (let [changes (watch/changes-in "src/fqcss")]
+    (go (while true
+      (let [[op filename] (<! changes)]
+        (when (and (clojure.string/ends-with? filename ".scss") (or (= (name op) "modify")
+                                                                    (= (name op) "create")))
+          (print-info (str "Processing fqcss (" (name op) ")"))
+          (let [new-path (clojure.string/replace filename "fqcss" "scss")]
+            (print-info (str "\tSpitting to: " new-path))
+            (spit new-path (fqcss/replace-css (slurp filename))))))))))
+
+(defstate fqcss
+  :start
+    (fqcss-start)
+  :stop
+    (do
+      (watch/cancel-changes)))
+
+
 ;; Sass
 
 (def sass-process)
@@ -120,10 +145,10 @@
   :done)
 
 (defmacro start-frontend []
-  '(do (mount/start #'user/figwheel #'user/sass)))
+  '(do (mount/start #'user/figwheel #'user/sass #'user/fqcss)))
 
 (defmacro reset-frontend []
-  '(do (mount/stop #'user/figwheel #'user/sass)
+  '(do (mount/stop #'user/figwheel #'user/sass #'user/fqcss)
       (tn/refresh)
       (start-frontend)
       (init-aliases)

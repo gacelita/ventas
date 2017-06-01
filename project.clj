@@ -1,4 +1,4 @@
-(defproject ventas "0.0.1"
+(defproject ventas "0.0.2"
   :description "The Ventas eCommerce platform"
   :url "https://kazer.es"
   :license {:name "GPL"
@@ -113,6 +113,11 @@
                  ;; Generators
                  [org.clojure/test.check "0.9.0"]
                  [com.gfredericks/test.chuck "0.2.7"]
+
+                 ;; CSS
+                 [forest "0.2.1"]
+                 [fqcss "0.1.4"]
+                 [async-watch "0.1.1"]
 
                  ;;
                  ;; Debugging
@@ -236,8 +241,11 @@
   :doo {:build "test"}
 
 
-  :sassc [{:src "src/scss/style.scss"
-           :output-to "resources/public/css/style.css"}]
+  :sassc [{:src "src/scss/main.scss"
+           :output-to "resources/public/css/style.css"
+           :style "nested"
+           :import-path "src/scss"
+           }]
 
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}

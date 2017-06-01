@@ -12,3 +12,13 @@
 (s/def :schema.type/resource
   (s/keys :req [:resource/keyword]
           :opt [:resource/name]))
+
+
+(defmethod db/entity-json :resource [entity]
+  (-> entity
+      (dissoc :type)
+      (dissoc :created-at)
+      (dissoc :updated-at)
+      (#(if-let [t (:file %1)]
+          (assoc %1 :file (db/entity-json (db/entity-find t)))
+          %1))))

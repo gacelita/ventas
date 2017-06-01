@@ -52,9 +52,6 @@
 (rf/reg-sub :backend.users.edit/images
   (fn [db _] (-> db :form :images)))
 
-(rf/reg-sub :app/notifications
-  (fn [db _] (-> db :notifications)))
-
 (rf/reg-sub :app.reference/user.role
   (fn [db _] (-> db :reference :user.role)))
 

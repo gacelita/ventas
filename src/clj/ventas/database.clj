@@ -98,6 +98,9 @@
                              [?p :db/ident ?ident]]
        (d/db db)))
 
+(defn datoms [index & components]
+  (apply d/datoms (d/db db) index components))
+
 (defn entity-dates
   "First and last dates associated with an eid"
   [eid]

@@ -1,0 +1,36 @@
+{alias preheader ventas.themes.mariscosriasbajas.components.preheader}
+
+.ventas {
+     &.{preheader/preheader} {
+         background-color: #ecf0f1;
+         padding: 8px 0;
+         > .container {
+             display: table;
+         }
+     }
+     &.{preheader/preheader-separator} {
+         display: inline-block;
+         width: 5px;
+         margin: 0 3px;
+         height: 100%;
+     }
+
+     &.{preheader/preheader-item} {
+         font-family: 'Raleway',sans-serif;
+         font-size: 14px;
+         text-transform: uppercase;
+         padding: 0 15px;
+         display: table-cell;
+         &:first-child {
+             text-align: right;
+             border-right: 0;
+         }
+         a {
+             color: #2c3e50 !important;
+             text-decoration: none !important;
+         }
+         strong {
+             margin-right: 2px;
+         }
+     }
+}

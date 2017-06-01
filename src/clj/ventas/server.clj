@@ -168,16 +168,26 @@
        :email (:user/email a)}) (concat (map :friendship/target (:friendship/_source results))
                                         (map :friendship/source (:friendship/_target results))))))
 
-;; @todo
-;;   Returns null pointer exception on unexistent keyword
-;;   Exception when not given the keyword parameter
-(defmethod ws-request-handler :resource/get [message state]
-  (db/entity-json (first (db/entity-query :resource {:keyword (get-in message [:params :keyword])}))))
+(defmethod ws-request-handler :resources/find [message state]
+  (db/entity-query :resource {:keyword (get-in message [:params :id])}))
+
+(defmethod ws-request-handler :datadmin/datoms [message state]
+  (let [datoms (db/datoms :eavt)]
+    {:datoms (map db/datom->map (take 10 datoms))}))
 
 ;; @todo
 ;;   Returns null pointer exception on unexistent keyword
-;;   Exception when not given the key parameter
+(defmethod ws-request-handler :resource/get [message state]
+  {:pre [(keyword? (get-in message [:params :keyword]))]}
+  (let [kw (get-in message [:params :keyword])]
+    (if-let [resource (first (db/entity-query :resource {:keyword kw}))]
+      (db/entity-json resource)
+      (throw (Error. (str "Could not find resource with id: " kw))))))
+
+;; @todo
+;;   Returns null pointer exception on unexistent keyword
 (defmethod ws-request-handler :configuration/get [message state]
+  {:pre [(keyword? (get-in message [:params :key]))]}
   (db/entity-json (first (db/entity-query :configuration {:key (get-in message [:params :key])}))))
 
 (defmethod ws-request-handler :products/get [message state]
@@ -199,7 +209,16 @@
   (db/entity-upsert :comment (:params message)))
 
 
-
+(defn call-ws-request-handler
+  ([message] (call-ws-request-handler message {}))
+  ([message state]
+   (try
+     (let [response (ws-request-handler message state)]
+       {:type :response :id (:id message) :success true :data response})
+     (catch Exception e
+       {:type :response :id (:id message) :success false :data (.getMessage e)})
+     (catch Error e
+       {:type :response :id (:id message) :success false :data (.getMessage e)}))))
 
 ;; Calls an appropiate function depending on message type
 (defn ws-message-handler [message client-id ws-channel req]
@@ -208,8 +227,7 @@
     (case (:type message)
       :event (ws-event-handler message state)
       :request
-        (let [response (ws-request-handler message state)]
-          (go (a/>! ws-channel {:type :response :id (:id message) :data response})))
+        (go (a/>! ws-channel (call-ws-request-handler message state)))
       :else (debug "Unhandled message: " message))))
 
 

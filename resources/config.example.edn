@@ -1,0 +1,5 @@
+{:database {:url "datomic:dev://localhost:4334/ventas"}
+ :base-url "http://localhost:3450/"
+ :debug true
+ :http-port 3450
+ :cljs-port 3001}

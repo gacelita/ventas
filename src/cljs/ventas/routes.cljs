@@ -58,7 +58,7 @@
 
   {:route :frontend
    :name "Inicio"
-   :url "frontend"}
+   :url ""}
 
   {:route :frontend.index
    :name "Índice"
@@ -67,6 +67,10 @@
   {:route :frontend.product
    :name "Producto"
    :url ["/product/" :id]}
+
+  {:route :datadmin
+   :name "Datadmin"
+   :url "datadmin"}
 
   {:route :not-found
    :url true}])
