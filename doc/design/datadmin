@@ -1,0 +1,26 @@
+Por defecto mostrar todos los E A V T:
+	1		:product/name		Something		1
+
+Mostrar una vista de filtros (equivalente a "buscar" en pmd), tal que:
+	Filtrar por atributo:
+		:schema/type :schema.type/product
+		:product/name _
+	Filtrar por entidad:
+		1
+	Filtrar por transacción:
+		1
+
+Mostrar vista "Estructura", que mostraría todas las propiedades de todos los atributos que no sean del sistema
+
+Vista "realtime query"
+
+Control "as-of" global
+
+Hacer que la vista principal sea interactiva:
+	Los atributos tienen que ser enlaces a queries para filtrar por la existencia de ese atributo
+	Los :ref tienen que ser un enlace a la entidad (vista de entidad)
+	Las IDs de entidad tienen que ser enlaces a la entidad (vista de entidad)
+	Las IDs de transacción tienen que ser enlaces a la transacción (vista de transacción)
+	Los valores tienen que mostrar su historial
+
+"Raw query"
