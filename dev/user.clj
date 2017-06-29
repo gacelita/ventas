@@ -6,6 +6,7 @@
             [clojure.tools.namespace.repl :as tn]
             [clojure.stacktrace :as st :refer [print-stack-trace]]
             [ventas.util :refer [print-info]]
+            [ventas.events :as events]
             [clojure.repl :refer :all]
             [async-watch.core :as watch]
             [clojure.core.async :refer [>! <! go close!]]
@@ -131,6 +132,7 @@
   (tn/refresh-all)
   (mount/start)
   (init-aliases)
+  (go (>! events/init true))
   :ready)
 
 (defn reset []
