@@ -9,7 +9,7 @@
 (s/def :tax/amount double?)
 
 (s/def :schema.type/tax
-  (s/keys :req [:tax/name :tax/type :tax/amount]))
+  (s/keys :req [:tax/name :tax/kind :tax/amount]))
 
 (defmethod db/entity-json :tax [entity]
   (-> entity
