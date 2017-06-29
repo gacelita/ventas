@@ -7,7 +7,7 @@
             [ventas.routes :refer [routes]]))
 
 (rf/reg-sub :components/product-list
-            (fn [db _] (-> db :components/product-list)))
+  (fn [db _] (-> db :components/product-list)))
 
 (rf/reg-event-fx :components/product-list
   (fn [cofx [_]]
