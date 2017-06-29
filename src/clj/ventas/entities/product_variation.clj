@@ -8,8 +8,8 @@
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :product)))))
 
 (s/def :product-variation/attribute-values
-  (s/with-gen (s/and (s/* integer?) #(< (count %) 5) #(> (count %) 1))
-              #(gen/elements (map :id (db/entity-query :attribute-value)))))
+  (s/with-gen (s/and (s/* integer?) #(< (count %) 7) #(> (count %) 2))
+              #(gen/vector (gen/elements (map :id (db/entity-query :attribute-value))))))
 
 (s/def :schema.type/product-variation
   (s/keys :req [:product-variation/product
