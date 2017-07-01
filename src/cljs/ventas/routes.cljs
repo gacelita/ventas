@@ -1,5 +1,6 @@
 (ns ventas.routes
   (:require [clojure.string :as s]
+            [bidi.bidi :as bidi]
             [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
                                                        trace debug info warn error]]))
 
@@ -66,7 +67,7 @@
 
   {:route :frontend.product
    :name "Producto"
-   :url ["/product/" :id]}
+   :url ["product/" :id]}
 
   {:route :datadmin
    :name "Datadmin"
@@ -81,3 +82,6 @@
 
 (defn raw-route [route-kw]
   (first (filter #(= (:route %) route-kw) raw-routes)))
+
+(defn path-for [& args]
+  (str "//localhost:3450" (apply bidi/path-for routes args)))
