@@ -9,7 +9,7 @@
             [ventas.routes :refer [route-parents routes]]
             [ventas.components.notificator]
             [ventas.components.popup]
-            [ventas.components.product-listing :refer [products-list]]
+            [ventas.components.product-list :refer [products-list]]
             [ventas.components.cart :as cart]
             [ventas.util :as util]
             [ventas.plugin :as plugin]

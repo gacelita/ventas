@@ -13,14 +13,6 @@
 (s/def :category/image
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :file)))))
 
-(defmacro category-spec []
-  (let [categories (db/entity-query :category)
-        opts [(when (seq categories) :category/parent) :category/image]]
-    `(~'s/def :schema.type/category
-      (~'s/keys :req [:category/name]
-              :opt ~opts))))
-
-(go-loop []
- (when (<! events/init)
-   (category-spec)
-   (recur)))
+(s/def :schema.type/category
+  (s/keys :req [:category/name :category/parent]
+          :opt [:category/image]))
