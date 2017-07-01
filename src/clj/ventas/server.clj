@@ -330,7 +330,6 @@
  "Wraps a Ring request with a channel and a mult"
  [handler]
  (fn [req]
-   (debug "wrap-async-channels")
    (let [ch (a/chan)
          mult (a/mult ch)]
     (try
