@@ -1,0 +1,7 @@
+[
+
+ {:db/ident :product/price
+  :db/valueType :db.type/bigdec
+  :db/cardinality :db.cardinality/one}
+
+ ]

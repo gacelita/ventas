@@ -11,6 +11,9 @@
 (s/def :product/description string?)
 (s/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
 (s/def :product/tags (s/and (s/* string?) #(< (count %) 7) #(> (count %) 2)))
+(s/def :product/price
+  (s/with-gen (s/and bigdec? pos?)
+              (fn [] (gen/fmap (fn [d] (BigDecimal. (str d))) (gen/double* {:NaN? false :min 0 :max 999})))))
 
 (s/def :product/brand
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :brand)))))
@@ -35,7 +38,8 @@
 
 (s/def :schema.type/product
   (s/keys :req [:product/name
-                :product/active]
+                :product/active
+                :product/price]
           :opt [:product/reference
                 :product/ean13
                 :product/description
