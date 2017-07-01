@@ -50,16 +50,18 @@
                 :product/images]))
 
 (defmethod db/entity-json :product [entity]
-  (-> entity
-      (dissoc :type)
-      (dissoc :created-at)
-      (dissoc :updated-at)
-      (#(if-let [c (:condition %1)]
-          (assoc %1 :condition (keyword (name c)))
-          %1))
-      (#(if-let [t (:tax %1)]
-          (assoc %1 :tax (db/entity-json (db/entity-find t)))
-          %1))
-      (#(if-let [imgs (:images %1)]
-          (assoc %1 :images (map (comp db/entity-json db/entity-find) imgs))
-          %1))))
+  (as-> entity entity
+    (dissoc entity :type)
+    (dissoc entity :created-at)
+    (dissoc entity :updated-at)
+    (if-let [c (:condition entity)]
+      (assoc entity :condition (keyword (name c)))
+      entity)
+    (if-let [tax (:tax entity)]
+      (assoc entity :tax (db/entity-json (db/entity-find tax))))
+    (if-let [images (:images entity)]
+      (assoc entity :images (map #(db/entity-json (db/entity-find %)) images)))
+    (if-let [brand (:brand entity)]
+      (assoc entity :brand (db/entity-json (db/entity-find brand))))
+
+    ))
