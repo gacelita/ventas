@@ -116,7 +116,7 @@
 
                  ;; CSS
                  [forest "0.2.1"]
-                 [fqcss "0.1.4"]
+                 [fqcss "0.1.5"]
                  [async-watch "0.1.1"]
 
                  ;;
