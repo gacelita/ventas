@@ -142,9 +142,11 @@
   :resetted)
 
 (defn r []
-  (tn/refresh)
-  (init-aliases)
-  :done)
+  (let [result (tn/refresh)]
+    (when (instance? Exception result)
+      (throw result))
+    (init-aliases)
+    :done))
 
 (defmacro start-frontend []
   '(do (mount/start #'user/figwheel #'user/sass #'user/fqcss)))
