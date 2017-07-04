@@ -29,6 +29,9 @@
 (defn print-info [str]
   (println (clansi/green str)))
 
+(defn print-error [str]
+  (println (clansi/red str)))
+
 (defn find-files*
   "Find files in `path` by `pred`."
   [path pred]
