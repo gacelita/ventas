@@ -62,6 +62,4 @@
     (if-let [images (:images entity)]
       (assoc entity :images (map #(db/entity-json (db/entity-find %)) images)))
     (if-let [brand (:brand entity)]
-      (assoc entity :brand (db/entity-json (db/entity-find brand))))
-
-    ))
+      (assoc entity :brand (db/entity-json (db/entity-find brand))))))
