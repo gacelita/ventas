@@ -25,7 +25,7 @@
   (let [url (get-in config [:database :url])]
     (util/print-info (str "Starting database, URL: " url))
     (try
-      (class (d/connect (get-in config [:database :url])))
+      (d/connect (get-in config [:database :url]))
       (catch java.util.concurrent.ExecutionException e
         (throw (ex-info "Error connecting (database offline?)" {}))))))
 
@@ -40,17 +40,6 @@
   (if (s/valid? (:schema/type data) data)
      data
      (throw+ {:type ::spec-invalid :message (s/explain (:schema/type data) data)})))
-
-(defn generate-1
-  "Generate one sample of a given spec"
-  [spec]
-  (gen/generate (s/gen spec)))
-
-(defn generate-n
-  "Generates n samples of given spec"
-  [spec n]
-  (let [generator (s/gen spec)]
-    (map (fn [_] (gen/generate generator)) (range n))))
 
 (defn basis-t
   "Gets the last t"
@@ -378,37 +367,14 @@
 
 (defmulti entity-fixtures (fn [type] type))
 
-(defmethod entity-fixtures :default [type params]
+(defmethod entity-fixtures :default [type]
   [])
 
-(defn seed-type
-  "Seeds the database with n entities of a type"
-  [type n]
-  (info "Seeding " type)
-  (doseq [entity-data (generate-n (keyword "schema.type" (name type)) n)]
-    (let [entity-data (entity-preseed type entity-data)
-          entity (entity-create type entity-data)]
-      (entity-postseed entity))))
-
-(def entity-list [:tax :file :brand :configuration :resource :attribute
-                  :attribute-value :category :product :product-variation])
-
-
-(defn seed
-  "Seeds the database with sample data"
+(defn recreate
+  "Recreates the database"
   []
-  (map #(let [kw (keyword "schema.type" %)]
-          (map (partial entity-create kw) (entity-fixtures kw))) entity-list)
-  (seed-type :tax 10)
-  (seed-type :file 10)
-  (seed-type :brand 10)
-  (seed-type :configuration 20)
-  (seed-type :resource 5)
-  (seed-type :attribute 10)
-  (seed-type :attribute-value 10)
-  (seed-type :category 10)
-  (seed-type :product 10)
-  (seed-type :product-variation 10))
-
-
-
+  (let [url (get-in config [:database :url])]
+    (info "Deleting database " url)
+    (d/delete-database url)
+    (info "Creating database " url)
+    (d/create-database url)))

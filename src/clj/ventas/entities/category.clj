@@ -17,5 +17,5 @@
   (s/keys :req [:category/name]
           :opt [:category/image :category/parent]))
 
-(defmethod db/entity-fixtures :category []
+(defmethod db/entity-fixtures :category [_]
   [{:name "Default"}])
