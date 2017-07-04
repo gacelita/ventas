@@ -14,5 +14,8 @@
   (s/with-gen integer? #(gen/elements (map :id (db/entity-query :file)))))
 
 (s/def :schema.type/category
-  (s/keys :req [:category/name :category/parent]
-          :opt [:category/image]))
+  (s/keys :req [:category/name]
+          :opt [:category/image :category/parent]))
+
+(defmethod db/entity-fixtures :category []
+  [{:name "Default"}])

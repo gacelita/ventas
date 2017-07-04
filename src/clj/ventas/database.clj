@@ -371,6 +371,11 @@
     (entity-update (entity-find (:id data)) (dissoc data :id))
     (entity-create type data)))
 
+(defmulti entity-fixtures (fn [type] type))
+
+(defmethod entity-fixtures :default [type params]
+  [])
+
 (defn seed-type
   "Seeds the database with n entities of a type"
   [type n]
@@ -380,9 +385,15 @@
           entity (entity-create type entity-data)]
       (entity-postseed entity))))
 
+(def entity-list [:tax :file :brand :configuration :resource :attribute
+                  :attribute-value :category :product :product-variation])
+
+
 (defn seed
   "Seeds the database with sample data"
   []
+  (map #(let [kw (keyword "schema.type" %)]
+          (map (partial entity-create kw) (entity-fixtures kw))) entity-list)
   (seed-type :tax 10)
   (seed-type :file 10)
   (seed-type :brand 10)
