@@ -239,7 +239,6 @@
         client-id (uuid/v4)]
 
     (a/tap @shared-ws-mult shared-channel)
-    (debug (format "Opened connection from %s, client-id %s, ws-channel %s" (:remote-addr req) client-id ws-channel))
     (go
       ;; Insertar en el canal común el mensaje de que este cliente se ha unido
       (a/>! @shared-ws-channel {:type :event :name :user-joined :params {:client-id client-id}})
@@ -251,10 +250,8 @@
           ;; Este es el canal asociado al mult común, por aquí llegan mensajes globales 
           shared-channel
             ([message]
-              (debug "(shared-msg):" message)
               (if message
                 (do
-                  (debug "Broadcasting:" message)
                   ;; Cuando llega un mensaje global, se inserta en el canal local (es decir, se envía a este cliente)
                   (a/>! ws-channel message)
                   (recur))
@@ -262,11 +259,8 @@
           ;; Este es el canal local, por aquí llegan los mensajes que envía el cliente
           ws-channel
             ([message]
-              (debug "(ws-binary-msg):" message)
               (if message
                 (do
-                  (debug "Received:" message)
-                  (debug "Processed: " (cutil/process-input-message (:message message)))
                   (ws-message-handler (cutil/process-input-message (:message message)) client-id ws-channel req)
                   (recur))
 
