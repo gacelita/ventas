@@ -20,3 +20,10 @@
 
 (defmethod entity/fixtures :category [_]
   [{:name "Default"}])
+
+(defmethod entity/json :category [entity]
+  (as-> entity entity
+        (dissoc entity :type)
+        (if-let [image (:image entity)]
+          (assoc entity :image (entity/json (entity/find image)))
+          entity)))

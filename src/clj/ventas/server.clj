@@ -196,6 +196,9 @@
 (defmethod ws-request-handler :products/list [message state]
   (map entity/json (entity/query :product)))
 
+(defmethod ws-request-handler :categories/list [message state]
+  (map entity/json (entity/query :category)))
+
 (defmethod ws-request-handler :db.pull [message state]
   (db/pull (get-in message [:params :query])
            (get-in message [:params :id])))

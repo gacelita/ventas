@@ -2,7 +2,8 @@
   (:require [clojure.string :as s]
             [bidi.bidi :as bidi]
             [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
-                                                       trace debug info warn error]]))
+                                                       trace debug info warn error]]
+            [accountant.core :as accountant]))
 
 (comment
   ["/" {"admin/" {"" :backend
@@ -69,6 +70,10 @@
    :name "Producto"
    :url ["product/" :id]}
 
+  {:route :frontend.category
+   :name "Categoría"
+   :url ["category/" :id]}
+
   {:route :datadmin
    :name "Datadmin"
    :url "datadmin"}
@@ -85,3 +90,9 @@
 
 (defn path-for [& args]
   (str "//localhost:3450" (apply bidi/path-for routes args)))
+
+(defn go-to [& args]
+  (let [path (apply bidi/path-for routes args)]
+    (when-not path
+      (throw (js/Error. "Route not found: " (clj->js args))))
+    (accountant/navigate! path)))

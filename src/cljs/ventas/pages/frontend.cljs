@@ -9,6 +9,7 @@
             [ventas.routes :refer [route-parents routes]]
             [ventas.components.notificator]
             [ventas.components.popup]
+            [ventas.components.category-list :refer [category-list]]
             [ventas.components.product-list :refer [products-list]]
             [ventas.components.cart :as cart]
             [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
@@ -39,6 +40,7 @@
 (defmethod pages :frontend []
   [skeleton
     [:div
+      [category-list]
       [theme.heading/heading "Sugerencias de la semana"]
       [products-list]]])
 

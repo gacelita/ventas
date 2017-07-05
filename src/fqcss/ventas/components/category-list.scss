@@ -1,0 +1,38 @@
+{alias category-list ventas.components.category-list}
+
+.{category-list/list} {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.{category-list/category} {
+    width: 20%;
+    overflow: hidden;
+    padding: 0px 15px;
+    cursor: pointer;
+}
+
+.{category-list/image} {
+    max-height: 200px;
+}
+
+.{category-list/content} {
+    text-overflow: ellipsis;
+    text-align: center;
+    h3 {
+        text-overflow: ellipsis;
+        font-family: 'Raleway',sans-serif;
+        font-weight: bold;
+        font-size: 22px;
+        color: #0092c5;
+        text-transform: uppercase;
+        margin-top: 7px;
+        margin-bottom: 5px;
+    }
+    p {
+        font-family: 'Raleway',sans-serif;
+        font-size: 14px;
+        color: #676767;
+    }
+}
