@@ -29,8 +29,8 @@
 (defn notificator []
   "Displays notifications"
   (wrap-reagent
-    [:div.ventas {:fqcss [::notificator]}
+    [:div {:fqcss [::notificator]}
       (for [notification @(rf/subscribe [:app/notifications])]
-        [:div {:class (s/join " " ["bu" "notification" (:theme notification)])}
+        [:div {:fqcss [::notification] :class (:theme notification)}
           [sa/Icon {:class "bu close" :name (:icon notification) :on-click #(rf/dispatch [:app/notifications.remove (:sym notification)])}]
           [:p {:class "bu message"} (:message notification)]])]))

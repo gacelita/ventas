@@ -5,127 +5,42 @@
 html {
     min-height: 100vh;
 }
+
 body {
     position: absolute;
     height: 100%;
     width: 100%;
 }
+
 #app {
     height: 100%;
 }
-.bu.root {
-    position: relative;
-}
-.bu.wrapper {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    display: block;
-}
-.bu.main {
+
+.main {
     margin: 15px;
 }
-.bu.ui.menu {
+
+.ui.menu {
     width: 250px;
     min-height: 100vh;
     flex: none;
     background-color: #e2e2e2;
     border-radius: 0px !important;
 }
-.bu.menu.item {
+
+.menu.item {
     display: block;
     text-decoration: none;
     color: black;
     padding: 6px 10px;
 }
-.bu.debugger {
-    background: white;
-    position: relative;
-    top: 0;
-    width: 100%;
-    z-index: 9999;
-}
-.bu.debugger.open {
-	display: block;
-	position: absolute;
-    height: auto;
-}
-.bu.debugger.closed {
-	height: 25px;
-	overflow: hidden;
-	box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.27);
-	&::before {
-		content: "Click to open the debugger";
-		display: block;
-		color: black;
-		margin: 2px 7px;
-	}
-	* {
-		display: none;
-	}
-}
 
-.bu.notificator {
-	position: fixed;
-    top: 30px;
-    right: 20px;
-    overflow: visible;
-    z-index: 99999;
-    width: 270px;
-    height: 0px;
-}
-.bu.notification {
-    display: inline-block;
-    height: auto;
-    background-color: #fbfbfb;
-    padding: 15px;
-    width: 100%;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);
-    position: relative;
-    margin-top: 15px;
-    .close {
-    	position: absolute;
-    	top: 5px;
-    	right: 5px;
-    }
-    &.danger {
-	 	color: #a94442;
-	 	background-color: #f2dede;
-	 	border-color: #ebccd1;
-	}
-	&.warning {
-		color: #8a6d3b;
-		background-color: #fcf8e3;
-		border-color: #faebcc;
-	}
-	&.info {
-		color: #31708f;
-		background-color: #d9edf7;
-		border-color: #bce8f1;
-	}
-	&.success {
-		color: #3c763d;
-		background-color: #dff0d8;
-		border-color: #d6e9c6;
-	}
-}
 body.animating.in.dimmable, body.dimmed.dimmable {
     overflow: visible !important;
 }
 
-.ventas.header__logo {
-    img {
-        display: block;
-    }
-}
-.ventas.header__info {
-
-}
-.ventas.header__shipping {
-  font-size: 15px;
-}
-
-@import "ventas/components/popup";
 @import "ventas/components/category-list";
+@import "ventas/components/popup";
 @import "ventas/components/product-list";
+@import "ventas/components/notificator";
 @import "ventas/themes/mariscosriasbajas/core";

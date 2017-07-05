@@ -1,4 +1,4 @@
-(ns ventas.themes.mariscosriasbajas.pages.frontend
+(ns ventas.themes.mariscosriasbajas.pages.category
   (:require [reagent.core :as reagent :refer [atom]]
             [reagent.session :as session]
             [re-frame.core :as rf]
@@ -20,10 +20,9 @@
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
 
-(defmethod pages :frontend []
+
+(defmethod pages :frontend.category []
   [skeleton
    [:div
-    [category-list]
-    [theme.heading/heading "Sugerencias de la semana"]
-    [products-list]]])
+    [:h2 "test"]]])
 

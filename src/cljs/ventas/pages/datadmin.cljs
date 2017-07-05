@@ -20,10 +20,9 @@
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
     [:div.ventas.root
-      ; [bu-debugger]
       [ventas.components.notificator/notificator]
       [ventas.components.popup/popup]
-      [:div.bu.wrapper
+      [:div.ventas.wrapper
         [sa/Container {:class "bu main"}
           [sa/Divider]
           ^{:key current-page} contents]]]))
