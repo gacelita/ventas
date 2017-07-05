@@ -11,7 +11,8 @@
   (s/with-gen integer? #(gen/elements (map :id (entity/query :file)))))
 
 (s/def :schema.type/resource
-  (s/keys :req [:resource/keyword]
+  (s/keys :req [:resource/keyword
+                :resource/file]
           :opt [:resource/name]))
 
 
