@@ -22,7 +22,7 @@
     (wrap-reagent
      [:div {:fqcss [::list]}
       (for [product @(rf/subscribe [:components/product-list])]
-        [:div {:fqcss [::product]}
+        [:div {:fqcss [::product] :key (:id product)}
          (when (seq (:images product))
            [:img {:src (:url (first (:images product)))}])
          [:div {:fqcss [::content]}

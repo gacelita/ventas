@@ -9,8 +9,8 @@
                                                        trace debug info warn error]]
             [ventas.page :refer [pages]]
             [ventas.pages.backend.users :as users-page]
-            [ventas.routes :refer [routes]]
-            [ventas.util :refer [go-to dispatch-page-event wrap-sa-with-model]]
+            [ventas.routes :as routes :refer [go-to]]
+            [ventas.util :refer [dispatch-page-event wrap-sa-with-model]]
             [ventas.components :refer [input-with-model textarea-with-model]]))
 
 (defn images-datatable [action-column sub-key]
@@ -115,7 +115,7 @@
            {::dt/column-key   [:source] ::dt/column-label "Creador"
             ::dt/render-fn
               (fn [source]
-                [:a {:on-click #(go-to routes :backend.users.edit {:id (:id source)})} (:name source)])}
+                [:a {:on-click #(go-to :backend.users.edit {:id (:id source)})} (:name source)])}
 
            {::dt/column-key   [:actions] ::dt/column-label "Acciones"
             ::dt/render-fn action-column}]
@@ -151,7 +151,7 @@
            {::dt/column-key   [:target] ::dt/column-label "Objetivo"
             ::dt/render-fn
               (fn [target]
-                [:a {:on-click #(go-to routes :backend.users.edit {:id (:id target)})} (:name target)])}
+                [:a {:on-click #(go-to :backend.users.edit {:id (:id target)})} (:name target)])}
 
            {::dt/column-key   [:actions] ::dt/column-label "Acciones"
             ::dt/render-fn action-column}]

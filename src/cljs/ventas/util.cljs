@@ -1,15 +1,10 @@
 (ns ventas.util
   (:require [bidi.bidi :as bidi]
-            [accountant.core :as accountant]
             [reagent.session :as session]
             [re-frame.core :as rf]
-            [ventas.routes :refer [route-parents routes raw-route]]
+            [ventas.routes :as routes]
             [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
                                                        trace debug info warn error]]))
-
-(defn go-to [routes route route-params]
-  (debug "Going to" route route-params)
-  (accountant/navigate! (apply bidi/path-for (concat [routes route] (first (seq route-params))))))
 
 (defn route-param [kw]
   (get-in (session/get :route) [:route-params kw]))
@@ -61,9 +56,9 @@
                                   (js/console.log "Value now: " @(:model data))))))
 
 (defn breadcrumbs [current-route route-params]
-  (map (fn [route] {:url (apply bidi/path-for (concat [routes route] (first (seq route-params))))
-                    :name (:name (raw-route route))
-                    :route route}) (route-parents current-route)))
+  (map (fn [route] {:url (apply routes/path-for route (first (seq route-params)))
+                    :name (:name (routes/route->data route))
+                    :route route}) (routes/route-parents current-route)))
 
 (defn sub-resource-url [resourceId]
   (debug "get-resource-url")

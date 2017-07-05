@@ -31,6 +31,6 @@
   (wrap-reagent
     [:div {:fqcss [::notificator]}
       (for [notification @(rf/subscribe [:app/notifications])]
-        [:div {:fqcss [::notification] :class (:theme notification)}
+        [:div {:key (gensym) :fqcss [::notification] :class (:theme notification)}
           [sa/Icon {:class "bu close" :name (:icon notification) :on-click #(rf/dispatch [:app/notifications.remove (:sym notification)])}]
           [:p {:class "bu message"} (:message notification)]])]))

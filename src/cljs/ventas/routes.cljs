@@ -31,68 +31,61 @@
 
 (defn compile-routes [routes]
   (let [indexed-urls (index-urls routes)]
-    ["/" (reduce (fn [acc item] (reducer acc item indexed-urls)) {} routes)]))
+    ["/" (-> (reduce (fn [acc item] (reducer acc item indexed-urls)) {} routes)
+             (assoc :not-found true))]))
 
-(def raw-routes [
-  {:route :backend
-   :name "Administración"
-   :url "admin/"}
+(def route-data
+  (atom [{:route :backend
+          :name "Administración"
+          :url "admin/"}
 
-  {:route :backend.users
-   :name "Usuarios"
-   :url "users/"}
+         {:route :backend.users
+          :name "Usuarios"
+          :url "users/"}
 
-  {:route :backend.users.edit
-   :name "Editar usuario"
-   :url [:id "/edit"]}
-  
-  {:route :backend.login
-   :name "Iniciar sesión"
-   :url "login/"}
+         {:route :backend.users.edit
+          :name "Editar usuario"
+          :url [:id "/edit"]}
 
-  {:route :backend.register
-   :name "Registro"
-   :url "register/"}
+         {:route :backend.login
+          :name "Iniciar sesión"
+          :url "login/"}
 
-  {:route :backend.playground
-   :name "Playground"
-   :url "playground/"}
+         {:route :backend.register
+          :name "Registro"
+          :url "register/"}
 
-  {:route :frontend
-   :name "Inicio"
-   :url ""}
+         {:route :backend.playground
+          :name "Playground"
+          :url "playground/"}
 
-  {:route :frontend.index
-   :name "Índice"
-   :url "/index"}
+         {:route :datadmin
+          :name "Datadmin"
+          :url "datadmin"}]))
 
-  {:route :frontend.product
-   :name "Producto"
-   :url ["product/" :id]}
+(def routes (atom (compile-routes @route-data)))
 
-  {:route :frontend.category
-   :name "Categoría"
-   :url ["category/" :id]}
+(defn define-route! [route]
+  (swap! route-data conj route)
+  (reset! routes (compile-routes @route-data)))
 
-  {:route :datadmin
-   :name "Datadmin"
-   :url "datadmin"}
+(defn define-routes! [new-routes]
+  (swap! route-data concat new-routes)
+  (reset! routes (compile-routes @route-data)))
 
-  {:route :not-found
-   :url true}])
-
-(def routes (compile-routes raw-routes))
-
-(debug routes)
-
-(defn raw-route [route-kw]
-  (first (filter #(= (:route %) route-kw) raw-routes)))
+(defn route->data [kw]
+  (first (filter #(= (:route %) kw) @route-data)))
 
 (defn path-for [& args]
-  (str "//localhost:3450" (apply bidi/path-for routes args)))
+  (str "//localhost:3450" (apply bidi/path-for @routes args)))
 
 (defn go-to [& args]
-  (let [path (apply bidi/path-for routes args)]
+  (let [path (apply bidi/path-for @routes args)]
     (when-not path
       (throw (js/Error. "Route not found: " (clj->js args))))
     (accountant/navigate! path)))
+
+(defn match-route
+  "match-route wrapper"
+  [& args]
+  (apply bidi/match-route @routes args))

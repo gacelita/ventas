@@ -5,8 +5,8 @@
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
-            [ventas.routes :refer [routes]]
-            [ventas.util :refer [go-to dispatch-page-event]]))
+            [ventas.routes :refer [go-to] :as routes]
+            [ventas.util :refer [dispatch-page-event]]))
 
 (defmethod pages :backend []
   (fn page-app []
@@ -14,12 +14,10 @@
       [:span
         [:h4 "Routing example: Index"]
         [:ul
-          [:li [:a {:href (bidi/path-for routes :backend.section-a) } "Section A"]]
-          [:li [:a {:href (bidi/path-for routes :backend.section-b) } "Section B"]]
-          [:li [:a {:href (bidi/path-for routes :backend.missing-route) } "Missing-route"]]
-          [:li [:a {:href (bidi/path-for routes :backend.users)} "Users"]]
-          [:li [:a {:href (bidi/path-for routes :backend.session-debug)} "Session debug"]]
-          [:li [:a {:href (bidi/path-for routes :backend.login)} "Login"]]
-          [:li [:a {:href (bidi/path-for routes :backend.register)} "Register"]]
-          [:li [:a {:href (bidi/path-for routes :frontend.index)} "Frontend index"]]
+          [:li [:a {:href (routes/path-for :backend.section-a)} "Section A"]]
+          [:li [:a {:href (routes/path-for :backend.users)} "Users"]]
+          [:li [:a {:href (routes/path-for :backend.session-debug)} "Session debug"]]
+          [:li [:a {:href (routes/path-for :backend.login)} "Login"]]
+          [:li [:a {:href (routes/path-for :backend.register)} "Register"]]
+          [:li [:a {:href (routes/path-for :frontend.index)} "Frontend index"]]
           [:li [:a {:href "/borken/link" } "Borken link"]]]]]))

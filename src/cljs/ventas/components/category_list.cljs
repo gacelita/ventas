@@ -24,7 +24,7 @@
     (wrap-reagent
      [:div {:fqcss [::list]}
       (for [category @(rf/subscribe [component-kw])]
-        [:div {:fqcss [::category] :on-click #(routes/go-to :frontend.category :id 1)}
+        [:div {:key (:id category) :fqcss [::category] :on-click #(routes/go-to :frontend.category :id 1)}
          (when (:image category)
            [:img {:fqcss [::image] :src (:url (:image category))}])
          [:div {:fqcss [::content]}

@@ -111,31 +111,24 @@
       (>! server-ch message)
       (recur))))
 
-;; Start the input and output binary and non-binary channels
 (defn init
-  ([callback] (init callback 0))
-  ([callback retries]
-  (go
-    (infof "Starting channels")
-    (try
-      (let [ws-result (<! (ws-ch "ws://localhost:3450/ws" {:format :json-kw}))
-            ws-binary-result (<! (ws-ch "ws://localhost:3450/binary-ws" {:format :fressian}))]
-        (when (:error ws-result)
-          (throw (js/Error. "Error conectándose al Websocket: " (:error ws-result))))
-        (when (:error ws-binary-result)
-          (throw (js/Error. "Error conectándose al Websocket: " (:error ws-binary-result))))
-        (infof "Starting input-channel")
-        (reset! input-channel (doto (atom []) (receive-messages! (:ws-channel ws-result))))
-        (infof "Starting output-channel")
-        (reset! output-channel (doto (chan) (send-messages! (:ws-channel ws-result))))
-        (infof "Starting input-binary-channel")
-        (reset! input-binary-channel (doto (atom []) (receive-binary-messages! (:ws-channel ws-binary-result))))
-        (infof "Starting output-binary-channel")
-        (reset! output-binary-channel (doto (chan) (send-binary-messages!  (:ws-channel ws-binary-result))))
-        (callback))
-      (catch :default e
-        (error "Error de conexión: " e)
-        (when (< retries 3)
-          (do (warn "Intentando reconectar") 
-              (<! (timeout 1000)) 
-              (init callback (inc retries)))))))))
+  "Start the input and output binary and non-binary channels"
+  []
+  (let [ch (chan)]
+    (go
+      (info "Starting channels")
+      (try
+        (let [ws-result (<! (ws-ch "ws://localhost:3450/ws" {:format :json-kw}))
+              ws-binary-result (<! (ws-ch "ws://localhost:3450/binary-ws" {:format :fressian}))]
+          (when (:error ws-result)
+            (throw (js/Error. "Error conectándose al Websocket: " (:error ws-result))))
+          (when (:error ws-binary-result)
+            (throw (js/Error. "Error conectándose al Websocket: " (:error ws-binary-result))))
+          (reset! input-channel (doto (atom []) (receive-messages! (:ws-channel ws-result))))
+          (reset! output-channel (doto (chan) (send-messages! (:ws-channel ws-result))))
+          (reset! input-binary-channel (doto (atom []) (receive-binary-messages! (:ws-channel ws-binary-result))))
+          (reset! output-binary-channel (doto (chan) (send-binary-messages! (:ws-channel ws-binary-result))))
+          (>! ch true))
+       (catch :default e
+         (error "Error de conexión: " e))))
+    ch))

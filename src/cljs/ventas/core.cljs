@@ -16,7 +16,7 @@
             
             [ventas.ws :as ws]
             [ventas.subs :as subs]
-            [ventas.util :as util :refer [go-to dispatch-page-event]]
+            [ventas.util :as util :refer [dispatch-page-event]]
 
             [re-frame-datatable.core :as dt]
             [soda-ash.core :as sa]
@@ -25,7 +25,7 @@
             [clairvoyant.core :refer-macros [trace-forms]]
             [re-frame-tracer.core :refer [tracer]]
 
-            [ventas.routes :refer [route-parents routes]]
+            [ventas.routes :as routes :refer [go-to]]
             [ventas.page :as p]
 
             ;; @todo: Desarrollar algo para automatizar esto
@@ -34,8 +34,6 @@
             [ventas.pages.backend.playground]
             [ventas.pages.backend.users]
             [ventas.pages.backend.users.edit]
-            [ventas.pages.frontend.index]
-            [ventas.pages.frontend.product]
             [ventas.pages.datadmin]
             [ventas.themes.mariscosriasbajas.core]
             )
@@ -62,12 +60,6 @@
   :backend.login "Login"
   :backend.register "Registro"
 })
-
-
-
-
-(debug "Rutas:" (with-out-str (cljs.pprint/pprint routes)))
-
 
 ;; RE-FRAME ABSTRACT
 ;; Views are pure, and they get updated when subscriptions change.
@@ -175,7 +167,7 @@
 
 (rf/reg-fx :go-to
   (fn effect-go-to [data]
-    (go-to routes (get data 0) (get data 1))))
+    (go-to (get data 0) (get data 1))))
 
 
 ;; Events
@@ -337,32 +329,31 @@
 ;; Lifecycle
 
 (defn init []
-  ;; Init routing
   (accountant/configure-navigation!
-   {:nav-handler (fn
-                   [path]
-                   (let [match (bidi/match-route routes path)
-                         current-page (:handler match)
-                         route-params (:route-params match)]
-                         (info "Current page: " current-page)
-                     (rf/dispatch [:navigation-start current-page (:current-page (session/get :route))])
-                     (session/put! :route {:current-page current-page
-                                           :route-params route-params})))
-    :path-exists? (fn [path]
-                    (boolean (bidi/match-route routes path)))})
-
-  ;; Init websocket communication, then navigate to current route and render the page
-  (ws/init
-    (fn init-callback []
+   {:nav-handler
+    (fn [path]
+      (info "Current path" path)
+      (let [match (routes/match-route path)
+            current-page (:handler match)
+            route-params (:route-params match)]
+        (info "Current page: " current-page)
+        (rf/dispatch [:navigation-start current-page (:current-page (session/get :route))])
+        (session/put! :route {:current-page current-page
+                              :route-params route-params})))
+    :path-exists?
+    (fn [path]
+      (boolean (routes/match-route path)))})
+  (go
+    (when (<! (ws/init))
       (accountant/dispatch-current!)
       (reagent/render [page] (js/document.getElementById "app")))))
 
 (defn start []
-  (infof "Starting CLJS")
+  (infof "Starting ventas")
   (init))
 
 (defn stop []
-  (infof "Stopping CLJS"))
+  (infof "Stopping ventas"))
 
 ;; )
 

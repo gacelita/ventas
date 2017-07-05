@@ -6,8 +6,8 @@
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
             [soda-ash.core :as sa]
-            [ventas.util :refer [go-to dispatch-page-event]]
-            [ventas.routes :refer [routes]]))
+            [ventas.util :refer [dispatch-page-event]]
+            [ventas.routes :refer [go-to]]))
 
 (defn users-datatable [action-column sub-key]
   [dt/datatable (keyword (gensym "users")) [sub-key]
@@ -31,11 +31,11 @@
     (let [action-column
       (fn [_ row]
         [:div
-          [sa/Button {:icon true :on-click #(go-to routes :backend.users.edit {:id (:id row)})}
+          [sa/Button {:icon true :on-click #(go-to :backend.users.edit {:id (:id row)})}
             [sa/Icon {:name "edit"}]]
           [sa/Button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:users]])}
             [sa/Icon {:name "remove"}]]])]
       (fn []
         [:div
           [users-datatable action-column :app.users/users]
-          [sa/Button {:onClick #(go-to routes :backend.users.edit {:id 0})} "Crear usuario"]]))))
+          [sa/Button {:onClick #(go-to :backend.users.edit {:id 0})} "Crear usuario"]]))))

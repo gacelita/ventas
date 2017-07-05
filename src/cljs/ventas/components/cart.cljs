@@ -1,5 +1,5 @@
 (ns ventas.components.cart
-  (:require [ventas.util :as util :refer [go-to]]
+  (:require [ventas.util :as util]
             [re-frame.core :as rf]
             [clojure.string :as s]
             [soda-ash.core :as sa]

@@ -5,7 +5,8 @@
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
-            [ventas.util :refer [go-to dispatch-page-event]]))
+            [ventas.routes :as routes :refer [go-to]]
+            [ventas.util :refer [dispatch-page-event]]))
 
 (defmethod pages :backend.playground []
   (fn page-playground []
