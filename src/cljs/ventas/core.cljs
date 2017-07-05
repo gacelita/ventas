@@ -28,21 +28,16 @@
             [ventas.routes :refer [route-parents routes]]
             [ventas.page :as p]
 
-            [forest.macros :refer-macros [defstylesheet]]
-
             ;; @todo: Desarrollar algo para automatizar esto
             [ventas.plugins.featured-products.core]
             [ventas.pages.backend]
             [ventas.pages.backend.playground]
             [ventas.pages.backend.users]
             [ventas.pages.backend.users.edit]
-            [ventas.pages.frontend]
             [ventas.pages.frontend.index]
             [ventas.pages.frontend.product]
             [ventas.pages.datadmin]
-            [ventas.themes.mariscosriasbajas.components.preheader]
-            [ventas.themes.mariscosriasbajas.components.header]
-
+            [ventas.themes.mariscosriasbajas.core]
             )
   (:require-macros
     [cljs.core.async.macros :as asyncm :refer (go go-loop)]

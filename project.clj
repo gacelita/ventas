@@ -110,7 +110,6 @@
                  [com.gfredericks/test.chuck "0.2.7" :exclusions [instaparse]]
 
                  ;; CSS
-                 [forest "0.2.1"]
                  [fqcss "0.1.5"]
                  [async-watch "0.1.1"]
 
