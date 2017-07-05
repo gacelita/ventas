@@ -24,5 +24,6 @@
 (defmethod pages :frontend.category []
   [skeleton
    [:div
-    [:h2 "test"]]])
+    [:h2 "test"]
+    [products-list]]])
 

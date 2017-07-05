@@ -77,7 +77,6 @@
            sent to the client. Useful for hiding attributes, resolving EIDs
            or formatting attributes"
           (fn [entity]
-            (println entity)
             (keyword (name (:type entity)))))
 (defmethod json :default [entity]
   (-> entity
