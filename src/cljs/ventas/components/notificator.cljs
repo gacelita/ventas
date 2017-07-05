@@ -6,7 +6,7 @@
             [cljs.core.async :refer [<! >! put! close! timeout chan]]
             [re-frame.core :as rf])
   (:require-macros
-    [cljs.core.async.macros :as asyncm :refer (go go-loop)]))
+    [cljs.core.async.macros :refer [go go-loop]]))
 
 (rf/reg-sub :app/notifications
   (fn [db _] (-> db :notifications)))

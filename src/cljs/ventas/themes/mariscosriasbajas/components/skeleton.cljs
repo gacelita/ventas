@@ -13,6 +13,7 @@
             [ventas.components.category-list :refer [category-list]]
             [ventas.components.product-list :refer [products-list]]
             [ventas.components.cart :as ventas.cart]
+            [ventas.components.cookies :as ventas.cookies]
             [ventas.themes.mariscosriasbajas.components.header :refer [header]]
             [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
             [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
@@ -21,13 +22,14 @@
             [soda-ash.core :as sa]))
 
 (defn skeleton [contents]
-  (info "Rendering...")
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
     (wrap-reagent
      [:div {:fqcss [::root]}
       [ventas.notificator/notificator]
       [ventas.popup/popup]
+      [ventas.cookies/cookies
+       "Esta tienda utiliza cookies y otras tecnologías para que podamos mejorar su experiencia en nuestros sitios."]
       [:div {:fqcss [::wrapper]}
        [preheader]
        [header]

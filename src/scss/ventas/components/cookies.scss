@@ -1,0 +1,25 @@
+
+.cookies__-1895901519 {
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    background-color: #2C3E50;
+    width: 100%;
+    color: white;
+    transition: max-height 300ms;
+    max-height: 50px;
+    p {
+        padding: 10px 0px;
+        margin: 0px;
+        font-size: 14px;
+    }
+    .icon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        right: 5px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+}

@@ -131,7 +131,7 @@
     :request-params (:request-params request)
     :callback (fn [data] (cond
                            (not (:success data))
-                             (rf/dispatch [:components.popup/show "Error" (:data data)])
+                             (rf/dispatch [:app/notifications.add {:message (:data data) :theme "warning"}])
                            (:success request)
                              (rf/dispatch [(:success request) (:data data)])
                            (:success-fn request)

@@ -5,7 +5,6 @@
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
-            [ventas.pages.frontend :as frontend]
             [ventas.util :refer [route-param]]))
 
 (rf/reg-sub :pages.product/product
