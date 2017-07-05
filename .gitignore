@@ -25,3 +25,4 @@ pom.xml.asc
 /resources/public/img
 /resources/*.pem
 /resources/config.edn
+/resources/public/resources
