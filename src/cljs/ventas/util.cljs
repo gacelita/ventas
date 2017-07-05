@@ -85,3 +85,7 @@
                                        :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
     sub-kw))
 
+(defn format-price
+  "Really naive method"
+  [price]
+  (str price " €"))

@@ -6,9 +6,10 @@
     flex-wrap: wrap;
 }
 .{product-list/product} {
-    width: 25%;
-    padding: 4px;
+    width: calc(25% - 8px);
+    margin: 4px;
     position: relative;
+    border: solid 1px #e6e6e6;
     a {
         text-decoration: none;
         color: black;
@@ -16,7 +17,7 @@
         display: inline-block;
         padding: 5px 0px;
         width: 100%;
-        text-align: center;
+        text-align: left;
     }
     img {
         width: 100%;
@@ -24,4 +25,7 @@
     .{product-list/price} {
 
     }
+}
+.{product-list/content} {
+    padding: 7px 15px 12px;
 }

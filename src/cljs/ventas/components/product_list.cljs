@@ -1,5 +1,5 @@
 (ns ventas.components.product-list
-  (:require [ventas.util :as util :refer [go-to]]
+  (:require [ventas.util :as util]
             [re-frame.core :as rf]
             [clojure.string :as s]
             [soda-ash.core :as sa]
@@ -23,9 +23,9 @@
      [:div {:fqcss [::list]}
       (for [product @(rf/subscribe [:components/product-list])]
         [:div {:fqcss [::product]}
-         [:pre (with-out-str (pprint product))]
          (when (seq (:images product))
            [:img {:src (:url (first (:images product)))}])
-         [:a {:href (routes/path-for :frontend.product :id (:id product))} (:name product)]
-         [:div {:fqcss [::price]}
-          [:span (:reference product)]]])])))
+         [:div {:fqcss [::content]}
+          [:a {:href (routes/path-for :frontend.product :id (:id product))} (:name product)]
+          [:div {:fqcss [::price]}
+           [:span (util/format-price (:price product))]]]])])))

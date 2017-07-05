@@ -11,6 +11,7 @@
             [ventas.components.popup]
             [ventas.components.product-list :refer [products-list]]
             [ventas.components.cart :as cart]
+            [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
             [ventas.util :as util]
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
@@ -38,8 +39,6 @@
 (defmethod pages :frontend []
   [skeleton
     [:div
-      [:h2 "Test frontend"]
-      [plugin/widget :plugins.featured-products/list]
-      [products-list]
-      [:h3 "Test"]]])
+      [theme.heading/heading "Sugerencias de la semana"]
+      [products-list]]])
 
