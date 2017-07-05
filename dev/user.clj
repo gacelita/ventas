@@ -37,6 +37,7 @@
   `(do
       (~'ns-unalias ~''user ~''config)
       (~'ns-unalias ~''user ~''server)
+      (~'ns-unalias ~''user ~''api)
       (~'ns-unalias ~''user ~''db)
       (~'ns-unalias ~''user ~''schema)
       (~'ns-unalias ~''user ~''seed)
@@ -46,6 +47,7 @@
       (~'ns-unalias ~''user ~''util)
       (~'alias ~''config 'ventas.config)
       (~'alias ~''server 'ventas.server)
+      (~'alias ~''api 'ventas.server.api)
       (~'alias ~''db 'ventas.database)
       (~'alias ~''schema 'ventas.database.schema)
       (~'alias ~''seed 'ventas.database.seed)
@@ -133,11 +135,13 @@
 (def start mount/start)
 
 (defn init []
-  (tn/refresh-all)
-  (mount/start)
-  (init-aliases)
-  (go (>! events/init true))
-  :ready)
+  (let [result (tn/refresh-all)]
+    (when (instance? Exception result)
+      (throw result))
+    (mount/start)
+    (init-aliases)
+    (go (>! events/init true))
+    :ready))
 
 (defn reset []
   (mount/stop)
