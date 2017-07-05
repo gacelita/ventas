@@ -28,7 +28,6 @@
             [ventas.routes :as routes :refer [go-to]]
             [ventas.page :as p]
 
-            ;; @todo: Desarrollar algo para automatizar esto
             [ventas.plugins.featured-products.core]
             [ventas.pages.backend]
             [ventas.pages.backend.playground]

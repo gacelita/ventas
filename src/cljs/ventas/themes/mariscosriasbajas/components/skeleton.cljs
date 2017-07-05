@@ -14,13 +14,15 @@
             [ventas.components.product-list :refer [products-list]]
             [ventas.components.cart :as ventas.cart]
             [ventas.components.cookies :as ventas.cookies]
+            [ventas.components.menu :as ventas.menu]
             [ventas.themes.mariscosriasbajas.components.header :refer [header]]
             [ventas.themes.mariscosriasbajas.components.footer :refer [footer]]
             [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
             [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
             [ventas.util :as util]
             [ventas.plugin :as plugin]
-            [soda-ash.core :as sa]))
+            [soda-ash.core :as sa]
+            [ventas.routes :as routes]))
 
 (defn skeleton [contents]
   (let [current-page (:current-page (session/get :route))
@@ -30,10 +32,13 @@
         [ventas.notificator/notificator]
         [ventas.popup/popup]
         [ventas.cookies/cookies
-          "Esta tienda utiliza cookies y otras tecnologías para que podamos mejorar su experiencia en nuestros sitios."]
+          "Esta tienda utiliza cookies y otras tecnologías para que podamos
+           mejorar su experiencia en nuestros sitios."]
         [:div {:fqcss [::wrapper]}
           [preheader]
           [header]
+          [ventas.menu/menu [{:text "Inicio" :href (routes/path-for :frontend)}
+                             {:text "Mariscos" :href (routes/path-for :frontend.category :id 1)}]]
           [sa/Container {:class "main"}
             [sa/Breadcrumb
               (util/interpose-fn
