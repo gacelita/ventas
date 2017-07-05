@@ -19,4 +19,24 @@
 
   {:route :frontend.category
    :name "Categoría"
-   :url ["category/" :id]}])
+   :url ["category/" :id]}
+
+  {:route :frontend.legal-notice
+   :name "Aviso legal"
+   :url ["legal-notice"]}
+
+  {:route :frontend.privacy-policy
+   :name "Política de privacidad"
+   :url ["privacy-policy"]}
+
+  {:route :frontend.cookie-usage
+   :name "Uso de cookies"
+   :url ["cookie-usage"]}
+
+  {:route :frontend.faq
+   :name "Preguntas frecuentes"
+   :url ["faq"]}
+
+  {:route :frontend.shipping-fees
+   :name "Precios portes"
+   :url ["shipping-fees"]}])

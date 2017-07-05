@@ -15,6 +15,7 @@
             [ventas.components.cart :as ventas.cart]
             [ventas.components.cookies :as ventas.cookies]
             [ventas.themes.mariscosriasbajas.components.header :refer [header]]
+            [ventas.themes.mariscosriasbajas.components.footer :refer [footer]]
             [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
             [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
             [ventas.util :as util]
@@ -25,19 +26,22 @@
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
     (wrap-reagent
-     [:div {:fqcss [::root]}
-      [ventas.notificator/notificator]
-      [ventas.popup/popup]
-      [ventas.cookies/cookies
-       "Esta tienda utiliza cookies y otras tecnologías para que podamos mejorar su experiencia en nuestros sitios."]
-      [:div {:fqcss [::wrapper]}
-       [preheader]
-       [header]
-       [sa/Container {:class "bu main"}
-        [sa/Breadcrumb
-         (util/interpose-fn (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
-                            (for [breadcrumb (util/breadcrumbs current-page route-params)]
-                              [sa/BreadcrumbSection {:key (:route breadcrumb) :href (:url breadcrumb)} (:name breadcrumb)]))]
-        [sa/Divider]
-        ^{:key current-page} contents]]
-      [ventas.cart/sidebar]])))
+      [:div {:fqcss [::root]}
+        [ventas.notificator/notificator]
+        [ventas.popup/popup]
+        [ventas.cookies/cookies
+          "Esta tienda utiliza cookies y otras tecnologías para que podamos mejorar su experiencia en nuestros sitios."]
+        [:div {:fqcss [::wrapper]}
+          [preheader]
+          [header]
+          [sa/Container {:class "main"}
+            [sa/Breadcrumb
+              (util/interpose-fn
+                (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
+                (for [breadcrumb (util/breadcrumbs current-page route-params)]
+                  [sa/BreadcrumbSection {:key (:route breadcrumb) :href (:url breadcrumb)}
+                    (:name breadcrumb)]))]
+            [sa/Divider]
+            ^{:key current-page} contents]
+          [footer]]
+        [ventas.cart/sidebar]])))
