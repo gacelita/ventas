@@ -1,7 +1,7 @@
 (ns ventas.local-storage
   (:require [re-frame.core :refer [reg-fx reg-cofx ->interceptor] :as rf]
             [alandipert.storage-atom :refer [local-storage]]
-            [cljs.spec :as s]))
+            [cljs.spec.alpha :as s]))
 
 (s/def ::cljs-data
   (s/or :nil nil?

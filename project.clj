@@ -10,16 +10,21 @@
   :dependencies [
                  ;; Clojure
                  [org.clojure/clojure "1.9.0-alpha14"]
-                 [org.clojure/clojurescript "1.9.293" :scope "provided"]
-                 [org.clojure/core.async "0.2.395"
+                 [org.clojure/clojurescript "1.9.671" :scope "provided"]
+                 [org.clojure/core.async "0.3.443"
                   :exclusions [org.clojure/tools.reader]]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.2.11"]
 
+                 ;; Conflict resolution
+                 [com.google.guava/guava "20.0"]
+
                  ;; Logging
-                 [org.clojure/tools.logging "0.3.1"]
-                 [org.slf4j/slf4j-log4j12 "1.7.1"]
+                 [org.clojure/tools.logging "0.4.0"]
+                 [com.taoensso/timbre       "4.10.0"]
+                 [onelog "0.5.0"]
+                 [org.slf4j/slf4j-log4j12 "1.7.25"]
                  [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
                                                     javax.jms/jms
                                                     com.sun.jmdk/jmxtools
@@ -27,59 +32,49 @@
 
                  ;; JSON, Transit and Fressian
                  [org.clojure/data.json "0.2.6"]
-                 [cheshire "5.5.0"]
-                 [com.cognitect/transit-clj "0.8.297"]
-                 [com.cognitect/transit-cljs "0.8.220"]
+                 [cheshire "5.7.1" :exclusions [com.fasterxml.jackson.core/jackson-core]]
+                 [com.cognitect/transit-clj "0.8.300"]
+                 [com.cognitect/transit-cljs "0.8.239"]
                  [org.clojure/data.fressian "0.2.1"]
 
                  ;; Server-side HTTP requests
-                 [clj-http "2.3.0"]
-
-                 ;; Logging
-                 [com.taoensso/timbre       "4.8.0"]
-
-                 ;; core.async + websockets
-                 ;; [jarohen/chord "0.7.0"]
+                 [clj-http "3.6.1" :exclusions [riddley]]
 
                  ; Server
                  [http-kit "2.2.0"]
 
                  ; Authentication
-                 [buddy "1.2.0"]
-
-                 ;; [longshi "0.1.4"]
-                 ; [net.unit8/fressian-cljs "0.2.0"]
+                 [buddy "1.3.0" :exclusions [instaparse]]
 
                  ;; Ring
-                 [ring "1.5.1"]
-                 [ring/ring-defaults "0.2.2"]
+                 [ring "1.6.1"]
+                 [ring/ring-defaults "0.3.0"]
                  [bk/ring-gzip "0.2.1"]
-                 [onelog "0.4.6"]
                  [ring.middleware.logger "0.5.0" :exclusions [log4j onelog]]
                  [ring/ring-json "0.4.0" :exclusions [cheshire]] ;; see: buddy
 
                  ;; Routing
-                 [compojure "1.5.2"]
+                 [compojure "1.6.0" :exclusions [instaparse]]
 
                  ;; Secrets
                  [cprop "0.1.10"]
 
                  ;; Reagent
-                 [reagent "0.6.0"]
-                 [reagent-utils "0.1.7"]
-                 [re-frame "0.9.1"]
-                 [re-frame-datatable "0.5.1"]
-                 [soda-ash "0.2.0"]
+                 [reagent "0.7.0"]
+                 [reagent-utils "0.2.1"]
+                 [re-frame "0.9.4"]
+                 [re-frame-datatable "0.5.2"]
+                 [soda-ash "0.3.0"]
 
                  ; Routing
-                 [bidi "2.0.16"]
-                 [venantius/accountant "0.1.7"]
+                 [bidi "2.1.1"]
+                 [venantius/accountant "0.2.0"]
 
                  ; HTML templating
-                 [selmer "1.10.5" :exclusions [cheshire]] ;; see: buddy
+                 [selmer "1.10.8" :exclusions [cheshire joda-time]] ;; see: buddy
 
                  ;; Bootstrap
-                 [cljsjs/react-bootstrap "0.30.7-0"]
+                 [cljsjs/react-bootstrap "0.31.0-0"]
 
                  ;; component alternative
                  [mount "0.1.11"]
@@ -88,20 +83,20 @@
                  [me.raynes/conch "0.8.0"]
 
                  ;; Database
-                 [com.datomic/datomic-pro "0.9.5394" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
-                 [io.rkn/conformity "0.4.0"]
+                 [com.datomic/datomic-pro "0.9.5394" :exclusions [org.slf4j/log4j-over-slf4j org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
+                 [io.rkn/conformity "0.5.0"]
 
                  ;; Text colors
-                 [io.aviso/pretty "0.1.33"]
+                 [io.aviso/pretty "0.1.34"]
 
                  ;; UUIDs
-                 [danlentz/clj-uuid "0.1.6"]
+                 [danlentz/clj-uuid "0.1.7" :exclusions [primitive-math]]
 
                  ;; "throw+" and "try+"
                  [slingshot "0.12.2"]
 
                  ;; Uploads
-                 [byte-streams "0.2.2"]
+                 [byte-streams "0.2.3"]
                  [com.novemberain/pantomime "2.9.0"]
 
                  ;; DateTime
@@ -112,7 +107,7 @@
 
                  ;; Generators
                  [org.clojure/test.check "0.9.0"]
-                 [com.gfredericks/test.chuck "0.2.7"]
+                 [com.gfredericks/test.chuck "0.2.7" :exclusions [instaparse]]
 
                  ;; CSS
                  [forest "0.2.1"]
@@ -124,24 +119,24 @@
                  ;;
 
                  ;; Google Chrome Developer Tools custom formatters
-                 [binaryage/devtools "0.8.3"]
+                 [binaryage/devtools "0.9.4"]
 
                  ; Error reporting for Ring
                  [prone "1.1.4"]
 
                  ;; re-frame debugging
-                 [org.clojars.stumitchell/clairvoyant "0.2.0"]
+                 [org.clojars.stumitchell/clairvoyant "0.2.1"]
                  [day8/re-frame-tracer "0.1.1-SNAPSHOT"]
 
                 ]
 
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-environ "1.0.3"]
-            [lein-sassc "0.10.4"]
+            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
             [lein-auto "0.1.2"]
             [lein-ancient "0.6.10"]
             [lein-git-deps "0.0.1-SNAPSHOT"]
-            [venantius/ultra "0.5.1"]]
+            [venantius/ultra "0.5.1" :exclusions [org.clojure/clojure]]]
 
   :min-lein-version "2.6.1"
 
@@ -178,13 +173,15 @@
                            :output-to "resources/public/js/compiled/ventas.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true
-                           :preloads [devtools.preload]}}
+                           :preloads [devtools.preload]
+                           :parallel-build true}}
 
                {:id "test"
                 :source-paths ["src/cljs" "test/cljs" "src/cljc" "test/cljc" "custom-lib"]
                 :compiler {:output-to "resources/public/js/compiled/testable.js"
                            :main ventas.test-runner
-                           :optimizations :none}}
+                           :optimizations :none
+                           :parallel-build true}}
 
                {:id "min"
                 :source-paths ["src/cljs" "src/cljc" "custom-lib"]
@@ -195,7 +192,8 @@
                            :source-map-timestamp true
                            :optimizations :advanced
                            :pretty-print false
-                           :externs ["externs.js"]}}]}
+                           :externs ["externs.js"]
+                           :parallel-build true}}]}
 
   ;; When running figwheel from nREPL, figwheel will read this configuration
   ;; stanza, but it will read it without passing through leiningen's profile
@@ -250,16 +248,16 @@
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
 
-  :profiles { :dev {:dependencies [[figwheel "0.5.8"]
-                                   [figwheel-sidecar "0.5.8"]
-                                   [com.cemerick/piggieback "0.2.1"]
-                                   [org.clojure/tools.nrepl "0.2.12"]
-                                   [com.cemerick/pomegranate "0.3.1"]
+  :profiles { :dev {:dependencies [[figwheel "0.5.11"]
+                                   [figwheel-sidecar "0.5.11"]
+                                   [com.cemerick/piggieback "0.2.2"]
+                                   [org.clojure/tools.nrepl "0.2.13"]
+                                   [com.cemerick/pomegranate "0.3.1" :exclusions [org.codehaus.plexus/plexus-utils]]
                                    [org.clojure/test.check "0.9.0"]
                                    [com.gfredericks/test.chuck "0.2.7"]]
 
-                    :plugins [[lein-figwheel "0.5.4-4"]
-                              [lein-doo "0.1.6"]]
+                    :plugins [[lein-figwheel "0.5.4-4" :exclusions [org.clojure/clojure]]
+                              [lein-doo "0.1.6" :exclusions [org.clojure/clojure]]]
 
                     :source-paths ["dev"]}
 
