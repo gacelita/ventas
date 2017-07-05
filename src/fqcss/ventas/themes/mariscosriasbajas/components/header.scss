@@ -1,35 +1,56 @@
 {alias header ventas.themes.mariscosriasbajas.components.header}
 
-.ventas {
-    &.{header/header} {
-        background-color: #2c3e50;
-        padding: 18px 0;
-    }
-    &.{header/header-right} {
-
-    }
-    &.{header/header-info} {
-        text-align: center;
-    }
-    &.{header/header-info-shipping} {
-        color: white;
-        display: block;
-        padding: 0 10px;
-        margin-right: 10px;
-        font-family: 'Raleway',sans-serif;
-        font-size: 15px;
-        float: left;
-        border-right: solid 1px white;
-    }
-    &.{header/header-info-from} {
-        font-family: 'Raleway',sans-serif;
-        font-size: 15px;
-        color: white;
-        text-align: left;
-    }
-    &.{header/header-buttons} {
-        margin-left: 35px;
-        margin-top: 4px;
-        float: right;
+.{header/header} {
+    background-color: #2c3e50;
+    padding: 18px 0;
+    .ui.container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
     }
 }
+.{header/header-right} {
+    width: 100%;
+    text-align: right;
+    height: 40px;
+}
+.{header/header-info} {
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+}
+.{header/header-info-shipping} {
+    color: white;
+    display: inline-block;
+    padding: 0 10px;
+    margin-right: 10px;
+    font-family: 'Raleway',sans-serif;
+    font-size: 19px;
+    border-right: solid 1px white;
+}
+.{header/header-info-from} {
+    display: inline-block;
+    font-family: 'Raleway',sans-serif;
+    font-size: 15px;
+    color: white;
+    text-align: left;
+}
+.{header/header-buttons} {
+    margin-left: 35px;
+    display: inline-block;
+    vertical-align: middle;
+
+    button {
+        background-color: #c62134;
+        border: 0px;
+        color: white;
+        text-transform: uppercase;
+        border-radius: 4px;
+        padding: 6px 11px 6px 7px;
+        margin: 0px 6px;
+        .icon {
+            margin-right: 5px;
+        }
+    }
+}
+
