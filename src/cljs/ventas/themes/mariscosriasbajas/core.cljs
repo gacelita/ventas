@@ -2,6 +2,7 @@
   (:require [ventas.themes.mariscosriasbajas.pages.frontend]
             [ventas.themes.mariscosriasbajas.pages.category]
             [ventas.themes.mariscosriasbajas.pages.product]
+            [ventas.themes.mariscosriasbajas.pages.privacy-policy]
             [ventas.routes :as routes]))
 
 (routes/define-routes!
