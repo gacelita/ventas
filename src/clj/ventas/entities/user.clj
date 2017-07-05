@@ -2,7 +2,8 @@
   (:require [clojure.spec :as s]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
-            [ventas.database :as db]))
+            [ventas.database :as db]
+            [ventas.database.entity :as entity]))
 
 (s/def :user/name string?)
 (s/def :user/password string?)
@@ -17,7 +18,7 @@
   (s/keys :req [:user/name :user/password :user/email :user/status]
           :opt [:user/description :user/roles]))
 
-(defmethod db/entity-precreate :user [data]
+(defmethod entity/precreate :user [data]
   (if-not (:user/status data)
     (assoc data :user/status :user.status/active)
     data))

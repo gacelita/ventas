@@ -19,8 +19,6 @@
     [taoensso.timbre :as timbre :refer (trace debug info warn error)])
   (:import [java.io File]))
 
-;; Require all client
-
 (defn start-db! []
   (let [url (get-in config [:database :url])]
     (util/print-info (str "Starting database, URL: " url))
@@ -34,22 +32,65 @@
 
 (defstate db :start (start-db!) :stop (stop-db! db))
 
-(defn entity-spec
-  "Checks that an entity complies with its spec"
-  [data]
-  (if (s/valid? (:schema/type data) data)
-     data
-     (throw+ {:type ::spec-invalid :message (s/explain (:schema/type data) data)})))
+(defn q
+  "q wrapper"
+  [query & args]
+  (apply d/q query (apply concat [(d/db db)] args)))
+
+(defn pull
+  "pull wrapper"
+  [& args]
+  (apply d/pull (concat [(d/db db)] args)))
+
+(defn transact
+  "transact wrapper"
+  [& args]
+  (apply d/transact db args))
+
+(defn history
+  "history wrapper"
+  [& args]
+  (apply d/history (d/db db) args))
+
+(defn ident
+  "ident wrapper"
+  [& args]
+  (apply d/ident (d/db db) args))
 
 (defn basis-t
   "Gets the last t"
   []
   (-> db d/db d/basis-t))
 
-(defn get-transaction
+(defn transaction
   "Gets a transaction by t"
   [t]
   (-> db d/log (d/tx-range t nil) first))
+
+(defn entity
+  "entity wrapper"
+  [& args]
+  (apply d/entity (d/db db) args))
+
+(defn datoms
+  "datoms wrapper"
+  [& args]
+  (apply d/datoms (d/db db) args))
+
+(defn tx-report-queue
+  "tx-report-queue wrapper"
+  [& args]
+  (apply d/tx-report-queue db args))
+
+(defn resolve-tempid
+  "resolve-tempid wrapper"
+  [& args]
+  (apply d/resolve-tempid (d/db db) args))
+
+(defn retract-entity
+  "Retract an entity by eid"
+  [eid]
+  @(transact [[:db.fn/retractEntity eid]]))
 
 (defn datom->map
   [^datomic.Datom datom]
@@ -58,10 +99,10 @@
         v  (.v datom)
         tx (.tx datom)
         added (.added datom)]
-    {:e (or (d/ident (d/db db) e) e)
-     :a (or (d/ident (d/db db) a) a)
-     :v (or (and (= :db.type/ref (:db/valueType (d/entity (d/db db) a)))
-              (d/ident (d/db db) v))
+    {:e (or (ident e) e)
+     :a (or (ident a) a)
+     :v (or (and (= :db.type/ref (:db/valueType (entity a)))
+              (ident v))
          v)
      :tx (d/tx->t tx)
      :added added}))
@@ -74,7 +115,7 @@
   effectively 'undoing' the transaction."
   ([] (rollback (basis-t)))
   ([t]
-    (let [tx (get-transaction t)
+    (let [tx (transaction t)
           tx-eid   (-> tx :t d/t->tx)
           new-datoms (->> (:data tx)
                           ; Remove transaction-metadata datoms
@@ -83,44 +124,19 @@
                           (map #(do [(if (:added %) :db/retract :db/add) (:e %) (:a %) (:v %)]))
                           ; Reverse order of inverted datoms.
                           reverse)]
-      @(d/transact db new-datoms))))
+      @(transact new-datoms))))
 
-(defn get-partitions
+(defn partitions
   "Gets the partitions of the database"
   []
-  (d/q '[:find ?ident :where [:db.part/db :db.install/partition ?p]
-                             [?p :db/ident ?ident]]
-       (d/db db)))
-
-(defn datoms [index & components]
-  (apply d/datoms (d/db db) index components))
-
-(defn entity-dates
-  "First and last dates associated with an eid"
-  [eid]
-  (first (d/q '[:find (min ?tx-time) (max ?tx-time)
-                :in $ ?e
-                :where
-                  [?e _ _ ?tx _]
-                  [?tx :db/txInstant ?tx-time]]
-            (d/history (d/db db)) eid)))
+  (q '[:find ?ident
+       :where [:db.part/db :db.install/partition ?p]
+              [?p :db/ident ?ident]]))
 
 (defn touch-eid
-  "Touches an entity by EID"
+  "Touches an entity by eid"
   [eid]
-  (into {} (d/touch (d/entity (d/db db) eid))))
-
-(defn get-entity
-  "Gets an entity with its ID"
-  [eid]
-  (-> (touch-eid eid)
-      (assoc :id eid)))
-
-(defn assoc-entity-dates [entity]
-  (let [dates (entity-dates (:id entity))]
-    (-> entity
-        (assoc :created-at (get dates 0))
-        (assoc :updated-at (get dates 1)))))
+  (into {} (d/touch (entity eid))))
 
 (defn EntityMaps->eids
   "EntityMap -> eid"
@@ -135,68 +151,40 @@
                :else v)
            :else v)])))
 
-(defn process-db-entity
-  "Processes an entity from the database:
-    - Dequalifies keywords (schema.type -> type)
-    - Converts EntityMaps to simple eids
-    - Assocs created-at and updated-at"
-  [data]
-  (-> data
-      (util/dequalify-keywords)
-      (EntityMaps->eids)
-      (assoc-entity-dates)))
-
-(defn process-transaction
-  "Returns an entity from a transaction"
-  [type tx tempid]
-  (-> (d/resolve-tempid (d/db db) (:tempids tx) tempid)
-      (get-entity)
-      (process-db-entity)))
-
-(defn get-schema
+(defn schema
   "Gets the current database schema"
   []
   (let [system-ns #{"db" "db.alter" "db.sys" "db.type" "db.install" "db.part" 
                     "db.lang" "fressian" "db.unique" "db.excise" "db.cardinality" "db.fn"}]
     (map touch-eid
-      (sort (d/q '[:find [?ident ...]
-                   :in $ ?system-ns
-                   :where [?e :db/ident ?ident]
-                          [(namespace ?ident) ?ns]
-                          [((comp not contains?) ?system-ns ?ns)]
-                          [_ :db.install/attribute ?e]]
-                  (d/db db) system-ns)))))
+      (sort (q '[:find [?ident ...]
+                 :in $ ?system-ns
+                 :where [?e :db/ident ?ident]
+                        [(namespace ?ident) ?ns]
+                        [((comp not contains?) ?system-ns ?ns)]
+                        [_ :db.install/attribute ?e]]
+               system-ns)))))
 
-(defn get-attributes
+(defn attributes
   "Gets all attributes. This is a superset of the schema."
   []
   (map touch-eid
-       (sort (d/q '[:find [?ident ...]
-                    :where [?e :db/ident ?ident]
-                    [(namespace ?ident) ?ns]
-                    [_ :db.install/attribute ?e]]
-                  (d/db db)))))
+       (sort (q '[:find [?ident ...]
+                  :where [?e :db/ident ?ident]
+                         [(namespace ?ident) ?ns]
+                         [_ :db.install/attribute ?e]]))))
 
-(defn get-enum-values
+(defn enum-values
   "Gets the values of a database enum
-   Usage: (get-enum-values \"schema.type\""
+   Usage: (enum-values \"schema.type\""
   [enum]
-  (d/q '[:find ?id ?ident ?value
-         :in $ ?enum
-         :where [?id :db/ident ?ident]
-                [(name ?ident) ?value]
-                [(namespace ?ident) ?ns]
-                [(= ?ns ?enum)]] (d/db db) enum))
-
-(defn retract-entity
-  "Retract an entity by eid"
-  [eid]
-  @(d/transact db [[:db.fn/retractEntity eid]]))
-
-(defn pull
-  "Small pull helper"
-  [& args]
-  (apply d/pull (concat [(d/db db)] args)))
+  (q '[:find ?id ?ident ?value
+       :in $ ?enum
+       :where [?id :db/ident ?ident]
+              [(name ?ident) ?value]
+              [(namespace ?ident) ?ns]
+              [(= ?ns ?enum)]]
+       enum))
 
 (defn read-changes
   "Given a report from tx-report-queue and a query, gets the changes"
@@ -204,8 +192,6 @@
   (d/q query
        db-after
        tx-data))
-
-(defn tx-report-queue [] (d/tx-report-queue db))
 
 (defn keyword->db-symbol [keyword]
   (symbol (str "?" (name keyword))))
@@ -226,149 +212,8 @@
   ([] (filtered-query '() {}))
   ([wheres] (filtered-query wheres {}))
   ([wheres filters]
-    (let [query (filtered-query* wheres filters)]
-      (apply d/q (concat [query (d/db db)] (vals filters))))))
-
-
-
-(defn entity-filtered-query
-  "@todo Refactor me"
-  ([type filters]
-    (entity-filtered-query type (map (fn [[k v]] [ '?id (if (namespace k) k (util/qualify-keyword k type)) (if (= v :any) '_ (keyword->db-symbol k))]) filters) filters))
-  ([type wheres filters]
-    (filtered-query wheres filters)))
-
-(declare entity-query)
-
-(defmulti entity-preseed (fn entity-preseed [type data] type))
-(defmethod entity-preseed :default [type data] data)
-
-(defmulti entity-precreate (fn entity-precreate [data] (keyword (name (:schema/type data)))))
-(defmethod entity-precreate :default [data] data)
-
-(defmulti entity-postcreate (fn entity-postcreate [type entity] type))
-(defmethod entity-postcreate :default [type entity] true)
-
-(defmulti entity-predelete (fn entity-predelete [type entity] type))
-(defmethod entity-predelete :default [type entity] true)
-
-(defmulti entity-postdelete (fn entity-postdelete [type entity] type))
-(defmethod entity-postdelete :default [type entity] true)
-
-(defmulti entity-preupdate (fn entity-preupdate [type entity params] type))
-(defmethod entity-preupdate :default [type entity params] true)
-
-(defmulti entity-postupdate (fn entity-postupdate [type entity params] type))
-(defmethod entity-postupdate :default [type entity params] true)
-
-(defmulti entity-postquery (fn entity-postquery [entity] (keyword (name (:type entity)))))
-(defmethod entity-postquery :default [entity] entity)
-
-(defmulti entity-postseed (fn entity-postseed [entity] (keyword (name (:type entity)))))
-(defmethod entity-postseed :default [entity] entity)
-
-(defmulti entity-json
-  "This should return a map to be JSON-encoded and most likely
-   sent to the client. Useful for hiding attributes, resolving EIDs
-   or formatting attributes"
-  (fn [entity]
-    (println entity)
-    (keyword (name (:type entity)))))
-(defmethod entity-json :default [entity]
-  (-> entity
-    (dissoc :type)))
-
-(defmulti entity-query
-  "Multimethod for querying entities"
-  (fn entity-query
-    ([type] type)
-    ([type params] type)
-    ([type wheres params] type)))
-
-(defmethod entity-query :default
-  ([type] (entity-query type {:schema/type (keyword "schema.type" (name type))}))
-  ([type params]
-    (let [results (entity-filtered-query type params)]
-      (map (fn [[eid]] (entity-postquery (process-db-entity (get-entity eid)))) results)))
-  ([type wheres params]
-    (let [results (entity-filtered-query type wheres params)]
-      (map (fn [[eid]] (entity-postquery (process-db-entity (get-entity eid)))) results))))
-
-(defn entity-find
-  "Finds entities by eid"
-  [eid]
-  (process-db-entity (get-entity eid)))
-
-(defmulti entity-create
-  "Multimethod for creating entities"
-  (fn entity-create [type params] type))
-
-(defmethod entity-create :default [type params]
-  (let [tempid (d/tempid :db.part/user)
-        data
-          (-> (util/qualify-map-keywords (util/filter-empty-vals params) type)
-              (assoc :db/id tempid)
-              (assoc :schema/type (keyword "schema.type" (name type)))
-              entity-precreate
-              entity-spec)
-        tx @(d/transact db [data])
-        entity (process-transaction type tx tempid)]
-    (entity-postcreate type entity)
-    entity))
-
-(defprotocol EntityType
-  "Protocol for getting the :db.type of an entity
-   Example usage: (entity-type user)"
-  (entity-type [this]))
-
-(defprotocol EntityUpdate
-  "Protocol for updating entities
-   Example usage: (entity-update user {:email \"new-email@example.com\"})"
-  (entity-update [this params]))
-
-(defprotocol EntityDelete
-  "Protocol for deleting entities
-   Example usage: (entity-delete user)"
-  (entity-delete [this]))
-
-(extend-type Object
-  EntityType
-    ;; By default, a ventas.database/User object gets the type ":user"
-    (entity-type [this]
-      (-> this class .getSimpleName clojure.string/lower-case keyword))
-  EntityUpdate
-    ;; Default update implementation.
-    ;; Executes the preupdate method for the type, transacts the update, and executes the postupdate method for the type
-    ;; postupdate method exists.
-    (entity-update [this params]
-      (when (nil? (:id this))
-        (throw+ {:type ::invalid-update :entity this :message "The entity needs to have an ID in order to be updated"}))
-      (entity-preupdate (entity-type this) this params)
-      @(d/transact db [(assoc (util/qualify-map-keywords params (entity-type this)) :db/id (:id this))])
-      (entity-postupdate (entity-type this) this params)
-      (entity-find (:id this)))
-  EntityDelete
-    ;; Default delete implementation.
-    ;; Executes the predelete method for the type, retracts the entity, and executes the postdelete method for the type
-    (entity-delete [this]
-      (when (nil? (:id this))
-        (throw+ {:type ::invalid-deletion :entity this :message "The entity needs to have an ID in order to be deleted"}))
-      (entity-predelete (entity-type this) this)
-      (retract-entity (:id this))
-      (entity-postdelete (entity-type this) this)
-      (:id this)))
-
-(defn entity-upsert
-  "Entity upsert. Calls entity-update if necessary, entity-create otherwise"
-  [type data]
-  (if (:id data)
-    (entity-update (entity-find (:id data)) (dissoc data :id))
-    (entity-create type data)))
-
-(defmulti entity-fixtures (fn [type] type))
-
-(defmethod entity-fixtures :default [type]
-  [])
+   (let [query (filtered-query* wheres filters)]
+     (q query (vals filters)))))
 
 (defn recreate
   "Recreates the database"

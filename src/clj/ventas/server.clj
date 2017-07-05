@@ -16,6 +16,7 @@
 
             ;; Auth
             [ventas.database :as db]
+            [ventas.database.entity :as entity]
             [datomic.api :as d]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
@@ -50,7 +51,7 @@
                             :as req}]
   (try
     (debug "Registering user" params)
-    (db/entity-create :user params)
+    (entity/create :user params)
     (response {:result true})
     (catch Exception e
       (response {:result false :message (.getMessage e)}))))
@@ -59,7 +60,7 @@
                     params :params
                     :as req}]
   (debug "Session" session params)
-  (let [user (db/entity-query :user {:email (:email params)})]
+  (let [user (entity/query :user {:email (:email params)})]
     (if (hashers/check (:password params) (:password user))
       ; If the credentials are valid
       (assoc (response {:result true}) :session (assoc session :identity (:id user)))
@@ -107,13 +108,13 @@
 (defmulti ws-request-handler (fn [message state] (:name message)))
 
 (defmethod ws-request-handler :entities.remove [message state]
-  (db/entity-delete (db/entity-find (get-in message [:params :id]))))
+  (entity/delete (entity/find (get-in message [:params :id]))))
 
 (defmethod ws-request-handler :entities.find [message state]
-  (db/entity-find (get-in message [:params :id])))
+  (entity/find (get-in message [:params :id])))
 
 (defmethod ws-request-handler :app.reference/user.role [message state]
-  (map (fn [a] {:text (get a 2) :value (get a 0)}) (db/get-enum-values "user.role")))
+  (map (fn [a] {:text (get a 2) :value (get a 0)}) (db/enum-values "user.role")))
 
 (defmethod ws-request-handler :users.list [message state]
   (let [results (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}]) :schema.type/user)]
@@ -125,25 +126,25 @@
 
 
 (defmethod ws-request-handler :users.save [message state]
-  (db/entity-upsert :user (:params message)))
+  (entity/upsert :user (:params message)))
 
 (defmethod ws-request-handler :users.comments.list [message state]
   (let [results (db/pull (quote [{:comment/_target [:db/id :comment/content {:comment/source [:db/id :user/name]}]}]) (get-in message [:params :id]))]
     (map (fn [a]
-      (let [dates (db/entity-dates (:db/id a))]
+      (let [dates (entity/dates (:db/id a))]
         {:content (:comment/content a)
          :source (:comment/source a)
          :id (:db/id a)
-         :created-at (get dates 0)})) (:comment/_target results))))
+         :created-at (:created-at dates)})) (:comment/_target results))))
 
 (defmethod ws-request-handler :users.made-comments.list [message state]
   (let [results (db/pull (quote [{:comment/_source [:db/id :comment/content {:comment/target [:db/id :user/name]}]}]) (get-in message [:params :id]))]
     (map (fn [a]
-      (let [dates (db/entity-dates (:db/id a))]
+      (let [dates (entity/dates (:db/id a))]
         {:content (:comment/content a)
          :target (:comment/target a)
          :id (:db/id a)
-         :created-at (get dates 0)})) (:comment/_source results))))
+         :created-at (:created-at dates)})) (:comment/_source results))))
 
 (defmethod ws-request-handler :users.images.list [message state]
   (let [results (db/pull (quote [{:image.tag/_target [{:image.tag/image [:db/id {:image/extension [:db/ident]}]}]}]) (get-in message [:params :id]))]
@@ -169,7 +170,7 @@
                                         (map :friendship/source (:friendship/_target results))))))
 
 (defmethod ws-request-handler :resources/find [message state]
-  (db/entity-query :resource {:keyword (get-in message [:params :id])}))
+  (entity/query :resource {:keyword (get-in message [:params :id])}))
 
 (defmethod ws-request-handler :datadmin/datoms [message state]
   (let [datoms (db/datoms :eavt)]
@@ -180,33 +181,32 @@
 (defmethod ws-request-handler :resource/get [message state]
   {:pre [(keyword? (get-in message [:params :keyword]))]}
   (let [kw (get-in message [:params :keyword])]
-    (if-let [resource (first (db/entity-query :resource {:keyword kw}))]
-      (db/entity-json resource)
+    (if-let [resource (first (entity/query :resource {:keyword kw}))]
+      (entity/json resource)
       (throw (Error. (str "Could not find resource with id: " kw))))))
 
 ;; @todo
 ;;   Returns null pointer exception on unexistent keyword
 (defmethod ws-request-handler :configuration/get [message state]
   {:pre [(keyword? (get-in message [:params :key]))]}
-  (db/entity-json (first (db/entity-query :configuration {:key (get-in message [:params :key])}))))
+  (entity/json (first (entity/query :configuration {:key (get-in message [:params :key])}))))
 
 (defmethod ws-request-handler :products/get [message state]
-  (db/entity-json (db/entity-find (read-string (get-in message [:params :id])))))
+  (entity/json (entity/find (read-string (get-in message [:params :id])))))
 
 (defmethod ws-request-handler :products/list [message state]
-  (map db/entity-json (db/entity-query :product)))
+  (map entity/json (entity/query :product)))
 
-;; As of now this function is insecure (leaks sensitive data)
-;; @todo Implement db-wide auth filter
 (defmethod ws-request-handler :db.pull [message state]
-  (d/pull (d/db (:connection db/db)) (get-in message [:params :query]) (get-in message [:params :id])))
+  (db/pull (get-in message [:params :query])
+           (get-in message [:params :id])))
 
-;; @todo Implement db-wide auth filter
 (defmethod ws-request-handler :db.query [message state]
-  (apply d/q (concat [(get-in message [:params :query]) (d/db (:connection db/db))] (get-in message [:params :filters]))))
+  (db/q (get-in message [:params :query])
+        (get-in message [:params :filters])))
 
 (defmethod ws-request-handler :comments.save [message state]
-  (db/entity-upsert :comment (:params message)))
+  (entity/upsert :comment (:params message)))
 
 
 (defn call-ws-request-handler
@@ -293,7 +293,7 @@
         (do
           (println "The extension: " (mime-type-of (clojure.java.io/file path)))
           (let [mime (mime-type-of (clojure.java.io/file path))
-                entity (db/entity-create :image {:extension (pantomime-to-keyword mime) :source (get-in message [:params :source])})]
+                entity (entity/create :image {:extension (pantomime-to-keyword mime) :source (get-in message [:params :source])})]
             (.renameTo
               (clojure.java.io/file path)
               (clojure.java.io/file (str "resources/public/images/" (:id entity) (pantomime.mime/extension-for-name mime))))
@@ -344,7 +344,7 @@
   [handler]
   (fn [{user-id :identity :as req}]
     (if-not (nil? user-id)
-      (handler (assoc req :user (db/entity-find user-id)))
+      (handler (assoc req :user (entity/find user-id)))
       (handler req))))
 
 

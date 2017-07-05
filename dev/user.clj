@@ -40,6 +40,7 @@
       (~'ns-unalias ~''user ~''db)
       (~'ns-unalias ~''user ~''schema)
       (~'ns-unalias ~''user ~''seed)
+      (~'ns-unalias ~''user ~''entity)
       (~'ns-unalias ~''user ~''d)
       (~'ns-unalias ~''user ~''adi)
       (~'ns-unalias ~''user ~''util)
@@ -48,6 +49,7 @@
       (~'alias ~''db 'ventas.database)
       (~'alias ~''schema 'ventas.database.schema)
       (~'alias ~''seed 'ventas.database.seed)
+      (~'alias ~''entity 'ventas.database.entity)
       (~'alias ~''d 'datomic.api)
       (~'alias ~''util 'ventas.util)))
 

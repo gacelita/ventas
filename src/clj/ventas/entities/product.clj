@@ -2,7 +2,8 @@
   (:require [clojure.spec :as s]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
-            [ventas.database :as db]))
+            [ventas.database :as db]
+            [ventas.database.entity :as entity]))
 
 (s/def :product/name string?)
 (s/def :product/reference string?)
@@ -16,12 +17,12 @@
               (fn [] (gen/fmap (fn [d] (BigDecimal. (str d))) (gen/double* {:NaN? false :min 0 :max 999})))))
 
 (s/def :product/brand
-  (s/with-gen integer? #(gen/elements (map :id (db/entity-query :brand)))))
+  (s/with-gen integer? #(gen/elements (map :id (entity/query :brand)))))
 (s/def :product/tax
-  (s/with-gen integer? #(gen/elements (map :id (db/entity-query :tax)))))
+  (s/with-gen integer? #(gen/elements (map :id (entity/query :tax)))))
 (s/def :product/images
   (s/with-gen (s/and (s/* integer?) #(< (count %) 7) #(> (count %) 2))
-              #(gen/vector (gen/elements (map :id (db/entity-query :file))))))
+              #(gen/vector (gen/elements (map :id (entity/query :file))))))
 
 ;; product:
 ;;    ...
@@ -49,17 +50,18 @@
                 :product/tax
                 :product/images]))
 
-(defmethod db/entity-json :product [entity]
+(defmethod entity/json :product [entity]
   (as-> entity entity
     (dissoc entity :type)
-    (dissoc entity :created-at)
-    (dissoc entity :updated-at)
     (if-let [c (:condition entity)]
       (assoc entity :condition (keyword (name c)))
       entity)
     (if-let [tax (:tax entity)]
-      (assoc entity :tax (db/entity-json (db/entity-find tax))))
+      (assoc entity :tax (entity/json (entity/find tax)))
+      entity)
     (if-let [images (:images entity)]
-      (assoc entity :images (map #(db/entity-json (db/entity-find %)) images)))
+      (assoc entity :images (map #(entity/json (entity/find %)) images))
+      entity)
     (if-let [brand (:brand entity)]
-      (assoc entity :brand (db/entity-json (db/entity-find brand))))))
+      (assoc entity :brand (entity/json (entity/find brand)))
+      entity)))

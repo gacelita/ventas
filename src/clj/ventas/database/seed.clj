@@ -1,5 +1,6 @@
 (ns ventas.database.seed
   (:require [ventas.database :as db]
+            [ventas.database.entity :as entity]
             [ventas.database.schema :as schema]
             [taoensso.timbre :as timbre :refer (trace debug info warn error)]
             [clojure.test.check.generators :as gen]
@@ -21,9 +22,9 @@
   [type n]
   (info "Seeding " type)
   (doseq [entity-data (generate-n (keyword "schema.type" (name type)) n)]
-    (let [entity-data (db/entity-preseed type entity-data)
-          entity (db/entity-create type entity-data)]
-      (db/entity-postseed entity))))
+    (let [entity-data (entity/preseed type entity-data)
+          entity (entity/create type entity-data)]
+      (entity/postseed entity))))
 
 (def entity-list [:tax :file :brand :configuration :resource :attribute
                   :attribute-value :category :product :product-variation])
@@ -36,8 +37,8 @@
    (when reset?
      (schema/migrate true))
    (doseq [kw entity-list]
-     (doseq [fixture (db/entity-fixtures kw)]
-       (db/entity-create kw fixture)))
+     (doseq [fixture (entity/fixtures kw)]
+       (entity/create kw fixture)))
    (seed-type :tax 10)
    (seed-type :file 10)
    (seed-type :brand 10)
