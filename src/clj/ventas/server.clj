@@ -176,8 +176,6 @@
   (let [datoms (db/datoms :eavt)]
     {:datoms (map db/datom->map (take 10 datoms))}))
 
-;; @todo
-;;   Returns null pointer exception on unexistent keyword
 (defmethod ws-request-handler :resource/get [message state]
   {:pre [(keyword? (get-in message [:params :keyword]))]}
   (let [kw (get-in message [:params :keyword])]
@@ -185,11 +183,12 @@
       (entity/json resource)
       (throw (Error. (str "Could not find resource with id: " kw))))))
 
-;; @todo
-;;   Returns null pointer exception on unexistent keyword
 (defmethod ws-request-handler :configuration/get [message state]
   {:pre [(keyword? (get-in message [:params :key]))]}
-  (entity/json (first (entity/query :configuration {:key (get-in message [:params :key])}))))
+  (let [kw (get-in message [:params :key])]
+    (if-let [value (first (entity/query :configuration {:key kw}))]
+      (entity/json value)
+      (throw (Error. (str "Could not find configuration value: " kw))))))
 
 (defmethod ws-request-handler :products/get [message state]
   (entity/json (entity/find (read-string (get-in message [:params :id])))))
