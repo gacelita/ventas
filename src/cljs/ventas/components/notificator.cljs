@@ -2,6 +2,7 @@
   (:require [ventas.util :as util]
             [soda-ash.core :as sa]
             [clojure.string :as s]
+            [fqcss.core :refer [wrap-reagent]]
             [cljs.core.async :refer [<! >! put! close! timeout chan]]
             [re-frame.core :as rf])
   (:require-macros
@@ -27,9 +28,9 @@
 
 (defn notificator []
   "Displays notifications"
-  [:div.ventas {:fqcss [::notificator]}
-    (for [notification @(rf/subscribe [:app/notifications])]
-      [:div {:class (s/join " " ["bu" "notification" (:theme notification)])}
-        [sa/Icon {:class "bu close" :name (:icon notification) :on-click #(rf/dispatch [:app/notifications.remove (:sym notification)])}]
-        [:p {:class "bu message"} (:message notification)]
-      ])])
+  (wrap-reagent
+    [:div.ventas {:fqcss [::notificator]}
+      (for [notification @(rf/subscribe [:app/notifications])]
+        [:div {:class (s/join " " ["bu" "notification" (:theme notification)])}
+          [sa/Icon {:class "bu close" :name (:icon notification) :on-click #(rf/dispatch [:app/notifications.remove (:sym notification)])}]
+          [:p {:class "bu message"} (:message notification)]])]))
