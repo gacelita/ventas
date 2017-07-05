@@ -15,6 +15,7 @@
             [ventas.components.cart :as ventas.cart]
             [ventas.components.cookies :as ventas.cookies]
             [ventas.components.menu :as ventas.menu]
+            [ventas.components.breadcrumbs :as ventas.breadcrumbs]
             [ventas.themes.mariscosriasbajas.components.header :refer [header]]
             [ventas.themes.mariscosriasbajas.components.footer :refer [footer]]
             [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
@@ -25,28 +26,21 @@
             [ventas.routes :as routes]))
 
 (defn skeleton [contents]
-  (let [current-page (:current-page (session/get :route))
-        route-params (:route-params (session/get :route))]
-    (wrap-reagent
-      [:div {:fqcss [::root]}
-        [ventas.notificator/notificator]
-        [ventas.popup/popup]
-        [ventas.cookies/cookies
-          "Esta tienda utiliza cookies y otras tecnologías para que podamos
-           mejorar su experiencia en nuestros sitios."]
-        [:div {:fqcss [::wrapper]}
-          [preheader]
-          [header]
-          [ventas.menu/menu [{:text "Inicio" :href (routes/path-for :frontend)}
-                             {:text "Mariscos" :href (routes/path-for :frontend.category :id 1)}]]
-          [sa/Container {:class "main"}
-            [sa/Breadcrumb
-              (util/interpose-fn
-                (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
-                (for [breadcrumb (util/breadcrumbs current-page route-params)]
-                  [sa/BreadcrumbSection {:key (:route breadcrumb) :href (:url breadcrumb)}
-                    (:name breadcrumb)]))]
-            [sa/Divider]
-            ^{:key current-page} contents]
-          [footer]]
-        [ventas.cart/sidebar]])))
+  (wrap-reagent
+   [:div {:fqcss [::root]}
+    [ventas.notificator/notificator]
+    [ventas.popup/popup]
+    [ventas.cookies/cookies
+     "Esta tienda utiliza cookies y otras tecnologías para que podamos
+      mejorar su experiencia en nuestros sitios."]
+    [:div {:fqcss [::wrapper]}
+     [preheader]
+     [header]
+     [ventas.menu/menu [{:text "Inicio" :href (routes/path-for :frontend)}
+                        {:text "Mariscos" :href (routes/path-for :frontend.category :id 1)}]]
+     [sa/Container
+      [ventas.breadcrumbs/breadcrumbs]]
+     [sa/Divider]
+     contents
+     [footer]]
+    [ventas.cart/sidebar]]))

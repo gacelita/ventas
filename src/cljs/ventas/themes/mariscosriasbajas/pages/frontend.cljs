@@ -5,6 +5,7 @@
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [taoensso.timbre :as timbre :refer-macros [trace debug info warn error]]
+            [fqcss.core :refer [wrap-reagent]]
             [ventas.page :refer [pages]]
             [ventas.routes :refer [route-parents routes]]
             [ventas.components.notificator :as ventas.notificator]
@@ -12,6 +13,7 @@
             [ventas.components.category-list :refer [category-list]]
             [ventas.components.product-list :refer [products-list]]
             [ventas.components.cart :as ventas.cart]
+            [ventas.components.slider :as ventas.slider]
             [ventas.themes.mariscosriasbajas.components.header :refer [header]]
             [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
             [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
@@ -20,10 +22,38 @@
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
 
+(def ids
+  [17592186045684
+   17592186045682
+   17592186045680])
+
+(defmulti slides (fn [index] index))
+
+(defmethod slides 0 [index]
+  (wrap-reagent
+   [:div {:fqcss [::slide]}
+    [sa/Container
+     [:div {:fqcss [::content]}
+      [:p {:fqcss [::text]}
+       "18.10 € / ud."]
+      [:h1 "Bogavante azul"]
+      [:h2 "Precios a la baja, vivo o cocido ( 500 grs. )"]]]]))
+
+(defmethod slides 1 [index]
+  )
+
+(defmethod slides 2 [index]
+  )
+
 (defmethod pages :frontend []
   [skeleton
-   [:div
-    [category-list]
-    [theme.heading/heading "Sugerencias de la semana"]
-    [products-list]]])
+     [:div
+       [ventas.slider/slider
+         {:slides (map (fn [id] {:content (slides 0)
+                                 :image (str "http://localhost:3450/img/" id ".jpg")})
+                       ids)}]
+       [sa/Container
+         [category-list]
+         [theme.heading/heading "Sugerencias de la semana"]
+         [products-list]]]])
 

@@ -1,8 +1,7 @@
 (ns ventas.components.menu
   (:require [fqcss.core :refer [wrap-reagent]]
             [soda-ash.core :as sa]
-            [re-frame.core :as rf]
-            [accountant.core :as accountant]))
+            [re-frame.core :as rf]))
 
 (defn menu [items]
   (wrap-reagent
