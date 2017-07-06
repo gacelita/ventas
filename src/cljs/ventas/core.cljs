@@ -49,75 +49,40 @@
  {:fx :local-storage
   :cofx :local-storage})
 
-;; (trace-forms {:tracer (tracer :color "green")}
-
 ;; (require-pages)
 ;; (require-plugins)
 
-;; PROBLEM: Bidi's native syntax is about as readable as assembly
-;; SOLUTION: Compile from new syntax to BAF (Bidi Assembly Format)
 
-(def route-names {
-  :frontend "Frontend"
-  :frontend.index "Inicio"
-  :backend "Inicio"
-  :backend.users "Usuarios"
-  :backend.users.edit "Nuevo usuario"
-  :backend.login "Login"
-  :backend.register "Registro"
-})
+(defmulti page-start (fn [page cofx] page))
 
-;; RE-FRAME ABSTRACT
-;; Views are pure, and they get updated when subscriptions change.
-;; Subscriptions get their data from a simple query to the database.
-;; The database is populated by the :db effect.
-;; The :db effect is produced by the events.
-;; Events get their data from their arguments and from coeffects.
-;; Events are dispatched by the UI or by other events through effects.
+(defmethod page-start :default [page cofx]
+  {})
 
-;; In this project a restish-api is used through websockets.
-;; The :ws-request effect was made to send WS requests.
-;; To make an API call, this effect should be returned, and corresponding
-;; *-success and *-error events may be registered, to further handle the success
-;; or error of the request, but if they are not registered nothing should happen.
+(defmethod page-start :backend.users [page cofx]
+  {:ws-request {:name :users.list :success-fn #(rf/dispatch [:app/entity-query.next [:users] %])}})
 
-;; To do a GET to /users, I need:
-;; - A :users subscription, acting as a data binding
-;; - A :users event, which should return a :ws-request effect representing the WS request
-;; - A :users-success event, which should return a :db effect representing a change to the app db
+(defmethod page-start :backend.users.edit [page cofx]
+  (let [id (js/parseInt (get-in (session/get :route) [:route-params :id]))]
+    (if (> id 0)
+      {:ws-request-multi [
+                          {:name :entities.find :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form] %])}
+                          {:name :users.comments.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :comments] %])}
+                          {:name :users.images.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :images] %])}
+                          {:name :users.own-images.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :own-images] %])}
+                          {:name :users.friends.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :friends] %])}
+                          {:name :users.made-comments.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :made-comments] %])}
+                          {:name :backend.reference/user.role :success-fn #(rf/dispatch [:app/entity-query.next [:reference :user.role] %])}
+                          ]}
+      {:db (assoc (:db cofx) :form {:name "" :password "" :email "" :description "" :roles []})})))
 
-;; Let's suppose I want to call the same API endpoint for two different reasons:
-;; one time to list all the users, and another time to list Special users.
-;; I would do this:
+(defmulti page-end (fn [page cofx] page))
 
-(comment
-  (rf/reg-event-fx :users.all
-    (fn [cofx event]
-      {:ws-request {:name :users.get}})))
+(defmethod page-end :backend.users.edit [_ cofx]
+  {:db (assoc (:db cofx) :form {})})
 
-(comment
-  (rf/reg-event-db :users.all.success
-    (fn [db [_ data]]
-      (assoc db :users data))))
-
-(comment
-  (rf/reg-event-fx :users.special
-    (fn [cofx event]
-      {:ws-request {:name :users.get :params {:special true} :success :users.special.success}})))
-
-(comment
-  (rf/reg-event-db :users.special.success
-    (fn [db [_ data]]
-      (assoc db :special-users data))))
-
-;; I should not declare an event for every endpoint, since the events
-;; should serve the application and not be thought as an API abstraction.
-;; I should declare several events for an endpoint if I need them.
-;; Every event is a concrete thing that happened within the application, so it will need
-;; to make a concrete API call, but the actual endpoint does not matter. Also, the base event
-;; (:users.all) can and should do anything else this action requires, apart from returning the effect.
-;; Lastly, the success event (:users.all.success) can and should do anything else the action requires,
-;; such as processing the response, or returning more effects.
+(defmethod page-end :default [_ _]
+  (debug "No end function")
+  {})
 
 
 ;; Effects
@@ -169,8 +134,6 @@
     (debug ":effects/ws-upload-request")
     {:ws-upload-request data}))
 
-
-
 (rf/reg-fx :go-to
   (fn effect-go-to [data]
     (go-to (get data 0) (get data 1))))
@@ -221,37 +184,6 @@
                      :params {:token token}
                      :success-fn #(rf/dispatch [:app/entity-query.next [:session] %])}}
        {}))))
-
-(defmulti page-start (fn [page cofx] page))
-
-(defmethod page-start :default [page cofx]
-  {})
-
-(defmethod page-start :backend.users [page cofx]
-  {:ws-request {:name :users.list :success-fn #(rf/dispatch [:app/entity-query.next [:users] %])}})
-
-(defmethod page-start :backend.users.edit [page cofx]
-  (let [id (js/parseInt (get-in (session/get :route) [:route-params :id]))]
-    (if (> id 0)
-      {:ws-request-multi [
-        {:name :entities.find :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form] %])}
-        {:name :users.comments.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :comments] %])}
-        {:name :users.images.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :images] %])}
-        {:name :users.own-images.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :own-images] %])}
-        {:name :users.friends.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :friends] %])}
-        {:name :users.made-comments.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :made-comments] %])}
-        {:name :backend.reference/user.role :success-fn #(rf/dispatch [:app/entity-query.next [:reference :user.role] %])}
-       ]}
-      {:db (assoc (:db cofx) :form {:name "" :password "" :email "" :description "" :roles []})})))
-
-(defmulti page-end (fn [page cofx] page))
-
-(defmethod page-end :backend.users.edit [_ cofx]
-  {:db (assoc (:db cofx) :form {})})
-
-(defmethod page-end :default [_ _]
-  (debug "No end function")
-  {})
 
 (rf/reg-event-fx :backend.users/edit
   (fn event-users-edit [cofx [_ data]]
@@ -317,33 +249,12 @@
       (debug "messages:" messages)
       (assoc-in db [:messages] messages))))
 
-;; Dispatch on current route
-
-
-
-;; Views
-
-(def Form (reagent/adapt-react-class (aget js/ReactBootstrap "Form")))
-(def Label (reagent/adapt-react-class (aget js/ReactBootstrap "Label")))
-(def FormGroup (reagent/adapt-react-class (aget js/ReactBootstrap "FormGroup")))
-(def FormControl (reagent/adapt-react-class (aget js/ReactBootstrap "FormControl")))
-(def Button (reagent/adapt-react-class (aget js/ReactBootstrap "Button")))
-
-;; Multimethod para definir "páginas" asociadas a rutas
-
-
-
-
-
-
 (defn page []
   (info "Rendering...")
   (rf/dispatch [:app/session])
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
     [p/pages current-page]))
-
-;; Lifecycle
 
 (defn init []
   (accountant/configure-navigation!
@@ -371,8 +282,6 @@
 
 (defn stop []
   (infof "Stopping ventas"))
-
-;; )
 
 (defonce figwheel-once (start))
 
