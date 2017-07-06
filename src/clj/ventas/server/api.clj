@@ -92,8 +92,12 @@
 (defmethod ws-request-handler :products/get [message state]
   (entity/json (entity/find (read-string (get-in message [:params :id])))))
 
-(defmethod ws-request-handler :products/list [message state]
-  (map entity/json (entity/query :product)))
+(defmethod ws-request-handler :products/list [{:keys [params]} state]
+  (let [page (dec (or (:page params) 1))
+        items-per-page (or (:items-per-page params) 10)
+        all-items (entity/query :product)
+        offset (* page items-per-page)]
+    (map entity/json (take items-per-page (drop offset all-items)))))
 
 (defmethod ws-request-handler :categories/list [message state]
   (map entity/json (entity/query :category)))
