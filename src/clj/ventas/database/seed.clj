@@ -49,4 +49,7 @@
    (seed-type :category 10)
    (seed-type :product 10)
    (seed-type :product-variation 10)
-   (seed-type :user 10)))
+   (seed-type :user 10)
+   (seed-type :country 10)
+   (seed-type :state 10)
+   (seed-type :address 10)))
