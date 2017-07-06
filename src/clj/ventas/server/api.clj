@@ -109,22 +109,17 @@
 (defmethod ws-request-handler :comments.save [message state]
   (entity/upsert :comment (:params message)))
 
-(defn login-route [{session :session
-                    params :params
-                    :as req}]
-  (debug "Session" session params)
+(defmethod ws-request-handler :users/login [{:keys [params] :as message} {:keys [session] :as state}]
   (let [user (entity/query :user {:email (:email params)})]
     (if (hashers/check (:password params) (:password user))
-      ; If the credentials are valid
-      (assoc (response {:result true}) :session (assoc session :identity (:id user)))
+      (swap! session assoc :identity (:id user))
+      (throw (Exception. "Invalid credentials")))))
 
-      ; Otherwise
-      (response {:result false}))
-
-    ))
-
-(defn logout-route [{session :session}]
-  (assoc (redirect "/") :session (dissoc session :identity)))
+(defmethod ws-request-handler :users/logout [{:keys [params] :as message} {:keys [session] :as state}]
+  (let [identity (:identity session)]
+    (if identity
+      (swap! session dissoc :identity)
+      (throw (Exception. "Not logged in")))))
 
 (defn mime->keyword [mime]
   (case mime

@@ -77,6 +77,9 @@
 ;; Request handler, which is a multimethod
 (defmulti ws-request-handler (fn [message state] (:name message)))
 
+(defmethod ws-request-handler :default [message state]
+  (throw (ex-info (str "The " (:name message) " API call is not implemented") {})))
+
 (defn call-ws-request-handler
   ([message] (call-ws-request-handler message {}))
   ([message state]
@@ -89,9 +92,9 @@
        {:type :response :id (:id message) :success false :data (.getMessage e)}))))
 
 ;; Calls an appropiate function depending on message type
-(defn ws-message-handler [message client-id ws-channel req]
+(defn ws-message-handler [message client-id session ws-channel req]
   ; Get all of that state into a single map, just in case something needs it
-  (let [state {:client-id client-id :ws-channel ws-channel :request req}]
+  (let [state {:client-id client-id :ws-channel ws-channel :request req :session session}]
     (case (:type message)
       :event (ws-event-handler message state)
       :request
@@ -104,7 +107,8 @@
 ;; canal async ligado al websocket, usado para la comunicación con el cliente
 (defn ws-handler [{:keys [ws-channel] :as req}]
   (let [shared-channel (a/chan)
-        client-id (uuid/v4)]
+        client-id (uuid/v4)
+        session (atom {})]
 
     (a/tap @shared-ws-mult shared-channel)
     (go
@@ -129,7 +133,7 @@
             ([message]
               (if message
                 (do
-                  (ws-message-handler (cutil/process-input-message (:message message)) client-id ws-channel req)
+                  (ws-message-handler (cutil/process-input-message (:message message)) client-id session ws-channel req)
                   (recur))
 
                  (do

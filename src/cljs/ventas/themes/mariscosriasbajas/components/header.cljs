@@ -3,6 +3,7 @@
             [reagent.core :as reagent]
             [re-frame.core :as rf]
             [soda-ash.core :as sa]
+            [ventas.routes :as routes :refer [go-to]]
             [ventas.util :as util]))
 
 (rf/reg-sub :resources/logo
@@ -29,6 +30,6 @@
               [:div {:fqcss [::header-info-from]}
                 "a partir" [:br] "de " [:strong "130 €"]]]
            [:div {:fqcss [::header-buttons]}
-              [:button [sa/Icon {:name "add to cart"}] "Mi cesta"]
-              [:button [sa/Icon {:name "user"}] "Mi cuenta"]
+              [:button {:on-click #(go-to :frontend.cart)} [sa/Icon {:name "add to cart"}] "Mi cesta"]
+              [:button {:on-click #(go-to :frontend.login)} [sa/Icon {:name "user"}] "Mi cuenta"]
             ]]]])))

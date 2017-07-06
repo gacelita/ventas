@@ -38,7 +38,7 @@
             )
   (:require-macros
     [cljs.core.async.macros :as asyncm :refer (go go-loop)]
-    [ventas.util-macros :as util-macros :refer [swap-input-value! require-pages require-plugins]]))
+    [ventas.util-macros :as util-macros :refer [require-pages require-plugins]]))
 
 (enable-console-print!)
 (timbre/set-level! :trace)

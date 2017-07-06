@@ -9,9 +9,9 @@
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
     (wrap-reagent
-     [sa/Breadcrumb
+     [sa/Breadcrumb {:fqcss [::breadcrumbs]}
       (util/interpose-fn
-       (fn [] [sa/BreadcrumbDivider {:key (util/gen-key)}])
+       (fn [] [sa/BreadcrumbDivider {:key (gensym)}])
        (for [breadcrumb (util/breadcrumbs current-page route-params)]
-         [sa/BreadcrumbSection {:key (:route breadcrumb) :href (:url breadcrumb)}
+         [sa/BreadcrumbSection {:key (:route breadcrumb) :fqcss [::breadcrumb] :href (:url breadcrumb)}
           (:name breadcrumb)]))])))

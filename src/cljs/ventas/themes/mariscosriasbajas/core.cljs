@@ -3,6 +3,8 @@
             [ventas.themes.mariscosriasbajas.pages.category]
             [ventas.themes.mariscosriasbajas.pages.product]
             [ventas.themes.mariscosriasbajas.pages.privacy-policy]
+            [ventas.themes.mariscosriasbajas.pages.login]
+            [ventas.themes.mariscosriasbajas.pages.cart]
             [ventas.routes :as routes]))
 
 (routes/define-routes!
@@ -40,4 +42,12 @@
 
   {:route :frontend.shipping-fees
    :name "Precios portes"
-   :url ["shipping-fees"]}])
+   :url ["shipping-fees"]}
+
+  {:route :frontend.login
+   :name "Iniciar sesión"
+   :url ["login"]}
+
+  {:route :frontend.cart
+   :name "Carrito"
+   :url ["cart"]}])
