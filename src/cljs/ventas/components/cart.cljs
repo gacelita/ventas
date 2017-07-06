@@ -4,8 +4,7 @@
             [clojure.string :as s]
             [soda-ash.core :as sa]
             [bidi.bidi :as bidi]
-            [ventas.routes :refer [routes]]
-            [ventas.local-storage :as storage]))
+            [ventas.routes :refer [routes]]))
 
 (rf/reg-sub :components/cart
   (fn [db _] (-> db :components/cart)))

@@ -25,13 +25,25 @@
   (fn [e]
     (callback (-> e .-target .-value))))
 
+(defn login-successful [{:keys [user token]}]
+  (js/console.log "user" user "token" token)
+  (rf/dispatch [:app/notifications.add {:message "Sesión iniciada"}])
+  (rf/dispatch [::login-success user token]))
+
+(rf/reg-event-fx
+  ::login-success
+  [(rf/inject-cofx :local-storage)]
+  (fn [{:keys [db local-storage]} [_ user token]]
+    {:db (assoc db :session user)
+     :local-storage (assoc local-storage :token token)}))
+
 (rf/reg-event-fx
   ::login
   (fn [cofx [_ {:keys [email password]}]]
     {:ws-request {:name :users/login
                   :params {:email email
                            :password password}
-                  :success-fn #(rf/dispatch [:app/notifications.add {:message "Sesión iniciada"}])}}))
+                  :success-fn login-successful}}))
 
 (rf/reg-event-fx
  ::register
@@ -78,6 +90,19 @@
   [skeleton
    (wrap-reagent
     [:div {:fqcss [::page]}
-     [sa/Container
-      [login]
-      [register]]])])
+     (let [session @(rf/subscribe [:session])]
+       (if (seq session)
+         [sa/Container
+          [:p "Bienvenido a tu cuenta " (:name session) ". Desde aquí puedes administrar tus direcciones y pedidos."]
+          [sa/Button
+           [sa/Icon {:name "user"}]
+           "Mi perfil"]
+          [sa/Button
+           [sa/Icon {:name "unordered list"}]
+           "Mis pedidos"]
+          [sa/Button
+           [sa/Icon {:name "address book"}]
+           "Mis direcciones"]]
+         [sa/Container
+          [login]
+          [register]]))])])

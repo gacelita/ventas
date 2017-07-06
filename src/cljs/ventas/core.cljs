@@ -17,6 +17,7 @@
             [ventas.ws :as ws]
             [ventas.subs :as subs]
             [ventas.util :as util :refer [dispatch-page-event]]
+            [ventas.local-storage :as storage]
 
             [re-frame-datatable.core :as dt]
             [soda-ash.core :as sa]
@@ -42,6 +43,12 @@
 
 (enable-console-print!)
 (timbre/set-level! :trace)
+
+(storage/reg-co-fx!
+ :ventas
+ {:fx :local-storage
+  :cofx :local-storage})
+
 ;; (trace-forms {:tracer (tracer :color "green")}
 
 ;; (require-pages)
@@ -204,6 +211,16 @@
                                                       }]))
       (.readAsArrayBuffer fr file))))
 
+(rf/reg-event-fx
+ :app/session
+ [(rf/inject-cofx :local-storage)]
+ (fn [{:keys [db local-storage]} [_]]
+   (let [token (:token local-storage)]
+     (if (seq token)
+       {:ws-request {:name :users/session
+                     :params {:token token}
+                     :success-fn #(rf/dispatch [:app/entity-query.next [:session] %])}}
+       {}))))
 
 (defmulti page-start (fn [page cofx] page))
 
@@ -321,6 +338,7 @@
 
 (defn page []
   (info "Rendering...")
+  (rf/dispatch [:app/session])
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
     [p/pages current-page]))

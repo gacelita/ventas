@@ -1,25 +1,28 @@
 (ns ventas.local-storage
-  (:require [re-frame.core :refer [reg-fx reg-cofx ->interceptor] :as rf]
+  (:require [re-frame.core :refer [reg-fx reg-cofx ->interceptor]]
             [alandipert.storage-atom :refer [local-storage]]
-            [cljs.spec.alpha :as s]))
+            [cljs.spec.alpha :as s]
+            ))
 
 (s/def ::cljs-data
-  (s/or :nil nil?
-        :boolean boolean?
-        :number number?
-        :string string?
-        :keyword keyword?
-        :symbol symbol?
-        :uuid uuid?
-        :date (partial instance? js/Date)
-        :list (s/coll-of ::cljs-data :kind list?)
-        :vector (s/coll-of ::cljs-data :kind vector?)
-        :set (s/coll-of ::cljs-data :kind set?)
-        :map (s/map-of ::cljs-data ::cljs-data)))
+  (s/or :nil      nil?
+        :boolean  boolean?
+        :number   number?
+        :string   string?
+        :keyword  keyword?
+        :symbol   symbol?
+        :uuid     uuid?
+        :date     (partial instance? js/Date)
+        :list     (s/coll-of  ::cljs-data :kind list?)
+        :vector   (s/coll-of  ::cljs-data :kind vector?)
+        :set      (s/coll-of  ::cljs-data :kind set?)
+        :map      (s/map-of   ::cljs-data ::cljs-data)
+        ))
 
-(def storage-atoms
-  "Atom containing local-storage atoms"
-  (atom {}))
+
+;; atom containing local-storage atoms
+(def storage-atoms (atom {}))
+
 
 (defn register-store [store-key]
   (when-not (@storage-atoms store-key)
@@ -43,7 +46,7 @@
 
 (s/fdef <-store
         :args (s/cat :store-key keyword?)
-        :ret ::cljs-data)
+        :ret  ::cljs-data)
 
 
 
@@ -67,5 +70,20 @@
         :args (s/cat :store-key keyword?
                      :handlers (s/keys :req [(or ::fx ::cofx)])))
 
-(rf/reg-cofx :local-storage (fn [cofx _] (assoc cofx :local-storage @storage-atoms)))
-(rf/reg-fx :local-storage (fn [k v] (->store k v)))
+
+(defn persist-db [store-key db-key]
+  (register-store store-key)
+  (->interceptor
+   :id (keyword (str db-key "->" store-key))
+   :before (fn [context]
+             (assoc-in context [:coeffects :db db-key]
+                       (<-store store-key)))
+   :after (fn [context]
+            (when-let [value (get-in context [:effects :db db-key])]
+              (->store store-key value))
+            context)))
+
+(s/fdef persist-db
+        :args (s/cat :store-key keyword?
+                     :db-key keyword?))
+
