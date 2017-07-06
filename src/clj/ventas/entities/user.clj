@@ -1,5 +1,6 @@
 (ns ventas.entities.user
   (:require [clojure.spec :as s]
+            [buddy.hashers :as hashers]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]
@@ -19,7 +20,11 @@
           :opt [:user/description :user/roles]))
 
 (defmethod entity/precreate :user [data]
-  (if-not (:user/status data)
-    (assoc data :user/status :user.status/active)
-    data))
+  (as-> data data
+        (if-not (:user/status data)
+          (assoc data :user/status :user.status/active)
+          data)
+        (update data :user/password hashers/derive)))
 
+(defmethod entity/preupdate :user [type entity data]
+  (update data :password hashers/derive))

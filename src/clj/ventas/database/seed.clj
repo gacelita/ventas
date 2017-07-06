@@ -48,4 +48,5 @@
    (seed-type :attribute-value 10)
    (seed-type :category 10)
    (seed-type :product 10)
-   (seed-type :product-variation 10)))
+   (seed-type :product-variation 10)
+   (seed-type :user 10)))

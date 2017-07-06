@@ -110,16 +110,30 @@
   (entity/upsert :comment (:params message)))
 
 (defmethod ws-request-handler :users/login [{:keys [params] :as message} {:keys [session] :as state}]
-  (let [user (entity/query :user {:email (:email params)})]
-    (if (hashers/check (:password params) (:password user))
-      (swap! session assoc :identity (:id user))
-      (throw (Exception. "Invalid credentials")))))
+  (let [email (:email params)
+        password (:password params)]
+    (if (and (seq email) (seq password))
+      (let [user (first (entity/query :user {:email (:email params)}))]
+        (if user
+          (if (hashers/check (:password params) (:password user))
+            (swap! session assoc :identity (:id user))
+            (throw (Exception. "Invalid credentials")))
+          (throw (Exception. "User not found"))))
+      (throw (Exception. "Both email and password are required")))))
 
 (defmethod ws-request-handler :users/logout [{:keys [params] :as message} {:keys [session] :as state}]
   (let [identity (:identity session)]
     (if identity
       (swap! session dissoc :identity)
       (throw (Exception. "Not logged in")))))
+
+(defmethod ws-request-handler :users/register [{:keys [params] :as message} state]
+  (let [email (:email params)
+        password (:password params)
+        name (:name params)]
+    (if (and (seq email) (seq password) (seq name))
+      (entity/create :user {:name name :email email :password password})
+      (throw (Exception. "All the fields are required")))))
 
 (defn mime->keyword [mime]
   (case mime

@@ -22,8 +22,8 @@
 (defmulti postdelete (fn postdelete [type entity] type))
 (defmethod postdelete :default [type entity] true)
 
-(defmulti preupdate (fn preupdate [type entity params] type))
-(defmethod preupdate :default [type entity params] true)
+(defmulti preupdate (fn preupdate [type entity data] type))
+(defmethod preupdate :default [type entity data] data)
 
 (defmulti postupdate (fn postupdate [type entity params] type))
 (defmethod postupdate :default [type entity params] true)
@@ -44,10 +44,12 @@
 (defn find
   "Finds an entity by eid"
   [eid]
-  (-> (db/touch-eid eid)
-      (assoc :id eid)
-      (util/dequalify-keywords)
-      (db/EntityMaps->eids)))
+  (let [entity (db/touch-eid eid)]
+    (when (seq entity)
+      (-> entity
+          (assoc :id eid)
+          (util/dequalify-keywords)
+          (db/EntityMaps->eids)))))
 
 (defn transaction->entity
   "Returns an entity from a transaction"
@@ -57,7 +59,7 @@
 
 (defmulti create
           "Multimethod for creating entities"
-          (fn create [type params] type))
+          (fn [type params] type))
 
 (defmethod create :default [type params]
   (let [tempid (d/tempid :db.part/user)
@@ -65,8 +67,8 @@
         (-> (util/qualify-map-keywords (util/filter-empty-vals params) type)
             (assoc :db/id tempid)
             (assoc :schema/type (keyword "schema.type" (name type)))
-            precreate
-            spec)
+            (precreate)
+            (spec))
         tx @(db/transact [data])
         entity (transaction->entity tx tempid)]
     (postcreate type entity)
@@ -78,45 +80,37 @@
            or formatting attributes"
           (fn [entity]
             (keyword (name (:type entity)))))
+
 (defmethod json :default [entity]
   (-> entity
       (dissoc :type)))
 
-(defprotocol Entity
-  (type [this])
-  (update [this params])
-  (delete [this]))
+(defmulti update (fn [entity new-data] (-> entity :type name)))
 
-(extend-type Object
-  Entity
-  ;; By default, a ventas.database/User object gets the type ":user"
-  (type [this]
-    (-> this class .getSimpleName clojure.string/lower-case keyword))
-  ;; Default update implementation.
-  ;; Executes the preupdate method for the type, transacts the update, and executes the postupdate method for the type
-  ;; postupdate method exists.
-  (update [this params]
-    (when (nil? (:id this))
-      (throw+ {:type ::invalid-update :entity this :message "The entity needs to have an ID in order to be updated"}))
-    (preupdate (type this) this params)
-    @(db/transact [(assoc (util/qualify-map-keywords params (type this)) :db/id (:id this))])
-    (postupdate (type this) this params)
-    (find (:id this)))
-  ;; Default delete implementation.
-  ;; Executes the predelete method for the type, retracts the entity, and executes the postdelete method for the type
-  (delete [this]
-    (when (nil? (:id this))
-      (throw+ {:type ::invalid-deletion :entity this :message "The entity needs to have an ID in order to be deleted"}))
-    (predelete (type this) this)
-    (db/retract-entity (:id this))
-    (postdelete (type this) this)
-    (:id this)))
+(defmethod update :default [entity data]
+  (let [type (-> entity :type name)
+        data (as-> data data
+                   (preupdate type entity data)
+                   (util/qualify-map-keywords data type)
+                   (assoc data :db/id (:id entity)))]
+    @(db/transact [data])
+    (postupdate type entity data)
+    (find (:id entity))))
+
+(defmulti delete (fn [entity] (-> entity :type name)))
+
+(defmethod delete :default [entity]
+  (let [type (-> entity :type name)]
+    (predelete type entity)
+    (db/retract-entity (:id entity))
+    (postdelete type entity)
+    (:id entity)))
 
 (defn upsert
   "Entity upsert. Calls update if necessary, create otherwise"
   [type data]
   (if (:id data)
-    (update (find (:id data)) (dissoc data :id))
+    (update type (find (:id data)) (dissoc data :id))
     (create type data)))
 
 (defmulti fixtures (fn [type] type))

@@ -49,9 +49,9 @@
       [:h3 "Iniciar sesión"]
       [sa/Form
        [sa/FormField
-        [:input {:placeholder "Email" :on-change (value-handler #(swap! data :email %))}]]
+        [:input {:placeholder "Email" :on-change (value-handler #(swap! data assoc :email %))}]]
        [sa/FormField
-        [:input {:placeholder "Contraseña" :type "password" :on-change (value-handler #(swap! data :password %))}]]
+        [:input {:placeholder "Contraseña" :type "password" :on-change (value-handler #(swap! data assoc :password %))}]]
        [:a {:fqcss [::forgot-password] :href "/"} "¿Olvidaste tu contraseña?"]
        [sa/Button {:type "button" :on-click #(rf/dispatch [::login @data])} "Iniciar sesión"]]])))
 
@@ -63,14 +63,14 @@
       [sa/Form
        [sa/FormField
         [:input {:placeholder "Nombre completo"
-                 :on-change (value-handler #(swap! data :name %))}]]
+                 :on-change (value-handler #(swap! data assoc :name %))}]]
        [sa/FormField
         [:input {:placeholder "Email"
-                 :on-change (value-handler #(swap! data :email %))}]]
+                 :on-change (value-handler #(swap! data assoc :email %))}]]
        [sa/FormField
         [:input {:placeholder "Contraseña"
                  :type "password"
-                 :on-change (value-handler #(swap! data :password %))}]]
+                 :on-change (value-handler #(swap! data assoc :password %))}]]
        [sa/Button {:type "button" :on-click #(rf/dispatch [::register @data])}
         "Registro"]]])))
 
