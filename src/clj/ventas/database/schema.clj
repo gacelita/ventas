@@ -18,14 +18,14 @@
   (let [files (sort (.listFiles (io/file "resources/migrations")))]
     (map (fn [file] {(keyword (.getName file)) {:txes [(read-string (slurp file))]}}) files)))
 
-(defn generate-migration
-  "Generates a migration.
+(defn create-migration
+  "Creates a migration.
    Usage:
      (generate-migration 'my-migration')
      (generate-migration 'my-migration' [{:db/ident :product-variation/product
                                           :db/valueType :db.type/ref
                                           :db/cardinality :db.cardinality/one}])"
-  ([code] (generate-migration code nil))
+  ([code] (create-migration code nil))
   ([code initial-contents]
    (let [now (time/now)
          date (time-format/unparse (time-format/formatter "yyyy_MM_dd") now)
