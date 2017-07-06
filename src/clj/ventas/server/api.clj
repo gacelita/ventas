@@ -109,6 +109,7 @@
 (defmethod ws-request-handler :comments.save [message state]
   (entity/upsert :comment (:params message)))
 
+;; @todo Real tokens
 (defmethod ws-request-handler :users/login [{:keys [params] :as message} {:keys [session] :as state}]
   (let [email (:email params)
         password (:password params)]
@@ -116,10 +117,19 @@
       (let [user (first (entity/query :user {:email (:email params)}))]
         (if user
           (if (hashers/check (:password params) (:password user))
-            (swap! session assoc :identity (:id user))
+            (do
+              (swap! session assoc :identity (:id user))
+              {:user (entity/json user)
+               :token {:email email
+                       :password password}})
             (throw (Exception. "Invalid credentials")))
           (throw (Exception. "User not found"))))
       (throw (Exception. "Both email and password are required")))))
+
+;; @todo Real sessions
+(defmethod ws-request-handler :users/session [{:keys [params] :as message} {:keys [session] :as state}]
+  (let [{:keys [email password]} (:token params)]
+    (first (entity/query :user {:email email}))))
 
 (defmethod ws-request-handler :users/logout [{:keys [params] :as message} {:keys [session] :as state}]
   (let [identity (:identity session)]
