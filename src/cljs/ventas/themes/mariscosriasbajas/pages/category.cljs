@@ -4,6 +4,7 @@
             [re-frame.core :as rf]
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
+            [fqcss.core :refer [wrap-reagent]]
             [taoensso.timbre :as timbre :refer-macros [trace debug info warn error]]
             [ventas.page :refer [pages]]
             [ventas.routes :refer [route-parents routes]]
@@ -23,7 +24,10 @@
 
 (defmethod pages :frontend.category []
   [skeleton
-   [:div
-    [:h2 "test"]
-    [products-list]]])
+   (wrap-reagent
+    [:div {:fqcss [::page]}
+     [:div {:fqcss [::sidebar]}
+      [:h2 "tast"]]
+     [:div {:fqcss [::content]}
+      [products-list]]])])
 
