@@ -16,6 +16,10 @@
 (defn gen-key []
   (gensym "key-"))
 
+(defn value-handler [callback]
+  (fn [e]
+    (callback (-> e .-target .-value))))
+
 (defn interpose-fn
   "Returns a lazy seq of the elements of coll separated by sep.
   Returns a stateful transducer when no collection is provided."

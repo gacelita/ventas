@@ -17,17 +17,22 @@
             [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
             [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
             [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
-            [ventas.util :as util]
+            [ventas.util :as util :refer [value-handler]]
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
 
 
 (defmethod pages :frontend.category []
   [skeleton
-   (wrap-reagent
-    [:div {:fqcss [::page]}
-     [:div {:fqcss [::sidebar]}
-      [:h2 "tast"]]
-     [:div {:fqcss [::content]}
-      [products-list]]])])
+   (reagent/with-let [data (atom {})]
+     (wrap-reagent
+      [:div {:fqcss [::page]}
+       [:div {:fqcss [::sidebar]}
+        [:h2 "tast"]
+        [sa/Form
+         [sa/FormField
+          [:input {:placeholder "Buscar"
+                   :on-change (value-handler #(swap! data assoc :name %))}]]]]
+       [:div {:fqcss [::content]}
+        [products-list]]]))])
 

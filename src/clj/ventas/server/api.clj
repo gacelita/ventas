@@ -99,6 +99,8 @@
         offset (* page items-per-page)]
     (map entity/json (take items-per-page (drop offset all-items)))))
 
+
+
 (defmethod ws-request-handler :categories/list [message state]
   (map entity/json (entity/query :category)))
 

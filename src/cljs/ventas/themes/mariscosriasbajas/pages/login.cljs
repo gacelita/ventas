@@ -17,13 +17,9 @@
             [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
             [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
             [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
-            [ventas.util :as util]
+            [ventas.util :as util :refer [value-handler]]
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
-
-(defn value-handler [callback]
-  (fn [e]
-    (callback (-> e .-target .-value))))
 
 (defn login-successful [{:keys [user token]}]
   (js/console.log "user" user "token" token)
