@@ -34,8 +34,10 @@
 
 (defn q
   "q wrapper"
-  [query & args]
-  (apply d/q query (apply concat [(d/db db)] args)))
+  ([query]
+   (q query []))
+  ([query sources]
+   (apply d/q query (concat [(d/db db)] sources))))
 
 (defn pull
   "pull wrapper"
@@ -163,7 +165,7 @@
                         [(namespace ?ident) ?ns]
                         [((comp not contains?) ?system-ns ?ns)]
                         [_ :db.install/attribute ?e]]
-               system-ns)))))
+               [system-ns])))))
 
 (defn attributes
   "Gets all attributes. This is a superset of the schema."
@@ -184,7 +186,7 @@
               [(name ?ident) ?value]
               [(namespace ?ident) ?ns]
               [(= ?ns ?enum)]]
-       enum))
+       [enum]))
 
 (defn read-changes
   "Given a report from tx-report-queue and a query, gets the changes"
