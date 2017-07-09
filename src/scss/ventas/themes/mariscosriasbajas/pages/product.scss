@@ -1,0 +1,45 @@
+
+.product__564222132 {
+
+}
+
+.top__564222132 {
+    display: flex;
+    margin: 15px;
+}
+
+.images__564222132 {
+    position: relative;
+    img {
+        top: 0;
+        left: 0;
+        position: absolute;
+        &:first-child {
+            position: static;
+        }
+    }
+}
+
+.info__564222132 {
+    margin: 15px;
+}
+
+.name__564222132 {
+    font-family: 'Raleway',sans-serif;
+    font-weight: bold;
+    font-size: 22px;
+    color: #2c3e50;
+    margin-bottom: 0px !important;
+}
+
+.price__564222132 {
+    font-size: 24px;
+    color: #0092c5;
+    margin: 0px !important;
+}
+
+.description__564222132 {
+    font-family: 'Raleway',sans-serif;
+    font-size: 14px;
+    margin: 10px 0px;
+}
