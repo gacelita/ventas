@@ -175,7 +175,7 @@
       (.readAsArrayBuffer fr file))))
 
 (rf/reg-event-fx
- :app/session
+ :app/session.start
  [(rf/inject-cofx :local-storage)]
  (fn [{:keys [db local-storage]} [_]]
    (let [token (:token local-storage)]
@@ -184,6 +184,13 @@
                      :params {:token token}
                      :success-fn #(rf/dispatch [:app/entity-query.next [:session] %])}}
        {}))))
+
+(rf/reg-event-fx
+ :app/session.stop
+ [(rf/inject-cofx :local-storage)]
+ (fn [{:keys [local-storage db]}]
+   {:db (dissoc db :session)
+    :local-storage (dissoc local-storage :token)}))
 
 (rf/reg-event-fx :backend.users/edit
   (fn event-users-edit [cofx [_ data]]
@@ -251,7 +258,7 @@
 
 (defn page []
   (info "Rendering...")
-  (rf/dispatch [:app/session])
+  (rf/dispatch [:app/session.start])
   (let [current-page (:current-page (session/get :route))
         route-params (:route-params (session/get :route))]
     [p/pages current-page]))

@@ -1,0 +1,11 @@
+{alias cart ventas.themes.mariscosriasbajas.pages.cart}
+
+
+.{cart/page} {
+    table {
+        width: 100%;
+        td {
+            text-align: left;
+        }
+    }
+}

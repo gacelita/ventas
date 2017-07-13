@@ -54,3 +54,12 @@
     }
 }
 
+.ui.vertical.menu.{header/user-menu} {
+    position: absolute;
+    margin-top: 7px;
+    width: auto;
+    display: none;
+    &.visible {
+        display: block;
+    }
+}

@@ -1,14 +1,8 @@
 (ns ventas.subs
   (:require
     [re-frame.core :as rf]
-
-    ;; Tracing
-    [clairvoyant.core :refer-macros [trace-forms]]
     [clojure.pprint :as pprint]
-    [re-frame-tracer.core :refer [tracer]]))
-
-(enable-console-print!)
-;;(trace-forms {:tracer (tracer :color "red")}
+    [ventas.subscriptions.products]))
 
 ;; Debugging
 
@@ -54,5 +48,3 @@
 
 (rf/reg-sub :app.reference/user.role
   (fn [db _] (-> db :reference :user.role)))
-
-;; )

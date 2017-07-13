@@ -90,7 +90,8 @@
       (throw (Error. (str "Could not find configuration value: " kw))))))
 
 (defmethod ws-request-handler :products/get [message state]
-  (entity/json (entity/find (read-string (get-in message [:params :id])))))
+  (let [id (get-in message [:params :id])]
+    (entity/json (entity/find id))))
 
 (defmethod ws-request-handler :products/list [{:keys [params]} state]
   (let [page (dec (or (:page params) 1))
