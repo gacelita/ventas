@@ -127,6 +127,9 @@
                  [org.clojars.stumitchell/clairvoyant "0.2.1"]
                  [day8/re-frame-tracer "0.1.1-SNAPSHOT"]
 
+                 ;; devcards
+                 [devcards "0.2.1"]
+
                 ]
 
   :plugins [[lein-cljsbuild "1.1.3"]
@@ -172,6 +175,7 @@
                            :output-to "resources/public/js/compiled/ventas.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true
+                           :devcards true
                            :preloads [devtools.preload]
                            :parallel-build true}}
 

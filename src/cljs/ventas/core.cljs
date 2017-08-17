@@ -26,6 +26,8 @@
             [clairvoyant.core :refer-macros [trace-forms]]
             [re-frame-tracer.core :refer [tracer]]
 
+            [ventas.devcards.core]
+
             [ventas.routes :as routes :refer [go-to]]
             [ventas.page :as p]
 
@@ -289,8 +291,6 @@
 
 (defn stop []
   (infof "Stopping ventas"))
-
-(defonce figwheel-once (start))
 
 (defn on-figwheel-reload []
   (debug "Reloading...")
