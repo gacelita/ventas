@@ -59,11 +59,6 @@
                                       (do (debug "setting " (-> field-data .-value)) (js->clj (-> field-data .-value))))
                                   (js/console.log "Value now: " @(:model data))))))
 
-(defn breadcrumbs [current-route route-params]
-  (map (fn [route] {:url (apply routes/path-for route (first (seq route-params)))
-                    :name (:name (routes/route->data route))
-                    :route route}) (routes/route-parents current-route)))
-
 (defn sub-resource-url [resourceId]
   (debug "get-resource-url")
   (let [sub-kw (keyword "resources" (str resourceId))]

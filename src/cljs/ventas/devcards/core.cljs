@@ -2,7 +2,8 @@
   (:require
    [reagent.core :as reagent]
    [devcards.core]
-   [ventas.devcards.menu])
+   [ventas.devcards.menu]
+   [ventas.devcards.breadcrumbs])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))
 
