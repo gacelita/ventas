@@ -5,7 +5,8 @@
             [clojure.string :as s]
             [bidi.bidi :as bidi]
             [ventas.components.base :as base]
-            [ventas.routes :refer [routes]]))
+            [ventas.routes :refer [routes]]
+            [ventas.utils.ui :refer [with-handler]]))
 
 ;; Main state subscription
 (rf/reg-sub
@@ -49,12 +50,8 @@
    (js/console.log "remove" "db" db)
    {:db (update-in db [:cart :items] #(dissoc % item-id))}))
 
-(defn with-handler [cb]
-  (fn [e]
-    (doto e
-      .preventDefault
-      .stopPropagation)
-    (cb e)))
+(defn sidebar-item [item]
+  )
 
 (defn sidebar
   "Cart sidebar"
@@ -62,7 +59,7 @@
   (fn []
     [:div.cart__sidebar]))
 
-(defn item-view [item]
+(defn hover-item [item]
   [:div.cart__hover-item
    [:p (:name item)]
    [base/icon {:name "remove" :on-click (with-handler #(rf/dispatch [::remove (:id item)]))}]])
@@ -73,6 +70,6 @@
   [:div.cart__hover {:class (when visible "cart__hover--visible")}
    [:div.cart__hover-items
     (for [[id item] @(rf/subscribe [::items])]
-      ^{:key id} [item-view item])]
+      ^{:key id} [hover-item item])]
    [:button "Checkout"]
    [:button "Cart"]])
