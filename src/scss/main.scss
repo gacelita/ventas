@@ -39,7 +39,9 @@ body.animating.in.dimmable, body.dimmed.dimmable {
     overflow: visible !important;
 }
 
+@import "ventas/components/base";
 @import "ventas/components/category-list";
+@import "ventas/components/cart";
 @import "ventas/components/popup";
 @import "ventas/components/product-list";
 @import "ventas/components/notificator";

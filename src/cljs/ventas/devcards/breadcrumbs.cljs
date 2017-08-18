@@ -6,9 +6,6 @@
   (:require-macros
    [devcards.core :refer [defcard-rg]]))
 
-(defn component []
-  [:div [:h1 "This is your first devcard!"]])
-
 (defcard-rg regular-breadcrumb
   "Regular breadcrumb"
   [components.breadcrumbs/breadcrumb-view :frontend.index])

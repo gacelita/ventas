@@ -3,7 +3,8 @@
    [reagent.core :as reagent]
    [devcards.core]
    [ventas.devcards.menu]
-   [ventas.devcards.breadcrumbs])
+   [ventas.devcards.breadcrumbs]
+   [ventas.devcards.cart])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))
 

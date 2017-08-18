@@ -1,0 +1,30 @@
+
+.cart__hover {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 5px;
+    background-color: white;
+    border: solid 1px black;
+    padding: 6px 11px;
+    width: 240px;
+    text-align: left;
+
+    &--visible {
+        display: block;
+    }
+
+
+}
+
+.cart__hover-item {
+    .icon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 4px;
+        margin: auto;
+        line-height: 1em;
+        font-size: 17px;
+    }
+}
