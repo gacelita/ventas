@@ -94,7 +94,7 @@
 
 ;; FQCSS
 
-(defn fqcss-start []
+#_(defn fqcss-start []
   (print-info "Starting fqcss")
   (let [changes (watch/changes-in "src/fqcss")]
     (go (while true
@@ -106,7 +106,7 @@
             (print-info (str "\tSpitting to: " new-path))
             (spit new-path (fqcss/replace-css (slurp filename))))))))))
 
-(defstate fqcss
+#_(defstate fqcss
   :start
     (fqcss-start)
   :stop
@@ -157,10 +157,10 @@
     :done))
 
 (defmacro start-frontend []
-  '(do (mount/start #'user/figwheel #'user/sass #'user/fqcss)))
+  '(do (mount/start #'user/figwheel #'user/sass)))
 
 (defmacro reset-frontend []
-  '(do (mount/stop #'user/figwheel #'user/sass #'user/fqcss)
+  '(do (mount/stop #'user/figwheel #'user/sass)
       (tn/refresh)
       (start-frontend)
       (init-aliases)
