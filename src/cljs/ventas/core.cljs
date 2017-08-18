@@ -294,4 +294,5 @@
 
 (defn on-figwheel-reload []
   (debug "Reloading...")
-  (reagent/render [page] (js/document.getElementById "app")))
+  (when-let [el (js/document.getElementById "app")]
+    (reagent/render [page] el)))

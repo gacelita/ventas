@@ -1,12 +1,13 @@
 
 .cart__hover {
+    color: black;
     display: none;
     position: absolute;
     top: calc(100% + 10px);
     left: 5px;
     background-color: white;
     border: solid 1px black;
-    padding: 6px 11px;
+    padding: 0px;
     width: 240px;
     text-align: left;
 
@@ -14,10 +15,36 @@
         display: block;
     }
 
+    button {
+        width: 100%;
+        border: 0px;
+        background-color: grey;
+        color: white;
+        padding: 10px 0px;
+        margin-top: 2px;
+        transition: background-color 250ms;
+        &:hover {
+            background-color: #525252;
+        }
+    }
 
 }
 
 .cart__hover-item {
+    padding: 8px 0px;
+    position: relative;
+    transition: background-color 250ms;
+    &:nth-child(odd) {
+        background-color: #f0f0f0;
+    }
+    &:hover {
+        background-color: #e6e6e6;
+    }
+    p {
+        padding: 0px 10px;
+        margin-bottom: 0px;
+        padding-right: 30px;
+    }
     .icon {
         position: absolute;
         top: 0;

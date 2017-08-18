@@ -3,8 +3,8 @@
             [re-frame.core :as rf]
             [reagent.core :as reagent]
             [clojure.string :as s]
-            [soda-ash.core :as sa]
             [bidi.bidi :as bidi]
+            [ventas.components.base :as base]
             [ventas.routes :refer [routes]]))
 
 ;; Main state subscription
@@ -45,9 +45,16 @@
 ;; Remove item from the cart
 (rf/reg-event-fx
  ::remove
- (fn [{:keys [db local-storage]} [_ item]]
+ (fn [{:keys [db local-storage]} [_ item-id]]
    (js/console.log "remove" "db" db)
-   {:db (update-in db [:cart :items] #(dissoc % (:id item)))}))
+   {:db (update-in db [:cart :items] #(dissoc % item-id))}))
+
+(defn with-handler [cb]
+  (fn [e]
+    (doto e
+      .preventDefault
+      .stopPropagation)
+    (cb e)))
 
 (defn sidebar
   "Cart sidebar"
@@ -57,13 +64,15 @@
 
 (defn item-view [item]
   [:div.cart__hover-item
-   [:p (:name item) [sa/Icon {:name "remove"}]]])
+   [:p (:name item)]
+   [base/icon {:name "remove" :on-click (with-handler #(rf/dispatch [::remove (:id item)]))}]])
 
 (defn hover
   "Cart hover"
   [id {:keys [visible]}]
-  (js/console.log "visible? " visible)
   [:div.cart__hover {:class (when visible "cart__hover--visible")}
-   (js/console.log "about to subscribe")
-   (for [[id item] @(rf/subscribe [::items])]
-     [item-view item])])
+   [:div.cart__hover-items
+    (for [[id item] @(rf/subscribe [::items])]
+      ^{:key id} [item-view item])]
+   [:button "Checkout"]
+   [:button "Cart"]])
