@@ -1,4 +1,4 @@
-(ns ventas.pages.datadmin
+(ns ventas.pages.api
   (:require [reagent.core :as reagent :refer [atom]]
             [reagent.session :as session]
             [re-frame.core :as rf]
@@ -6,7 +6,7 @@
             [re-frame-datatable.core :as dt]
             [taoensso.timbre :as timbre :refer-macros [trace debug info warn error]]
             [ventas.page :refer [pages]]
-            [ventas.routes :refer [route-parents routes]]
+            [ventas.routes :as routes]
             [ventas.components.notificator]
             [ventas.components.popup]
             [ventas.components.product-list :refer [products-list]]
@@ -14,6 +14,11 @@
             [ventas.util :as util]
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
+
+(routes/define-route!
+ {:route :api
+  :name "API tool"
+  :url "api"})
 
 (defn skeleton [contents]
   (info "Rendering...")
@@ -27,32 +32,11 @@
           [sa/Divider]
           ^{:key current-page} contents]]]))
 
-(rf/reg-sub :datadmin/datoms
-  (fn [db _] (-> db :datadmin :datoms)))
-
-(rf/reg-sub :datadmin/filters
-  (fn [db _] (-> db :datadmin :filters)))
-
-(rf/reg-event-db :datadmin.filters/add
-  (fn [db [_ field value]]
-    (-> db (update-in [:datadmin :filters] assoc field value))))
-
-(rf/reg-event-db :datadmin.filter/remove
-  (fn [db [_ field value]]
-    (-> db (update-in [:datadmin :filters] dissoc field))))
-
-(rf/reg-event-fx :datadmin/datoms
-  (fn [cofx [_]]
-    {:ws-request {:name :datadmin/datoms
-                  :params {}
-                  :success-fn #(rf/dispatch [:app/entity-query.next [:datadmin :datoms] (:datoms %)])}}))
-
-(defmethod pages :datadmin []
-  (rf/dispatch [:datadmin/datoms])
+(defmethod pages :api []
   (fn []
     [skeleton
       [:div
-        [:h2 "Datadmin"]
+        [:h2 "API tool"]
         [sa/Table {:celled true}
           [sa/TableHeader
            [sa/TableRow
@@ -60,13 +44,7 @@
             [sa/TableHeaderCell "Attribute"]
             [sa/TableHeaderCell "Value"]
             [sa/TableHeaderCell "Transaction"]]]
-          [sa/TableBody
-           (for [datom @(rf/subscribe [:datadmin/datoms])]
-             [sa/TableRow
-              [sa/TableCell (:e datom)]
-              [sa/TableCell (:a datom)]
-              [sa/TableCell (:v datom)]
-              [sa/TableCell [:a {:on-click #()} (:tx datom)] ]])]
+          [sa/TableBody]
            [sa/TableFooter
             [sa/TableRow
              [sa/TableHeaderCell {:colSpan "4"}
@@ -88,19 +66,6 @@
               [sa/TableHeaderCell "Field"]
               [sa/TableHeaderCell "Value"]]]
           [sa/TableBody
-            (for [filter @(rf/subscribe [:datadmin/filters])]
-              [sa/TableRow
-                [sa/TableCell
-                  [sa/Select {:placeholder "Field"
-                             :options (clj->js [{:value :e :text "Entity"}
-                                                {:value :a :text "Attribute"}
-                                                {:value :v :text "Value"}
-                                                {:value :t :text "Transaction"}
-                                                ])}]]
-                [sa/TableCell
-                  [sa/Input {:placeholder "Value"
-                             :type :text}]
-                  [sa/Button "Delete"]]])
              [sa/TableRow
               [sa/TableCell
                 [sa/Select {:placeholder "Field"
@@ -112,7 +77,7 @@
               [sa/TableCell
                 [sa/Input {:placeholder "Value"
                            :type :text}]
-                [sa/Button "Add" {:on-click #(rf/dispatch [:datadmin.filters/add ])}]]]]]
+                [sa/Button "Add" ]]]]]
 
         ]]))
 

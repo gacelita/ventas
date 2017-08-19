@@ -37,6 +37,7 @@
             [ventas.pages.backend.users]
             [ventas.pages.backend.users.edit]
             [ventas.pages.datadmin]
+            [ventas.pages.api]
             [ventas.themes.mariscosriasbajas.core]
             )
   (:require-macros
