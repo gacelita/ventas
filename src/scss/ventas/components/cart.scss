@@ -38,18 +38,18 @@
     padding: 8px 0px;
     position: relative;
     transition: background-color 250ms;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
     &:nth-child(odd) {
         background-color: #f0f0f0;
     }
     &:hover {
         background-color: #e6e6e6;
     }
-    p {
-        padding: 0px 10px;
-        margin-bottom: 0px;
-        padding-right: 30px;
-    }
     .icon {
+        cursor: pointer;
         position: absolute;
         top: 0;
         bottom: 0;
@@ -58,6 +58,17 @@
         line-height: 1em;
         font-size: 17px;
     }
+}
+
+.hover-item__quantity {
+    margin: 0;
+    padding: 0px 5px;
+}
+
+.hover-item__name {
+    padding: 0px 5px;
+    margin-bottom: 0px;
+    padding-right: 30px;
 }
 
 .cart__hover-no-items {

@@ -17,12 +17,12 @@
                      visible (reagent/atom true)]
     [:div
      [base/button {:on-click #(rf/dispatch [:ventas.components.cart/add {:id (do (gensym) @gensym_counter)
-                                                                         :name (random-uuid)}])}
+                                                                         :name (random-uuid)
+                                                                         :quantity 1}])}
       "Add product"]
      [base/button
       {:on-click #(reset! visible (not @visible))}
       "Toggle cart hover"]
-     [components.cart/cart]
      [debug/pprint-sub (rf/subscribe [:ventas.components.cart/main])]
      [:div {:style {:position "relative"}}
       [components.cart/hover hover-id {:visible @visible}]]

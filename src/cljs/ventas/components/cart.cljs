@@ -58,20 +58,20 @@
 (defn cart
   "Cart main view"
   []
-  (let [visible @(rf/subscribe [::sidebar-visible])]
-    [:div.cart__sidebar {:class (when visible "cart__sidebar--visible")}
-     [:div.cart__sidebar--items
-      (let [items @(rf/subscribe [::items])]
-        (if (seq items)
-          (for [[id item] items]
-            ^{:key id} [cart-item item])
-          [:p.cart__sidebar-no-items "No items"]))]
-     [:button "Checkout"]
-     [:button "Cart"]]))
+  [:div.cart
+   [:div.cart__items
+    (let [items @(rf/subscribe [::items])]
+      (if (seq items)
+        (for [[id item] items]
+          ^{:key id} [cart-item item])
+        [:p.cart__items "No items"]))]
+   [:button "Checkout"]
+   [:button "Cart"]])
 
 (defn hover-item [item]
   [:div.cart__hover-item
-   [:p (:name item)]
+   [:p.hover-item__quantity (:quantity item)]
+   [:p.hover-item__name (:name item)]
    [base/icon {:name "remove" :on-click (with-handler #(rf/dispatch [::remove (:id item)]))}]])
 
 (defn hover
