@@ -11,7 +11,8 @@
   (map (fn [route] {:url (apply routes/path-for route (first (seq route-params)))
                     :name (:name (routes/find-route route))
                     :route route})
-       (routes/route-parents current-route)))
+       (conj (routes/route-parents current-route)
+             current-route)))
 
 (defn breadcrumb-view [current-page route-params]
   (wrap-reagent

@@ -14,7 +14,7 @@
                   "playground/" :backend.playground}
         "frontend" {"" :frontend
                     "index" :frontend.index}
-        :not-found true}])
+        true :not-found}])
 
 (defn route-parents [route]
   ":backend.users.something -> [:backend :backend.users :backend.users.something]"
@@ -22,7 +22,7 @@
        (reduce (fn [acc i]
                  (conj acc (conj (vec (last acc)) i)))
                []
-               (str/split (name route) #"\."))))
+               (drop-last (str/split (name route) #"\.")))))
 
 (defn- index-urls
   "Creates a [route -> url] map"
@@ -32,28 +32,40 @@
           {}
           routes))
 
+(defn- prepare-routes [routes]
+  (let [indexed-urls (index-urls routes)]
+    (map (fn [route]
+           (let [parent (last (route-parents (:route route)))
+                 parent-url (indexed-urls parent)]
+             (update route :url #(cond
+                                   (= parent-url "") %1
+                                   (string? %1) (str "/" %1)
+                                   :else (vec (concat ["/"] %))))))
+         routes)))
+
 (defn- reducer [acc {:keys [route url] :as item} indexed-urls]
-  (let [parents (drop-last (route-parents route))]
+  (let [parents (route-parents route)]
     (if (seq parents)
       (update-in acc (map #(% indexed-urls) parents) assoc url {"" route})
       (assoc acc url {"" route}))))
 
 (defn compile-routes [routes]
-  (let [indexed-urls (index-urls routes)]
-    ["/" (-> (reduce (fn [acc item]
+  (let [routes (prepare-routes routes)
+        indexed-urls (index-urls routes)]
+    ["" (-> (reduce (fn [acc item]
                        (reducer acc item indexed-urls))
                      {}
                      routes)
-             (assoc :not-found true))]))
+             (assoc true :not-found))]))
 
 (def route-data
   (atom [{:route :backend
           :name "Administración"
-          :url "admin/"}
+          :url "admin"}
 
          {:route :backend.users
           :name "Usuarios"
-          :url "users/"}
+          :url "users"}
 
          {:route :backend.users.edit
           :name "Editar usuario"
@@ -61,15 +73,15 @@
 
          {:route :backend.login
           :name "Iniciar sesión"
-          :url "login/"}
+          :url "login"}
 
          {:route :backend.register
           :name "Registro"
-          :url "register/"}
+          :url "register"}
 
          {:route :backend.playground
           :name "Playground"
-          :url "playground/"}
+          :url "playground"}
 
          {:route :datadmin
           :name "Datadmin"

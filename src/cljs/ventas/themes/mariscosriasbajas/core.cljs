@@ -12,10 +12,6 @@
    :name "Inicio"
    :url ""}
 
-  {:route :frontend.index
-   :name "Índice"
-   :url "/index"}
-
   {:route :frontend.product
    :name "Producto"
    :url ["product/" :id]}
@@ -35,6 +31,10 @@
   {:route :frontend.cookie-usage
    :name "Uso de cookies"
    :url ["cookie-usage"]}
+
+  {:route :frontend.cookie-usage.test
+   :name "Test"
+   :url ["test"]}
 
   {:route :frontend.faq
    :name "Preguntas frecuentes"
