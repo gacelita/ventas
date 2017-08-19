@@ -18,11 +18,11 @@
 
 (defn route-parents [route]
   ":backend.users.something -> [:backend :backend.users :backend.users.something]"
-  (map #(keyword (str/join "." %))
-       (reduce (fn [acc i]
-                 (conj acc (conj (vec (last acc)) i)))
-               []
-               (drop-last (str/split (name route) #"\.")))))
+  (into [] (map #(keyword (str/join "." %))
+                (reduce (fn [acc i]
+                          (conj acc (conj (vec (last acc)) i)))
+                        []
+                        (drop-last (str/split (name route) #"\."))))))
 
 (defn- index-urls
   "Creates a [route -> url] map"
