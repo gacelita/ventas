@@ -1,5 +1,5 @@
 (ns ventas.routes
-  (:require [clojure.string :as s]
+  (:require [clojure.string :as str]
             [bidi.bidi :as bidi]
             [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
                                                        trace debug info warn error]]
@@ -18,20 +18,32 @@
 
 (defn route-parents [route]
   ":backend.users.something -> [:backend :backend.users :backend.users.something]"
-  (map (fn [a] (keyword (clojure.string/join "." a))) (reduce (fn [acc i] (conj acc (conj (vec (last acc)) i))) [] (clojure.string/split (name route) #"\."))))
+  (map #(keyword (str/join "." %))
+       (reduce (fn [acc i]
+                 (conj acc (conj (vec (last acc)) i)))
+               []
+               (str/split (name route) #"\."))))
 
-(defn index-urls [routes]
-  (reduce (fn [acc {:keys [route url] :as item}] (conj acc [route url])) {} routes))
+(defn- index-urls
+  "Creates a [route -> url] map"
+  [routes]
+  (reduce (fn [acc {:keys [route url] :as item}]
+            (assoc acc route url))
+          {}
+          routes))
 
-(defn reducer [acc {:keys [route url] :as item} indexed-urls]
+(defn- reducer [acc {:keys [route url] :as item} indexed-urls]
   (let [parents (drop-last (route-parents route))]
     (if (seq parents)
-      (update-in acc (map #(% indexed-urls) parents) conj [url {"" route}])
-      (conj acc [url {"" route}]))))
+      (update-in acc (map #(% indexed-urls) parents) assoc url {"" route})
+      (assoc acc url {"" route}))))
 
 (defn compile-routes [routes]
   (let [indexed-urls (index-urls routes)]
-    ["/" (-> (reduce (fn [acc item] (reducer acc item indexed-urls)) {} routes)
+    ["/" (-> (reduce (fn [acc item]
+                       (reducer acc item indexed-urls))
+                     {}
+                     routes)
              (assoc :not-found true))]))
 
 (def route-data
@@ -73,19 +85,25 @@
   (swap! route-data concat new-routes)
   (reset! routes (compile-routes @route-data)))
 
-(defn route->data [kw]
-  (first (filter #(= (:route %) kw) @route-data)))
+(defn find-route
+  "Finds a route by its id"
+  [id]
+  (first (filter #(= (:route %) id) @route-data)))
 
-(defn path-for [& args]
-  (str "//localhost:3450" (apply bidi/path-for @routes args)))
-
-(defn go-to [& args]
+(defn path-for
+  "bidi/path-for wrapper"
+  [& args]
   (let [path (apply bidi/path-for @routes args)]
     (when-not path
       (throw (js/Error. "Route not found: " (clj->js args))))
-    (accountant/navigate! path)))
+    path))
 
 (defn match-route
-  "match-route wrapper"
+  "bidi/match-route wrapper"
   [& args]
   (apply bidi/match-route @routes args))
+
+(defn go-to [& args]
+  (when-let [path (apply path-for args)]
+    (accountant/navigate! path)))
+

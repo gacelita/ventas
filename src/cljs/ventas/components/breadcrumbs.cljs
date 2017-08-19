@@ -9,7 +9,7 @@
 
 (defn- breadcrumb-data [current-route route-params]
   (map (fn [route] {:url (apply routes/path-for route (first (seq route-params)))
-                    :name (:name (routes/route->data route))
+                    :name (:name (routes/find-route route))
                     :route route})
        (routes/route-parents current-route)))
 
