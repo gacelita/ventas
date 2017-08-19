@@ -1,6 +1,10 @@
 
 .cart__hover {
+    font-size: 1rem;
     color: black;
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    font-weight: 700;
+
     display: none;
     position: absolute;
     top: calc(100% + 10px);
@@ -54,4 +58,8 @@
         line-height: 1em;
         font-size: 17px;
     }
+}
+
+.cart__hover-no-items {
+    padding: 10px;
 }

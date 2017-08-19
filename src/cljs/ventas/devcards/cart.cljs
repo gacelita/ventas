@@ -21,10 +21,12 @@
       "Add product"]
      [base/button
       {:on-click #(reset! visible (not @visible))}
-      "Toggle cart hover"
+      "Toggle cart hover"]
+     [components.cart/cart]
+     [debug/pprint-sub (rf/subscribe [:ventas.components.cart/main])]
+     [:div {:style {:position "relative"}}
       [components.cart/hover hover-id {:visible @visible}]]
-     [components.cart/sidebar]
-     [debug/pprint-sub (rf/subscribe [:ventas.components.cart/main])]]))
+     ]))
 
 (defcard-rg cart
   "Regular cart"

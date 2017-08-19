@@ -42,5 +42,4 @@
       [ventas.breadcrumbs/breadcrumbs]]
      [sa/Divider]
      contents
-     [footer]]
-    [ventas.cart/sidebar]]))
+     [footer]]]))

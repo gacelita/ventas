@@ -21,6 +21,7 @@
  (fn [state]
    (js/console.log "full state" state)))
 
+;; Items
 (rf/reg-sub
  ::items
  (fn [_]
@@ -50,14 +51,23 @@
    (js/console.log "remove" "db" db)
    {:db (update-in db [:cart :items] #(dissoc % item-id))}))
 
-(defn sidebar-item [item]
-  )
+(defn cart-item [item]
+  [:div.cart__item
+   [:p (:name item)]])
 
-(defn sidebar
-  "Cart sidebar"
+(defn cart
+  "Cart main view"
   []
-  (fn []
-    [:div.cart__sidebar]))
+  (let [visible @(rf/subscribe [::sidebar-visible])]
+    [:div.cart__sidebar {:class (when visible "cart__sidebar--visible")}
+     [:div.cart__sidebar--items
+      (let [items @(rf/subscribe [::items])]
+        (if (seq items)
+          (for [[id item] items]
+            ^{:key id} [cart-item item])
+          [:p.cart__sidebar-no-items "No items"]))]
+     [:button "Checkout"]
+     [:button "Cart"]]))
 
 (defn hover-item [item]
   [:div.cart__hover-item
@@ -69,7 +79,10 @@
   [id {:keys [visible]}]
   [:div.cart__hover {:class (when visible "cart__hover--visible")}
    [:div.cart__hover-items
-    (for [[id item] @(rf/subscribe [::items])]
-      ^{:key id} [hover-item item])]
+    (let [items @(rf/subscribe [::items])]
+      (if (seq items)
+        (for [[id item] items]
+          ^{:key id} [hover-item item])
+        [:p.cart__hover-no-items "No items"]))]
    [:button "Checkout"]
    [:button "Cart"]])
