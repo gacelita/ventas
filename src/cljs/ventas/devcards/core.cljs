@@ -2,6 +2,7 @@
   (:require
    [reagent.core :as reagent]
    [devcards.core]
+   [ventas.devcards.category-list]
    [ventas.devcards.menu]
    [ventas.devcards.breadcrumbs]
    [ventas.devcards.cart])

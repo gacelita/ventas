@@ -7,27 +7,33 @@
             [cljs.pprint :refer [pprint]]
             [ventas.routes :as routes]))
 
-(def component-kw ::product-list)
+(rf/reg-sub ::main
+  (fn [db _] (-> db :categories)))
 
-(rf/reg-sub component-kw
-  (fn [db _] (-> db component-kw)))
-
-(rf/reg-event-fx component-kw
+(rf/reg-event-fx ::init
   (fn [cofx [_]]
+    (js/console.log "initing")
     {:ws-request {:name :categories/list
-                  :success-fn #(rf/dispatch [:app/entity-query.next [component-kw] %])}}))
+                  :success-fn #(rf/dispatch [:app/entity-query.next [::main] %])}}))
+
+(rf/reg-event-fx
+ ::add
+ (fn [{:keys [db local-storage]} [_ item]]
+   {:db (assoc-in db [:categories (:id item)] item)}))
 
 (defn category-list []
   "Category list"
-  (rf/dispatch [component-kw])
-  (fn []
-    (wrap-reagent
-     [:div {:fqcss [::list]}
-      (for [category @(rf/subscribe [component-kw])]
-        [:div {:key (:id category) :fqcss [::category] :on-click #(routes/go-to :frontend.category :id 1)}
-         (when (:image category)
-           [:img {:fqcss [::image] :src (:url (:image category))}])
-         [:div {:fqcss [::content]}
-          [:h3 (:name category)]
-          (when (:description category)
-            [:p (:description category)])]])])))
+  (js/console.log "rendering")
+  [:div.category-list
+   (for [[id category] @(rf/subscribe [::main])]
+     (do
+       (js/console.log "category" category)
+       ^{:key id}
+       [:div.category-list__category {:key (:id category)
+                                      :on-click #(routes/go-to :frontend.category :id 1)}
+        (when (:image category)
+          [:img.category-list__image {:src (:url (:image category))}])
+        [:div.category-list__content
+         [:h3 (:name category)]
+         (when (:description category)
+           [:p (:description category)])]]))])

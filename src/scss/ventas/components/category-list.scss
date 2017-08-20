@@ -1,22 +1,22 @@
 
-.list__-666089026 {
+.category-list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
 
-.category__-666089026 {
+.category-list__category {
     width: 20%;
     overflow: hidden;
     padding: 0px 15px;
     cursor: pointer;
 }
 
-.image__-666089026 {
+.category-list__image {
     max-height: 200px;
 }
 
-.content__-666089026 {
+.category-list__content {
     text-overflow: ellipsis;
     text-align: center;
     h3 {
