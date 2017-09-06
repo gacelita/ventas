@@ -5,7 +5,9 @@
    [ventas.devcards.category-list]
    [ventas.devcards.menu]
    [ventas.devcards.breadcrumbs]
-   [ventas.devcards.cart])
+   [ventas.devcards.cart]
+   [ventas.devcards.product-list]
+   [ventas.devcards.slider])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))
 

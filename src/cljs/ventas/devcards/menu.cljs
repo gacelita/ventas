@@ -1,12 +1,18 @@
 (ns ventas.devcards.menu
   (:require
    [reagent.core :as reagent]
-   [devcards.core])
+   [devcards.core]
+   [re-frame.core :as rf]
+   [ventas.components.menu :as components.menu])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))
 
 (defn component []
-  [:div [:h1 "This is your first devcard!"]])
+  [:div
+   [components.menu/menu
+    [{:href "cat" :text "A cat"}
+     {:href "dog" :text "A doggo"}]]])
 
-(defcard-rg text-input-2
+(defcard-rg regular-menu
+  "Regular menu"
   component)
