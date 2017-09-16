@@ -15,7 +15,9 @@
   (entity/find (get-in message [:params :id])))
 
 (defmethod ws-request-handler :app.reference/user.role [message state]
-  (map (fn [a] {:text (get a 2) :value (get a 0)}) (db/enum-values "user.role")))
+  (map (fn [value]
+         {:text (get value 2) :value (get value 0)})
+       (db/enum-values "user.role")))
 
 (defmethod ws-request-handler :users.list [message state]
   (let [results (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}]) :schema.type/user)]

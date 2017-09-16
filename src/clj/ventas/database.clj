@@ -178,15 +178,17 @@
 
 (defn enum-values
   "Gets the values of a database enum
-   Usage: (enum-values \"schema.type\""
+   Usage: (enum-values \"schema.type\")"
   [enum]
-  (q '[:find ?id ?ident ?value
-       :in $ ?enum
-       :where [?id :db/ident ?ident]
-              [(name ?ident) ?value]
-              [(namespace ?ident) ?ns]
-              [(= ?ns ?enum)]]
-       [enum]))
+  (into #{}
+        (map first
+             (q '[:find ?ident
+                  :in $ ?enum
+                  :where [?id :db/ident ?ident]
+                  [(name ?ident) ?value]
+                  [(namespace ?ident) ?ns]
+                  [(= ?ns ?enum)]]
+                [enum]))))
 
 (defn read-changes
   "Given a report from tx-report-queue and a query, gets the changes"

@@ -108,9 +108,10 @@
 
 (defn upsert
   "Entity upsert. Calls update if necessary, create otherwise"
-  [type data]
-  (if (:id data)
-    (update type (find (:id data)) (dissoc data :id))
+  [type {:keys [id] :as data}]
+  {:pre [(keyword? type) (map? data)]}
+  (if id
+    (update type data)
     (create type data)))
 
 (defmulti fixtures (fn [type] type))
