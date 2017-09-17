@@ -18,8 +18,7 @@
  ::item-count
  (fn [_]
    (rf/subscribe [::main]))
- (fn [state]
-   (js/console.log "full state" state)))
+ (fn [state]))
 
 ;; Items
 (rf/reg-sub
@@ -27,28 +26,24 @@
  (fn [_]
    (rf/subscribe [::main]))
  (fn [state]
-   (js/console.log "the state" state)
    (-> state :items)))
 
 ;; Put the cart state in the app-db
 (rf/reg-event-fx
  ::cart
  (fn [{:keys [db local-storage]} [_]]
-   (js/console.log "local-storage" local-storage)
    {:db (assoc db :cart (get local-storage :cart))}))
 
 ;; Add item to the cart
 (rf/reg-event-fx
  ::add
  (fn [{:keys [db local-storage]} [_ item]]
-   (js/console.log "add" "db" db)
    {:db (assoc-in db [:cart :items (:id item)] item)}))
 
 ;; Remove item from the cart
 (rf/reg-event-fx
  ::remove
  (fn [{:keys [db local-storage]} [_ item-id]]
-   (js/console.log "remove" "db" db)
    {:db (update-in db [:cart :items] #(dissoc % item-id))}))
 
 (defn cart-item [item]

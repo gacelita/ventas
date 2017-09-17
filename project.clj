@@ -113,7 +113,7 @@
                  [binaryage/devtools "0.9.4"]
                  ; Error reporting for Ring
                  [prone "1.1.4"]
-                 [devcards "0.2.3"]]
+                 [devcards "0.2.3" :exclusions [cljsjs/react]]]
 
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-environ "1.0.3"]

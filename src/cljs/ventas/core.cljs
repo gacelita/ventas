@@ -266,7 +266,7 @@
       (let [match (routes/match-route path)
             current-page (:handler match)
             route-params (:route-params match)]
-        (info "Current page: " current-page)
+        (info "Current page" current-page)
         (rf/dispatch [:navigation-start current-page (:current-page (session/get :route))])
         (session/put! :route {:current-page current-page
                               :route-params route-params})))
