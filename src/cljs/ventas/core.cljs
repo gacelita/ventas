@@ -63,7 +63,7 @@
   (ws/send-request!
    {:name (:name request)
     :params (:params request)
-    :callback (fn [data] (debug "Got WS data" data) (cond
+    :callback (fn [data] (cond
                            (not (:success data))
                              (rf/dispatch [:app/notifications.add {:message (:data data) :theme "warning"}])
                            (:success request)
