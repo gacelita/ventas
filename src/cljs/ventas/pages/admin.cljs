@@ -14,10 +14,7 @@
       [:span
         [:h4 "Routing example: Index"]
         [:ul
-          [:li [:a {:href (routes/path-for :admin.section-a)} "Section A"]]
           [:li [:a {:href (routes/path-for :admin.users)} "Users"]]
-          [:li [:a {:href (routes/path-for :admin.session-debug)} "Session debug"]]
           [:li [:a {:href (routes/path-for :admin.login)} "Login"]]
           [:li [:a {:href (routes/path-for :admin.register)} "Register"]]
-          [:li [:a {:href (routes/path-for :frontend.index)} "Frontend index"]]
           [:li [:a {:href "/borken/link" } "Borken link"]]]]]))

@@ -2,6 +2,7 @@
   (:require [reagent.core :as reagent :refer [atom]]
             [reagent.session :as session]
             [re-frame.core :as rf]
+            [re-frame.loggers :as rf.loggers]
             [bidi.bidi :as bidi]
             [accountant.core :as accountant]
             [clojure.string :as s]
@@ -40,13 +41,19 @@
 
 (enable-console-print!)
 
+(rf.loggers/set-loggers!
+ {:warn (fn [& args]
+          (cond
+            (= "re-frame: overwriting" (first args)) nil
+            :else (apply ventas.utils.logging/warn args)))
+  :log (fn [& args] (apply ventas.utils.logging/info args))
+  :error (fn [& args] (apply ventas.utils.logging/error args))
+  :group (fn [& args] (apply ventas.utils.logging/info args))})
+
 (storage/reg-co-fx!
  :ventas
  {:fx :local-storage
   :cofx :local-storage})
-
-;; (require-pages)
-;; (require-plugins)
 
 
 (defmulti page-start (fn [page cofx] page))
