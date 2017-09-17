@@ -65,7 +65,7 @@
         :event (ws-event-dispatch message)
         :response (ws-response-dispatch message)
         (warn "Unhandled websocket message" message))
-      (if message
+      (if (seq message)
         (recur)
         (init)))))
 
@@ -79,19 +79,21 @@
 
 (defn- start-websocket [format]
   {:pre [(#{:fressian :json-kw} format)]}
-  (go
-   (let [channel (chan)
-         {:keys [ws-channel] ws-error :error} (<! (chord/ws-ch "ws://localhost:3450/ws/fressian" {:format format}))]
-     (if ws-error
-       (do
-         (error "Error connecting to the " format " websocket: " ws-error)
-         (>! channel false))
-       (do
-         (reset! output-json-channel
-                 (doto (chan)
-                   (send-messages! ws-channel)))
-         (receive-messages! ws-channel)
-         (>! channel true))))))
+  (let [channel (chan)]
+    (go
+     (let [url (str "ws://localhost:3450/ws/" (name format))
+           {:keys [ws-channel] ws-error :error} (<! (chord/ws-ch url {:format format}))]
+       (if ws-error
+         (do
+           (error "Error connecting to the " format " websocket: " ws-error)
+           (>! channel false))
+         (do
+           (reset! output-json-channel
+                   (doto (chan)
+                     (send-messages! ws-channel)))
+           (receive-messages! ws-channel)
+           (>! channel true)))))
+    channel))
 
 (defn init
   "Starts the websockets"

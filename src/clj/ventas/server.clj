@@ -197,9 +197,9 @@
 
 ;; All routes
 (defroutes routes
-  (GET "/ws" [] (-> #(ws-handler %)
+  (GET "/ws/json-kw" [] (-> #(ws-handler %)
                     (wrap-websocket-handler {:format :json-kw})))
-  (GET "/binary-ws" [] (-> #(ws-binary-handler %) ;; todo
+  (GET "/ws/fressian" [] (-> #(ws-binary-handler %) ;; todo
                            (wrap-websocket-handler {:format :fressian})))
   (GET "/*" _
     {:status 200
