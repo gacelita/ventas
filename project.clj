@@ -56,7 +56,7 @@
                  ;; Routing
                  [compojure "1.6.0" :exclusions [instaparse]]
 
-                 ;; Secrets
+                 ;; Configuration
                  [cprop "0.1.11"]
 
                  ;; Reagent
@@ -71,10 +71,7 @@
                  [venantius/accountant "0.2.0"]
 
                  ; HTML templating
-                 [selmer "1.11.1" :exclusions [cheshire joda-time]] ;; see: buddy
-
-                 ;; Bootstrap
-                 [cljsjs/react-bootstrap "0.31.0-0"]
+                 [selmer "1.11.1" :exclusions [cheshire joda-time]]
 
                  ;; component alternative
                  [mount "0.1.11"]
@@ -102,7 +99,7 @@
                  ;; DateTime
                  [clj-time "0.14.0"]
 
-                 ;; LocalStorage
+                 ;; localStorage
                  [alandipert/storage-atom "2.0.1"]
 
                  ;; Generators
@@ -113,20 +110,10 @@
                  [fqcss "0.1.5"]
                  [async-watch "0.1.1"]
 
-                 ;;
-                 ;; Debugging
-                 ;;
-
-                 ;; Google Chrome Developer Tools custom formatters
                  [binaryage/devtools "0.9.4"]
-
                  ; Error reporting for Ring
                  [prone "1.1.4"]
-
-                 ;; devcards
-                 [devcards "0.2.3"]
-
-                ]
+                 [devcards "0.2.3"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-environ "1.0.3"]
@@ -144,17 +131,12 @@
 
   :jvm-opts ["-Xverify:none" "-XX:-OmitStackTraceInFastThrow"]
 
-  :clean-targets ^{:protect false} [:target-path :compile-path "resources/public/js"]
+  :clean-targets ^{:protect false} [:target-path :compile-path "resources/public/files/js"]
 
   :uberjar-name "ventas.jar"
 
-  ;; Use `lein run` if you just want to start a HTTP server, without figwheel
   :main ventas.server
 
-
-  ;; nREPL by default starts in the :main namespace, we want to start in `user`
-  ;; because that's where our development helper functions like (run) and
-  ;; (browser-repl) live.
   :repl-options {:init-ns user :port 4001 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
   :aliases {"config" ["run" "-m" "outpace.config.generate"]}
@@ -166,10 +148,10 @@
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
 
                 :compiler {:main ventas.core
-                           :asset-path "js/compiled/out"
+                           :asset-path "files/js/compiled/out"
                            :closure-defines {"clairvoyant.core.devmode" true}
-                           :output-to "resources/public/js/compiled/ventas.js"
-                           :output-dir "resources/public/js/compiled/out"
+                           :output-to "resources/public/files/js/compiled/ventas.js"
+                           :output-dir "resources/public/files/js/compiled/out"
                            :source-map-timestamp true
                            :devcards true
                            :preloads [devtools.preload]
@@ -177,7 +159,7 @@
 
                {:id "test"
                 :source-paths ["src/cljs" "test/cljs" "src/cljc" "test/cljc" "custom-lib"]
-                :compiler {:output-to "resources/public/js/compiled/testable.js"
+                :compiler {:output-to "resources/public/files/js/compiled/testable.js"
                            :main ventas.test-runner
                            :optimizations :none
                            :parallel-build true}}
@@ -186,7 +168,7 @@
                 :source-paths ["src/cljs" "src/cljc" "custom-lib"]
                 :jar true
                 :compiler {:main ventas.core
-                           :output-to "resources/public/js/compiled/ventas.js"
+                           :output-to "resources/public/files/js/compiled/ventas.js"
                            :output-dir "target"
                            :source-map-timestamp true
                            :optimizations :advanced
@@ -194,55 +176,17 @@
                            :externs ["externs.js"]
                            :parallel-build true}}]}
 
-  ;; When running figwheel from nREPL, figwheel will read this configuration
-  ;; stanza, but it will read it without passing through leiningen's profile
-  ;; merging. So don't put a :figwheel section under the :dev profile, it will
-  ;; not be picked up, instead configure figwheel here on the top level.
-
-  :figwheel {;; :http-server-root "public"       ;; serve static assets from resources/public/
-             ;; :server-port 3449                ;; default
-             ;; :server-ip "127.0.0.1"           ;; default
-             :css-dirs ["resources/public/css"]  ;; watch and update CSS
-
-             ;; Instead of booting a separate server on its own port, we embed
-             ;; the server ring handler inside figwheel's http-kit server, so
-             ;; assets and API endpoints can all be accessed on the same host
-             ;; and port.
-             ;; This option is disabled because it causes a lot of problems, notably:
-             ;; - (reset) does not work properly, the code can't be replaced and the handler
-             ;;   keeps using the old database connection (which has been released already)
-             ;; - Huge reload time because of cljs recompilation, useless when only working
-             ;;   with the backend. When one is working with the frontend (reset) is not necessary,
-             ;;   so waiting for the cljs code to compile shouldn't be necessary most of the time
-             ;; :ring-handler user/http-handler
-
-             ;; Start an nREPL server into the running figwheel process. We
-             ;; don't do this, instead we do the opposite, running figwheel from
-             ;; an nREPL process, see
-             ;; https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl
-             ;; :nrepl-port 7888
-
-             ;; To be able to open files in your editor from the heads up display
-             ;; you will need to put a script on your path.
-             ;; that script will have to take a file path and a line number
-             ;; ie. in  ~/bin/myfile-opener
-             ;; #! /bin/sh
-             ;; emacsclient -n +$2 $1
-             ;;
+  :figwheel {:css-dirs ["resources/public/files/css"]
              :open-file-command "open-with-subl3"
-
              :server-logfile "log/figwheel.log"
-             :repl false
-             }
+             :repl false}
 
   :doo {:build "test"}
 
-
   :sassc [{:src "src/scss/main.scss"
-           :output-to "resources/public/css/style.css"
+           :output-to "resources/public/files/css/style.css"
            :style "nested"
-           :import-path "src/scss"
-           }]
+           :import-path "src/scss"}]
 
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
@@ -254,10 +198,8 @@
                                    [com.cemerick/pomegranate "0.4.0" :exclusions [org.codehaus.plexus/plexus-utils]]
                                    [org.clojure/test.check "0.9.0"]
                                    [com.gfredericks/test.chuck "0.2.8"]]
-
                     :plugins [[lein-figwheel "0.5.4-4" :exclusions [org.clojure/clojure]]
                               [lein-doo "0.1.6" :exclusions [org.clojure/clojure]]]
-
                     :source-paths ["dev"]}
 
               :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]

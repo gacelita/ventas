@@ -8,8 +8,6 @@
 /lib/
 /log/
 /out/
-/resources/public/js/compiled/**
-/resources/public/css
 /target/
 figwheel_server.log
 pom.xml
@@ -20,9 +18,11 @@ pom.xml.asc
 /profiles.clj
 /*.sublime-*
 
-/resources/public/lib
+/resources/public/files/js/compiled/**
+/resources/public/files/css
+/resources/public/files/lib
+/resources/public/files/img
+/resources/public/files/resources
 /resources/generation/images
-/resources/public/img
 /resources/*.pem
 /resources/config.edn
-/resources/public/resources

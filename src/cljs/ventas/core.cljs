@@ -4,7 +4,6 @@
             [re-frame.core :as rf]
             [bidi.bidi :as bidi]
             [accountant.core :as accountant]
-            [cljsjs.react-bootstrap]
             [clojure.string :as s]
             [ventas.utils.logging :refer [trace debug info warn error]]
             [cljs.core.async :refer [<! >! put! close! timeout chan]]
