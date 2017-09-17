@@ -9,12 +9,11 @@
             [ventas.util :refer [dispatch-page-event]]))
 
 (defmethod pages :admin []
-  (fn page-app []
-    [:div
-      [:span
-        [:h4 "Routing example: Index"]
-        [:ul
-          [:li [:a {:href (routes/path-for :admin.users)} "Users"]]
-          [:li [:a {:href (routes/path-for :admin.login)} "Login"]]
-          [:li [:a {:href (routes/path-for :admin.register)} "Register"]]
-          [:li [:a {:href "/borken/link" } "Borken link"]]]]]))
+  [:div
+   [:span
+    [:h4 "Routing example: Index"]
+    [:ul
+     [:li [:a {:href (routes/path-for :admin.users)} "Users"]]
+     [:li [:a {:href (routes/path-for :admin.login)} "Login"]]
+     [:li [:a {:href (routes/path-for :admin.register)} "Register"]]
+     [:li [:a {:href "/borken/link"} "Borken link"]]]]])

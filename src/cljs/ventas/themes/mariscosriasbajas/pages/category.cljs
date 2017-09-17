@@ -21,10 +21,9 @@
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
 
-
 (defmethod pages :frontend.category []
-  [skeleton
-   (reagent/with-let [data (atom {})]
+  (reagent/with-let [data (atom {})]
+    [skeleton
      (wrap-reagent
       [:div {:fqcss [::page]}
        [:div {:fqcss [::sidebar]}
@@ -34,5 +33,4 @@
           [:input {:placeholder "Buscar"
                    :on-change (value-handler #(swap! data assoc :name %))}]]]]
        [:div {:fqcss [::content]}
-        [products-list]]]))])
-
+        [products-list]]])]))

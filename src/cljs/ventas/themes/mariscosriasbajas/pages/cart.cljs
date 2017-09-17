@@ -61,21 +61,20 @@
        [sa/TableCell (* (:quantity data) (:price product))]])))
 
 (defmethod pages :frontend.cart []
-  (fn []
-    [skeleton
-     (wrap-reagent
-      [sa/Container
-       [:div {:fqcss [::page]}
-        [:h2 "Carrito"]
-        [sa/Table {:celled true :striped true}
-         [sa/TableHeader
-          [sa/TableRow
-           [sa/TableHeaderCell "Producto"]
-           [sa/TableHeaderCell "Descripción"]
-           [sa/TableHeaderCell "Precio"]
-           [sa/TableHeaderCell "Cantidad"]
-           [sa/TableHeaderCell "Total"]]]
-         [sa/TableBody
-          (map-indexed (fn [idx data]
-                         [line data])
-                       products)]]]])]))
+  [skeleton
+   (wrap-reagent
+    [sa/Container
+     [:div {:fqcss [::page]}
+      [:h2 "Carrito"]
+      [sa/Table {:celled true :striped true}
+       [sa/TableHeader
+        [sa/TableRow
+         [sa/TableHeaderCell "Producto"]
+         [sa/TableHeaderCell "Descripción"]
+         [sa/TableHeaderCell "Precio"]
+         [sa/TableHeaderCell "Cantidad"]
+         [sa/TableHeaderCell "Total"]]]
+       [sa/TableBody
+        (map-indexed (fn [idx data]
+                       [line data])
+                     products)]]]])])

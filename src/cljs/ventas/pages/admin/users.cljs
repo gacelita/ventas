@@ -27,15 +27,13 @@
     ::dt/table-classes ["ui" "table" "celled"]}])
 
 (defmethod pages :admin.users []
-  (fn page-app-users []
-    (let [action-column
-      (fn [_ row]
-        [:div
-          [sa/Button {:icon true :on-click #(go-to :admin.users.edit {:id (:id row)})}
+  (let [action-column
+        (fn [_ row]
+          [:div
+           [sa/Button {:icon true :on-click #(go-to :admin.users.edit {:id (:id row)})}
             [sa/Icon {:name "edit"}]]
-          [sa/Button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:users]])}
+           [sa/Button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:users]])}
             [sa/Icon {:name "remove"}]]])]
-      (fn []
-        [:div
-          [users-datatable action-column :app.users/users]
-          [sa/Button {:onClick #(go-to :admin.users.edit {:id 0})} "Crear usuario"]]))))
+    [:div
+     [users-datatable action-column :app.users/users]
+     [sa/Button {:onClick #(go-to :admin.users.edit {:id 0})} "Crear usuario"]]))
