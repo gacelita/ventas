@@ -2,6 +2,7 @@
   "Client defstates"
   (:require
    [figwheel-sidecar.repl-api :as figwheel]
+   [figwheel-sidecar.components.css-watcher :as figwheel.css-watcher]
    [ventas.util :as util]
    [clojure.java.shell]
    [me.raynes.conch.low-level :as sh]
@@ -9,6 +10,15 @@
    [mount.core :as mount :refer [defstate]]))
 
 ;; Figwheel
+
+(alter-var-root
+ #'figwheel.css-watcher/handle-css-notification
+ (fn [_]
+   (fn ventas-css-handler [watcher files]
+     (when-let [changed-css-files (not-empty (filter #(.endsWith % ".css") (map str files)))]
+       (let [figwheel-server (:figwheel-server watcher)
+             sendable-files (map #(figwheel.css-watcher/make-css-file %) changed-css-files)]
+         (figwheel.css-watcher/send-css-files figwheel-server sendable-files))))))
 
 (defn figwheel-start []
   (util/print-info "Starting Figwheel")
