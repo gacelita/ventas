@@ -73,7 +73,7 @@
 
 (defn reset []
   (mount/stop)
-  (tn/refresh :after 'user/start)
+  (tn/refresh :after 'mount/start)
   (init-aliases)
   :resetted)
 
@@ -87,10 +87,10 @@
   (clojure.test/run-all-tests #"ventas.*?\-test"))
 
 (defmacro start-frontend []
-  '(do (mount/start #'user/figwheel #'user/sass)))
+  '(do (mount/start #'client/figwheel #'client/sass)))
 
 (defmacro reset-frontend []
-  '(do (mount/stop #'user/figwheel #'user/sass)
+  '(do (mount/stop #'client/figwheel #'client/sass)
        (tn/refresh)
        (start-frontend)
        (init-aliases)
