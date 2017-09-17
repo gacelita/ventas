@@ -6,6 +6,7 @@
             [ring.util.response :refer [response redirect]]
             [pantomime.mime :as mime]
             [buddy.hashers :as hashers]
+            [byte-streams :as byte-streams]
             [taoensso.timbre :as timbre :refer (tracef debugf infof warnf errorf trace debug info warn error)]))
 
 (defmethod ws-request-handler :entities.remove [message state]
