@@ -42,22 +42,6 @@
   ([sep coll]
    (drop 1 (interleave (repeatedly sep) coll))))
 
-(defn wrap-with-model
-  "Wraps a component with a model binding"
-  [data]
-    (-> data (assoc :default-value (get @(:model data) (keyword (:name data))))
-             (assoc :on-change #(swap! (:model data) assoc (keyword (:name data)) (do (debug "setting " (-> % .-target .-value)) (-> % .-target .-value))))))
-
-(defn wrap-sa-with-model
-  "Wraps a Soda-Ash component with a model binding"
-  [data]
-  (-> data (assoc :default-value (get @(:model data) (keyword (:name data))))
-             (assoc :on-change (fn [e field-data]
-                                  (js/console.log "field-data: " field-data)
-                                  (swap! (:model data) assoc (keyword (:name data))
-                                      (do (debug "setting " (-> field-data .-value)) (js->clj (-> field-data .-value))))
-                                  (js/console.log "Value now: " @(:model data))))))
-
 (defn sub-resource-url [resourceId]
   (debug "get-resource-url")
   (let [sub-kw (keyword "resources" (str resourceId))]
@@ -65,7 +49,7 @@
                 (fn [db _] (-> db sub-kw)))
     (rf/dispatch [:effects/ws-request {:name :resource/get
                                        :params {:keyword resourceId}
-                                       :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
+                                       :success-fn #(rf/dispatch [:ventas.api/success [sub-kw] %])}])
     sub-kw))
 
 (defn sub-configuration [kw]
@@ -75,7 +59,7 @@
       (fn [db _] (-> db sub-kw)))
     (rf/dispatch [:effects/ws-request {:name :configuration/get
                                        :params {:key kw}
-                                       :success-fn #(rf/dispatch [:app/entity-query.next [sub-kw] %])}])
+                                       :success-fn #(rf/dispatch [:ventas.api/success [sub-kw] %])}])
     sub-kw))
 
 (defn format-price

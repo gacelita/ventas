@@ -1,7 +1,6 @@
 (ns ventas.themes.mariscosriasbajas.components.preheader
   (:require [fqcss.core :refer [wrap-reagent]]
-            [reagent.core :as reagent]
-            [ventas.component :as component :refer-macros [load-scss]]))
+            [reagent.core :as reagent]))
 
 (defn preheader []
     (wrap-reagent

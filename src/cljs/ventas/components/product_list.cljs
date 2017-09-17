@@ -13,7 +13,7 @@
 (rf/reg-event-fx :components/product-list
   (fn [cofx [_]]
     {:ws-request {:name :products/list
-                  :success-fn #(rf/dispatch [:app/entity-query.next [:components/product-list] %])}}))
+                  :success-fn #(rf/dispatch [:ventas.api/success [:components/product-list] %])}}))
 
 (defn products-list []
   "Products list"

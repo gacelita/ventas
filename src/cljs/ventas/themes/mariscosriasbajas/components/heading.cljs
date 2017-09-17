@@ -1,7 +1,6 @@
 (ns ventas.themes.mariscosriasbajas.components.heading
   (:require [fqcss.core :refer [wrap-reagent]]
-            [reagent.core :as reagent]
-            [ventas.component :as component]))
+            [reagent.core :as reagent]))
 
 (defn heading [text]
   (wrap-reagent

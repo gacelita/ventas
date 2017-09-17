@@ -5,15 +5,22 @@
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
-            [ventas.routes :refer [go-to] :as routes]
+            [ventas.routes :as routes]
             [ventas.util :refer [dispatch-page-event]]))
 
+(defn menu []
+  [:ul
+   [:li [:a {:href (routes/path-for :admin.users)} "Users"]]])
+
+(defn skeleton [content]
+  [:div.admin__skeleton
+   [:div.admin__sidebar
+    [:a {:href (routes/path-for :admin)}
+     [:h3 "Administration"]]
+    [menu]]
+   [:div.admin__content
+    content]])
+
 (defmethod pages :admin []
-  [:div
-   [:span
-    [:h4 "Routing example: Index"]
-    [:ul
-     [:li [:a {:href (routes/path-for :admin.users)} "Users"]]
-     [:li [:a {:href (routes/path-for :admin.login)} "Login"]]
-     [:li [:a {:href (routes/path-for :admin.register)} "Register"]]
-     [:li [:a {:href "/borken/link"} "Borken link"]]]]])
+  [skeleton
+   [:p.admin__default-content "Nothing here"]])

@@ -8,8 +8,8 @@
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
 
-(def ^:private active-request-channels (atom {}))
-(def ^:private output-channels (atom {}))
+(defonce ^:private request-channels (atom {}))
+(defonce ^:private output-channels (atom {}))
 
 (defn output-binary-channel []
   (get @output-channels :fressian))
@@ -19,21 +19,21 @@
 
 (defn send-request!
   "Sends a request and calls the callback with the response"
-  [{:keys [name params callback]} & {:keys [binary? realtime?]}]
+  [{:keys [params callback] request-name :name} & {:keys [binary? realtime?]}]
   (debug ::send-request!
-         {:name name
+         {:name request-name
           :params params
           :binary? binary?
           :realtime? realtime?})
   (let [request-channel (chan)
-        request-id (gensym "request-")
+        request-id (str (gensym (str "request-" (name request-name) "-")))
         output-channel (if binary? (output-binary-channel) (output-json-channel))]
-    (swap! active-request-channels assoc request-id request-channel)
+    (swap! request-channels assoc request-id request-channel)
     (go
      (>! output-channel
          {:type :request
           :id request-id
-          :name name
+          :name request-name
           :params params})
      (loop []
        (let [message (<! request-channel)]
@@ -41,12 +41,12 @@
          (if realtime?
            (recur)
            (do (close! request-channel)
-               (swap! active-request-channels dissoc request-id))))))))
+               (swap! request-channels dissoc request-id))))))))
 
 (defn- ws-response-dispatch
   "Puts a response into its corresponding channel"
   [message]
-  (let [channel (get @active-request-channels (:id message))]
+  (let [channel (get @request-channels (:id message))]
     (when channel
       (go (>! channel message)))))
 
@@ -66,6 +66,7 @@
   "Receives messages from the server and calls an appropiate dispatcher"
   (go-loop []
     (let [{:keys [type] :as message} (common.util/process-input-message (:message (<! websocket-channel)))]
+      (debug ::receive-messages! message)
       (case type
         :event (ws-event-dispatch message)
         :response (ws-response-dispatch message)

@@ -7,4 +7,4 @@
  (fn [cofx [_ id]]
    {:ws-request {:name :products/get
                  :params {:id id}
-                 :success-fn #(rf/dispatch [:app/entity-query.next [:products (:id %1)] %1])}}))
+                 :success-fn #(rf/dispatch [:ventas.api/success [:products (:id %1)] %1])}}))

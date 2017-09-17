@@ -12,7 +12,8 @@
             [chord.format.fressian :as chord-fressian]
             [cljs.reader :as edn]
             [cljs.pprint :as pprint]
-            
+
+            [ventas.api :as api]
             [ventas.ws :as ws]
             [ventas.subs :as subs]
             [ventas.util :as util :refer [dispatch-page-event]]
@@ -56,45 +57,13 @@
   :cofx :local-storage})
 
 
-(defmulti page-start (fn [page cofx] page))
-
-(defmethod page-start :default [page cofx]
-  {})
-
-(defmethod page-start :admin.users [page cofx]
-  {:ws-request {:name :users.list :success-fn #(rf/dispatch [:app/entity-query.next [:users] %])}})
-
-(defmethod page-start :admin.users.edit [page cofx]
-  (let [id (js/parseInt (get-in (session/get :route) [:route-params :id]))]
-    (if (> id 0)
-      {:ws-request-multi [
-                          {:name :entities.find :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form] %])}
-                          {:name :users.comments.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :comments] %])}
-                          {:name :users.images.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :images] %])}
-                          {:name :users.own-images.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :own-images] %])}
-                          {:name :users.friends.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :friends] %])}
-                          {:name :users.made-comments.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :made-comments] %])}
-                          {:name :admin.reference/user.role :success-fn #(rf/dispatch [:app/entity-query.next [:reference :user.role] %])}
-                          ]}
-      {:db (assoc (:db cofx) :form {:name "" :password "" :email "" :description "" :roles []})})))
-
-(defmulti page-end (fn [page cofx] page))
-
-(defmethod page-end :admin.users.edit [_ cofx]
-  {:db (assoc (:db cofx) :form {})})
-
-(defmethod page-end :default [_ _]
-  (debug "No end function")
-  {})
-
-
 ;; Effects
 
 (defn effect-ws-request [request]
   (ws/send-request!
    {:name (:name request)
     :params (:params request)
-    :callback (fn [data] (cond
+    :callback (fn [data] (debug "Got WS data" data) (cond
                            (not (:success data))
                              (rf/dispatch [:app/notifications.add {:message (:data data) :theme "warning"}])
                            (:success request)
@@ -150,11 +119,6 @@
     (debug "entity-update, where: " where)
     (assoc-in db where (map #(if (= (:id %1) (:id what)) what %1) (get-in db where)))))
 
-(rf/reg-event-db :app/entity-query.next
-  (fn [db [_ where what]]
-    (debug "entity-query, where: " where)
-    (assoc-in db where what)))
-
 (rf/reg-event-fx :app/entity-remove
   (fn [cofx [_ data key-vec]]
     {:ws-request {:name :entities.remove 
@@ -184,7 +148,7 @@
      (if (seq token)
        {:ws-request {:name :users/session
                      :params {:token token}
-                     :success-fn #(rf/dispatch [:app/entity-query.next [:session] %])}}
+                     :success-fn #(rf/dispatch [:ventas.api/success [:session] %])}}
        {}))))
 
 (rf/reg-event-fx
@@ -221,13 +185,6 @@
 (rf/reg-event-fx :admin.users.edit/comments.modal.submit
   (fn [fx [_ key-vec comm]]
     {:ws-request {:name :comments.save :params comm :success-fn #(rf/dispatch [:app/entity-update.next key-vec %])}}))
-
-(rf/reg-event-fx :navigation-start
-  (fn event-navigation-start [cofx [_ new-page old-page]]
-    (debug "event-navigation-start" new-page old-page)
-    (let [start (page-start new-page cofx)
-          end (page-end old-page cofx)]
-      (merge start end))))
 
 (rf/reg-event-db :initialize
   (fn event-initialize [_ _]
@@ -274,7 +231,6 @@
             current-page (:handler match)
             route-params (:route-params match)]
         (info "Current page" current-page)
-        (rf/dispatch [:navigation-start current-page (:current-page (session/get :route))])
         (session/put! :route {:current-page current-page
                               :route-params route-params})))
     :path-exists?
