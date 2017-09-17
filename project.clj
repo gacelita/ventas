@@ -10,7 +10,7 @@
   :dependencies [
                  ;; Clojure
                  [org.clojure/clojure "1.9.0-alpha14"]
-                 [org.clojure/clojurescript "1.9.908" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.854" :scope "provided"]
                  [org.clojure/core.async "0.3.443"
                   :exclusions [org.clojure/tools.reader]]
 
@@ -115,12 +115,10 @@
                  [prone "1.1.4"]
                  [devcards "0.2.3" :exclusions [cljsjs/react]]]
 
-  :plugins [[lein-cljsbuild "1.1.3"]
-            [lein-environ "1.0.3"]
+  :plugins [[lein-cljsbuild "1.1.7"]
             [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
-            [lein-auto "0.1.2"]
+            [lein-auto "0.1.3"]
             [lein-ancient "0.6.10"]
-            [lein-git-deps "0.0.1-SNAPSHOT"]
             [venantius/ultra "0.5.1" :exclusions [org.clojure/clojure]]]
 
   :min-lein-version "2.6.1"
@@ -198,8 +196,8 @@
                                    [com.cemerick/pomegranate "0.4.0" :exclusions [org.codehaus.plexus/plexus-utils]]
                                    [org.clojure/test.check "0.9.0"]
                                    [com.gfredericks/test.chuck "0.2.8"]]
-                    :plugins [[lein-figwheel "0.5.4-4" :exclusions [org.clojure/clojure]]
-                              [lein-doo "0.1.6" :exclusions [org.clojure/clojure]]]
+                    :plugins [[lein-figwheel "0.5.13" :exclusions [org.clojure/clojure]]
+                              [lein-doo "0.1.7" :exclusions [org.clojure/clojure]]]
                     :source-paths ["dev"]}
 
               :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
