@@ -8,9 +8,14 @@
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
 
-(def ^:private output-json-channel (atom nil))
-(def ^:private output-binary-channel (atom nil))
 (def ^:private active-request-channels (atom {}))
+(def ^:private output-channels (atom {}))
+
+(defn output-binary-channel []
+  (get @output-channels :fressian))
+
+(defn output-json-channel []
+  (get @output-channels :json-kw))
 
 (defn send-request!
   "Sends a request and calls the callback with the response"
@@ -22,7 +27,7 @@
           :realtime? realtime?})
   (let [request-channel (chan)
         request-id (gensym "request-")
-        output-channel (if binary? @output-binary-channel @output-json-channel)]
+        output-channel (if binary? (output-binary-channel) (output-json-channel))]
     (swap! active-request-channels assoc request-id request-channel)
     (go
      (>! output-channel
@@ -88,9 +93,8 @@
            (error "Error connecting to the " format " websocket: " ws-error)
            (>! channel false))
          (do
-           (reset! output-json-channel
-                   (doto (chan)
-                     (send-messages! ws-channel)))
+           (swap! output-channels assoc format (doto (chan)
+                                                 (send-messages! ws-channel)))
            (receive-messages! ws-channel)
            (>! channel true)))))
     channel))

@@ -88,7 +88,6 @@
   (ws/send-request!
    {:name (:name request)
     :params (:params request)
-    :request-params (:request-params request)
     :callback (fn [data] (cond
                            (not (:success data))
                              (rf/dispatch [:app/notifications.add {:message (:data data) :theme "warning"}])
@@ -111,12 +110,12 @@
       (ws/send-request!
         {:name (:name request)
          :params (-> (:params request) (assoc (:upload-key request) chunk) (assoc :is-last is-last) (assoc :is-first is-first) (assoc :file-id file-id))
-         :request-params {:binary true :chunked true}
          :callback  (fn [response]
                       (debug "Executing upload callback" start end is-first is-last)
                       (if-not is-last
                         (effect-ws-upload-request request (if is-first (:data response) file-id) end)
-                        (fn [a] ((:success-fn request) (:data response)))))}))))
+                        (fn [a] ((:success-fn request) (:data response)))))}
+        :binary? true))))
     
 
 (rf/reg-fx :ws-request effect-ws-request)
