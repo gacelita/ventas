@@ -1,14 +1,13 @@
-(ns ventas.pages.backend.users.edit
+(ns ventas.pages.admin.users.edit
   (:require [reagent.core :as reagent :refer [atom]]
             [reagent.session :as session]
             [re-frame.core :as rf]
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [soda-ash.core :as sa]
-            [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
-                                                       trace debug info warn error]]
+            [ventas.utils.logging :refer [trace debug info warn error]]
             [ventas.page :refer [pages]]
-            [ventas.pages.backend.users :as users-page]
+            [ventas.pages.admin.users :as users-page]
             [ventas.routes :as routes :refer [go-to]]
             [ventas.util :refer [dispatch-page-event wrap-sa-with-model]]
             [ventas.components :refer [input-with-model textarea-with-model]]))
@@ -38,7 +37,7 @@
                [sa/Icon {:name "remove"}]]])]
       (fn []
         [:div
-          [users-page/users-datatable action-column :backend.users.edit/friends]
+          [users-page/users-datatable action-column :admin.users.edit/friends]
           [sa/Button "Añadir amigo"]])))
 
 (defn user-images []
@@ -49,7 +48,7 @@
                [sa/Icon {:name "remove"}]]])]
       (fn []
         [:div
-          [images-datatable action-column :backend.users.edit/images]
+          [images-datatable action-column :admin.users.edit/images]
           [sa/Button "Añadir imagen"]])))
 
 (defn user-own-images []
@@ -60,13 +59,13 @@
                [sa/Icon {:name "remove"}]]])]
       (fn []
         [:div
-          [images-datatable action-column :backend.users.edit/own-images]
+          [images-datatable action-column :admin.users.edit/own-images]
           [sa/Button "Añadir imagen"]])))
 
 (defn user-comments-add [modal-key sub-key key-vec]
     (debug "modal-key" modal-key "key-vec" key-vec)
     (let [atomic-modal (rf/subscribe [sub-key])
-          set-open #(rf/dispatch [:backend.users.edit/comments.modal modal-key (assoc @atomic-modal :open %)])
+          set-open #(rf/dispatch [:admin.users.edit/comments.modal modal-key (assoc @atomic-modal :open %)])
           submit #(do (debug "Sending... (key-vec: " key-vec ")")
                       (-> % .preventDefault)
                         (dispatch-page-event [:comments.modal.submit key-vec (select-keys (:data @atomic-modal) [:id :content])])
@@ -78,7 +77,7 @@
         [sa/Header {:icon "archive" :content "Editar comentario"}]
         [sa/ModalContent
           [sa/Form
-            [sa/TextArea {:on-change #(rf/dispatch [:backend.users.edit/comments.modal modal-key (assoc-in @atomic-modal [:data :content] (-> % .-target .-value))])
+            [sa/TextArea {:on-change #(rf/dispatch [:admin.users.edit/comments.modal modal-key (assoc-in @atomic-modal [:data :content] (-> % .-target .-value))])
                           :placeholder "Contenido del comentario"
                           :default-value (get-in @atomic-modal [:data :content])}]]]
         [sa/ModalActions
@@ -95,7 +94,7 @@
   (let [action-column
     (fn [_ row]
       [:div
-        [sa/Button {:icon true :on-click #(rf/dispatch [:backend.users.edit/comments.edit (:id row) [:form :comments] :comment-modal])}
+        [sa/Button {:icon true :on-click #(rf/dispatch [:admin.users.edit/comments.edit (:id row) [:form :comments] :comment-modal])}
           [sa/Icon {:name "edit"}]]
         [sa/Button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:form :comments]])}
           [sa/Icon {:name "remove"}]]])]
@@ -103,7 +102,7 @@
       [:div
         [dt/datatable
           (keyword (gensym :comments))
-          [:backend.users.edit/comments]
+          [:admin.users.edit/comments]
           [{::dt/column-key   [:id] ::dt/column-label "#"
             ::dt/sorting      {::dt/enabled? true}}
 
@@ -115,7 +114,7 @@
            {::dt/column-key   [:source] ::dt/column-label "Creador"
             ::dt/render-fn
               (fn [source]
-                [:a {:on-click #(go-to :backend.users.edit {:id (:id source)})} (:name source)])}
+                [:a {:on-click #(go-to :admin.users.edit {:id (:id source)})} (:name source)])}
 
            {::dt/column-key   [:actions] ::dt/column-label "Acciones"
             ::dt/render-fn action-column}]
@@ -123,7 +122,7 @@
           {::dt/pagination    {::dt/enabled? true
                                ::dt/per-page 5}
           ::dt/table-classes ["ui" "table" "celled"]}]
-        [user-comments-add :comment-modal :backend.users.edit/comment-modal [:form :comments]]
+        [user-comments-add :comment-modal :admin.users.edit/comment-modal [:form :comments]]
         [:br]
         [:br]])))
 
@@ -131,7 +130,7 @@
   (let [action-column
     (fn [_ row]
       [:div
-        [sa/Button {:icon true :on-click #(rf/dispatch [:backend.users.edit/comments.edit (:id row) [:form :made-comments] :made-comment-modal])}
+        [sa/Button {:icon true :on-click #(rf/dispatch [:admin.users.edit/comments.edit (:id row) [:form :made-comments] :made-comment-modal])}
           [sa/Icon {:name "edit"}]]
         [sa/Button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:form :made-comments]])}
           [sa/Icon {:name "remove"}]]])]
@@ -139,7 +138,7 @@
       [:div
         [dt/datatable
           (keyword (gensym "comments"))
-          [:backend.users.edit/made-comments]
+          [:admin.users.edit/made-comments]
           [{::dt/column-key   [:id] ::dt/column-label "#"
             ::dt/sorting      {::dt/enabled? true}}
 
@@ -151,7 +150,7 @@
            {::dt/column-key   [:target] ::dt/column-label "Objetivo"
             ::dt/render-fn
               (fn [target]
-                [:a {:on-click #(go-to :backend.users.edit {:id (:id target)})} (:name target)])}
+                [:a {:on-click #(go-to :admin.users.edit {:id (:id target)})} (:name target)])}
 
            {::dt/column-key   [:actions] ::dt/column-label "Acciones"
             ::dt/render-fn action-column}]
@@ -159,7 +158,7 @@
           {::dt/pagination    {::dt/enabled? true
                                ::dt/per-page 5}
           ::dt/table-classes ["ui" "table" "celled"]}]
-        [user-comments-add :made-comment-modal :backend.users.edit/made-comment-modal [:form :made-comments]]
+        [user-comments-add :made-comment-modal :admin.users.edit/made-comment-modal [:form :made-comments]]
         [:br]
         [:br]])))
 
@@ -181,7 +180,7 @@
         [sa/FormButton {:type "submit"} "Enviar"]]))
 
 
-(defmethod pages :backend.users.edit []
+(defmethod pages :admin.users.edit []
   (fn page-users-edit []
     [:div
       [user-form]

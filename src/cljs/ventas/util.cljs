@@ -3,8 +3,7 @@
             [reagent.session :as session]
             [re-frame.core :as rf]
             [ventas.routes :as routes]
-            [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
-                                                       trace debug info warn error]]))
+            [ventas.utils.logging :refer [trace debug info warn error]]))
 
 (defn route-param [kw]
   (get-in (session/get :route) [:route-params kw]))

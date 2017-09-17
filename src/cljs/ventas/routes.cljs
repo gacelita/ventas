@@ -1,23 +1,22 @@
 (ns ventas.routes
   (:require [clojure.string :as str]
             [bidi.bidi :as bidi]
-            [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
-                                                       trace debug info warn error]]
+            [ventas.utils.logging :refer [trace debug info warn error]]
             [accountant.core :as accountant]))
 
 (comment
-  ["/" {"admin/" {"" :backend
-                  "login/" :backend.login
-                  "register/" :backend.register
-                  "users/" {"" :backend.users
-                            [:id "edit"] :backend.users.edit}
-                  "playground/" :backend.playground}
+  ["/" {"admin/" {"" :admin
+                  "login/" :admin.login
+                  "register/" :admin.register
+                  "users/" {"" :admin.users
+                            [:id "edit"] :admin.users.edit}
+                  "playground/" :admin.playground}
         "frontend" {"" :frontend
                     "index" :frontend.index}
         true :not-found}])
 
 (defn route-parents [route]
-  ":backend.users.something -> [:backend :backend.users :backend.users.something]"
+  ":admin.users.something -> [:admin :admin.users :admin.users.something]"
   (into [] (map #(keyword (str/join "." %))
                 (reduce (fn [acc i]
                           (conj acc (conj (vec (last acc)) i)))
@@ -59,27 +58,27 @@
              (assoc true :not-found))]))
 
 (def route-data
-  (atom [{:route :backend
+  (atom [{:route :admin
           :name "Administración"
           :url "admin"}
 
-         {:route :backend.users
+         {:route :admin.users
           :name "Usuarios"
           :url "users"}
 
-         {:route :backend.users.edit
+         {:route :admin.users.edit
           :name "Editar usuario"
           :url [:id "/edit"]}
 
-         {:route :backend.login
+         {:route :admin.login
           :name "Iniciar sesión"
           :url "login"}
 
-         {:route :backend.register
+         {:route :admin.register
           :name "Registro"
           :url "register"}
 
-         {:route :backend.playground
+         {:route :admin.playground
           :name "Playground"
           :url "playground"}
 
@@ -107,7 +106,7 @@
   [& args]
   (let [path (apply bidi/path-for @routes args)]
     (when-not path
-      (throw (js/Error. "Route not found: " (clj->js args))))
+      (error "Route not found" args))
     path))
 
 (defn match-route

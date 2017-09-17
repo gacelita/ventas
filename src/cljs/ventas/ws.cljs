@@ -6,20 +6,14 @@
             [accountant.core :as accountant]
             [cljsjs.react-bootstrap]
             [clojure.string :as s]
-            [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
-                                                       trace debug info warn error]]
+            [ventas.utils.logging :refer [trace debug info warn error]]
             [cljs.core.async :refer [<! >! put! close! timeout chan]]
             [chord.client :refer [ws-ch]]
             [chord.format.fressian :as chord-fressian]
             [cljs.reader :as edn]
             [cljs.pprint :as pprint]
             [ventas.util :as util]
-            [ventas.common.util :as cutil]
-
-             ;; Tracing
-            [clairvoyant.core :refer-macros [trace-forms]]
-            [re-frame-tracer.core :refer [tracer]]
-            )
+            [ventas.common.util :as cutil])
   (:require-macros
    [cljs.core.async.macros :as asyncm :refer (go go-loop)]))
 
@@ -40,7 +34,12 @@
 (defn send-request! [{:keys [name params callback request-params]}]
   (let [ch (chan)
         id (rand-int 999999)]
-    (debug "send-request! | output-channel" output-channel "name" name "params" params "request-params" request-params "callback" callback)
+    (debug ::send-request!
+           {:output-channel output-channel
+            :name name
+            :params params
+            :request-params request-params
+            :callback callback})
     (swap! active-channels assoc id ch)
     (go
       (>! (if (:binary request-params) @output-binary-channel @output-channel) {:type :request :id id :name name :params params})
@@ -81,7 +80,7 @@
         (js/console.warn "Unhandled message: " message))
       (if (and message (:type message))
         (recur)
-        (init (constantly true))))))
+        (init)))))
 
 ;; Receives messages from output-channel and sends them
 ;; over to the server

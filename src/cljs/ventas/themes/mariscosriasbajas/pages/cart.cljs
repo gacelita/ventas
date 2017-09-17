@@ -5,7 +5,7 @@
             [bidi.bidi :as bidi]
             [fqcss.core :refer [wrap-reagent]]
             [re-frame-datatable.core :as dt]
-            [taoensso.timbre :as timbre :refer-macros [trace debug info warn error]]
+            [ventas.utils.logging :refer [trace debug info warn error]]
             [ventas.actions.products :as actions.products]
             [ventas.page :refer [pages]]
             [ventas.routes :refer [route-parents routes]]

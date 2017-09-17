@@ -1,4 +1,4 @@
-(ns ventas.pages.backend.playground
+(ns ventas.pages.admin.playground
   (:require [reagent.core :as reagent :refer [atom]]
             [reagent.session :as session]
             [re-frame.core :as rf]
@@ -8,7 +8,7 @@
             [ventas.routes :as routes :refer [go-to]]
             [ventas.util :refer [dispatch-page-event]]))
 
-(defmethod pages :backend.playground []
+(defmethod pages :admin.playground []
   (fn page-playground []
     [:div
       [:p "Development playground"]

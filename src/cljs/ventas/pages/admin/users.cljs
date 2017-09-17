@@ -1,4 +1,4 @@
-(ns ventas.pages.backend.users
+(ns ventas.pages.admin.users
   (:require [reagent.core :as reagent :refer [atom]]
             [reagent.session :as session]
             [re-frame.core :as rf]
@@ -26,16 +26,16 @@
                          ::dt/per-page 5}
     ::dt/table-classes ["ui" "table" "celled"]}])
 
-(defmethod pages :backend.users []
+(defmethod pages :admin.users []
   (fn page-app-users []
     (let [action-column
       (fn [_ row]
         [:div
-          [sa/Button {:icon true :on-click #(go-to :backend.users.edit {:id (:id row)})}
+          [sa/Button {:icon true :on-click #(go-to :admin.users.edit {:id (:id row)})}
             [sa/Icon {:name "edit"}]]
           [sa/Button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:users]])}
             [sa/Icon {:name "remove"}]]])]
       (fn []
         [:div
           [users-datatable action-column :app.users/users]
-          [sa/Button {:onClick #(go-to :backend.users.edit {:id 0})} "Crear usuario"]]))))
+          [sa/Button {:onClick #(go-to :admin.users.edit {:id 0})} "Crear usuario"]]))))

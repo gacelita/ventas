@@ -123,10 +123,6 @@
                  ; Error reporting for Ring
                  [prone "1.1.4"]
 
-                 ;; re-frame debugging
-                 [org.clojars.stumitchell/clairvoyant "0.2.1"]
-                 [day8/re-frame-tracer "0.1.1-SNAPSHOT"]
-
                  ;; devcards
                  [devcards "0.2.1"]
 

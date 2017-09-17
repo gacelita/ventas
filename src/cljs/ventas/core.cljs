@@ -6,8 +6,7 @@
             [accountant.core :as accountant]
             [cljsjs.react-bootstrap]
             [clojure.string :as s]
-            [taoensso.timbre :as timbre :refer-macros [tracef debugf infof warnf errorf
-                                                       trace debug info warn error]]
+            [ventas.utils.logging :refer [trace debug info warn error]]
             [cljs.core.async :refer [<! >! put! close! timeout chan]]
             [chord.client :refer [ws-ch]]
             [chord.format.fressian :as chord-fressian]
@@ -22,20 +21,16 @@
             [re-frame-datatable.core :as dt]
             [soda-ash.core :as sa]
 
-            ;; Tracing
-            [clairvoyant.core :refer-macros [trace-forms]]
-            [re-frame-tracer.core :refer [tracer]]
-
             [ventas.devcards.core]
 
             [ventas.routes :as routes :refer [go-to]]
             [ventas.page :as p]
 
             [ventas.plugins.featured-products.core]
-            [ventas.pages.backend]
-            [ventas.pages.backend.playground]
-            [ventas.pages.backend.users]
-            [ventas.pages.backend.users.edit]
+            [ventas.pages.admin]
+            [ventas.pages.admin.playground]
+            [ventas.pages.admin.users]
+            [ventas.pages.admin.users.edit]
             [ventas.pages.datadmin]
             [ventas.pages.api]
             [ventas.themes.mariscosriasbajas.core]
@@ -45,7 +40,6 @@
     [ventas.util-macros :as util-macros :refer [require-pages require-plugins]]))
 
 (enable-console-print!)
-(timbre/set-level! :trace)
 
 (storage/reg-co-fx!
  :ventas
@@ -61,10 +55,10 @@
 (defmethod page-start :default [page cofx]
   {})
 
-(defmethod page-start :backend.users [page cofx]
+(defmethod page-start :admin.users [page cofx]
   {:ws-request {:name :users.list :success-fn #(rf/dispatch [:app/entity-query.next [:users] %])}})
 
-(defmethod page-start :backend.users.edit [page cofx]
+(defmethod page-start :admin.users.edit [page cofx]
   (let [id (js/parseInt (get-in (session/get :route) [:route-params :id]))]
     (if (> id 0)
       {:ws-request-multi [
@@ -74,13 +68,13 @@
                           {:name :users.own-images.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :own-images] %])}
                           {:name :users.friends.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :friends] %])}
                           {:name :users.made-comments.list :params {:id id} :success-fn #(rf/dispatch [:app/entity-query.next [:form :made-comments] %])}
-                          {:name :backend.reference/user.role :success-fn #(rf/dispatch [:app/entity-query.next [:reference :user.role] %])}
+                          {:name :admin.reference/user.role :success-fn #(rf/dispatch [:app/entity-query.next [:reference :user.role] %])}
                           ]}
       {:db (assoc (:db cofx) :form {:name "" :password "" :email "" :description "" :roles []})})))
 
 (defmulti page-end (fn [page cofx] page))
 
-(defmethod page-end :backend.users.edit [_ cofx]
+(defmethod page-end :admin.users.edit [_ cofx]
   {:db (assoc (:db cofx) :form {})})
 
 (defmethod page-end :default [_ _]
@@ -195,31 +189,31 @@
    {:db (dissoc db :session)
     :local-storage (dissoc local-storage :token)}))
 
-(rf/reg-event-fx :backend.users/edit
+(rf/reg-event-fx :admin.users/edit
   (fn event-users-edit [cofx [_ data]]
-    {:go-to [:backend.users.edit data]}))
+    {:go-to [:admin.users.edit data]}))
 
-(rf/reg-event-fx :backend.users.edit/submit
+(rf/reg-event-fx :admin.users.edit/submit
   (fn event-users-edit-submit [cofx [_ data]]
-    {:ws-request {:name :users.save :params data :success :backend.users.edit/submit.next}}))
+    {:ws-request {:name :users.save :params data :success :admin.users.edit/submit.next}}))
 
-(rf/reg-event-fx :backend.users.edit/submit.next
+(rf/reg-event-fx :admin.users.edit/submit.next
   (fn event-users-edit-submit-next [cofx [_ data]]
     (debug "About to dispatch go-to app.users")
     {:dispatch [:app/notifications.add {:message "Usuario guardado satisfactoriamente" :theme "success"}]
-     :go-to [:backend.users]}))
+     :go-to [:admin.users]}))
 
-(rf/reg-event-db :backend.users.edit/comments.edit
+(rf/reg-event-db :admin.users.edit/comments.edit
   (fn [db [_ id key-vec modal-key]]
     (-> db
         (assoc modal-key {:data (first (filter #(= (:id %) id) (get-in db key-vec)))
                                :open true}))))
 
-(rf/reg-event-db :backend.users.edit/comments.modal
+(rf/reg-event-db :admin.users.edit/comments.modal
   (fn event-users-edit-comments-modal [db [_ k data]]
     (assoc db k data)))
 
-(rf/reg-event-fx :backend.users.edit/comments.modal.submit
+(rf/reg-event-fx :admin.users.edit/comments.modal.submit
   (fn [fx [_ key-vec comm]]
     {:ws-request {:name :comments.save :params comm :success-fn #(rf/dispatch [:app/entity-update.next key-vec %])}}))
 
@@ -287,11 +281,11 @@
       (reagent/render [page] (js/document.getElementById "app")))))
 
 (defn start []
-  (infof "Starting ventas")
+  (info "Starting ventas")
   (init))
 
 (defn stop []
-  (infof "Stopping ventas"))
+  (info "Stopping ventas"))
 
 (defn on-figwheel-reload []
   (debug "Reloading...")
