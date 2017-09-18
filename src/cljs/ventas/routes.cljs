@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [bidi.bidi :as bidi]
             [ventas.utils.logging :refer [trace debug info warn error]]
-            [accountant.core :as accountant]))
+            [accountant.core :as accountant]
+            [reagent.session :as session]))
 
 (comment
   ["/" {"admin/" {"" :admin
@@ -118,3 +119,7 @@
   (when-let [path (apply path-for args)]
     (accountant/navigate! path)))
 
+(defn current
+  "Returns the current route"
+  []
+  (session/get :route))

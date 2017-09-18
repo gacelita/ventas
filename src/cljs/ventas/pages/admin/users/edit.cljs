@@ -9,40 +9,49 @@
             [ventas.components.base :as base]
             [ventas.page :refer [pages]]
             [ventas.pages.admin.users :as users-page]
-            [ventas.routes :as routes :refer [go-to]]
+            [ventas.routes :as routes]
             [ventas.util :as util :refer [dispatch-page-event]]
             [ventas.utils.ui :as utils.ui]
             [ventas.pages.admin :as admin]))
 
 (defn user-form []
-  (reagent/with-let [data (atom {})]
-    [base/form {:on-submit (utils.ui/with-handler #(dispatch-page-event [:submit @data]))}
-     [base/form-group {:widths "equal"}
-      [base/form-input (utils.ui/wrap-with-model {:label "Nombre"
-                                                  :model data
-                                                  :name "name"})]
-      [base/form-input (utils.ui/wrap-with-model {:label "Email"
-                                                  :model data
-                                                  :name "email"
-                                                  :type "email"})]
-      [base/form-input (utils.ui/wrap-with-model {:label "Contraseña"
-                                                  :model data
-                                                  :name "password"
-                                                  :type "password"})]]
-     [base/form-group {:widths "equal"}
-      [base/form-textarea (utils.ui/wrap-with-model {:label "Sobre mí"
-                                                     :model data
-                                                     :name "description"})]]
-     [base/form-group {:widths "equal"}
-      [base/form-field
-       [:label "Roles"]
-       [base/dropdown (utils.ui/wrap-with-model {:model data
-                                                 :name "roles"
-                                                 :multiple true
-                                                 :fluid true
-                                                 :selection true
-                                                 :options @(rf/subscribe [:app.reference/user.role])})]]]
-     [base/form-button {:type "submit"} "Enviar"]]))
+  (let [user-kw ::user
+        data (atom {})
+        key (atom {})
+        user-id (get-in (routes/current) [:route-params :id])]
+    (rf/dispatch [:api/entities.find
+                  user-id
+                  {:success-fn (fn [user]
+                                 (reset! data user)
+                                 (reset! key (hash user)))}])
+    (rf/dispatch [:ventas/reference.user.role])
+    (fn []
+      (debug "data" @data)
+      ^{:key @key}
+      [base/form {:on-submit (utils.ui/with-handler #(dispatch-page-event [:submit @data]))}
+       [base/form-group {:widths "equal"}
+        [base/form-input
+         {:label "Nombre"
+          :default-value (:name @data)
+          :on-change #(swap! data assoc :name (-> % .-target .-value))}]
+        [base/form-input
+         {:label "Email"
+          :default-value (:email @data)
+          :on-change #(swap! data assoc :email (-> % .-target .-value))}]]
+       [base/form-group {:widths "equal"}
+        [base/form-textarea
+         {:label "Sobre mí"
+          :default-value (:description @data)
+          :on-change #(swap! data assoc :description (-> % .-target .-value))}]]
+       [base/form-group {:widths "equal"}
+        [base/form-field
+         [:label "Roles"]
+         [base/dropdown
+          {:multiple true
+           :fluid true
+           :selection true
+           :options @(rf/subscribe [:reference.user.role])}]]]
+       [base/form-button {:type "submit"} "Enviar"]])))
 
 (defmethod pages :admin.users.edit []
   [admin/skeleton

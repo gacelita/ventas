@@ -4,12 +4,14 @@
             [cljs.core.async :refer [<! >! close! chan]]
             [chord.client :as chord]
             [chord.format.fressian]
-            [ventas.common.util :as common.util])
+            [ventas.common.util :as common.util]
+            [re-frame.core :as rf])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
 
 (defonce ^:private request-channels (atom {}))
 (defonce ^:private output-channels (atom {}))
+(def ws-upload-chunk-size (* 1024 50))
 
 (defn output-binary-channel []
   (get @output-channels :fressian))
@@ -110,3 +112,62 @@
             fressian-result (<! (start-websocket :fressian))]
         (>! channel (and json-result fressian-result))))
     channel))
+
+(defn effect-ws-request [request]
+  (send-request!
+   {:name (:name request)
+    :params (:params request)
+    :callback
+    (fn [data]
+      (cond
+        (not (:success data))
+          (rf/dispatch [:app/notifications.add {:message (:data data) :theme "warning"}])
+        (:success request)
+          (rf/dispatch [(:success request) (:data data)])
+        (:success-fn request)
+          ((:success-fn request) (:data data))))}))
+
+
+(defn effect-ws-upload-request
+  ([request] (effect-ws-upload-request request false 0))
+  ([request file-id start]
+   (let [data (:upload-data request)
+         data-length (-> data .-byteLength)
+         raw-end (+ start ws-upload-chunk-size)
+         is-last (> raw-end data-length)
+         is-first (zero? start)
+         end (if is-last data-length raw-end)
+         chunk (.slice data start end)]
+     (send-request!
+      {:name (:name request)
+       :params (-> (:params request)
+                   (assoc (:upload-key request) chunk)
+                   (assoc :is-last is-last)
+                   (assoc :is-first is-first)
+                   (assoc :file-id file-id))
+       :callback  (fn [response]
+                    (debug "Executing upload callback" start end is-first is-last)
+                    (if-not is-last
+                      (effect-ws-upload-request request (if is-first (:data response) file-id) end)
+                      (fn [a] ((:success-fn request) (:data response)))))}
+      :binary? true))))
+
+(rf/reg-fx :ws-request effect-ws-request)
+
+(rf/reg-fx
+ :ws-request-multi
+ (fn [requests]
+   (doseq [request requests]
+     (effect-ws-request request))))
+
+(rf/reg-event-fx
+ :effects/ws-request
+ (fn [cofx [_ data]]
+   {:ws-request data}))
+
+(rf/reg-fx :ws-upload-request effect-ws-upload-request)
+
+(rf/reg-event-fx
+ :effects/ws-upload-request
+ (fn [cofx [_ data]]
+   {:ws-upload-request data}))

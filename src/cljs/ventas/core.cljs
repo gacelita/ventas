@@ -5,23 +5,13 @@
             [re-frame.loggers :as rf.loggers]
             [bidi.bidi :as bidi]
             [accountant.core :as accountant]
-            [clojure.string :as s]
             [ventas.utils.logging :refer [trace debug info warn error]]
             [cljs.core.async :refer [<! >! put! close! timeout chan]]
-            [chord.client :refer [ws-ch]]
-            [chord.format.fressian :as chord-fressian]
-            [cljs.reader :as edn]
-            [cljs.pprint :as pprint]
-
             [ventas.api :as api]
             [ventas.ws :as ws]
             [ventas.subs :as subs]
             [ventas.util :as util :refer [dispatch-page-event]]
             [ventas.local-storage :as storage]
-
-            [re-frame-datatable.core :as dt]
-            [soda-ash.core :as sa]
-
             [ventas.devcards.core]
 
             [ventas.routes :as routes :refer [go-to]]
@@ -34,11 +24,9 @@
             [ventas.pages.admin.users.edit]
             [ventas.pages.datadmin]
             [ventas.pages.api]
-            [ventas.themes.mariscosriasbajas.core]
-            )
+            [ventas.themes.mariscosriasbajas.core])
   (:require-macros
-    [cljs.core.async.macros :as asyncm :refer (go go-loop)]
-    [ventas.util-macros :as util-macros :refer [require-pages require-plugins]]))
+    [cljs.core.async.macros :refer (go go-loop)]))
 
 (enable-console-print!)
 
@@ -58,52 +46,6 @@
 
 
 ;; Effects
-
-(defn effect-ws-request [request]
-  (ws/send-request!
-   {:name (:name request)
-    :params (:params request)
-    :callback (fn [data] (cond
-                           (not (:success data))
-                             (rf/dispatch [:app/notifications.add {:message (:data data) :theme "warning"}])
-                           (:success request)
-                             (rf/dispatch [(:success request) (:data data)])
-                           (:success-fn request)
-                             ((:success-fn request) (:data data))))}))
-
-(def ws-upload-chunk-size (* 1024 50))
-(defn effect-ws-upload-request
-  ([request] (effect-ws-upload-request request false 0))
-  ([request file-id start]
-    (let [data (:upload-data request)
-          data-length (-> data .-byteLength)
-          raw-end (+ start ws-upload-chunk-size)
-          is-last (> raw-end data-length)
-          is-first (zero? start)
-          end (if is-last data-length raw-end)
-          chunk (.slice data start end)]
-      (ws/send-request!
-        {:name (:name request)
-         :params (-> (:params request) (assoc (:upload-key request) chunk) (assoc :is-last is-last) (assoc :is-first is-first) (assoc :file-id file-id))
-         :callback  (fn [response]
-                      (debug "Executing upload callback" start end is-first is-last)
-                      (if-not is-last
-                        (effect-ws-upload-request request (if is-first (:data response) file-id) end)
-                        (fn [a] ((:success-fn request) (:data response)))))}
-        :binary? true))))
-    
-
-(rf/reg-fx :ws-request effect-ws-request)
-(rf/reg-fx :ws-request-multi (fn [requests] (doseq [request requests] (effect-ws-request request))))
-(rf/reg-event-fx :effects/ws-request
-  (fn [cofx [_ data]]
-    (debug ":effects/ws-request")
-    {:ws-request data}))
-(rf/reg-fx :ws-upload-request effect-ws-upload-request)
-(rf/reg-event-fx :effects/ws-upload-request
-  (fn [cofx [_ data]]
-    (debug ":effects/ws-upload-request")
-    {:ws-upload-request data}))
 
 (rf/reg-fx :go-to
   (fn effect-go-to [data]
@@ -185,35 +127,6 @@
 (rf/reg-event-fx :admin.users.edit/comments.modal.submit
   (fn [fx [_ key-vec comm]]
     {:ws-request {:name :comments.save :params comm :success-fn #(rf/dispatch [:app/entity-update.next key-vec %])}}))
-
-(rf/reg-event-db :initialize
-  (fn event-initialize [_ _]
-    {:users {} :messages [] :session {}}))
-
-(rf/reg-event-db :users-initialize
-  (fn event-users-initialize [db [_ users]]
-    (assoc db :users users)))
-
-(rf/reg-event-db :session-initialize
-  (fn event-session-initialize [db [_ session]]
-    (assoc db :session session)))
-
-(rf/reg-event-db :users-add
-  (fn event-users-add [db [_ user]]
-    (assoc-in db [:users (:id user)] user)))
-
-(rf/reg-event-db :users-replace
-  (fn event-users-replace [db [_ users]]
-    (assoc db :users users)))
-
-(rf/reg-event-db :messages-add
-  (fn event-messages-add [db [_ message]]
-    (debug ":messages-add" message)
-    (let [messages (take 10 (conj (:messages db) (cond
-                                                   (nil? message) {:type :connection-closed}
-                                                   :else message)))]
-      (debug "messages:" messages)
-      (assoc-in db [:messages] messages))))
 
 (defn page []
   (info "Rendering...")

@@ -4,6 +4,7 @@
             [re-frame.core :as rf]
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
+            [re-frame-datatable.views :as dt.views]
             [ventas.page :refer [pages]]
             [soda-ash.core :as sa]
             [ventas.util :refer [dispatch-page-event]]
@@ -17,26 +18,59 @@
  (fn [db _]
    (-> db :admin-users)))
 
-(defn users-datatable [action-column sub-key]
-  (rf/dispatch [:api/users.list {:success-fn #(rf/dispatch [:ventas.api/success [sub-key] %])}])
-  (utils.ui/reg-kw-sub sub-key)
-  (fn [action-column sub-key]
-    [dt/datatable (keyword (gensym "users")) [sub-key]
-     [{::dt/column-key [:id] ::dt/column-label "#"
-       ::dt/sorting {::dt/enabled? true}}
+(defn basic-pagination [db-id data-sub]
+  (let [pagination-state (rf/subscribe [::re-frame-datatable.core/pagination-state db-id data-sub])]
+    (fn []
+      (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state
+            total-pages (count pages)
+            next-enabled? (< cur-page (dec total-pages))
+            prev-enabled? (pos? cur-page)]
 
-      {::dt/column-key [:name] ::dt/column-label "Name"}
+        [:div.ui.pagination.menu
+         [:a.item
+          {:on-click #(when prev-enabled?
+                        (rf/dispatch [::re-frame-datatable.core/select-prev-page db-id @pagination-state]))
+           :class    (when-not prev-enabled? "disabled")}
+          [:i.left.chevron.icon]]
 
-      {::dt/column-key [:email] ::dt/column-label "Email"
-       ::dt/sorting {::dt/enabled? true}}
+         (for [i (range total-pages)]
+           ^{:key i}
+           [:a.item
+            {:class    (when (= i cur-page) "active")
+             :on-click #(rf/dispatch [::re-frame-datatable.core/select-page db-id @pagination-state i])}
+            (inc i)])
 
-      {::dt/column-key [:actions] ::dt/column-label "Actions"
-       ::dt/render-fn action-column}]
+         [:a.item
+          {:on-click #(when next-enabled?
+                        (rf/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state]))
+           :class    (when-not next-enabled? "disabled")}
+          [:i.right.chevron.icon]]]))))
 
-     {::dt/pagination {::dt/enabled? true
-                       ::dt/per-page 5}
-      ::dt/table-classes ["ui" "table" "celled"]
-      ::dt/empty-tbody-component (fn [] [:p "No users yet"])}]))
+(defn users-datatable [action-column]
+  (let [sub-key :users]
+    (rf/dispatch [:api/users.list {:success-fn #(rf/dispatch [:ventas.api/success [sub-key] %])}])
+    (utils.ui/reg-kw-sub sub-key)
+    (fn [action-column]
+      (let [id (keyword (gensym "users"))]
+        [:div
+         [dt/datatable id [sub-key]
+          [{::dt/column-key [:id] ::dt/column-label "#"
+            ::dt/sorting {::dt/enabled? true}}
+
+           {::dt/column-key [:name] ::dt/column-label "Name"}
+
+           {::dt/column-key [:email] ::dt/column-label "Email"
+            ::dt/sorting {::dt/enabled? true}}
+
+           {::dt/column-key [:actions] ::dt/column-label "Actions"
+            ::dt/render-fn action-column}]
+
+          {::dt/pagination {::dt/enabled? true
+                            ::dt/per-page 3}
+           ::dt/table-classes ["ui" "table" "celled"]
+           ::dt/empty-tbody-component (fn [] [:p "No users yet"])}]
+         [:div.admin-users__pagination
+          [basic-pagination id [sub-key]]]]))))
 
 (defmethod pages :admin.users []
   [admin/skeleton
@@ -48,5 +82,5 @@
             [base/button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:users]])}
              [base/icon {:name "remove"}]]])]
      [:div.admin-users__page
-      [users-datatable action-column :users]
+      [users-datatable action-column]
       [base/button {:onClick #(routes/go-to :admin.users.edit :id 0)} "Crear usuario"]])])
