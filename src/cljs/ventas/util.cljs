@@ -3,7 +3,9 @@
             [reagent.session :as session]
             [re-frame.core :as rf]
             [ventas.routes :as routes]
-            [ventas.utils.logging :refer [trace debug info warn error]]))
+            [ventas.utils.logging :refer [trace debug info warn error]]
+            [cljs.spec.alpha :as spec]
+            [expound.alpha :as expound]))
 
 (defn route-param [kw]
   (get-in (session/get :route) [:route-params kw]))
@@ -66,3 +68,10 @@
   "Really naive method"
   [price]
   (str price " €"))
+
+(defn check [& args]
+  "([spec x] [spec x form])
+     Returns true when x is valid for spec. Throws an Error if validation fails."
+  (if (apply spec/valid? args)
+    true
+    (throw (js/Error. (with-out-str (apply expound/expound args))))))

@@ -1,5 +1,5 @@
 (ns ventas.entities.file
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]
@@ -8,10 +8,10 @@
             [clojure.java.io :as io]
             [ventas.util :refer [find-files]]))
 
-(s/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
+(spec/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
 
-(s/def :schema.type/file
-  (s/keys :req [:file/extension]))
+(spec/def :schema.type/file
+  (spec/keys :req [:file/extension]))
 
 (defmethod entity/preseed :file [type entity-data]
   (-> entity-data (assoc :file/extension :file.extension/jpg)))

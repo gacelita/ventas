@@ -1,6 +1,9 @@
 (ns ventas.util
   (:require [io.aviso.ansi :as clansi]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.spec.alpha :as spec]
+            [expound.alpha :as expound]
+            [slingshot.slingshot :refer [throw+]])
   (:import [java.io File]))
 
 (defn filter-vals
@@ -41,3 +44,14 @@
   "Find files matching given `pattern`."
   [path pattern]
   (find-files* path #(re-matches pattern (.getName ^File %))))
+
+(defn transform [data xforms]
+  (let [f (apply comp (reverse xforms))]
+    (f data)))
+
+(defn check [& args]
+  "([spec x] [spec x form])
+     Returns true when x is valid for spec. Throws an Error if validation fails."
+  (if (apply spec/valid? args)
+    true
+    (throw+ {:type ::spec-invalid :message (apply expound/expound args)})))

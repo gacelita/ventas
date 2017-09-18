@@ -3,7 +3,7 @@
   (:require [ventas.database :as db]
             [taoensso.timbre :as timbre :refer (trace debug info warn error)]
             [slingshot.slingshot :refer [throw+ try+]]
-            [clojure.spec :as s]
+            [clojure.spec.alpha :as spec]
             [datomic.api :as d]
             [ventas.util :as util]))
 
@@ -37,9 +37,8 @@
 (defn spec
   "Checks that an entity complies with its spec"
   [data]
-  (if (s/valid? (:schema/type data) data)
-    data
-    (throw+ {:type ::spec-invalid :message (s/explain (:schema/type data) data)})))
+  (util/check (:schema/type data) data)
+  data)
 
 (defn find
   "Finds an entity by eid"
@@ -69,7 +68,7 @@
             (assoc :schema/type (keyword "schema.type" (name type)))
             (precreate)
             (spec))
-        tx @(db/transact [data])
+        tx (db/transact [data])
         entity (transaction->entity tx tempid)]
     (postcreate type entity)
     entity))
@@ -85,15 +84,17 @@
   (-> entity
       (dissoc :type)))
 
-(defmulti update (fn [entity new-data] (-> entity :type name)))
+(defmulti update (fn [type _] type))
 
-(defmethod update :default [entity data]
-  (let [type (-> entity :type name)
+(defmethod update :default [type data]
+  (assert (:id data))
+  (let [entity (find (:id data))
         data (as-> data data
                    (preupdate type entity data)
+                   (dissoc data :id)
                    (util/qualify-map-keywords data type)
                    (assoc data :db/id (:id entity)))]
-    @(db/transact [data])
+    (db/transact [data])
     (postupdate type entity data)
     (find (:id entity))))
 

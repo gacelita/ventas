@@ -1,11 +1,11 @@
 (ns ventas.local-storage
   (:require [re-frame.core :refer [reg-fx reg-cofx ->interceptor]]
             [alandipert.storage-atom :refer [local-storage]]
-            [cljs.spec.alpha :as s]
+            [cljs.spec.alpha :as spec]
             ))
 
-(s/def ::cljs-data
-  (s/or :nil      nil?
+(spec/def ::cljs-data
+  (spec/or :nil      nil?
         :boolean  boolean?
         :number   number?
         :string   string?
@@ -13,10 +13,10 @@
         :symbol   symbol?
         :uuid     uuid?
         :date     (partial instance? js/Date)
-        :list     (s/coll-of  ::cljs-data :kind list?)
-        :vector   (s/coll-of  ::cljs-data :kind vector?)
-        :set      (s/coll-of  ::cljs-data :kind set?)
-        :map      (s/map-of   ::cljs-data ::cljs-data)
+        :list     (spec/coll-of  ::cljs-data :kind list?)
+        :vector   (spec/coll-of  ::cljs-data :kind vector?)
+        :set      (spec/coll-of  ::cljs-data :kind set?)
+        :map      (spec/map-of   ::cljs-data ::cljs-data)
         ))
 
 
@@ -29,23 +29,23 @@
     (swap! storage-atoms assoc store-key
            (local-storage (atom nil) store-key))))
 
-(s/fdef register-store
-        :args (s/cat :store-key keyword?))
+(spec/fdef register-store
+        :args (spec/cat :store-key keyword?))
 
 
 (defn ->store [store-key data]
   (reset! (@storage-atoms store-key) data))
 
-(s/fdef ->store
-        :args (s/cat :store-key keyword?
+(spec/fdef ->store
+        :args (spec/cat :store-key keyword?
                      :data ::cljs-data))
 
 
 (defn <-store [store-key]
   @(@storage-atoms store-key))
 
-(s/fdef <-store
-        :args (s/cat :store-key keyword?)
+(spec/fdef <-store
+        :args (spec/cat :store-key keyword?)
         :ret  ::cljs-data)
 
 
@@ -64,11 +64,11 @@
      (fn [coeffects _]
        (assoc coeffects cofx (<-store store-key))))))
 
-(s/def ::fx keyword?)
-(s/def ::cofx keyword?)
-(s/fdef reg-co-fx!
-        :args (s/cat :store-key keyword?
-                     :handlers (s/keys :req [(or ::fx ::cofx)])))
+(spec/def ::fx keyword?)
+(spec/def ::cofx keyword?)
+(spec/fdef reg-co-fx!
+        :args (spec/cat :store-key keyword?
+                     :handlers (spec/keys :req [(or ::fx ::cofx)])))
 
 
 (defn persist-db [store-key db-key]
@@ -83,7 +83,7 @@
               (->store store-key value))
             context)))
 
-(s/fdef persist-db
-        :args (s/cat :store-key keyword?
+(spec/fdef persist-db
+        :args (spec/cat :store-key keyword?
                      :db-key keyword?))
 

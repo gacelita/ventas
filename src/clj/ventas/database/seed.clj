@@ -4,17 +4,17 @@
             [ventas.database.schema :as schema]
             [taoensso.timbre :as timbre :refer (trace debug info warn error)]
             [clojure.test.check.generators :as gen]
-            [clojure.spec :as s]))
+            [clojure.spec.alpha :as spec]))
 
 (defn generate-1
   "Generate one sample of a given spec"
   [spec]
-  (gen/generate (s/gen spec)))
+  (gen/generate (spec/gen spec)))
 
 (defn generate-n
   "Generates n samples of given spec"
   [spec n]
-  (let [generator (s/gen spec)]
+  (let [generator (spec/gen spec)]
     (map (fn [_] (gen/generate generator)) (range n))))
 
 (defn seed-type

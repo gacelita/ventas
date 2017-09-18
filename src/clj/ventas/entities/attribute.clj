@@ -1,12 +1,12 @@
 (ns ventas.entities.attribute
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]))
 
-(s/def :attribute/name string?)
+(spec/def :attribute/name string?)
 
-(s/def :schema.type/attribute
-  (s/keys :req [:attribute/name]))
+(spec/def :schema.type/attribute
+  (spec/keys :req [:attribute/name]))
 
 

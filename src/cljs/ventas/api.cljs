@@ -28,10 +28,11 @@
    {:ws-request (merge {:name :reference.user.role}
                        options)}))
 
+(utils.ui/reg-kw-sub :reference.user.role)
+
 (rf/reg-event-fx
  :ventas/reference.user.role
  (fn [cofx [_]]
-   (utils.ui/reg-kw-sub :reference.user.role)
    (rf/dispatch [:api/reference.user.role
                  {:success-fn
                   (fn [options]

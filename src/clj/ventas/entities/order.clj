@@ -1,5 +1,5 @@
 (ns ventas.entities.order
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]
@@ -15,29 +15,29 @@
   - A payment method
 "
 
-(s/def :order/user
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :user)))))
+(spec/def :order/user
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :user)))))
 
-(s/def :order/status #{:order.status/unpaid
+(spec/def :order/status #{:order.status/unpaid
                        :order.status/paid
                        :order.status/acknowledged
                        :order.status/ready
                        :order.status/shipped})
 
-(s/def :order/shipping-address
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :address)))))
+(spec/def :order/shipping-address
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :address)))))
 
-(s/def :order/billing-address
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :address)))))
+(spec/def :order/billing-address
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :address)))))
 
-(s/def :order/shipping-method keyword?)
-(s/def :order/shipping-comments string?)
+(spec/def :order/shipping-method keyword?)
+(spec/def :order/shipping-comments string?)
 
-(s/def :order/payment-method keyword?)
-(s/def :order/payment-reference string?)
+(spec/def :order/payment-method keyword?)
+(spec/def :order/payment-reference string?)
 
-(s/def :schema.type/order
-  (s/keys :req [:order/user
+(spec/def :schema.type/order
+  (spec/keys :req [:order/user
                 :order/status
                 :order/shipping-address
                 :order/billing-address

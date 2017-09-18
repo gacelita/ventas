@@ -1,14 +1,14 @@
 (ns ventas.entities.attribute-value
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]
             [ventas.database.entity :as entity]))
 
-(s/def :attribute-value/name string?)
+(spec/def :attribute-value/name string?)
 
-(s/def :attribute-value/attribute
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :attribute)))))
+(spec/def :attribute-value/attribute
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :attribute)))))
 
-(s/def :schema.type/attribute-value
-  (s/keys :req [:attribute-value/name :attribute-value/attribute]))
+(spec/def :schema.type/attribute-value
+  (spec/keys :req [:attribute-value/name :attribute-value/attribute]))

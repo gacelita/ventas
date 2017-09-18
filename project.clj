@@ -9,10 +9,12 @@
 
   :dependencies [
                  ;; Clojure
-                 [org.clojure/clojure "1.9.0-alpha14"]
+                 [org.clojure/clojure "1.9.0-alpha19"]
                  [org.clojure/clojurescript "1.9.854" :scope "provided"]
                  [org.clojure/core.async "0.3.443"
                   :exclusions [org.clojure/tools.reader]]
+                 [expound "0.2.1"]
+                 [org.clojure/spec.alpha "0.1.123" :scope "provided"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.2.11"]

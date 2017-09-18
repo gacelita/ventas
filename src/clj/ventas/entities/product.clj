@@ -1,27 +1,27 @@
 (ns ventas.entities.product
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]
             [ventas.database.entity :as entity]))
 
-(s/def :product/name string?)
-(s/def :product/reference string?)
-(s/def :product/ean13 string?)
-(s/def :product/active boolean?)
-(s/def :product/description string?)
-(s/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
-(s/def :product/tags (s/and (s/* string?) #(< (count %) 7) #(> (count %) 2)))
-(s/def :product/price
-  (s/with-gen (s/and bigdec? pos?)
+(spec/def :product/name string?)
+(spec/def :product/reference string?)
+(spec/def :product/ean13 string?)
+(spec/def :product/active boolean?)
+(spec/def :product/description string?)
+(spec/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
+(spec/def :product/tags (spec/and (spec/* string?) #(< (count %) 7) #(> (count %) 2)))
+(spec/def :product/price
+  (spec/with-gen (spec/and bigdec? pos?)
               (fn [] (gen/fmap (fn [d] (BigDecimal. (str d))) (gen/double* {:NaN? false :min 0 :max 999})))))
 
-(s/def :product/brand
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :brand)))))
-(s/def :product/tax
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :tax)))))
-(s/def :product/images
-  (s/with-gen (s/and (s/* integer?) #(< (count %) 7) #(> (count %) 2))
+(spec/def :product/brand
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :brand)))))
+(spec/def :product/tax
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :tax)))))
+(spec/def :product/images
+  (spec/with-gen (spec/and (spec/* integer?) #(< (count %) 7) #(> (count %) 2))
               #(gen/vector (gen/elements (map :id (entity/query :file))))))
 
 ;; product:
@@ -37,8 +37,8 @@
 ;;    attribute-value.name: "Blue"
 ;;    attribute-value.attribute: ref to attribute
 
-(s/def :schema.type/product
-  (s/keys :req [:product/name
+(spec/def :schema.type/product
+  (spec/keys :req [:product/name
                 :product/active
                 :product/price]
           :opt [:product/reference

@@ -1,5 +1,5 @@
 (ns ventas.entities.category
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.core.async :refer [<! go-loop]]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
@@ -7,15 +7,15 @@
             [ventas.database.entity :as entity]
             [ventas.events :as events]))
 
-(s/def :category/name string?)
-(s/def :category/parent
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :category)))))
+(spec/def :category/name string?)
+(spec/def :category/parent
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :category)))))
 
-(s/def :category/image
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :file)))))
+(spec/def :category/image
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :file)))))
 
-(s/def :schema.type/category
-  (s/keys :req [:category/name]
+(spec/def :schema.type/category
+  (spec/keys :req [:category/name]
           :opt [:category/image :category/parent]))
 
 (defmethod entity/fixtures :category [_]

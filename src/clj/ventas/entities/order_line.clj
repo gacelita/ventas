@@ -1,23 +1,23 @@
 (ns ventas.entities.order-line
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.generators :as gen']
             [ventas.database :as db]
             [ventas.database.entity :as entity]))
 
-(s/def :order-line/order
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :order)))))
+(spec/def :order-line/order
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :order)))))
 
-(s/def :order-line/product
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :product)))))
+(spec/def :order-line/product
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :product)))))
 
-(s/def :order-line/product-variation
-  (s/with-gen integer? #(gen/elements (map :id (entity/query :product-variation)))))
+(spec/def :order-line/product-variation
+  (spec/with-gen integer? #(gen/elements (map :id (entity/query :product-variation)))))
 
-(s/def :order-line/quantity (s/and integer? pos?))
+(spec/def :order-line/quantity (spec/and integer? pos?))
 
-(s/def :schema.type/order-line
-  (s/keys :req [:order-line/order
+(spec/def :schema.type/order-line
+  (spec/keys :req [:order-line/order
                 :order-line/product
                 :order-line/quantity]
           :opt [:order-line/product-variation]))

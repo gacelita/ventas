@@ -12,8 +12,8 @@
     [ventas.config :refer [config]]
     [ventas.util :as util]
     [slingshot.slingshot :refer [throw+ try+]]
-    [clojure.spec :as s]
-    [clojure.spec.test :as stest]
+    [clojure.spec.alpha :as spec]
+    [clojure.spec.test.alpha :as stest]
     [clojure.test.check.generators :as gen]
     [com.gfredericks.test.chuck.generators :as gen']
     [taoensso.timbre :as timbre :refer (trace debug info warn error)])
@@ -47,7 +47,10 @@
 (defn transact
   "transact wrapper"
   [& args]
-  (apply d/transact db args))
+  (try
+    @(apply d/transact db args)
+    (catch Exception e
+      (throw+ {:type ::transact-exception :message (.getMessage e) :args args}))))
 
 (defn history
   "history wrapper"

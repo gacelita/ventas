@@ -20,5 +20,4 @@
 (defn reg-kw-sub
   "Creates a keyword subscription if it does not exist."
   [kw]
-  (when-not (rf.registrar/get-handler :sub kw)
-    (rf/reg-sub kw (fn [db _] (-> db kw)))))
+  (rf/reg-sub kw (fn [db _] (-> db kw))))
