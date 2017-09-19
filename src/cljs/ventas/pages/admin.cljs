@@ -10,7 +10,8 @@
 
 (defn menu []
   [:ul
-   [:li [:a {:href (routes/path-for :admin.users)} "Users"]]])
+   [:li [:a {:href (routes/path-for :admin.users)} "Users"]]
+   [:li [:a {:href (routes/path-for :admin.products)} "Products"]]])
 
 (defn skeleton [content]
   [:div.admin__skeleton

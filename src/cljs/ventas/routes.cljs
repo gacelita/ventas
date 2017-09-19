@@ -71,6 +71,14 @@
           :name "Editar usuario"
           :url [:id "/edit"]}
 
+         {:route :admin.products
+          :name "Productos"
+          :url "products"}
+
+         {:route :admin.products.edit
+          :name "Editar producto"
+          :url [:id "/edit"]}
+
          {:route :admin.login
           :name "Iniciar sesión"
           :url "login"}

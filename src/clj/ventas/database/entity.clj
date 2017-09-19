@@ -92,8 +92,10 @@
         data (as-> data data
                    (preupdate type entity data)
                    (dissoc data :id)
+                   (dissoc data :type)
                    (util/qualify-map-keywords data type)
-                   (assoc data :db/id (:id entity)))]
+                   (assoc data :db/id (:id entity))
+                   (assoc data :schema/type (keyword "schema.type" (name type))))]
     (db/transact [data])
     (postupdate type entity data)
     (find (:id entity))))

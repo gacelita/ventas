@@ -22,6 +22,7 @@
             [ventas.pages.admin.playground]
             [ventas.pages.admin.users]
             [ventas.pages.admin.users.edit]
+            [ventas.pages.admin.products]
             [ventas.pages.datadmin]
             [ventas.pages.api]
             [ventas.themes.mariscosriasbajas.core])

@@ -16,6 +16,11 @@
     {:ws-request (merge {:name :users.list} options)}))
 
 (rf/reg-event-fx
+ :api/products.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :products.list} options)}))
+
+(rf/reg-event-fx
  :api/entities.find
  (fn [cofx [_ id options]]
    {:ws-request (merge {:name :entities.find

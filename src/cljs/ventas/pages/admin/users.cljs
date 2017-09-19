@@ -11,40 +11,8 @@
             [ventas.utils.ui :as utils.ui]
             [ventas.pages.admin :as admin]
             [ventas.routes :as routes]
-            [ventas.components.base :as base]))
-
-(rf/reg-sub
- :admin.users
- (fn [db _]
-   (-> db :admin-users)))
-
-(defn basic-pagination [db-id data-sub]
-  (let [pagination-state (rf/subscribe [::re-frame-datatable.core/pagination-state db-id data-sub])]
-    (fn []
-      (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state
-            total-pages (count pages)
-            next-enabled? (< cur-page (dec total-pages))
-            prev-enabled? (pos? cur-page)]
-
-        [:div.ui.pagination.menu
-         [:a.item
-          {:on-click #(when prev-enabled?
-                        (rf/dispatch [::re-frame-datatable.core/select-prev-page db-id @pagination-state]))
-           :class    (when-not prev-enabled? "disabled")}
-          [:i.left.chevron.icon]]
-
-         (for [i (range total-pages)]
-           ^{:key i}
-           [:a.item
-            {:class    (when (= i cur-page) "active")
-             :on-click #(rf/dispatch [::re-frame-datatable.core/select-page db-id @pagination-state i])}
-            (inc i)])
-
-         [:a.item
-          {:on-click #(when next-enabled?
-                        (rf/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state]))
-           :class    (when-not next-enabled? "disabled")}
-          [:i.right.chevron.icon]]]))))
+            [ventas.components.base :as base]
+            [ventas.components.datatable :as datatable]))
 
 (defn users-datatable [action-column]
   (let [sub-key :users]
@@ -70,7 +38,7 @@
            ::dt/table-classes ["ui" "table" "celled"]
            ::dt/empty-tbody-component (fn [] [:p "No users yet"])}]
          [:div.admin-users__pagination
-          [basic-pagination id [sub-key]]]]))))
+          [datatable/pagination id [sub-key]]]]))))
 
 (defmethod pages :admin.users []
   [admin/skeleton

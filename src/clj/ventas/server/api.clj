@@ -94,7 +94,7 @@
   (let [id (get-in message [:params :id])]
     (entity/json (entity/find id))))
 
-(defmethod ws-request-handler :products/list [{:keys [params]} state]
+(defmethod ws-request-handler :products.list [{:keys [params]} state]
   (let [page (dec (or (:page params) 1))
         items-per-page (or (:items-per-page params) 10)
         all-items (entity/query :product)
