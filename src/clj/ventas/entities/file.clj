@@ -13,15 +13,17 @@
 (spec/def :schema.type/file
   (spec/keys :req [:file/extension]))
 
-(defmethod entity/preseed :file [type entity-data]
-  (-> entity-data (assoc :file/extension :file.extension/jpg)))
-
-(defmethod entity/postseed :file [entity]
-  (let [file (rand-nth (find-files "resources/seeds/files" (re-pattern ".*?")))]
-    (io/copy file (io/file (str "resources/public/img/" (:id entity) ".jpg")))))
-
-(defmethod entity/json :file [entity]
-  (-> entity
-      (dissoc :type)
-      (dissoc :extension)
-      (assoc :url (str (:base-url config) "img/" (:id entity) "." (name (:extension entity))))))
+(entity/register-type! :file
+ {:filter-seed
+  (fn [this]
+    (-> this
+        (assoc :file/extension :file.extension/jpg)))
+  :after-seed
+  (fn [this]
+    (let [file (rand-nth (find-files "resources/seeds/files" (re-pattern ".*?")))]
+      (io/copy file (io/file (str "resources/public/img/" (:db/id this) ".jpg")))))
+  :filter-json
+  (fn [this]
+    (-> this
+        (assoc :url (str (:base-url config) "img/" (:db/id this)
+                         "." (name (:file/extension this))))))})

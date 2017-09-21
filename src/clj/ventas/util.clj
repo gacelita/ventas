@@ -54,4 +54,5 @@
      Returns true when x is valid for spec. Throws an Error if validation fails."
   (if (apply spec/valid? args)
     true
-    (throw+ {:type ::spec-invalid :message (apply expound/expound args)})))
+    (do
+      (throw (Exception. (with-out-str (apply expound/expound args)))))))

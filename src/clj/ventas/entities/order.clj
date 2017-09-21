@@ -46,18 +46,4 @@
           :opt [:order/shipping-comments
                 :order/payment-reference]))
 
-(defmethod entity/json :order [entity]
-  (as-> entity entity
-        (dissoc entity :type)
-        (if-let [user (:user entity)]
-          (assoc entity :user (entity/json (entity/find user)))
-          entity)
-        (if-let [shipping-address (:shipping-address entity)]
-          (assoc entity :shipping-address (entity/json (entity/find shipping-address)))
-          entity)
-        (if-let [billing-address (:billing-address entity)]
-          (assoc entity :billing-address (entity/json (entity/find billing-address)))
-          entity)
-        (if-let [lines (:lines entity)]
-          (assoc entity :lines (map #(entity/json (entity/find %)) lines))
-          entity)))
+(entity/register-type! :order)

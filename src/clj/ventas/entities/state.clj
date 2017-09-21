@@ -9,3 +9,5 @@
 
 (spec/def :schema.type/state
   (spec/keys :req [:state/name]))
+
+(entity/register-type! :state)

@@ -22,15 +22,4 @@
                 :order-line/quantity]
           :opt [:order-line/product-variation]))
 
-(defmethod entity/json :order-line [entity]
-  (as-> entity entity
-        (dissoc entity :type)
-        (if-let [order (:order entity)]
-          (assoc entity :order (entity/json (entity/find order)))
-          entity)
-        (if-let [product (:product entity)]
-          (assoc entity :product (entity/json (entity/find product)))
-          entity)
-        (if-let [product-variation (:product-variation entity)]
-          (assoc entity (:product-variation (entity/json (entity/find product-variation)))
-          entity))))
+(entity/register-type! :order-line)

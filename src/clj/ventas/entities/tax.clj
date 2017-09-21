@@ -12,6 +12,4 @@
 (spec/def :schema.type/tax
   (spec/keys :req [:tax/name :tax/kind :tax/amount]))
 
-(defmethod entity/json :tax [entity]
-  (-> entity
-    (dissoc :type)))
+(entity/register-type! :tax)

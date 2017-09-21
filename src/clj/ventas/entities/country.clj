@@ -9,3 +9,5 @@
 
 (spec/def :schema.type/country
   (spec/keys :req [:country/name]))
+
+(entity/register-type! :country)

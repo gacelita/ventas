@@ -50,18 +50,4 @@
                 :product/tax
                 :product/images]))
 
-(defmethod entity/json :product [entity]
-  (as-> entity entity
-    (dissoc entity :type)
-    (if-let [c (:condition entity)]
-      (assoc entity :condition (keyword (name c)))
-      entity)
-    (if-let [tax (:tax entity)]
-      (assoc entity :tax (entity/json (entity/find tax)))
-      entity)
-    (if-let [images (:images entity)]
-      (assoc entity :images (map #(entity/json (entity/find %)) images))
-      entity)
-    (if-let [brand (:brand entity)]
-      (assoc entity :brand (entity/json (entity/find brand)))
-      entity)))
+(entity/register-type! :product)

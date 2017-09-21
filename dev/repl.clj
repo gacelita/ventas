@@ -4,7 +4,8 @@
    [clojure.tools.namespace.repl :as tn]
    [mount.core :as mount]
    [clojure.core.async :refer [>! go]]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [clojure.spec.alpha :as spec]))
 
 ;; Tips for the REPL:
 ;; - Never move out of this namespace

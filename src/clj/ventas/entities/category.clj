@@ -18,12 +18,8 @@
   (spec/keys :req [:category/name]
           :opt [:category/image :category/parent]))
 
-(defmethod entity/fixtures :category [_]
-  [{:name "Default"}])
+(entity/register-type! :category)
 
-(defmethod entity/json :category [entity]
-  (as-> entity entity
-        (dissoc entity :type)
-        (if-let [image (:image entity)]
-          (assoc entity :image (entity/json (entity/find image)))
-          entity)))
+(entity/register-fixtures!
+ :category
+ [{:name "Default"}])

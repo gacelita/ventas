@@ -15,10 +15,4 @@
                 :resource/file]
           :opt [:resource/name]))
 
-
-(defmethod entity/json :resource [entity]
-  (-> entity
-      (dissoc :type)
-      (#(if-let [t (:file %1)]
-          (assoc %1 :file (entity/json (entity/find t)))
-          %1))))
+(entity/register-type! :resource)

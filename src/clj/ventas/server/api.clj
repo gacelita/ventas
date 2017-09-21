@@ -80,29 +80,29 @@
   {:pre [(keyword? (get-in message [:params :keyword]))]}
   (let [kw (get-in message [:params :keyword])]
     (if-let [resource (first (entity/query :resource {:keyword kw}))]
-      (entity/json resource)
+      (entity/to-json resource)
       (throw (Error. (str "Could not find resource with id: " kw))))))
 
 (defmethod ws-request-handler :configuration/get [message state]
   {:pre [(keyword? (get-in message [:params :key]))]}
   (let [kw (get-in message [:params :key])]
     (if-let [value (first (entity/query :configuration {:key kw}))]
-      (entity/json value)
+      (entity/to-json value)
       (throw (Error. (str "Could not find configuration value: " kw))))))
 
 (defmethod ws-request-handler :products/get [message state]
   (let [id (get-in message [:params :id])]
-    (entity/json (entity/find id))))
+    (entity/to-json (entity/find id))))
 
 (defmethod ws-request-handler :products.list [{:keys [params]} state]
   (let [page (dec (or (:page params) 1))
         items-per-page (or (:items-per-page params) 10)
         all-items (entity/query :product)
         offset (* page items-per-page)]
-    (map entity/json (take items-per-page (drop offset all-items)))))
+    (map entity/to-json (take items-per-page (drop offset all-items)))))
 
 (defmethod ws-request-handler :categories/list [message state]
-  (map entity/json (entity/query :category)))
+  (map entity/to-json (entity/query :category)))
 
 (defmethod ws-request-handler :db.pull [message state]
   (db/pull (get-in message [:params :query])
@@ -125,7 +125,7 @@
           (if (hashers/check (:password params) (:password user))
             (do
               (swap! session assoc :identity (:id user))
-              {:user (entity/json user)
+              {:user (entity/to-json user)
                :token {:email email
                        :password password}})
             (throw (Exception. "Invalid credentials")))

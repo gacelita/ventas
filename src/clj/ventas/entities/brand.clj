@@ -13,3 +13,4 @@
 (spec/def :schema.type/brand
   (spec/keys :req [:brand/name :brand/description :brand/logo]))
 
+(entity/register-type! :brand)

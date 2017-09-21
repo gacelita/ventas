@@ -12,3 +12,5 @@
 
 (spec/def :schema.type/attribute-value
   (spec/keys :req [:attribute-value/name :attribute-value/attribute]))
+
+(entity/register-type! :attribute-value)

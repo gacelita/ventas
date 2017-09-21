@@ -16,3 +16,4 @@
   (spec/keys :req [:product-variation/product
                 :product-variation/attribute-values]))
 
+(entity/register-type! :product-variation)

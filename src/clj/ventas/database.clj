@@ -203,19 +203,23 @@
 (defn keyword->db-symbol [keyword]
   (symbol (str "?" (name keyword))))
 
+(defn kw->type [kw]
+  {:pre [(keyword? kw)]}
+  (keyword "schema.type" (name kw)))
+
 (defn map->query [m]
   (vec (concat '(:find) (:find m)
                '(:in) (:in m)
                '(:where) (:where m))))
 
 (defn- filtered-query* [wheres filters]
-  (map->query {:in (concat ['$] (remove nil? (map keyword->db-symbol (keys filters))))
+  (map->query {:in (concat ['$] (remove nil? (keys filters)))
                :where wheres
                :find '(?id)}))
 
 (defn filtered-query
   "Filtered query.
-   Usage: (filtered-query (quote ([?id :user/email ?email])) {:email \"some-email@example.com\"})"
+   Usage: (filtered-query '([?id :user/email ?email]) {:email \"some-email@example.com\"})"
   ([] (filtered-query '() {}))
   ([wheres] (filtered-query wheres {}))
   ([wheres filters]
