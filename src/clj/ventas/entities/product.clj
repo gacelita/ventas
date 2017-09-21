@@ -11,7 +11,7 @@
 (spec/def :product/active boolean?)
 (spec/def :product/description string?)
 (spec/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
-(spec/def :product/tags (spec/and (spec/* string?) #(< (count %) 7) #(> (count %) 2)))
+(spec/def :product/tags (spec/coll-of string?))
 (spec/def :product/price
   (spec/with-gen (spec/and bigdec? pos?)
               (fn [] (gen/fmap (fn [d] (BigDecimal. (str d))) (gen/double* {:NaN? false :min 0 :max 999})))))
@@ -21,7 +21,7 @@
 (spec/def :product/tax
   (spec/with-gen integer? #(gen/elements (map :id (entity/query :tax)))))
 (spec/def :product/images
-  (spec/with-gen (spec/and (spec/* integer?) #(< (count %) 7) #(> (count %) 2))
+  (spec/with-gen (spec/coll-of integer?)
               #(gen/vector (gen/elements (map :id (entity/query :file))))))
 
 ;; product:

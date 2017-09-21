@@ -54,10 +54,8 @@
 (def shared-ws-channel (atom nil))
 (def shared-ws-mult (atom nil))
 
-;; Multimétodo para eventos enviados por ws (dispatch on name)
 (defmulti ws-event-handler (fn [message client-id ws-channel req] (:name message)))
 
-;; Request handler, which is a multimethod
 (defmulti ws-request-handler (fn [message state] (:name message)))
 
 (defmethod ws-request-handler :default [message state]
@@ -79,9 +77,15 @@
   ; Get all of that state into a single map, just in case something needs it
   (let [state {:client-id client-id :ws-channel ws-channel :request req :session session}]
     (case (:type message)
-      :event (ws-event-handler message state)
+      :event
+      (ws-event-handler message state)
       :request
-        (go (>! ws-channel (call-ws-request-handler message state)))
+      (let [result (call-ws-request-handler message state)]
+        (if (util/chan? result)
+          (go-loop []
+            (>! (<! result) ws-channel)
+            (recur))
+          (go (>! result ws-channel))))
       :else (debug "Unhandled message: " message))))
 
 

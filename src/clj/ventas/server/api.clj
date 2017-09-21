@@ -1,13 +1,37 @@
 (ns ventas.server.api
-  (:require [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
-            [ventas.database.entity :as entity]
-            [ventas.database :as db]
-            [ventas.config :refer [config]]
-            [ring.util.response :refer [response redirect]]
-            [pantomime.mime :as mime]
-            [buddy.hashers :as hashers]
-            [byte-streams :as byte-streams]
-            [taoensso.timbre :as timbre :refer (tracef debugf infof warnf errorf trace debug info warn error)]))
+  (:require
+   [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
+   [ventas.database.entity :as entity]
+   [ventas.database :as db]
+   [ventas.config :refer [config]]
+   [ring.util.response :refer [response redirect]]
+   [pantomime.mime :as mime]
+   [buddy.hashers :as hashers]
+   [byte-streams :as byte-streams]
+   [clojure.spec.alpha :as spec]
+   [taoensso.timbre :as timbre :refer (tracef debugf infof warnf errorf trace debug info warn error)]
+   [ventas.util :as util]))
+
+(defn limit
+  ([coll quantity]
+   (limit coll 0 quantity))
+  ([coll offset quantity]
+   (take quantity (drop offset coll))))
+
+(spec/def ::page number?)
+(spec/def ::items-per-page number?)
+(spec/def ::pagination
+  (spec/keys :req-un [::page ::items-per-page]))
+
+(defn- paginate [coll {:keys [items-per-page page] :as pagination}]
+  {:pre [(or (nil? pagination) (util/check ::pagination pagination))]}
+  (if pagination
+    (limit coll
+           (* items-per-page page)
+           items-per-page)
+    coll))
+
+
 
 (defmethod ws-request-handler :entities.remove [message state]
   (entity/delete (entity/find (get-in message [:params :id]))))
@@ -15,94 +39,84 @@
 (defmethod ws-request-handler :entities.find [message state]
   (entity/find (Long/valueOf (get-in message [:params :id]))))
 
+
+
 (defmethod ws-request-handler :reference.user.role [message state]
   (db/enum-values "user.role"))
 
-(defmethod ws-request-handler :users.list [message state]
-  (let [results (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}]) :schema.type/user)]
-    (map (fn [a]
-           {:id (:db/id a)
-            :name (:user/name a)
-            :email (:user/email a)}) (:schema/_type results))))
+
+
+(defmethod ws-request-handler :users.list [{:keys [pagination]} state]
+  (let [{items :schema/_type} (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}])
+                                       :schema.type/user)]
+    (paginate (map util/dequalify-keywords items) pagination)))
 
 (defmethod ws-request-handler :users.save [message state]
   (entity/upsert :user (:params message)))
 
-(defmethod ws-request-handler :users.comments.list [message state]
-  (let [results (db/pull (quote [{:comment/_target [:db/id :comment/content {:comment/source [:db/id :user/name]}]}]) (get-in message [:params :id]))]
-    (map (fn [a]
-           (let [dates (entity/dates (:db/id a))]
-             {:content (:comment/content a)
-              :source (:comment/source a)
-              :id (:db/id a)
-              :created-at (:created-at dates)})) (:comment/_target results))))
+(defmethod ws-request-handler :users.login [{:keys [params] :as message} {:keys [session] :as state}]
+  (let [{:keys [email password]} params]
+    (when-not (and email password)
+      (throw (Exception. "Email and password are required")))
+    (let [user (first (entity/query :user {:email email}))]
+      (when-not user
+        (throw (Exception. "User not found")))
+      (when-not (hashers/check password (:password user))
+        (throw (Exception. "Invalid credentials")))
+      (swap! session assoc :identity (:id user))
+      {:user (entity/to-json user)
+       :token {:email email
+               :password password}})))
 
-(defmethod ws-request-handler :users.made-comments.list [message state]
-  (let [results (db/pull (quote [{:comment/_source [:db/id :comment/content {:comment/target [:db/id :user/name]}]}]) (get-in message [:params :id]))]
-    (map (fn [a]
-           (let [dates (entity/dates (:db/id a))]
-             {:content (:comment/content a)
-              :target (:comment/target a)
-              :id (:db/id a)
-              :created-at (:created-at dates)})) (:comment/_source results))))
+(defmethod ws-request-handler :users.session [{:keys [params] :as message} {:keys [session] :as state}]
+  (let [{:keys [email password]} (:token params)]
+    (first (entity/query :user {:email email}))))
 
-(defmethod ws-request-handler :users.images.list [message state]
-  (let [results (db/pull (quote [{:image.tag/_target [{:image.tag/image [:db/id {:image/extension [:db/ident]}]}]}]) (get-in message [:params :id]))]
-    (map (fn [b]
-           (let [a (:image.tag/image b)]
-             {:id (:db/id a)
-              :url (str (:base-url config) "images/" (:db/id a) "." (name (get-in a [:image/extension :db/ident])))}
-             )) (:image.tag/_target results))))
+(defmethod ws-request-handler :users.logout [{:keys [params] :as message} {:keys [session] :as state}]
+  (let [identity (:identity session)]
+    (when identity
+      (swap! session dissoc :identity))))
 
-(defmethod ws-request-handler :users.own-images.list [message state]
-  (let [results (db/pull (quote [{:image/_source [:db/id {:image/extension [:db/ident]}]}]) (get-in message [:params :id]))]
-    (map (fn [a]
-           {:id (:db/id a)
-            :url (str (:base-url config) "images/" (:db/id a) "." (name (get-in a [:image/extension :db/ident])))}) (:image/_source results))))
+(defmethod ws-request-handler :users.register [{:keys [params] :as message} state]
+  (let [{:keys [email password name]} params]
+    (if (and (seq email) (seq password) (seq name))
+      (entity/create :user {:name name :email email :password password})
+      (throw (Exception. "Email, password and name are required")))))
 
-(defmethod ws-request-handler :users.friends.list [message state]
-  (let [results (db/pull (quote [{:friendship/_target [{:friendship/source [:db/id :user/email :user/name]}]
-                                  :friendship/_source [{:friendship/target [:db/id :user/email :user/name]}]}]) (get-in message [:params :id]))]
-    (map (fn [a]
-           {:id (:db/id a)
-            :name (:user/name a)
-            :email (:user/email a)}) (concat (map :friendship/target (:friendship/_source results))
-                                             (map :friendship/source (:friendship/_target results))))))
 
-(defmethod ws-request-handler :resources/find [message state]
-  (entity/query :resource {:keyword (get-in message [:params :id])}))
 
-(defmethod ws-request-handler :datadmin/datoms [message state]
-  (let [datoms (db/datoms :eavt)]
-    {:datoms (map db/datom->map (take 10 datoms))}))
-
-(defmethod ws-request-handler :resource/get [message state]
-  {:pre [(keyword? (get-in message [:params :keyword]))]}
-  (let [kw (get-in message [:params :keyword])]
+(defmethod ws-request-handler :resources.get [{:keys [params]} state]
+  {:pre [(keyword? (:key params))]}
+  (let [kw (:key params)]
     (if-let [resource (first (entity/query :resource {:keyword kw}))]
       (entity/to-json resource)
       (throw (Error. (str "Could not find resource with id: " kw))))))
 
-(defmethod ws-request-handler :configuration/get [message state]
-  {:pre [(keyword? (get-in message [:params :key]))]}
-  (let [kw (get-in message [:params :key])]
+
+
+(defmethod ws-request-handler :configuration.get [{:keys [params]} state]
+  {:pre [(keyword? (:key params))]}
+  (let [kw (:key params)]
     (if-let [value (first (entity/query :configuration {:key kw}))]
       (entity/to-json value)
       (throw (Error. (str "Could not find configuration value: " kw))))))
 
-(defmethod ws-request-handler :products/get [message state]
-  (let [id (get-in message [:params :id])]
-    (entity/to-json (entity/find id))))
 
-(defmethod ws-request-handler :products.list [{:keys [params]} state]
-  (let [page (dec (or (:page params) 1))
-        items-per-page (or (:items-per-page params) 10)
-        all-items (entity/query :product)
-        offset (* page items-per-page)]
-    (map entity/to-json (take items-per-page (drop offset all-items)))))
 
-(defmethod ws-request-handler :categories/list [message state]
-  (map entity/to-json (entity/query :category)))
+(defmethod ws-request-handler :products/get [{:keys [params]} state]
+  (entity/to-json (entity/find (:id params))))
+
+(defmethod ws-request-handler :products.list [{:keys [pagination]} state]
+  (let [items (map entity/to-json (entity/query :product))]
+    (paginate items pagination)))
+
+
+
+(defmethod ws-request-handler :categories.list [{:keys [pagination]} state]
+  (let [items (map entity/to-json (entity/query :category))]
+    (paginate items pagination)))
+
+
 
 (defmethod ws-request-handler :db.pull [message state]
   (db/pull (get-in message [:params :query])
@@ -112,44 +126,13 @@
   (db/q (get-in message [:params :query])
         (get-in message [:params :filters])))
 
-(defmethod ws-request-handler :comments.save [message state]
-  (entity/upsert :comment (:params message)))
 
-;; @todo Real tokens
-(defmethod ws-request-handler :users/login [{:keys [params] :as message} {:keys [session] :as state}]
-  (let [email (:email params)
-        password (:password params)]
-    (if (and (seq email) (seq password))
-      (let [user (first (entity/query :user {:email (:email params)}))]
-        (if user
-          (if (hashers/check (:password params) (:password user))
-            (do
-              (swap! session assoc :identity (:id user))
-              {:user (entity/to-json user)
-               :token {:email email
-                       :password password}})
-            (throw (Exception. "Invalid credentials")))
-          (throw (Exception. "User not found"))))
-      (throw (Exception. "Both email and password are required")))))
 
-;; @todo Real sessions
-(defmethod ws-request-handler :users/session [{:keys [params] :as message} {:keys [session] :as state}]
-  (let [{:keys [email password]} (:token params)]
-    (first (entity/query :user {:email email}))))
+(defmethod ws-request-handler :datadmin/datoms [message state]
+  (let [datoms (db/datoms :eavt)]
+    {:datoms (map db/datom->map (take 10 datoms))}))
 
-(defmethod ws-request-handler :users/logout [{:keys [params] :as message} {:keys [session] :as state}]
-  (let [identity (:identity session)]
-    (if identity
-      (swap! session dissoc :identity)
-      (throw (Exception. "Not logged in")))))
 
-(defmethod ws-request-handler :users/register [{:keys [params] :as message} state]
-  (let [email (:email params)
-        password (:password params)
-        name (:name params)]
-    (if (and (seq email) (seq password) (seq name))
-      (entity/create :user {:name name :email email :password password})
-      (throw (Exception. "All the fields are required")))))
 
 (defn mime->keyword [mime]
   (case mime

@@ -11,6 +11,9 @@
   (into {} (filter (fn [[k v]] (pred v))
                    m)))
 
+(defn chan? [v]
+  (satisfies? clojure.core.async.impl.protocols/Channel v))
+
 (defn filter-empty-vals [m] (filter-vals (fn [v] (not (nil? v))) m))
 
 (defn dequalify-keywords [m]

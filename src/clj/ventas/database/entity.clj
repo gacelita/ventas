@@ -8,11 +8,12 @@
             [datomic.api :as d]
             [ventas.util :as util]))
 
-(spec/def :schema/type keyword?)
 (spec/def ::entity
   (spec/keys :req [:schema/type]))
 
 (defn is-entity? [entity]
+  (when-not (spec/valid? ::entity entity)
+    (debug entity))
   (spec/valid? ::entity entity))
 
 (spec/def ::entity-type
