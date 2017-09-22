@@ -3,7 +3,7 @@
    [ventas.plugin :as plugin]
    [ventas.server.api :as api]
    [ventas.database.entity :as entity]
-   [ventas.database.schema]))
+   [ventas.database.schema :as schema]))
 
 (plugin/register!
  :posts

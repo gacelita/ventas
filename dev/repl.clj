@@ -7,17 +7,6 @@
    [ventas.events :as events]
    [clojure.spec.alpha :as spec]))
 
-;; Tips for the REPL:
-;; - Never move out of this namespace
-;; - Never use (use ...), because that wreaks havoc with tn/refresh (with the sole exception of pomegranate)
-;; - Use (go) when you want to launch the app for the first time
-;; - Use (reset) when you want to nuke the app and launch it again
-;; - Do not require this ns from anywhere or face the consequences of cyclic doom
-;; - Use (require '[ventas.something] :refer rgs) when you want to use something
-;; - If you want to load a dependency, use the "add-dependency" macro below
-;; - For changing the configuration (originally fetched from config.edn), use the "set-config" macro below
-;; - You can load some useful aliases by calling "init-aliases"
-
 (defmacro init-aliases
   "A macro for initializing any aliases that may be useful during development.
    Very different from (:requiring :as...) in this namespace's ns form, since that
@@ -69,20 +58,23 @@
       (throw result))
     (mount/start)
     (init-aliases)
-    (go (>! events/init true))
-    :ready))
+    (go (>! events/init true))))
 
 (defn reset []
   (mount/stop)
   (tn/refresh :after 'mount/start)
   (init-aliases)
-  :resetted)
+  (go (>! events/init true))
+  :done)
 
 (defn r []
   (let [result (tn/refresh)]
     (if (instance? Exception result)
       (throw result)
-      (init-aliases))))
+      (do
+        (init-aliases)
+        (go (>! events/init true))
+        :done))))
 
 (defn run-tests []
   (clojure.test/run-all-tests #"ventas.*?\-test"))
@@ -95,7 +87,8 @@
        (tn/refresh)
        (start-frontend)
        (init-aliases)
-       :resetted))
+       (go (>! events/init true))
+       :done))
 
 (defmacro start-backend []
   '(do (mount/start #'ventas.database/db #'ventas.server/server #'ventas.config/config)))
@@ -105,4 +98,5 @@
        (tn/refresh)
        (start-backend)
        (init-aliases)
-       :resetted))
+       (go (>! events/init true))
+       :done))
