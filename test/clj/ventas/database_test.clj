@@ -1,5 +1,5 @@
 (ns ventas.database-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest testing is]]
             [ventas.database :as sut]))
 
 (deftest enum-values

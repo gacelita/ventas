@@ -191,13 +191,13 @@
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
 
-  :profiles { :dev {:dependencies [[figwheel "0.5.13"]
-                                   [figwheel-sidecar "0.5.13"]
-                                   [com.cemerick/piggieback "0.2.2"]
-                                   [org.clojure/tools.nrepl "0.2.13"]
-                                   [com.cemerick/pomegranate "0.4.0" :exclusions [org.codehaus.plexus/plexus-utils]]
-                                   [org.clojure/test.check "0.9.0"]
-                                   [com.gfredericks/test.chuck "0.2.8"]]
+  :profiles {:dev {:dependencies [[figwheel "0.5.13"]
+                                  [figwheel-sidecar "0.5.13"]
+                                  [com.cemerick/piggieback "0.2.2"]
+                                  [org.clojure/tools.nrepl "0.2.13"]
+                                  [com.cemerick/pomegranate "0.4.0" :exclusions [org.codehaus.plexus/plexus-utils]]
+                                  [org.clojure/test.check "0.9.0"]
+                                  [com.gfredericks/test.chuck "0.2.8"]]
                     :plugins [[lein-figwheel "0.5.13" :exclusions [org.clojure/clojure]]
                               [lein-doo "0.1.7" :exclusions [org.clojure/clojure]]]
                     :source-paths ["dev"]}

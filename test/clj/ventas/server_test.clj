@@ -1,8 +1,8 @@
 (ns ventas.server-test
   (:require
-   [clojure.test :refer :all]
+   [clojure.test :refer [deftest is testing]]
    [ventas.server :as server]
-   [ventas.database-test :as db]
+   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.seed :as seed]))
 

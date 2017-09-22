@@ -23,7 +23,7 @@
 (defn db-attributes! [plugin-kw attrs]
   {:pre [(keyword? plugin-kw) (vector? attrs)]}
   (when-not (plugin plugin-kw)
-    (throw (Exception. "The plugin " plugin-kw " is not registered")))
+    (throw (Exception. (str "The plugin " plugin-kw " is not registered"))))
   (let [{plugin-version :version} (plugin plugin-kw)
         attrs (map (fn [attr]
                      (-> attr
