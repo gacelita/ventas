@@ -16,7 +16,7 @@
 
 (spec/def :schema.type/category
   (spec/keys :req [:category/name]
-          :opt [:category/image :category/parent]))
+             :opt [:category/image :category/parent]))
 
 (entity/register-type! :category)
 

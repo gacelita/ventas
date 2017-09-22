@@ -1,7 +1,6 @@
 (ns ventas.database.schema
   (:require
-   [datomic.api :as d]
-   [io.rkn.conformity :as c]
+   [io.rkn.conformity :as conformity]
    [ventas.config :refer [config]]
    [ventas.database :as db :refer [db]]
    [clojure.java.io :as io]
@@ -16,7 +15,9 @@
 (defn- get-migrations []
   "Returns a list of migrations"
   (let [files (sort (.listFiles (io/file "resources/migrations")))]
-    (map (fn [file] {(keyword (.getName file)) {:txes [(read-string (slurp file))]}}) files)))
+    (map (fn [file]
+           {(keyword (.getName file)) {:txes [(read-string (slurp file))]}})
+         files)))
 
 (defn create-migration
   "Creates a migration.
@@ -54,4 +55,4 @@
        (mount.core/start #'db/db))
      (doseq [migration migrations]
        (info "Running migration" (first (keys migration)))
-       (info (c/ensure-conforms db/db migration))))))
+       (info (conformity/ensure-conforms db/db migration))))))

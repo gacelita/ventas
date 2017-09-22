@@ -1,13 +1,22 @@
 (ns ventas.plugins.featured-products.core
-  (:require [ventas.plugin :as plugin]))
+  (:require
+   [ventas.plugin :as plugin]
+   [ventas.server.api :as api]
+   [ventas.database.entity :as entity]
+   [ventas.database.schema]))
 
-(defmethod plugin/filter :ventas.entities.product/postquery [product]
-  (-> product
-      (assoc :name "Overriden")))
+(plugin/register!
+ :posts
+ {:version "0.1"
+  :name "Posts"})
 
-(defmethod plugin/action :ventas.entities.file/precreate [entity]
-  (println "File precreate"))
+(plugin/db-attributes!
+ :posts
+ [{:db/ident :post/name
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one}])
 
-(comment [{:db/ident :plugins.featured-products.product/featured
-    :db/valueType :db.type/boolean
-    :db/cardinality :db.cardinality/one}])
+(api/register-endpoint!
+  :featured-products.view
+  (fn [{:keys [params] :as message} state]
+    (entity/find (:id params))))
