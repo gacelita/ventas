@@ -19,7 +19,6 @@
 
             [ventas.plugins.featured-products.core]
             [ventas.pages.admin]
-            [ventas.pages.admin.playground]
             [ventas.pages.admin.users]
             [ventas.pages.admin.users.edit]
             [ventas.pages.admin.products]

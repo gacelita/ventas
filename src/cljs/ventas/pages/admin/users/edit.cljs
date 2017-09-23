@@ -13,7 +13,8 @@
    [ventas.routes :as routes]
    [ventas.util :as util :refer [dispatch-page-event]]
    [ventas.utils.ui :as utils.ui]
-   [ventas.pages.admin :as admin]))
+   [ventas.pages.admin :as admin]
+   [ventas.i18n :refer [i18n]]))
 
 (defn user-form []
   (let [user-kw ::user
@@ -55,7 +56,13 @@
            :on-change #(swap! data assoc :roles (.-value %2))}]]]
        [base/form-button {:type "submit"} "Enviar"]])))
 
-(defmethod pages :admin.users.edit []
+(defn page []
   [admin/skeleton
    [:div.admin-users-edit__page
     [user-form]]])
+
+(routes/define-route!
+ :admin.users.edit
+ {:name (i18n ::page)
+  :url [:id "/edit"]
+  :component page})

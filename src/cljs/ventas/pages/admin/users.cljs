@@ -12,7 +12,8 @@
             [ventas.pages.admin :as admin]
             [ventas.routes :as routes]
             [ventas.components.base :as base]
-            [ventas.components.datatable :as datatable]))
+            [ventas.components.datatable :as datatable]
+            [ventas.i18n :refer [i18n]]))
 
 (defn users-datatable [action-column]
   (let [sub-key :users]
@@ -40,7 +41,7 @@
          [:div.admin-users__pagination
           [datatable/pagination id [sub-key]]]]))))
 
-(defmethod pages :admin.users []
+(defn page []
   [admin/skeleton
    (let [action-column
          (fn [_ row]
@@ -52,3 +53,9 @@
      [:div.admin-users__page
       [users-datatable action-column]
       [base/button {:onClick #(routes/go-to :admin.users.edit :id 0)} "Crear usuario"]])])
+
+(routes/define-route!
+ :admin.users
+ {:name (i18n ::page)
+  :url "users"
+  :component page})

@@ -83,9 +83,9 @@
       (let [result (call-ws-request-handler message state)]
         (if (util/chan? result)
           (go-loop []
-            (>! (<! result) ws-channel)
+            (>! ws-channel (<! result))
             (recur))
-          (go (>! result ws-channel))))
+          (go (>! ws-channel result))))
       :else (debug "Unhandled message: " message))))
 
 

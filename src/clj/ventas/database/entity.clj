@@ -12,8 +12,6 @@
   (spec/keys :req [:schema/type]))
 
 (defn is-entity? [entity]
-  (when-not (spec/valid? ::entity entity)
-    (debug entity))
   (spec/valid? ::entity entity))
 
 (spec/def ::entity-type

@@ -53,7 +53,10 @@
 (register-endpoint!
   :entities.find
   (fn [{:keys [params]} state]
-    (entity/find (Long/valueOf (:id params)))))
+    (-> (:id params)
+        (Long/valueOf)
+        (entity/find)
+        (entity/to-json))))
 
 (register-endpoint!
   :reference.user.role
@@ -62,7 +65,7 @@
 
 (register-endpoint!
   :users.list
-  (fn [{:keys [pagination]} state]
+  (fn [{{:keys [pagination]} :params} state]
     (let [{items :schema/_type} (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}])
                                          :schema.type/user)]
       (paginate (map util/dequalify-keywords items) pagination))))
@@ -140,7 +143,7 @@
 
 (register-endpoint!
   :products.list
-  (fn [{:keys [pagination]} state]
+  (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :product))]
       (paginate items pagination))))
 
@@ -148,7 +151,7 @@
 
 (register-endpoint!
   :categories.list
-  (fn [{:keys [pagination]} state]
+  (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :category))]
       (paginate items pagination))))
 

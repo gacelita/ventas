@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as rf]
    [ventas.utils.logging :refer [debug]]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.utils.ui :as utils.ui]
+   [ventas.common.util :as common.util]))
 
 (rf/reg-event-db
  :ventas.api/success
@@ -18,7 +19,9 @@
 (rf/reg-event-fx
  :api/products.list
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :products.list} options)}))
+   {:ws-request (common.util/deep-merge
+                 {:name :products.list
+                  :params {:pagination {:page 0 :items-per-page 5}}} options)}))
 
 (rf/reg-event-fx
  :api/entities.find

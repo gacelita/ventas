@@ -95,7 +95,7 @@
 (defn retract-entity
   "Retract an entity by eid"
   [eid]
-  @(transact [[:db.fn/retractEntity eid]]))
+  (transact [[:db.fn/retractEntity eid]]))
 
 (defn datom->map
   [^datomic.Datom datom]

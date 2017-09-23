@@ -13,7 +13,8 @@
             [ventas.components.cart :as cart]
             [ventas.util :as util]
             [ventas.plugin :as plugin]
-            [soda-ash.core :as sa]))
+            [soda-ash.core :as sa]
+            [ventas.routes :as routes]))
 
 (defn skeleton [contents]
   (info "Rendering...")
@@ -47,7 +48,7 @@
                   :params {}
                   :success-fn #(rf/dispatch [:ventas.api/success [:datadmin :datoms] (:datoms %)])}}))
 
-(defmethod pages :datadmin []
+(defn page []
   (rf/dispatch [:datadmin/datoms])
   (fn []
     [skeleton
@@ -116,3 +117,9 @@
 
         ]]))
 
+
+(routes/define-route!
+ :datadmin
+ {:name "Datadmin"
+  :url "datadmin"
+  :component page})

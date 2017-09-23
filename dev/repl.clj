@@ -58,7 +58,8 @@
       (throw result))
     (mount/start)
     (init-aliases)
-    (go (>! events/init true))))
+    (go (>! events/init true))
+    :done))
 
 (defn reset []
   (mount/stop)

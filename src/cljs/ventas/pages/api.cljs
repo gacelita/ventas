@@ -15,11 +15,6 @@
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]))
 
-(routes/define-route!
- {:route :api
-  :name "API tool"
-  :url "api"})
-
 (defn skeleton [contents]
   (info "Rendering...")
   (let [current-page (:current-page (session/get :route))
@@ -32,52 +27,56 @@
           [sa/Divider]
           ^{:key current-page} contents]]]))
 
-(defmethod pages :api []
-  (fn []
-    [skeleton
-      [:div
-        [:h2 "API tool"]
-        [sa/Table {:celled true}
-          [sa/TableHeader
-           [sa/TableRow
-            [sa/TableHeaderCell "Entity"]
-            [sa/TableHeaderCell "Attribute"]
-            [sa/TableHeaderCell "Value"]
-            [sa/TableHeaderCell "Transaction"]]]
-          [sa/TableBody]
-           [sa/TableFooter
-            [sa/TableRow
-             [sa/TableHeaderCell {:colSpan "4"}
-              [sa/Menu {:floated "right" :pagination true}
-               [sa/MenuItem {:as "a" :icon true}
-                [sa/Icon {:name "left chevron"}]]
-               [sa/MenuItem {:as "a"} "1"]
-               [sa/MenuItem {:as "a"} "2"]
-               [sa/MenuItem {:as "a"} "3"]
-               [sa/MenuItem {:as "a"} "4"]
-               [sa/MenuItem {:as "a" :icon true}
-                [sa/Icon {:name "right chevron"}]]
-               ]]]]]
-        [:h3 "Filters"]
+(defn page []
+  [skeleton
+   [:div
+    [:h2 "API tool"]
+    [sa/Table {:celled true}
+     [sa/TableHeader
+      [sa/TableRow
+       [sa/TableHeaderCell "Entity"]
+       [sa/TableHeaderCell "Attribute"]
+       [sa/TableHeaderCell "Value"]
+       [sa/TableHeaderCell "Transaction"]]]
+     [sa/TableBody]
+     [sa/TableFooter
+      [sa/TableRow
+       [sa/TableHeaderCell {:colSpan "4"}
+        [sa/Menu {:floated "right" :pagination true}
+         [sa/MenuItem {:as "a" :icon true}
+          [sa/Icon {:name "left chevron"}]]
+         [sa/MenuItem {:as "a"} "1"]
+         [sa/MenuItem {:as "a"} "2"]
+         [sa/MenuItem {:as "a"} "3"]
+         [sa/MenuItem {:as "a"} "4"]
+         [sa/MenuItem {:as "a" :icon true}
+          [sa/Icon {:name "right chevron"}]]
+         ]]]]]
+    [:h3 "Filters"]
 
-        [sa/Table {:celled true}
-          [sa/TableHeader
-            [sa/TableRow
-              [sa/TableHeaderCell "Field"]
-              [sa/TableHeaderCell "Value"]]]
-          [sa/TableBody
-             [sa/TableRow
-              [sa/TableCell
-                [sa/Select {:placeholder "Field"
-                            :options (clj->js [{:value :e :text "Entity"}
-                                               {:value :a :text "Attribute"}
-                                               {:value :v :text "Value"}
-                                               {:value :t :text "Transaction"}
-                                              ])}]]
-              [sa/TableCell
-                [sa/Input {:placeholder "Value"
-                           :type :text}]
-                [sa/Button "Add" ]]]]]
+    [sa/Table {:celled true}
+     [sa/TableHeader
+      [sa/TableRow
+       [sa/TableHeaderCell "Field"]
+       [sa/TableHeaderCell "Value"]]]
+     [sa/TableBody
+      [sa/TableRow
+       [sa/TableCell
+        [sa/Select {:placeholder "Field"
+                    :options (clj->js [{:value :e :text "Entity"}
+                                       {:value :a :text "Attribute"}
+                                       {:value :v :text "Value"}
+                                       {:value :t :text "Transaction"}
+                                       ])}]]
+       [sa/TableCell
+        [sa/Input {:placeholder "Value"
+                   :type :text}]
+        [sa/Button "Add"]]]]]
 
-        ]]))
+    ]])
 
+(routes/define-route!
+ :api
+ {:name "API tool"
+  :url "api"
+  :component page})

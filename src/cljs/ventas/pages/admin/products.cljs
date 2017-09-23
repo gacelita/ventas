@@ -13,7 +13,8 @@
    [ventas.pages.admin :as admin]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
-   [ventas.components.datatable :as datatable]))
+   [ventas.components.datatable :as datatable]
+   [ventas.i18n :refer [i18n]]))
 
 (defn products-datatable [action-column]
   (let [sub-key :products]
@@ -26,22 +27,22 @@
           [{::dt/column-key [:id] ::dt/column-label "#"
             ::dt/sorting {::dt/enabled? true}}
 
-           {::dt/column-key [:name] ::dt/column-label "Name"}
+           {::dt/column-key [:name] ::dt/column-label (i18n ::name)}
 
-           {::dt/column-key [:email] ::dt/column-label "Email"
+           {::dt/column-key [:email] ::dt/column-label (i18n ::email)
             ::dt/sorting {::dt/enabled? true}}
 
-           {::dt/column-key [:actions] ::dt/column-label "Actions"
+           {::dt/column-key [:actions] ::dt/column-label (i18n ::actions)
             ::dt/render-fn action-column}]
 
           {::dt/pagination {::dt/enabled? true
                             ::dt/per-page 3}
            ::dt/table-classes ["ui" "table" "celled"]
-           ::dt/empty-tbody-component (fn [] [:p "No products yet"])}]
+           ::dt/empty-tbody-component (fn [] [:p (i18n ::no-products)])}]
          [:div.admin-products__pagination
           [datatable/pagination id [sub-key]]]]))))
 
-(defmethod pages :admin.products []
+(defn page []
   [admin/skeleton
    (let [action-column
          (fn [_ row]
@@ -52,4 +53,10 @@
              [base/icon {:name "remove"}]]])]
      [:div.admin-products__page
       [products-datatable action-column]
-      [base/button {:onClick #(routes/go-to :admin.products.edit :id 0)} "Crear usuario"]])])
+      [base/button {:onClick #(routes/go-to :admin.products.edit :id 0)} (i18n ::create-product)]])])
+
+(routes/define-route!
+ :admin.products
+ {:name (i18n ::page)
+  :url "products"
+  :component page})

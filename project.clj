@@ -61,6 +61,9 @@
                  ;; Configuration
                  [cprop "0.1.11"]
 
+                 ;; i18n
+                 [tongue "0.2.2"]
+
                  ;; Reagent
                  [reagent "0.7.0"]
                  [reagent-utils "0.2.1"]
@@ -113,6 +116,7 @@
                  [async-watch "0.1.1"]
 
                  [binaryage/devtools "0.9.4"]
+
                  ; Error reporting for Ring
                  [prone "1.1.4"]
                  [devcards "0.2.3" :exclusions [cljsjs/react]]]

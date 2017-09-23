@@ -6,7 +6,8 @@
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
             [ventas.routes :as routes]
-            [ventas.util :refer [dispatch-page-event]]))
+            [ventas.util :refer [dispatch-page-event]]
+            [ventas.i18n :refer [i18n]]))
 
 (defn menu []
   [:ul
@@ -22,6 +23,12 @@
    [:div.admin__content
     content]])
 
-(defmethod pages :admin []
+(defn page []
   [skeleton
    [:p.admin__default-content "Nothing here"]])
+
+(routes/define-route!
+ :admin
+ {:name (i18n ::page)
+  :url "admin"
+  :component page})

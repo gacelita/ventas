@@ -5,6 +5,14 @@
 (defn map-kv [f m]
   (reduce-kv #(assoc %1 %2 (f %3)) {} m))
 
+(defn deep-merge
+  "Like merge, but merges maps recursively.
+   See: https://dev.clojure.org/jira/browse/CLJ-1468"
+  [& maps]
+  (if (every? map? maps)
+    (apply merge-with deep-merge maps)
+    (last maps)))
+
 (defn process-input-message [message]
   "Properly decode keywords"
   (map-kv (fn [v] (cond

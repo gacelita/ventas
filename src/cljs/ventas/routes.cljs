@@ -3,21 +3,13 @@
             [bidi.bidi :as bidi]
             [ventas.utils.logging :refer [trace debug info warn error]]
             [accountant.core :as accountant]
+            [ventas.page :as page]
             [reagent.session :as session]))
 
-(comment
-  ["/" {"admin/" {"" :admin
-                  "login/" :admin.login
-                  "register/" :admin.register
-                  "users/" {"" :admin.users
-                            [:id "edit"] :admin.users.edit}
-                  "playground/" :admin.playground}
-        "frontend" {"" :frontend
-                    "index" :frontend.index}
-        true :not-found}])
-
-(defn route-parents [route]
+(defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
+  [route]
+  (debug "route-parents route" route)
   (into [] (map #(keyword (str/join "." %))
                 (reduce (fn [acc i]
                           (conj acc (conj (vec (last acc)) i)))
@@ -44,62 +36,37 @@
          routes)))
 
 (defn- reducer [acc {:keys [route url] :as item} indexed-urls]
-  (let [parents (route-parents route)]
+  (let [parents (route-parents route)
+        _ (debug "parents" parents "url" url "route" route "parent" (map #(% indexed-urls) parents))]
     (if (seq parents)
       (update-in acc (map #(% indexed-urls) parents) assoc url {"" route})
       (assoc acc url {"" route}))))
 
 (defn compile-routes [routes]
+  (debug "compile-routes" routes)
   (let [routes (prepare-routes routes)
-        indexed-urls (index-urls routes)]
+        _ (debug "routes" routes)
+        indexed-urls (index-urls routes)
+        _ (debug "indexed-urls" indexed-urls)]
     ["" (-> (reduce (fn [acc item]
+                       (debug "calling reducer" acc item)
                        (reducer acc item indexed-urls))
                      {}
                      routes)
              (assoc true :not-found))]))
 
 (def route-data
-  (atom [{:route :admin
-          :name "Administración"
-          :url "admin"}
-
-         {:route :admin.users
-          :name "Usuarios"
-          :url "users"}
-
-         {:route :admin.users.edit
-          :name "Editar usuario"
-          :url [:id "/edit"]}
-
-         {:route :admin.products
-          :name "Productos"
-          :url "products"}
-
-         {:route :admin.products.edit
-          :name "Editar producto"
-          :url [:id "/edit"]}
-
-         {:route :admin.login
-          :name "Iniciar sesión"
-          :url "login"}
-
-         {:route :admin.register
-          :name "Registro"
-          :url "register"}
-
-         {:route :admin.playground
-          :name "Playground"
-          :url "playground"}
-
-         {:route :datadmin
-          :name "Datadmin"
-          :url "datadmin"}]))
+  (atom []))
 
 (def routes (atom (compile-routes @route-data)))
 
-(defn define-route! [route]
-  (swap! route-data conj route)
-  (reset! routes (compile-routes @route-data)))
+(defn define-route! [name {:keys [component] :as attrs}]
+  (debug "define-route!" name attrs)
+  (swap! route-data conj (assoc attrs :route name))
+  (reset! routes (compile-routes @route-data))
+  (when component
+    (defmethod page/pages name []
+      [component])))
 
 (defn define-routes! [new-routes]
   (swap! route-data concat new-routes)
@@ -121,6 +88,8 @@
 (defn match-route
   "bidi/match-route wrapper"
   [& args]
+  (debug @route-data)
+  (debug @routes)
   (apply bidi/match-route @routes args))
 
 (defn go-to [& args]
