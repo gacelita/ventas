@@ -6,27 +6,26 @@
             [slingshot.slingshot :refer [throw+ try+]]
             [clojure.spec.alpha :as spec]
             [datomic.api :as d]
-            [ventas.util :as util]))
-
-(spec/def ::entity
-  (spec/keys :req [:schema/type]))
+            [ventas.util :as util]
+            [ventas.events :as events]
+            [clojure.core.async :refer [go <! go-loop]]
+            [ventas.database.schema :as schema]))
 
 (defn is-entity? [entity]
-  (spec/valid? ::entity entity))
+  (contains? (set (keys entity)) :schema/type))
 
 (spec/def ::entity-type
-  (spec/and
-   (spec/keys :opt-un [::filter-json
-                       ::filter-seed
-                       ::filter-transact
-                       ::filter-update
-                       ::before-seed
-                       ::before-transact
-                       ::before-delete
-                       ::after-seed
-                       ::after-transact
-                       ::after-delete])
-   (spec/map-of keyword? fn?)))
+  (spec/keys :opt-un [::attributes
+                      ::filter-json
+                      ::filter-seed
+                      ::filter-transact
+                      ::filter-update
+                      ::before-seed
+                      ::before-transact
+                      ::before-delete
+                      ::after-seed
+                      ::after-transact
+                      ::after-delete]))
 
 (defonce registered-types (atom {}))
 
@@ -37,7 +36,16 @@
   {:pre [(keyword? kw) (or (nil? m)
                            (and (map? m) (util/check ::entity-type m)))]}
   (let [m (or m {})]
+    (schema/register-migration!
+     [{:db/ident (db/kw->type kw)}])
+    (schema/register-migration!
+     (or (:attributes m) []))
     (swap! registered-types assoc kw m)))
+
+(defn types
+  "Returns all types"
+  []
+  (keys @registered-types))
 
 (defn type-exists?
   [type]
@@ -55,12 +63,15 @@
 (defn fixtures
   "Gets the fixtures of a type"
   [kw]
-  (get @entity-fixtures kw))
+  (map (fn [fixture]
+         (assoc fixture :schema/type (db/kw->type kw)))
+       (get @entity-fixtures kw)))
 
 (defn type
   "Returns the type of an entity"
   [entity]
   {:pre [(is-entity? entity)]}
+  (debug entity)
   (keyword (name (:schema/type entity))))
 
 (defn type-fns
@@ -69,7 +80,8 @@
   (get @registered-types type))
 
 (def default-type
-  {:filter-json identity
+  {:attributes []
+   :filter-json identity
    :filter-seed identity
    :filter-transact identity
    :filter-update (fn [entity data] data)
@@ -81,10 +93,11 @@
    :after-delete (fn [_] true)})
 
 (defn- call-type-fn [kw entity & args]
-  (let [fns (type-fns (type entity))]
-    (if-let [type-fn (kw fns)]
-      (apply type-fn entity args)
-      (apply (kw default-type) entity args))))
+  (let [type-fns (type-fns (type entity))
+        type-fn (if (kw type-fns)
+                   (kw type-fns)
+                   (kw default-type))]
+    (apply type-fn entity args)))
 
 (defn filter-json [entity]
   {:pre [(is-entity? entity)]}

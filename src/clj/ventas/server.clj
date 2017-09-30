@@ -24,7 +24,7 @@
 
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.config :refer [config]]
+   [ventas.config :as config]
    [ventas.common.util :as common.util]
    [ventas.util :as util]
    [clojure.string :as str])
@@ -178,7 +178,7 @@
   "If the debug mode is enabled, wraps a Ring request
    with the Prone library"
   [handler]
-  (if (:debug config)
+  (if (config/get :debug)
     (prone/wrap-exceptions handler {:app-namespaces ["ventas"]})
     handler))
 
@@ -224,7 +224,7 @@
 
 (defn start-server! [& [port]]
   (util/print-info "Starting server")
-  (let [port (Integer. (or port (:http-port config) 10555))
+  (let [port (Integer. (or port (config/get :http-port) 10555))
         ring-handler (var http-handler)]
     (info "Starting server on port:" port)
     (http-kit/run-server ring-handler {:port port :join? false})))

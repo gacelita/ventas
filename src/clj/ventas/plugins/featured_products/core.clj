@@ -6,12 +6,12 @@
    [ventas.database.schema :as schema]))
 
 (plugin/register!
- :posts
+ :featured-products
  {:version "0.1"
   :name "Posts"})
 
-(plugin/db-attributes!
- :posts
+(plugin/register-plugin-migration!
+ :featured-products
  [{:db/ident :post/name
    :db/valueType :db.type/string
    :db/cardinality :db.cardinality/one}])

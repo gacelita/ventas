@@ -12,4 +12,13 @@
   (spec/keys :req [:configuration/key
                 :configuration/value]))
 
-(entity/register-type! :configuration)
+(entity/register-type!
+ :configuration
+ {:attributes
+  [{:db/ident :configuration/key
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :configuration/value
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}]})

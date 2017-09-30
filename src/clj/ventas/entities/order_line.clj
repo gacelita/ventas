@@ -22,4 +22,21 @@
                 :order-line/quantity]
           :opt [:order-line/product-variation]))
 
-(entity/register-type! :order-line)
+(entity/register-type!
+ :order-line
+ {:attributes
+  [{:db/ident :order-line/order
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order-line/product
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order-line/quantity
+    :db/valueType :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order-line/product-variation
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}]})

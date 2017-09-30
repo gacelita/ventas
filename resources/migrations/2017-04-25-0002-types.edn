@@ -1,6 +1,0 @@
-[
-  {:db/ident :schema.type/tax}
-  {:db/ident :schema.type/file}
-  {:db/ident :schema.type/feature}
-  {:db/ident :schema.type/brand}
-]

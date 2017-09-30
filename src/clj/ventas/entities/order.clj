@@ -16,7 +16,7 @@
 "
 
 (spec/def :order/user
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :user)))))
+  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :user)))))
 
 (spec/def :order/status #{:order.status/unpaid
                        :order.status/paid
@@ -25,10 +25,10 @@
                        :order.status/shipped})
 
 (spec/def :order/shipping-address
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :address)))))
+  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :address)))))
 
 (spec/def :order/billing-address
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :address)))))
+  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :address)))))
 
 (spec/def :order/shipping-method keyword?)
 (spec/def :order/shipping-comments string?)
@@ -38,12 +38,51 @@
 
 (spec/def :schema.type/order
   (spec/keys :req [:order/user
-                :order/status
-                :order/shipping-address
-                :order/billing-address
-                :order/shipping-method
-                :order/payment-method]
-          :opt [:order/shipping-comments
-                :order/payment-reference]))
+                   :order/status
+                   :order/shipping-address
+                   :order/billing-address
+                   :order/shipping-method
+                   :order/payment-method]
+             :opt [:order/shipping-comments
+                   :order/payment-reference]))
 
-(entity/register-type! :order)
+(entity/register-type!
+ :order
+ {:attributes
+  [{:db/ident :order/user
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order/status
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order.status/unpaid}
+   {:db/ident :order.status/paid}
+   {:db/ident :order.status/acknowledged}
+   {:db/ident :order.status/ready}
+   {:db/ident :order.status/shipped}
+
+   {:db/ident :order/shipping-address
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order/billing-address
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order/shipping-method
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order/payment-method
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order/shipping-comments
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order/payment-reference
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}]})

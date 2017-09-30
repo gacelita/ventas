@@ -1,3 +1,0 @@
-[{:db/ident :user/description
-  :db/valueType :db.type/string
-  :db/cardinality :db.cardinality/one}]

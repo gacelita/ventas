@@ -11,6 +11,13 @@
   (into {} (filter (fn [[k v]] (pred v))
                    m)))
 
+(defn find-first
+  "Finds the first value from coll that satisfies pred.
+  Returns nil if it doesn't find such a value."
+  [pred coll]
+  {:pre [(ifn? pred) (coll? coll)]}
+  (some #(when (pred %) %) coll))
+
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))
 

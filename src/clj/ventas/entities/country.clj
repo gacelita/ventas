@@ -10,4 +10,9 @@
 (spec/def :schema.type/country
   (spec/keys :req [:country/name]))
 
-(entity/register-type! :country)
+(entity/register-type!
+ :country
+ {:attributes
+  [{:db/ident :country/name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}]})

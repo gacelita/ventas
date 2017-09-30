@@ -12,4 +12,24 @@
 (spec/def :schema.type/tax
   (spec/keys :req [:tax/name :tax/kind :tax/amount]))
 
-(entity/register-type! :tax)
+(entity/register-type!
+ :tax
+ {:attributes
+  [{:db/ident :tax/name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :tax/amount
+    :db/valueType :db.type/float
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :tax/type
+    :schema/deprecated true
+    :schema/see-instead :tax/kind}
+
+   {:db/ident :tax/kind
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :tax.kind/percentage}
+   {:db/ident :tax.kind/amount}]})

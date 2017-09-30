@@ -7,39 +7,22 @@
    [ventas.events :as events]
    [clojure.spec.alpha :as spec]))
 
-(defmacro init-aliases
-  "A macro for initializing any aliases that may be useful during development.
-   Very different from (:requiring :as...) in this namespace's ns form, since that
-   would make our REPL unbootable if the application does not compile"
-  []
-  `(do
-     (~'ns-unalias ~''repl ~''config)
-     (~'ns-unalias ~''repl ~''server)
-     (~'ns-unalias ~''repl ~''api)
-     (~'ns-unalias ~''repl ~''db)
-     (~'ns-unalias ~''repl ~''schema)
-     (~'ns-unalias ~''repl ~''seed)
-     (~'ns-unalias ~''repl ~''entity)
-     (~'ns-unalias ~''repl ~''d)
-     (~'ns-unalias ~''repl ~''adi)
-     (~'ns-unalias ~''repl ~''util)
-     (~'alias ~''config 'ventas.config)
-     (~'alias ~''server 'ventas.server)
-     (~'alias ~''api 'ventas.server.api)
-     (~'alias ~''db 'ventas.database)
-     (~'alias ~''schema 'ventas.database.schema)
-     (~'alias ~''seed 'ventas.database.seed)
-     (~'alias ~''entity 'ventas.database.entity)
-     (~'alias ~''d 'datomic.api)
-     (~'alias ~''util 'ventas.util)))
+(def aliases
+  {'config 'ventas.config
+   'server 'ventas.server
+   'api 'ventas.server.api
+   'db 'ventas.database
+   'schema 'ventas.database.schema
+   'seed 'ventas.database.seed
+   'entity 'ventas.database.entity
+   'd 'datomic.api
+   'util 'ventas.util
+   'plugin 'ventas.plugin})
 
-(defmacro set-config
-  "A macro for setting configuration values on runtime.
-  Usage: (set-config cljs-port 3001)"
-  [k v]
-  `(do (~'ns ventas.config)
-       (~'def ~k ~v)
-       (~'ns ~'user)))
+(defn init-aliases []
+  (doseq [[from to] aliases]
+    (ns-unalias 'repl from)
+    (alias from to)))
 
 (defmacro add-dependency
   "A macro for adding a dependency via Pomegranate.
@@ -58,14 +41,14 @@
       (throw result))
     (mount/start)
     (init-aliases)
-    (go (>! events/init true))
+    (go (>! (events/pub :init) true))
     :done))
 
 (defn reset []
   (mount/stop)
   (tn/refresh :after 'mount/start)
   (init-aliases)
-  (go (>! events/init true))
+  (go (>! (events/pub :init) true))
   :done)
 
 (defn r []
@@ -74,7 +57,7 @@
       (throw result)
       (do
         (init-aliases)
-        (go (>! events/init true))
+        (go (>! (events/pub :init) true))
         :done))))
 
 (defn run-tests []
@@ -88,16 +71,16 @@
        (tn/refresh)
        (start-frontend)
        (init-aliases)
-       (go (>! events/init true))
+       (go (>! (events/pub :init) true))
        :done))
 
 (defmacro start-backend []
-  '(do (mount/start #'ventas.database/db #'ventas.server/server #'ventas.config/config)))
+  '(do (mount/start #'ventas.database/db #'ventas.server/server)))
 
 (defmacro reset-backend []
-  '(do (mount/stop #'ventas.database/db #'ventas.server/server #'ventas.config/config)
+  '(do (mount/stop #'ventas.database/db #'ventas.server/server)
        (tn/refresh)
        (start-backend)
        (init-aliases)
-       (go (>! events/init true))
+       (go (>! (events/pub :init) true))
        :done))

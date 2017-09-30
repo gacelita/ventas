@@ -8,11 +8,24 @@
 (spec/def :resource/keyword keyword?)
 (spec/def :resource/name string?)
 (spec/def :resource/file
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :file)))))
+  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :file)))))
 
 (spec/def :schema.type/resource
   (spec/keys :req [:resource/keyword
                 :resource/file]
           :opt [:resource/name]))
 
-(entity/register-type! :resource)
+(entity/register-type!
+ :resource
+ {:attributes
+  [{:db/ident :resource/keyword
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :resource/name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :resource/file
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}]})

@@ -1,29 +1,32 @@
 (ns ventas.database
   (:require
-    [clojure.data.json :as json]
-    [clojure.java.io :as io]
-    [clojure.string]
-    [clojure.tools.logging :as log]
-    [clojure.walk :as walk]
-    [clojure.pprint :as p]
-    [datomic.api :as d]
-    [buddy.hashers :as hashers]
-    [mount.core :as mount :refer [defstate]]
-    [ventas.config :refer [config]]
-    [ventas.util :as util]
-    [slingshot.slingshot :refer [throw+ try+]]
-    [clojure.spec.alpha :as spec]
-    [clojure.spec.test.alpha :as stest]
-    [clojure.test.check.generators :as gen]
-    [com.gfredericks.test.chuck.generators :as gen']
-    [taoensso.timbre :as timbre :refer (trace debug info warn error)])
+   [clojure.data.json :as json]
+   [clojure.java.io :as io]
+   [clojure.string]
+   [clojure.tools.logging :as log]
+   [clojure.walk :as walk]
+   [clojure.pprint :as p]
+   [clojure.core.async :refer [<! >! go go-loop]]
+   [datomic.api :as d]
+   [buddy.hashers :as hashers]
+   [mount.core :as mount :refer [defstate]]
+   [ventas.config :as config]
+   [ventas.util :as util]
+   [slingshot.slingshot :refer [throw+ try+]]
+   [clojure.spec.alpha :as spec]
+   [clojure.spec.test.alpha :as stest]
+   [clojure.test.check.generators :as gen]
+   [com.gfredericks.test.chuck.generators :as gen']
+   [taoensso.timbre :as timbre :refer (trace debug info warn error)]
+   [ventas.events :as events]
+   [io.rkn.conformity :as conformity])
   (:import [java.io File]))
 
 (defn start-db! []
-  (let [url (get-in config [:database :url])]
+  (let [url (config/get [:database :url])]
     (util/print-info (str "Starting database, URL: " url))
     (try
-      (d/connect (get-in config [:database :url]))
+      (d/connect url)
       (catch java.util.concurrent.ExecutionException e
         (throw (ex-info "Error connecting (database offline?)" {}))))))
 
@@ -96,6 +99,11 @@
   "Retract an entity by eid"
   [eid]
   (transact [[:db.fn/retractEntity eid]]))
+
+(defn tempid
+  "tempid wrapper"
+  []
+  (d/tempid :db.part/user))
 
 (defn datom->map
   [^datomic.Datom datom]
@@ -229,8 +237,14 @@
 (defn recreate
   "Recreates the database"
   []
-  (let [url (get-in config [:database :url])]
+  (let [url (config/get [:database :url])]
     (info "Deleting database " url)
     (d/delete-database url)
     (info "Creating database " url)
     (d/create-database url)))
+
+(defn ensure-conforms
+  "conformity/ensure-conforms wrapper"
+  [id migration]
+  {:pre [(keyword? id) (coll? migration)]}
+  (conformity/ensure-conforms db {id {:txes [migration]}}))

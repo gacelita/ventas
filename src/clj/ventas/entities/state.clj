@@ -10,4 +10,9 @@
 (spec/def :schema.type/state
   (spec/keys :req [:state/name]))
 
-(entity/register-type! :state)
+(entity/register-type!
+ :state
+ {:attributes
+  [{:db/ident :state/name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}]})

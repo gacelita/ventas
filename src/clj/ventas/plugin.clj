@@ -2,10 +2,11 @@
   (:require
    [ventas.util :as util]
    [clojure.spec.alpha :as spec]
-   [clojure.core.async :refer [<! go]]
+   [clojure.core.async :refer [<! go go-loop]]
    [ventas.database :as db]
    [io.rkn.conformity :as conformity]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [ventas.database.schema :as schema]))
 
 (spec/def ::version string?)
 (spec/def ::name string?)
@@ -22,20 +23,23 @@
   {:pre [(keyword? kw)]}
   (get @plugins kw))
 
-(defn db-attributes! [plugin-kw attrs]
-  {:pre [(keyword? plugin-kw) (vector? attrs)]}
-  (go
-    (when (<! events/init)
-      (when-not (plugin plugin-kw)
-        (throw (Exception. (str "The plugin " plugin-kw " is not registered"))))
-      (let [{plugin-version :version} (plugin plugin-kw)
-            attrs (map (fn [attr]
-                         (-> attr
-                             (assoc :ventas/pluginId plugin-kw)
-                             (assoc :ventas/pluginVersion plugin-version)))
-                       attrs)]
-        (clojure.pprint/pprint attrs)
-        (conformity/ensure-conforms
-         db/db
-         {(keyword (str "plugin-migration-" (hash attrs)))
-          {:txes [attrs]}})))))
+(defn check-plugin [kw]
+  {:pre [(keyword? kw)]}
+  (if-not (plugin kw)
+    (throw (Exception. (str "The plugin " kw " is not registered")))
+    true))
+
+(defn register-plugin-migration!
+  "Registers database attributes for this plugin.
+   Do not use this for registering entities: use entity/register-type! instead,
+   and specify the entities' attributes there."
+  [plugin-kw attrs]
+  {:pre [(check-plugin plugin-kw) (coll? attrs)]}
+  (let [{plugin-version :version} (plugin plugin-kw)
+        attrs (map (fn [attr]
+                     (-> attr
+                         (assoc :ventas/pluginId plugin-kw)
+                         (assoc :ventas/pluginVersion plugin-version)))
+                   attrs)]
+    (clojure.pprint/pprint attrs)
+    (schema/register-migration! attrs)))

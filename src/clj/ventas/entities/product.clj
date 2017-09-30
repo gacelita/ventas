@@ -13,16 +13,19 @@
 (spec/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
 (spec/def :product/tags (spec/coll-of string?))
 (spec/def :product/price
-  (spec/with-gen (spec/and bigdec? pos?)
-              (fn [] (gen/fmap (fn [d] (BigDecimal. (str d))) (gen/double* {:NaN? false :min 0 :max 999})))))
+  (spec/with-gen
+   (spec/and bigdec? pos?)
+   (fn []
+     (gen/fmap #(-> % (str) (BigDecimal.))
+               (gen/double* {:NaN? false :min 0 :max 999})))))
 
 (spec/def :product/brand
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :brand)))))
+  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :brand)))))
 (spec/def :product/tax
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :tax)))))
+  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :tax)))))
 (spec/def :product/images
   (spec/with-gen (spec/coll-of integer?)
-              #(gen/vector (gen/elements (map :id (entity/query :file))))))
+              #(gen/vector (gen/elements (map :db/id (entity/query :file))))))
 
 ;; product:
 ;;    ...
@@ -50,4 +53,50 @@
                 :product/tax
                 :product/images]))
 
-(entity/register-type! :product)
+(entity/register-type!
+ :product
+ {:attributes
+  [{:db/ident :product/price
+    :db/valueType :db.type/bigdec
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/name
+    :db/valueType :db.type/string
+    :db/index true
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/reference
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/ean13
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/active
+    :db/valueType :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/condition
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product.condition/new}
+   {:db/ident :product.condition/used}
+   {:db/ident :product.condition/refurbished}
+
+   {:db/ident :product/description
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/tags
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident :product/tax
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/images
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many}]})

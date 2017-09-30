@@ -3,7 +3,6 @@
    [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
    [ventas.database.entity :as entity]
    [ventas.database :as db]
-   [ventas.config :refer [config]]
    [ring.util.response :refer [response redirect]]
    [pantomime.mime :as mime]
    [buddy.hashers :as hashers]

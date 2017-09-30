@@ -9,7 +9,6 @@
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
   [route]
-  (debug "route-parents route" route)
   (into [] (map #(keyword (str/join "." %))
                 (reduce (fn [acc i]
                           (conj acc (conj (vec (last acc)) i)))
@@ -37,19 +36,14 @@
 
 (defn- reducer [acc {:keys [route url] :as item} indexed-urls]
   (let [parents (route-parents route)
-        _ (debug "parents" parents "url" url "route" route "parent" (map #(% indexed-urls) parents))]
-    (if (seq parents)
-      (update-in acc (map #(% indexed-urls) parents) assoc url {"" route})
-      (assoc acc url {"" route}))))
+        path (concat (map #(% indexed-urls) parents) [url])]
+    (update-in acc path #(merge % {"" route}))))
 
 (defn compile-routes [routes]
-  (debug "compile-routes" routes)
   (let [routes (prepare-routes routes)
-        _ (debug "routes" routes)
-        indexed-urls (index-urls routes)
-        _ (debug "indexed-urls" indexed-urls)]
+        indexed-urls (index-urls routes)]
     ["" (-> (reduce (fn [acc item]
-                       (debug "calling reducer" acc item)
+                       (debug "calling reducer" (:route item) acc item)
                        (reducer acc item indexed-urls))
                      {}
                      routes)
@@ -61,7 +55,9 @@
 (def routes (atom (compile-routes @route-data)))
 
 (defn define-route! [name {:keys [component] :as attrs}]
+  (debug "--")
   (debug "define-route!" name attrs)
+  (debug "--")
   (swap! route-data conj (assoc attrs :route name))
   (reset! routes (compile-routes @route-data))
   (when component
