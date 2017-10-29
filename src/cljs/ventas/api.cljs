@@ -3,7 +3,8 @@
    [re-frame.core :as rf]
    [ventas.utils.logging :refer [debug]]
    [ventas.utils.ui :as utils.ui]
-   [ventas.common.util :as common.util]))
+   [ventas.common.util :as common.util]
+   [ventas.i18n :refer [i18n]]))
 
 (rf/reg-event-db
  :ventas.api/success
@@ -44,5 +45,7 @@
    (rf/dispatch [:api/reference.user.role
                  {:success-fn
                   (fn [options]
-                    (let [options (map (fn [option] {:text option :value option}) options)]
-                      (rf/dispatch [:ventas.api/success [:reference.user.role] options])))}])))
+                    (rf/dispatch [:ventas.api/success [:reference.user.role]
+                                  (map (fn [option]
+                                         {:text (i18n (keyword option)) :value option})
+                                       options)]))}])))
