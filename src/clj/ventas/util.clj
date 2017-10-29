@@ -66,3 +66,10 @@
     true
     (do
       (throw (Exception. (with-out-str (apply expound/expound args)))))))
+
+(defn spec-exists? [kw]
+  (try
+    (spec/describe kw)
+    true
+    (catch Exception e
+      false)))

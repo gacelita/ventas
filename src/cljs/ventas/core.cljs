@@ -17,7 +17,7 @@
             [ventas.routes :as routes :refer [go-to]]
             [ventas.page :as p]
 
-            [ventas.plugins.featured-products.core]
+            [ventas.plugins.core]
             [ventas.pages.admin]
             [ventas.pages.admin.users]
             [ventas.pages.admin.users.edit]

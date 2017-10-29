@@ -143,7 +143,9 @@
   "Checks that an entity complies with its spec"
   [entity]
   {:pre [(type-exists? (type entity))]}
-  (util/check (:schema/type entity) entity))
+  (let [spec (:schema/type entity)]
+    (when (util/spec-exists? spec)
+      (util/check spec entity))))
 
 (defn find
   "Finds an entity by eid"
