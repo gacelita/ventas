@@ -31,11 +31,11 @@
 
 (spec/def :schema.type/user
   (spec/keys :req [:user/name
-                   :user/password
-                   :user/email
-                   :user/status]
+                   :user/email]
              :opt [:user/description
-                   :user/roles]))
+                   :user/roles
+                   :user/password
+                   :user/status]))
 
 (entity/register-type! :user
  {:attributes
@@ -83,8 +83,7 @@
   (fn [this]
     (util/transform
      this
-     [#(update
-        %
-        :user/password
-        (fn [v]
-          (when v (hashers/derive v))))]))})
+     [(fn [user]
+        (if (:user/password user)
+          (update user :user/password hashers/derive)
+          user))]))})
