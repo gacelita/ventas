@@ -14,7 +14,8 @@
    [ventas.util :as util :refer [dispatch-page-event]]
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin :as admin]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.common.util :as common.util]))
 
 (defn role-options []
   (map #(update % :value str) @(rf/subscribe [:reference.user.role])))
@@ -55,8 +56,8 @@
            :fluid true
            :selection true
            :options (role-options)
-           :default-value (:roles @data)
-           :on-change #(swap! data assoc :roles (.-value %2))}]]]
+           :default-value (map str (:roles @data))
+           :on-change #(swap! data assoc :roles (set (map common.util/read-keyword (.-value %2))))}]]]
        [base/form-button {:type "submit"} "Enviar"]])))
 
 (defn page []
