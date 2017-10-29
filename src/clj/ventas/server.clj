@@ -220,7 +220,12 @@
 ;; Server lifecycle
 (defn stop-server! [stop-fn]
   (util/print-info "Stopping server")
-  (when (ifn? stop-fn) (stop-fn)))
+  (when (ifn? stop-fn)
+    (try
+      (stop-fn)
+      (catch Exception e
+        ;; Avoids occasional ConcurrentModificationException, which is a bug in httpkit
+        ))))
 
 (defn start-server! [& [port]]
   (util/print-info "Starting server")
