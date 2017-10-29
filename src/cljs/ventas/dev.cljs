@@ -1,4 +1,4 @@
-(ns cljs.user
+(ns ventas.dev
   (:require
    [cljs.test]
    [ventas.core-test]))

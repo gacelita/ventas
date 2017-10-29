@@ -14,7 +14,7 @@
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
 
-(clojure.tools.namespace.repl/set-refresh-dirs "src/clj" "src/cljc" "dev" "test/clj")
+(clojure.tools.namespace.repl/set-refresh-dirs "src/clj" "src/cljc" "dev" "test/clj" "test/cljc")
 
 ;; CLJS REPL
 (def cljs-repl figwheel/cljs-repl)

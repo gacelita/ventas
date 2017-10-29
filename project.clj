@@ -147,7 +147,7 @@
 
   :cljsbuild {:builds
               [{:id "app"
-                :source-paths ["src/cljs" "src/cljc" "custom-lib"]
+                :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "custom-lib"]
 
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
 
@@ -162,7 +162,7 @@
                            :parallel-build true}}
 
                {:id "test"
-                :source-paths ["src/cljs" "test/cljs" "src/cljc" "test/cljc" "custom-lib"]
+                :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "test/doo" "custom-lib"]
                 :compiler {:output-to "resources/public/files/js/compiled/testable.js"
                            :main ventas.test-runner
                            :optimizations :none

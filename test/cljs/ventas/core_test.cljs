@@ -1,6 +1,4 @@
 (ns ventas.core-test
-  (:require-macros [cljs.test :refer (is deftest testing)])
-  (:require [cljs.test]))
+  (:require
+   [ventas.example-test]))
 
-(deftest example-passing-test
-  (is (= 1 1)))
