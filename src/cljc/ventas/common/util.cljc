@@ -15,13 +15,16 @@
     (apply merge-with deep-merge maps)
     (last maps)))
 
+(defn read-keyword [str]
+  (keyword (str/replace str #"\:" "")))
+
 (defn process-input-message
   "Properly decode keywords"
   [message]
   (cond
     (map? message) (map-values process-input-message message)
     (vector? message) (map process-input-message message)
-    (and (string? message) (str/starts-with? message ":")) (keyword (str/replace message #"\:" ""))
+    (and (string? message) (str/starts-with? message ":")) (read-keyword message)
     :else message))
 
 (defn process-output-message

@@ -16,10 +16,13 @@
    [ventas.pages.admin :as admin]
    [ventas.i18n :refer [i18n]]))
 
+(defn role-options []
+  (map #(update % :value str) @(rf/subscribe [:reference.user.role])))
+
 (defn user-form []
   (let [user-kw ::user
         data (atom {})
-        key (atom {})
+        key (atom nil)
         user-id (get-in (routes/current) [:route-params :id])]
     (rf/dispatch [:api/entities.find
                   user-id
@@ -51,7 +54,7 @@
           {:multiple true
            :fluid true
            :selection true
-           :options @(rf/subscribe [:reference.user.role])
+           :options (role-options)
            :default-value (:roles @data)
            :on-change #(swap! data assoc :roles (.-value %2))}]]]
        [base/form-button {:type "submit"} "Enviar"]])))
