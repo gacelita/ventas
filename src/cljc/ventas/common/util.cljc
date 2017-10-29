@@ -18,21 +18,31 @@
 (defn read-keyword [str]
   (keyword (str/replace str #"\:" "")))
 
+(def set-identifier "__set")
+
 (defn process-input-message
-  "Properly decode keywords"
+  "Properly decode keywords and sets"
   [message]
   (cond
-    (map? message) (map-values process-input-message message)
-    (vector? message) (map process-input-message message)
-    (and (string? message) (str/starts-with? message ":")) (read-keyword message)
+    (map? message)
+      (map-values process-input-message message)
+    (string? message)
+      (if (str/starts-with? message ":")
+        (read-keyword message)
+        message)
+    (vector? message)
+      (if (= (first message) set-identifier)
+        (set (map process-input-message (rest message)))
+        (map process-input-message message))
     :else message))
 
 (defn process-output-message
-  "Properly encode keywords"
+  "Properly encode keywords and sets"
   [message]
   (cond
     (map? message) (map-values process-output-message message)
     (vector? message) (map process-output-message message)
     (keyword? message) (str message)
+    (set? message) (vec (concat [set-identifier] (map process-output-message message)))
     :else message))
 
