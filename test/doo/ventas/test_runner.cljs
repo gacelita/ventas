@@ -2,9 +2,9 @@
   (:require
    [doo.runner :refer-macros [doo-tests]]
    [ventas.core-test]
-   [ventas.common-test]))
+   [ventas.common.util-test]))
 
 (enable-console-print!)
 
 (doo-tests 'ventas.core-test
-           'ventas.common-test)
+           'ventas.common.util-test)

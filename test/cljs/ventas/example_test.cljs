@@ -4,6 +4,3 @@
 
 (deftest example-passing-test
   (is (= 1 1)))
-
-(deftest example-failing-test
-  (is (= 1 0)))
