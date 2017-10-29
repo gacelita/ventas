@@ -9,7 +9,8 @@
             [ventas.util :as util]
             [ventas.events :as events]
             [clojure.core.async :refer [go <! go-loop]]
-            [ventas.database.schema :as schema]))
+            [ventas.database.schema :as schema]
+            [clojure.set :as set]))
 
 (defn is-entity? [entity]
   (contains? (set (keys entity)) :schema/type))
@@ -71,7 +72,6 @@
   "Returns the type of an entity"
   [entity]
   {:pre [(is-entity? entity)]}
-  (debug entity)
   (keyword (name (:schema/type entity))))
 
 (defn type-fns
@@ -208,22 +208,47 @@
         (assoc :schema/type type)
         (assoc :db/id id))))
 
+(defn attributes
+  [type]
+  (:attributes (type-fns type)))
+
+(defn attributes-by-ident
+  [type]
+  "Returns a map whose keys are idents and whose values are valueTypes of those idents"
+  (into {}
+        (map
+         (fn [attr]
+           [(:db/ident attr) attr])
+         (attributes type))))
+
 (defn update
   "Takes an eid and a list of attributes to transact.
    Example usage:
    (update 1234567 {:name `Other name`})"
-  [eid attributes]
-  {:pre [(map? attributes) (number? eid)]}
+  [eid attrs]
+  {:pre [(map? attrs) (number? eid)]}
   (let [entity (find eid)
         entity-type (type entity)
-        data (as-> attributes data
+        data (as-> attrs data
                    (filter-update entity data)
                    (dissoc data :id)
                    (dissoc data :type)
                    (util/qualify-map-keywords data entity-type)
                    (assoc data :db/id (:db/id entity))
-                   (assoc data :schema/type (db/kw->type entity-type)))]
-    (db/transact [data])
+                   (assoc data :schema/type (db/kw->type entity-type)))
+        enum-retractions
+        (let [enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
+                                       (= (:db/valueType %) :db.type/ref))
+                                 (attributes entity-type))
+              enum-idents (map :db/ident enum-attrs)]
+          (mapcat (fn [{:keys [ident new-val]}]
+                 (let [diff (set/difference (get entity ident) new-val)]
+                   (map (fn [val-to-retract]
+                          [:db/retract (:db/id data) ident val-to-retract])
+                        diff)))
+               (map #(hash-map :ident % :new-val (get data %))
+                    enum-idents)))]
+    (db/transact (concat [data] enum-retractions))
     (find eid)))
 
 (defn delete [eid]
