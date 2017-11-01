@@ -12,7 +12,7 @@
    [ventas.pages.admin.users :as users-page]
    [ventas.routes :as routes]
    [ventas.utils.ui :as utils.ui]
-   [ventas.pages.admin :as admin]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
    [ventas.common.util :as common.util]
    [ventas.components.notificator :as notificator]))
@@ -71,7 +71,7 @@
        [base/form-button {:type "submit"} "Enviar"]])))
 
 (defn page []
-  [admin/skeleton
+  [admin.skeleton/skeleton
    [:div.admin-users-edit__page
     [user-form]]])
 

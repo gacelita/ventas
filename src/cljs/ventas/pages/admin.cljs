@@ -1,31 +1,18 @@
 (ns ventas.pages.admin
-  (:require [reagent.core :as reagent :refer [atom]]
-            [reagent.session :as session]
-            [re-frame.core :as rf]
-            [bidi.bidi :as bidi]
-            [re-frame-datatable.core :as dt]
-            [ventas.page :refer [pages]]
-            [ventas.routes :as routes]
-            [ventas.i18n :refer [i18n]]))
-
-(defn menu []
-  [:ul
-   [:li [:a {:href (routes/path-for :admin.users)} "Users"]]
-   [:li [:a {:href (routes/path-for :admin.products)} "Products"]]
-   [:li [:a {:href (routes/path-for :admin.plugins)} "Plugins"]]])
-
-(defn skeleton [content]
-  [:div.admin__skeleton
-   [:div.admin__sidebar
-    [:a {:href (routes/path-for :admin)}
-     [:h3 "Administration"]]
-    [menu]]
-   [:div.admin__content
-    content]])
+  (:require
+   [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.plugins]
+   [ventas.pages.admin.products.edit]
+   [ventas.pages.admin.products]
+   [ventas.pages.admin.skeleton :as skeleton]
+   [ventas.pages.admin.users]
+   [ventas.pages.admin.users.edit]
+   [ventas.routes :as routes]))
 
 (defn page []
-  [skeleton
-   [:p.admin__default-content "Nothing here"]])
+  [skeleton/skeleton
+   [:p.admin__default-content
+    (i18n ::nothing-here)]])
 
 (routes/define-route!
  :admin

@@ -15,11 +15,6 @@
    [ventas.page :as p]
    [ventas.plugins.core]
    [ventas.pages.admin]
-   [ventas.pages.admin.users]
-   [ventas.pages.admin.users.edit]
-   [ventas.pages.admin.products]
-   [ventas.pages.admin.products.edit]
-   [ventas.pages.admin.plugins]
    [ventas.pages.datadmin]
    [ventas.pages.api]
    [ventas.themes.mariscosriasbajas.core])

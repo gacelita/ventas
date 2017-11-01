@@ -2,11 +2,11 @@
   (:require
    [ventas.routes :as routes]
    [ventas.i18n :refer [i18n]]
-   [ventas.pages.admin :as admin]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.components.base :as base]))
 
 (defn page []
-  [admin/skeleton
+  [admin.skeleton/skeleton
      [base/button {:onClick #(routes/go-to :admin.products.edit :id 0)}
       "Test"]])
 

@@ -111,10 +111,6 @@
                  [org.clojure/test.check "0.9.0"]
                  [com.gfredericks/test.chuck "0.2.8" :exclusions [instaparse]]
 
-                 ;; CSS
-                 [fqcss "0.1.5"]
-                 [async-watch "0.1.1"]
-
                  [binaryage/devtools "0.9.4"]
 
                  ; Error reporting for Ring

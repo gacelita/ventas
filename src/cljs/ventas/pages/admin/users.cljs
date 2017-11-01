@@ -1,18 +1,19 @@
 (ns ventas.pages.admin.users
-  (:require [reagent.core :as reagent :refer [atom]]
-            [reagent.session :as session]
-            [re-frame.core :as rf]
-            [bidi.bidi :as bidi]
-            [re-frame-datatable.core :as dt]
-            [re-frame-datatable.views :as dt.views]
-            [ventas.page :refer [pages]]
-            [soda-ash.core :as sa]
-            [ventas.utils.ui :as utils.ui]
-            [ventas.pages.admin :as admin]
-            [ventas.routes :as routes]
-            [ventas.components.base :as base]
-            [ventas.components.datatable :as datatable]
-            [ventas.i18n :refer [i18n]]))
+  (:require
+   [reagent.core :as reagent :refer [atom]]
+   [reagent.session :as session]
+   [re-frame.core :as rf]
+   [bidi.bidi :as bidi]
+   [re-frame-datatable.core :as dt]
+   [re-frame-datatable.views :as dt.views]
+   [ventas.page :refer [pages]]
+   [soda-ash.core :as sa]
+   [ventas.utils.ui :as utils.ui]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.routes :as routes]
+   [ventas.components.base :as base]
+   [ventas.components.datatable :as datatable]
+   [ventas.i18n :refer [i18n]]))
 
 (defn users-datatable [action-column]
   (let [sub-key :users]
@@ -20,7 +21,7 @@
     (fn [action-column]
       (let [id (keyword (gensym "users"))]
         [:div
-         [dt/datatable id [sub-key]
+         [dt/datatable id [:ventas/db [sub-key]]
           [{::dt/column-key [:id] ::dt/column-label "#"
             ::dt/sorting {::dt/enabled? true}}
 
@@ -37,10 +38,10 @@
            ::dt/table-classes ["ui" "table" "celled"]
            ::dt/empty-tbody-component (fn [] [:p "No users yet"])}]
          [:div.admin-users__pagination
-          [datatable/pagination id [sub-key]]]]))))
+          [datatable/pagination id [:ventas/db [sub-key]]]]]))))
 
 (defn page []
-  [admin/skeleton
+  [admin.skeleton/skeleton
    (let [action-column
          (fn [_ row]
            [:div

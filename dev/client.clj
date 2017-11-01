@@ -7,7 +7,6 @@
    [ventas.util :as util]
    [clojure.java.shell]
    [me.raynes.conch.low-level :as sh]
-   [async-watch.core :as watch]
    [mount.core :as mount :refer [defstate]]
    [clojure.tools.namespace.dependency :as namespace.dependency]
    [clojure.tools.namespace.find :as namespace.find]
@@ -33,29 +32,6 @@
   (figwheel/stop-figwheel!))
 
 (defstate figwheel :start (figwheel-start) :stop (figwheel-stop))
-
-
-;; FQCSS
-
-#_(defn fqcss-start []
-    (print-info "Starting fqcss")
-    (let [changes (watch/changes-in "src/fqcss")]
-      (go (while true
-            (let [[op filename] (<! changes)]
-              (when (and (clojure.string/ends-with? filename ".scss") (or (= (name op) "modify")
-                                                                          (= (name op) "create")))
-                (print-info (str "Processing fqcss (" (name op) ")"))
-                (let [new-path (clojure.string/replace filename "fqcss" "scss")]
-                  (print-info (str "\tSpitting to: " new-path))
-                  (spit new-path (fqcss/replace-css (slurp filename))))))))))
-
-#_(defstate fqcss
-            :start
-            (fqcss-start)
-            :stop
-            (do
-              (watch/cancel-changes)))
-
 
 ;; Sass
 

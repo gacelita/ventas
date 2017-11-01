@@ -11,7 +11,7 @@
    [ventas.page :refer [pages]]
    [ventas.routes :as routes]
    [ventas.utils.ui :as utils.ui]
-   [ventas.pages.admin :as admin]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
    [ventas.common.util :as common.util]
    [ventas.components.notificator :as notificator]))
@@ -37,8 +37,7 @@
   (fn [eid]
     (let [data @(rf/subscribe [:ventas/db [:entities eid]])]
       [base/image {:src (:url data)
-                   :size "medium"
-                   :share "rounded"}])))
+                   :size "medium"}])))
 
 (defn product-form []
   (let [data (atom {})
@@ -98,7 +97,7 @@
          {:fluid true
           :selection true
           :options (map (fn [v] {:text (:name v) :value (:id v)})
-                        @(rf/subscribe [brands-sub-key]))
+                        @(rf/subscribe [:ventas/db [brands-sub-key]]))
           :default-value (:brand @data)
           :on-change #(swap! data assoc :brand (.-value %2))}]]
        [base/form-field
@@ -107,18 +106,18 @@
          {:fluid true
           :selection true
           :options (map (fn [v] {:text (:name v) :value (:id v)})
-                        @(rf/subscribe [taxes-sub-key]))
+                        @(rf/subscribe [:ventas/db [taxes-sub-key]]))
           :default-value (:tax @data)
           :on-change #(swap! data assoc :tax (.-value %2))}]]
        [base/form-field
         [:label (i18n ::images)]
         [base/imageGroup
          (for [eid (:images @data)]
-           [image eid])]]
+           ^{:key eid} [image eid])]]
        [base/form-button {:type "submit"} (i18n ::send)]])))
 
 (defn page []
-  [admin/skeleton
+  [admin.skeleton/skeleton
    [:div.admin-products-edit__page
     [product-form]]])
 
