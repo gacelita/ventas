@@ -38,17 +38,6 @@
   ([sep coll]
    (drop 1 (interleave (repeatedly sep) coll))))
 
-(defn ^:deprecated sub-resource-url [resource-id]
-  (rf/dispatch :api/configuration.get
-               {:params {:keyword resource-id}
-                :success-fn #(rf/dispatch [:ventas/db [:resources resource-id] %])}))
-
-(defn ^:deprecated sub-configuration [kw]
-  {:pre [(keyword? kw)]}
-  (rf/dispatch :api/configuration.get
-               {:params {:key kw}
-                :success-fn #(rf/dispatch [:ventas/db [:configuration kw] %])}))
-
 (defn format-price
   "Really naive method"
   [price]
