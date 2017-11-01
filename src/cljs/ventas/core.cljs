@@ -92,7 +92,7 @@
      (if (seq token)
        {:ws-request {:name :users/session
                      :params {:token token}
-                     :success-fn #(rf/dispatch [:ventas.api/success [:session] %])}}
+                     :success-fn #(rf/dispatch [:ventas/db [:session] %])}}
        {}))))
 
 (rf/reg-event-fx

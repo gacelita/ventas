@@ -51,7 +51,7 @@
                 (fn [db _] (-> db sub-kw)))
     (rf/dispatch [:effects/ws-request {:name :resource/get
                                        :params {:keyword resourceId}
-                                       :success-fn #(rf/dispatch [:ventas.api/success [sub-kw] %])}])
+                                       :success-fn #(rf/dispatch [:ventas/db [sub-kw] %])}])
     sub-kw))
 
 (defn sub-configuration [kw]
@@ -61,7 +61,7 @@
       (fn [db _] (-> db sub-kw)))
     (rf/dispatch [:effects/ws-request {:name :configuration/get
                                        :params {:key kw}
-                                       :success-fn #(rf/dispatch [:ventas.api/success [sub-kw] %])}])
+                                       :success-fn #(rf/dispatch [:ventas/db [sub-kw] %])}])
     sub-kw))
 
 (defn format-price

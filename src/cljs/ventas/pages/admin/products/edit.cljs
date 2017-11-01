@@ -49,9 +49,9 @@
                   {:success-fn (fn [entity-data]
                                  (reset! data entity-data)
                                  (reset! key (hash entity-data)))}])
-    (rf/dispatch [:api/brands.list {:success-fn #(rf/dispatch [:ventas.api/success [brands-sub-key] %])}])
+    (rf/dispatch [:api/brands.list {:success-fn #(rf/dispatch [:ventas/db [brands-sub-key] %])}])
     (utils.ui/reg-kw-sub brands-sub-key)
-    (rf/dispatch [:api/taxes.list {:success-fn #(rf/dispatch [:ventas.api/success [taxes-sub-key] %])}])
+    (rf/dispatch [:api/taxes.list {:success-fn #(rf/dispatch [:ventas/db [taxes-sub-key] %])}])
     (utils.ui/reg-kw-sub taxes-sub-key)
 
     (fn []

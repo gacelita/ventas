@@ -14,7 +14,7 @@
  :resources/logo
  (fn [cofx [_]]
    {:ws-request {:name :resources/find
-                 :success-fn #(rf/dispatch [:ventas.api/success [:resources :logo] %])}}))
+                 :success-fn #(rf/dispatch [:ventas/db [:resources :logo] %])}}))
 
 (rf/reg-sub
  ::opened

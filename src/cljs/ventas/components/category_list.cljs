@@ -14,7 +14,7 @@
   (fn [cofx [_]]
     (js/console.log "initing")
     {:ws-request {:name :categories/list
-                  :success-fn #(rf/dispatch [:ventas.api/success [::main] %])}}))
+                  :success-fn #(rf/dispatch [:ventas/db [::main] %])}}))
 
 (rf/reg-event-fx
  ::add

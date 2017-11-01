@@ -13,7 +13,7 @@
 (defn page []
   (let [sub-key :blog.core]
     (rf/dispatch [:plugins.blog/post.list
-                  {:success-fn #(rf/dispatch [:ventas.api/success [sub-key] %])}])
+                  {:success-fn #(rf/dispatch [:ventas/db [sub-key] %])}])
     (utils.ui/reg-kw-sub sub-key)
     (fn []
       [:div "My page"

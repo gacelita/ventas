@@ -6,7 +6,7 @@
    [ventas.common.util :as common.util]
    [ventas.i18n :refer [i18n]]))
 
-#_ "
+#_"
   Universal subscription and event.
   Use a more specific subscription or event as needed."
 
@@ -16,12 +16,12 @@
    (get-in db where)))
 
 (rf/reg-event-db
- :ventas.api/success
+ :ventas/db
  (fn [db [_ where what]]
-   (debug :ventas.api/success where what)
+   (debug :ventas/db where what)
    (assoc-in db where what)))
 
-#_ "
+#_"
   Using :ws-request directly is discouraged.
   Available API calls should be registered here, to have control of what
   API calls the client is using, and to add a level of indirection, for a possible
@@ -70,7 +70,7 @@
    (rf/dispatch [:api/reference.user.role
                  {:success-fn
                   (fn [options]
-                    (rf/dispatch [:ventas.api/success [:reference.user.role]
+                    (rf/dispatch [:ventas/db [:reference.user.role]
                                   (map (fn [option]
                                          {:text (i18n (keyword option)) :value option})
                                        options)]))}])))
@@ -81,4 +81,4 @@
    (rf/dispatch [:api/entities.find eid
                  {:sync true
                   :success-fn (fn [entity-data]
-                                (rf/dispatch [:ventas.api/success [:entities eid] entity-data]))}])))
+                                (rf/dispatch [:ventas/db [:entities eid] entity-data]))}])))
