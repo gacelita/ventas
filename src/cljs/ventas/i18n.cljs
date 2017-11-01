@@ -42,5 +42,5 @@
 
 (def ^:private translation-fn (tongue/build-translate dicts))
 
-(defn i18n [kw]
+(defn i18n [kw & args]
   (translation-fn :en_US kw))

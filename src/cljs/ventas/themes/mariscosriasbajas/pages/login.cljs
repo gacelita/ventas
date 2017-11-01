@@ -8,7 +8,7 @@
    [ventas.i18n :refer [i18n]]
    [ventas.components.base :as base]
    [ventas.utils :as util :refer [value-handler]]
-   [ventas.components.notificator]))
+   [ventas.components.notificator :as notificator]))
 
 (defn- login-successful [{:keys [user token]}]
   (rf/dispatch [::notificator/add {:message (i18n ::session-started)}])

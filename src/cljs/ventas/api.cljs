@@ -116,7 +116,7 @@
                {:params {:key key}
                 :success-fn
                 (fn [data]
-                  (rf/dispatch [:ventas/db [:configuration key] %]))}]}))
+                  (rf/dispatch [:ventas/db [:configuration key] data]))}]}))
 
 (rf/reg-event-fx
  :ventas/reference
@@ -138,7 +138,7 @@
                {:params {:key key}
                 :success-fn
                 (fn [data]
-                  (rf/dispatch [:ventas/db [:resources key] %]))}]}))
+                  (rf/dispatch [:ventas/db [:resources key] data]))}]}))
 
 (rf/reg-event-fx
  :ventas/entities.sync
