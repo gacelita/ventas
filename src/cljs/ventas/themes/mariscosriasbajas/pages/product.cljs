@@ -6,7 +6,7 @@
             [bidi.bidi :as bidi]
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
-            [ventas.util :as util :refer [value-handler]]
+            [ventas.utils :as util :refer [value-handler]]
             [soda-ash.core :as sa]
             [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]))
 

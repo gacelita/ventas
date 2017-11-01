@@ -1,5 +1,5 @@
 (ns ventas.components.cart
-  (:require [ventas.util :as util]
+  (:require [ventas.utils :as util]
             [re-frame.core :as rf]
             [reagent.core :as reagent]
             [clojure.string :as s]

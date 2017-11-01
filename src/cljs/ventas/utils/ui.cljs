@@ -16,8 +16,3 @@
       (assoc :default-value (get @(:model data) (keyword (:name data))))
       (assoc :on-change #(swap! (:model data) assoc (keyword (:name data)) (-> % .-target .-value)))
       (dissoc :model)))
-
-(defn reg-kw-sub
-  "Creates a keyword subscription if it does not exist."
-  [kw]
-  (rf/reg-sub kw (fn [db _] (-> db kw))))

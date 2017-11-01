@@ -7,7 +7,7 @@
    [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
    [ventas.i18n :refer [i18n]]
    [ventas.components.base :as base]
-   [ventas.util :as util :refer [value-handler]]
+   [ventas.utils :as util :refer [value-handler]]
    [ventas.components.notificator]))
 
 (defn- login-successful [{:keys [user token]}]

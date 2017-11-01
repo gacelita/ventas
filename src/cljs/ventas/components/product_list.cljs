@@ -1,5 +1,5 @@
 (ns ventas.components.product-list
-  (:require [ventas.util :as util]
+  (:require [ventas.utils :as util]
             [re-frame.core :as rf]
             [clojure.string :as s]
             [soda-ash.core :as sa]

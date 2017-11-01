@@ -1,6 +1,6 @@
 (ns ventas.components.notificator
   (:require
-   [ventas.util :as util]
+   [ventas.utils :as util]
    [soda-ash.core :as sa]
    [clojure.string :as s]
    [fqcss.core :refer [wrap-reagent]]

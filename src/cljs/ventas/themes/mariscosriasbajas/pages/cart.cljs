@@ -17,7 +17,7 @@
    [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
    [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
    [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
-   [ventas.util :as util]
+   [ventas.utils :as util]
    [ventas.plugin :as plugin]
    [soda-ash.core :as sa]
    [ventas.routes :as routes]

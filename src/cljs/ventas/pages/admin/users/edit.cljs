@@ -18,7 +18,7 @@
    [ventas.components.notificator :as notificator]))
 
 (defn- role-options []
-  (map #(update % :value str) @(rf/subscribe [:reference.user.role])))
+  (map #(update % :value str) @(rf/subscribe [:ventas/db [:reference :user.role]])))
 
 (rf/reg-event-fx
  ::submit
@@ -40,7 +40,7 @@
                   {:success-fn (fn [user]
                                  (reset! data user)
                                  (reset! key (hash user)))}])
-    (rf/dispatch [:ventas/reference.user.role])
+    (rf/dispatch [:ventas/reference :user.role])
     (fn []
       ^{:key @key}
       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}

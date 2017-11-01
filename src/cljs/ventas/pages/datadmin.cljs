@@ -11,7 +11,7 @@
             [ventas.components.popup]
             [ventas.components.product-list :refer [products-list]]
             [ventas.components.cart :as cart]
-            [ventas.util :as util]
+            [ventas.utils :as util]
             [ventas.plugin :as plugin]
             [soda-ash.core :as sa]
             [ventas.routes :as routes]))

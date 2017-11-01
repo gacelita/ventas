@@ -1,5 +1,5 @@
 (ns ventas.components.popup
-  (:require [ventas.util :as util]
+  (:require [ventas.utils :as util]
             [soda-ash.core :as sa]
             [clojure.string :as s]
             [reagent.core :as reagent]

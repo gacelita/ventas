@@ -3,7 +3,7 @@
             [soda-ash.core :as sa]
             [re-frame.core :as rf]
             [reagent.session :as session]
-            [ventas.util :as util]
+            [ventas.utils :as util]
             [ventas.routes :as routes]
             [ventas.components.base :as base]))
 

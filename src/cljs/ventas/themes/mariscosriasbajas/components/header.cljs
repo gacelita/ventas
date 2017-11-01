@@ -4,7 +4,7 @@
             [re-frame.core :as rf]
             [soda-ash.core :as sa]
             [ventas.routes :as routes :refer [go-to]]
-            [ventas.util :as util]))
+            [ventas.utils :as util]))
 
 (rf/reg-sub
  :resources/logo

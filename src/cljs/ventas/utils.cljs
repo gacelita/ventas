@@ -1,4 +1,4 @@
-(ns ventas.util
+(ns ventas.utils
   (:require
    [bidi.bidi :as bidi]
    [reagent.session :as session]

@@ -3,14 +3,14 @@
             [reagent.core :as reagent]
             [re-frame.core :as rf]
             [ventas.routes :as routes]
-            [ventas.util :as util]))
+            [ventas.utils :as util]))
 
 (defn footer []
-  (reagent/with-let [sub-logo (util/sub-resource-url :logo)
-                     sub-title (util/sub-configuration :site-title)
-                     sub-footer-instagram (util/sub-resource-url :footer-instagram)]
-    (wrap-reagent
-      [:div.ventas {:fqcss [::footer]}
+  (rf/dispatch [:api/resources.get ])
+  (fn []
+    (reagent/with-let [sub-footer-instagram (util/sub-resource-url :footer-instagram)]
+      (wrap-reagent
+       [:div.ventas {:fqcss [::footer]}
         [:div.ui.container
          [:div {:fqcss [::columns]}
           [:div {:fqcss [::column]}
@@ -36,4 +36,4 @@
            [:p "Email:"]
            [:a {:href "mailto:clientes@mariscoriasbajas.com"} "clientes@mariscoriasbajas.com"]]]
          [:div {:fqcss [::instagram]}
-          [:img {:src sub-footer-instagram}]]]])))
+          [:img {:src sub-footer-instagram}]]]]))))
