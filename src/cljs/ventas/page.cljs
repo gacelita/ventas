@@ -1,5 +1,7 @@
 (ns ventas.page
-  (:require [reagent.session :as session]))
+  (:require
+   [reagent.session :as session]
+   [ventas.i18n :refer [i18n]]))
 
 (defmulti pages identity)
 

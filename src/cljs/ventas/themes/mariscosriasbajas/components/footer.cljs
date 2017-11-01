@@ -33,7 +33,7 @@
         [:br]
         (let [email @(rf/subscribe [:ventas/db [:configuration :email]])]
           [:p (i18n ::email) ":"]
-          [:a {:href "mailto:" email}
+          [:a {:href (str "mailto:" email)}
            email])]]
       [:div.footer__instagram
        (let [footer-instagram @(rf/subscribe [:ventas/db [:resources :footer-instagram]])]
