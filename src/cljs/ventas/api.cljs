@@ -28,6 +28,11 @@
   future where we'll want to deprecate or alter in some way certain API calls."
 
 (rf/reg-event-fx
+ :api/brands.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :brands.list} options)}))
+
+(rf/reg-event-fx
  :api/categories.list
  (fn [cofx [_ options]]
    {:ws-request (common.util/deep-merge
@@ -35,26 +40,9 @@
                   :params {:pagination {:page 0 :items-per-page 5}}} options)}))
 
 (rf/reg-event-fx
- :api/users.list
+ :api/configuration.get
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :users.list} options)}))
-
-(rf/reg-event-fx
- :api/users.save
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :users.save} options)}))
-
-(rf/reg-event-fx
- :api/products.list
- (fn [cofx [_ options]]
-   {:ws-request (common.util/deep-merge
-                 {:name :products.list
-                  :params {:pagination {:page 0 :items-per-page 5}}} options)}))
-
-(rf/reg-event-fx
- :api/products.save
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :products.save} options)}))
+   {:ws-request (merge {:name :configuration.get} options)}))
 
 (rf/reg-event-fx
  :api/entities.remove
@@ -69,20 +57,57 @@
                        options)}))
 
 (rf/reg-event-fx
+ :api/products.list
+ (fn [cofx [_ options]]
+   {:ws-request (common.util/deep-merge
+                 {:name :products.list
+                  :params {:pagination {:page 0 :items-per-page 5}}} options)}))
+
+(rf/reg-event-fx
+ :api/products.save
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :products.save} options)}))
+
+(rf/reg-event-fx
  :api/reference.user.role
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :reference.user.role}
                        options)}))
 
 (rf/reg-event-fx
- :api/brands.list
+ :api/resources.get
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :brands.list} options)}))
+   {:ws-request (merge {:name :resources.get} options)}))
 
 (rf/reg-event-fx
  :api/taxes.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :taxes.list} options)}))
+
+(rf/reg-event-fx
+ :api/users.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.list} options)}))
+
+(rf/reg-event-fx
+ :api/users.login
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :users.login} options)}))
+
+(rf/reg-event-fx
+ :api/users.register
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :users.register} options)}))
+
+(rf/reg-event-fx
+ :api/users.save
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.save} options)}))
+
+(rf/reg-event-fx
+ :api/users.session
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.session} options)}))
 
 (utils.ui/reg-kw-sub :reference.user.role)
 

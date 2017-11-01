@@ -3,22 +3,17 @@
    [ventas.plugin :as plugin]
    [ventas.routes :as routes]
    [re-frame.core :as rf]
-   [ventas.utils.ui :as utils.ui]))
-
-(rf/reg-event-fx
- :plugins.blog/post.list
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :blog.list} options)}))
+   [ventas.utils.ui :as utils.ui]
+   [ventas.plugins.blog.api :as blog.api]))
 
 (defn page []
   (let [sub-key :blog.core]
-    (rf/dispatch [:plugins.blog/post.list
+    (rf/dispatch [::blog.api/posts.list
                   {:success-fn #(rf/dispatch [:ventas/db [sub-key] %])}])
-    (utils.ui/reg-kw-sub sub-key)
     (fn []
       [:div "My page"
        [:ul
-        (for [item @(rf/subscribe [sub-key])]
+        (for [item @(rf/subscribe [:ventas/db sub-key])]
           [:li (:name item)])]])))
 
 (routes/define-route!

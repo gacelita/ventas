@@ -10,7 +10,6 @@
    [ventas.components.base :as base]
    [ventas.page :refer [pages]]
    [ventas.routes :as routes]
-   [ventas.util :as util :refer [dispatch-page-event]]
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin :as admin]
    [ventas.i18n :refer [i18n]]

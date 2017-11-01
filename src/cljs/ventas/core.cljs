@@ -10,7 +10,6 @@
             [ventas.api :as api]
             [ventas.ws :as ws]
             [ventas.subs :as subs]
-            [ventas.util :as util :refer [dispatch-page-event]]
             [ventas.local-storage :as storage]
             [ventas.devcards.core]
 
@@ -46,22 +45,10 @@
  {:fx :local-storage
   :cofx :local-storage})
 
-
-;; Effects
-
 (rf/reg-fx :go-to
-  (fn effect-go-to [data]
-    (go-to (get data 0) (get data 1))))
+  (fn [[route params]]
+    (go-to route params)))
 
-
-;; Events
-
-;; TODO: Upload, subscription, CLJS modules, autocomplete
-
-(rf/reg-event-db :app/entity-update.next
-  (fn [db [_ where what]]
-    (debug "entity-update, where: " where)
-    (assoc-in db where (map #(if (= (:id %1) (:id what)) what %1) (get-in db where)))))
 
 (rf/reg-event-fx :app/entity-remove
   (fn [cofx [_ data key-vec]]
@@ -87,11 +74,10 @@
  [(rf/inject-cofx :local-storage)]
  (fn [{:keys [db local-storage]} [_]]
    (let [token (:token local-storage)]
-     (if (seq token)
-       {:ws-request {:name :users/session
-                     :params {:token token}
-                     :success-fn #(rf/dispatch [:ventas/db [:session] %])}}
-       {}))))
+     (when (seq token)
+       {:dispatch [:api/users.session
+                   {:params {:token token}
+                    :success-fn #(rf/dispatch [:ventas/db [:session] %])}]}))))
 
 (rf/reg-event-fx
  :app/session.stop
@@ -115,8 +101,10 @@
     (assoc db k data)))
 
 (rf/reg-event-fx :admin.users.edit/comments.modal.submit
-  (fn [fx [_ key-vec comm]]
-    {:ws-request {:name :comments.save :params comm :success-fn #(rf/dispatch [:app/entity-update.next key-vec %])}}))
+  (fn [fx [_ key-vec params]]
+    {:dispatch [:api/comments.save
+                {:params params
+                 :success-fn #(rf/dispatch [:ventas/db [:entities (:id %)] %])}]}))
 
 (defn page []
   (info "Rendering...")

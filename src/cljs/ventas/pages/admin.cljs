@@ -6,7 +6,6 @@
             [re-frame-datatable.core :as dt]
             [ventas.page :refer [pages]]
             [ventas.routes :as routes]
-            [ventas.util :refer [dispatch-page-event]]
             [ventas.i18n :refer [i18n]]))
 
 (defn menu []

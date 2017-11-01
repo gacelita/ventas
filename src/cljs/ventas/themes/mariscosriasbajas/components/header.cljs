@@ -13,8 +13,9 @@
 (rf/reg-event-fx
  :resources/logo
  (fn [cofx [_]]
-   {:ws-request {:name :resources/find
-                 :success-fn #(rf/dispatch [:ventas/db [:resources :logo] %])}}))
+   {:dispatch [:api/resources.get
+               {:params {:key :logo}
+                :success-fn #(rf/dispatch [:ventas/db [:resources :logo] %])}]}))
 
 (rf/reg-sub
  ::opened

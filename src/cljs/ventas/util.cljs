@@ -10,20 +10,13 @@
 (defn route-param [kw]
   (get-in (session/get :route) [:route-params kw]))
 
-(defn dispatch-page-event [data]
-  (debug "Dispatching: " (keyword (:current-page (session/get :route)) (name (get data 0))))
-  (rf/dispatch (assoc data 0 (keyword (:current-page (session/get :route)) (name (get data 0))))))
-
-(defn gen-key []
-  (gensym "key-"))
-
 (defn value-handler [callback]
   (fn [e]
     (callback (-> e .-target .-value))))
 
 (defn interpose-fn
   "Returns a lazy seq of the elements of coll separated by sep.
-  Returns a stateful transducer when no collection is provided."
+   Returns a stateful transducer when no collection is provided."
   {:added "1.0"
    :static true}
   ([sep]
@@ -44,25 +37,16 @@
   ([sep coll]
    (drop 1 (interleave (repeatedly sep) coll))))
 
-(defn sub-resource-url [resourceId]
-  (debug "get-resource-url")
-  (let [sub-kw (keyword "resources" (str resourceId))]
-    (rf/reg-sub sub-kw
-                (fn [db _] (-> db sub-kw)))
-    (rf/dispatch [:effects/ws-request {:name :resource/get
-                                       :params {:keyword resourceId}
-                                       :success-fn #(rf/dispatch [:ventas/db [sub-kw] %])}])
-    sub-kw))
+(defn ^:deprecated sub-resource-url [resource-id]
+  (rf/dispatch :api/configuration.get
+               {:params {:keyword resource-id}
+                :success-fn #(rf/dispatch [:ventas/db [:resources resource-id] %])}))
 
-(defn sub-configuration [kw]
-  (debug "get-configuration")
-  (let [sub-kw (keyword "configuration" (str kw))]
-    (rf/reg-sub sub-kw
-      (fn [db _] (-> db sub-kw)))
-    (rf/dispatch [:effects/ws-request {:name :configuration/get
-                                       :params {:key kw}
-                                       :success-fn #(rf/dispatch [:ventas/db [sub-kw] %])}])
-    sub-kw))
+(defn ^:deprecated sub-configuration [kw]
+  {:pre [(keyword? kw)]}
+  (rf/dispatch :api/configuration.get
+               {:params {:key kw}
+                :success-fn #(rf/dispatch [:ventas/db [:configuration kw] %])}))
 
 (defn format-price
   "Really naive method"

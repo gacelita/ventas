@@ -8,7 +8,6 @@
             [ventas.page :refer [pages]]
             [ventas.util :as util :refer [value-handler]]
             [soda-ash.core :as sa]
-            [ventas.actions.products :as actions.products]
             [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]))
 
 (rf/reg-sub ::product
