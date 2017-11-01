@@ -28,6 +28,13 @@
   future where we'll want to deprecate or alter in some way certain API calls."
 
 (rf/reg-event-fx
+ :api/categories.list
+ (fn [cofx [_ options]]
+   {:ws-request (common.util/deep-merge
+                 {:name :categories.list
+                  :params {:pagination {:page 0 :items-per-page 5}}} options)}))
+
+(rf/reg-event-fx
  :api/users.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :users.list} options)}))

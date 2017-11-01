@@ -7,25 +7,24 @@
             [cljs.pprint :refer [pprint]]
             [ventas.routes :as routes]))
 
-(rf/reg-sub :components/product-list
-  (fn [db _] (-> db :components/product-list)))
+(def products-key ::products)
 
-(rf/reg-event-fx :components/product-list
-  (fn [cofx [_]]
-    {:ws-request {:name :products/list
-                  :success-fn #(rf/dispatch [:ventas/db [:components/product-list] %])}}))
+(rf/reg-event-fx
+ ::products
+ (fn [cofx [_]]
+   {:dispatch [:api/products.list {:success-fn #(rf/dispatch [:ventas/db [products-key] %])}]}))
 
 (defn products-list []
-  "Products list"
-  (rf/dispatch [:components/product-list])
+  (rf/dispatch [::products])
   (fn []
-    (wrap-reagent
-     [:div {:fqcss [::list]}
-      (for [product @(rf/subscribe [:components/product-list])]
-        [:div {:fqcss [::product] :key (:id product)}
-         (when (seq (:images product))
-           [:img {:src (:url (first (:images product)))}])
-         [:div {:fqcss [::content]}
-          [:a {:href (routes/path-for :frontend.product :id (:id product))} (:name product)]
-          [:div {:fqcss [::price]}
-           [:span (util/format-price (:price product))]]]])])))
+    [:div.product-list
+     (let [products @(rf/subscribe [:ventas.db [products-key]])]
+       (for [{:keys [id images price]} products]
+         [:div.product-list__product {:key id}
+          (when (seq images)
+            [:img {:src (:url (first images))}])
+          [:div.product-list__content
+           [:a {:href (routes/path-for :frontend.product :id id)}
+            name]
+           [:div.product-list__price
+            [:span (util/format-price price)]]]]))]))
