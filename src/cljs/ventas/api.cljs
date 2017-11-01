@@ -45,6 +45,11 @@
                   :params {:pagination {:page 0 :items-per-page 5}}} options)}))
 
 (rf/reg-event-fx
+ :api/products.save
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :products.save} options)}))
+
+(rf/reg-event-fx
  :api/entities.find
  (fn [cofx [_ id options]]
    {:ws-request (merge {:name :entities.find
