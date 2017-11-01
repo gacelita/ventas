@@ -14,7 +14,8 @@
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin :as admin]
    [ventas.i18n :refer [i18n]]
-   [ventas.common.util :as common.util]))
+   [ventas.common.util :as common.util]
+   [ventas.components.notificator :as notificator]))
 
 (defn- role-options []
   (map #(update % :value str) @(rf/subscribe [:reference.user.role])))
@@ -28,7 +29,7 @@
 (rf/reg-event-fx
  ::submit.next
  (fn [cofx [_ data]]
-   {:dispatch [:app/notifications.add {:message (i18n ::user-saved-notification) :theme "success"}]
+   {:dispatch [::notificator/add {:message (i18n ::user-saved-notification) :theme "success"}]
     :go-to [:admin.users]}))
 
 (defn user-form []

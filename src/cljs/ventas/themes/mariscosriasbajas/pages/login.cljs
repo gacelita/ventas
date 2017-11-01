@@ -7,10 +7,11 @@
    [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
    [ventas.i18n :refer [i18n]]
    [ventas.components.base :as base]
-   [ventas.util :as util :refer [value-handler]]))
+   [ventas.util :as util :refer [value-handler]]
+   [ventas.components.notificator]))
 
 (defn- login-successful [{:keys [user token]}]
-  (rf/dispatch [:app/notifications.add {:message (i18n ::session-started)}])
+  (rf/dispatch [::notificator/add {:message (i18n ::session-started)}])
   (rf/dispatch [::login-success user token]))
 
 (rf/reg-event-fx
@@ -35,7 +36,7 @@
                {:params {:name name
                          :email email
                          :password password}
-                :success-fn #(rf/dispatch [:app/notifications.add {:message (i18n ::user-registered)}])}]}))
+                :success-fn #(rf/dispatch [::notificator/add {:message (i18n ::user-registered)}])}]}))
 
 (defn- login []
   (reagent/with-let [data (atom {})]

@@ -49,7 +49,6 @@
   (fn [[route params]]
     (go-to route params)))
 
-
 (rf/reg-event-fx :app/entity-remove
   (fn [cofx [_ data key-vec]]
     {:dispatch [:api/entities.remove {:params data
@@ -86,31 +85,10 @@
    {:db (dissoc db :session)
     :local-storage (dissoc local-storage :token)}))
 
-(rf/reg-event-fx :admin.users/edit
-  (fn event-users-edit [cofx [_ data]]
-    {:go-to [:admin.users.edit data]}))
-
-(rf/reg-event-db :admin.users.edit/comments.edit
-  (fn [db [_ id key-vec modal-key]]
-    (-> db
-        (assoc modal-key {:data (first (filter #(= (:id %) id) (get-in db key-vec)))
-                               :open true}))))
-
-(rf/reg-event-db :admin.users.edit/comments.modal
-  (fn event-users-edit-comments-modal [db [_ k data]]
-    (assoc db k data)))
-
-(rf/reg-event-fx :admin.users.edit/comments.modal.submit
-  (fn [fx [_ key-vec params]]
-    {:dispatch [:api/comments.save
-                {:params params
-                 :success-fn #(rf/dispatch [:ventas/db [:entities (:id %)] %])}]}))
-
 (defn page []
   (info "Rendering...")
   (rf/dispatch [:app/session.start])
-  (let [current-page (:current-page (session/get :route))
-        route-params (:route-params (session/get :route))]
+  (let [{:keys [current-page]} (session/get :route)]
     [p/pages current-page]))
 
 (defn init []
@@ -133,11 +111,11 @@
       (reagent/render [page] (js/document.getElementById "app")))))
 
 (defn start []
-  (info "Starting ventas")
+  (info "Starting...")
   (init))
 
 (defn stop []
-  (info "Stopping ventas"))
+  (info "Stopping..."))
 
 (defn on-figwheel-reload []
   (debug "Reloading...")

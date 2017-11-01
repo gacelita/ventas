@@ -5,6 +5,7 @@
             [chord.client :as chord]
             [chord.format.fressian]
             [ventas.common.util :as common.util]
+            [ventas.components.notificator :as notificator]
             [re-frame.core :as rf])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
@@ -121,7 +122,7 @@
     (fn [data]
       (cond
         (not (:success data))
-          (rf/dispatch [:app/notifications.add {:message (:data data) :theme "warning"}])
+          (rf/dispatch [::notificator/add {:message (:data data) :theme "warning"}])
         (:success request)
           (rf/dispatch [(:success request) (:data data)])
         (:success-fn request)
