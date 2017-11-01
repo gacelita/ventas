@@ -50,6 +50,11 @@
    {:ws-request (merge {:name :products.save} options)}))
 
 (rf/reg-event-fx
+ :api/entities.remove
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :entities.remove} options)}))
+
+(rf/reg-event-fx
  :api/entities.find
  (fn [cofx [_ id options]]
    {:ws-request (merge {:name :entities.find

@@ -23,8 +23,8 @@
 (rf/reg-event-fx
  ::submit
  (fn [cofx [_ data]]
-   {:dispatch [:products.save {:params data
-                               :success ::submit.next}]}))
+   {:dispatch [:api/products.save {:params data
+                                   :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next

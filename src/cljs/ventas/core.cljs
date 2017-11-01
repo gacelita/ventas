@@ -65,13 +65,11 @@
 
 (rf/reg-event-fx :app/entity-remove
   (fn [cofx [_ data key-vec]]
-    {:ws-request {:name :entities.remove 
-                  :params data 
-                  :success-fn #(rf/dispatch [:app/entity-remove.next key-vec (:id data)])}}))
+    {:dispatch [:api/entities.remove {:params data
+                                      :success-fn #(rf/dispatch [:app/entity-remove.next key-vec (:id data)])}]}))
 
 (rf/reg-event-db :app/entity-remove.next
   (fn [db [_ where what]]
-    (debug "entity-remove, where: " where ", what: " what ", where value: " (get-in db where))
     (assoc-in db where (filter #(not (= (:id %1) what)) (get-in db where)))))
 
 (rf/reg-event-fx :app/upload
