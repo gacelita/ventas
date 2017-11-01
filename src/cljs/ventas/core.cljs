@@ -22,6 +22,7 @@
             [ventas.pages.admin.users]
             [ventas.pages.admin.users.edit]
             [ventas.pages.admin.products]
+            [ventas.pages.admin.products.edit]
             [ventas.pages.admin.plugins]
             [ventas.pages.datadmin]
             [ventas.pages.api]
@@ -104,16 +105,6 @@
 (rf/reg-event-fx :admin.users/edit
   (fn event-users-edit [cofx [_ data]]
     {:go-to [:admin.users.edit data]}))
-
-(rf/reg-event-fx :admin.users.edit/submit
-  (fn event-users-edit-submit [cofx [_ data]]
-    {:ws-request {:name :users.save :params data :success :admin.users.edit/submit.next}}))
-
-(rf/reg-event-fx :admin.users.edit/submit.next
-  (fn event-users-edit-submit-next [cofx [_ data]]
-    (debug "About to dispatch go-to app.users")
-    {:dispatch [:app/notifications.add {:message "Usuario guardado satisfactoriamente" :theme "success"}]
-     :go-to [:admin.users]}))
 
 (rf/reg-event-db :admin.users.edit/comments.edit
   (fn [db [_ id key-vec modal-key]]

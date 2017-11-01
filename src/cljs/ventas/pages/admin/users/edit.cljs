@@ -17,23 +17,34 @@
    [ventas.i18n :refer [i18n]]
    [ventas.common.util :as common.util]))
 
-(defn role-options []
+(defn- role-options []
   (map #(update % :value str) @(rf/subscribe [:reference.user.role])))
 
+(rf/reg-event-fx
+ ::submit
+ (fn [cofx [_ data]]
+   {:ws-request {:name :users.save
+                 :params data
+                 :success ::submit.next}}))
+
+(rf/reg-event-fx
+ ::submit.next
+ (fn [cofx [_ data]]
+   {:dispatch [:app/notifications.add {:message (i18n ::user-saved-notification) :theme "success"}]
+    :go-to [:admin.users]}))
+
 (defn user-form []
-  (let [user-kw ::user
-        data (atom {})
-        key (atom nil)
-        user-id (get-in (routes/current) [:route-params :id])]
+  (let [data (atom {})
+        key (atom nil)]
     (rf/dispatch [:api/entities.find
-                  user-id
+                  (get-in (routes/current) [:route-params :id])
                   {:success-fn (fn [user]
                                  (reset! data user)
                                  (reset! key (hash user)))}])
     (rf/dispatch [:ventas/reference.user.role])
     (fn []
       ^{:key @key}
-      [base/form {:on-submit (utils.ui/with-handler #(dispatch-page-event [:submit @data]))}
+      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}
        [base/form-group {:widths "equal"}
         [base/form-input
          {:label "Nombre"

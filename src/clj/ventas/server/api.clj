@@ -157,6 +157,22 @@
 
 
 (register-endpoint!
+  :brands.list
+  (fn [{{:keys [pagination]} :params} state]
+    (let [items (map entity/to-json (entity/query :brand))]
+      (paginate items pagination))))
+
+
+
+(register-endpoint!
+  :taxes.list
+  (fn [{{:keys [pagination]} :params} state]
+    (let [items (map entity/to-json (entity/query :tax))]
+      (paginate items pagination))))
+
+
+
+(register-endpoint!
   :db.pull
   (fn [{:keys [params]} state]
     (db/pull (:query params)

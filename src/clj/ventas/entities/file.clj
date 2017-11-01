@@ -38,5 +38,5 @@
   :filter-json
   (fn [this]
     (-> this
-        (assoc :url (str (config/get :base-url) "img/" (:db/id this)
+        (assoc :url (str (config/get :base-url) "files/img/" (:db/id this)
                          "." (name (:file/extension this))))))})
