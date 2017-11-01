@@ -1,39 +1,40 @@
 (ns ventas.themes.mariscosriasbajas.components.footer
-  (:require [fqcss.core :refer [wrap-reagent]]
-            [reagent.core :as reagent]
-            [re-frame.core :as rf]
-            [ventas.routes :as routes]
-            [ventas.utils :as util]))
+  (:require
+   [fqcss.core :refer [wrap-reagent]]
+   [reagent.core :as reagent]
+   [re-frame.core :as rf]
+   [ventas.routes :as routes]
+   [ventas.i18n :refer [i18n]]))
 
 (defn footer []
-  (rf/dispatch [:api/resources.get ])
+  (rf/dispatch [:ventas/resources.get :footer-instagram])
   (fn []
-    (reagent/with-let [sub-footer-instagram (util/sub-resource-url :footer-instagram)]
-      (wrap-reagent
-       [:div.ventas {:fqcss [::footer]}
-        [:div.ui.container
-         [:div {:fqcss [::columns]}
-          [:div {:fqcss [::column]}
-           [:p "Compra mariscos y pescados subastados diariamente en las lonjas gallegas."]]
-          [:div {:fqcss [::column]}
-           [:h4 "Enlaces"]
-           [:ul
-            [:li
-             [:a {:href (routes/path-for :frontend.legal-notice)} "Aviso legal"]
-             [:a {:href (routes/path-for :frontend.privacy-policy)} "Política de privacidad"]
-             [:a {:href (routes/path-for :frontend.cookie-usage)} "Uso de cookies"]
-             [:a {:href (routes/path-for :frontend.faq)} "Preguntas frecuentes"]
-             [:a {:href (routes/path-for :frontend.shipping-fees)} "Precios portes"]]]]
-          [:div {:fqcss [::column]}
-           [:h4 "Contactar"]
-           [:p "C/ Isaac Peral, 10, Local 8"]
-           [:p "36201 Vigo (Pontevedra)"]
-           [:p "NRS: 9913.1961/PO"]
-           [:br]
-           [:p "986 192 238"]
-           [:p "660 006 260"]
-           [:p "639 882 149"]
-           [:p "Email:"]
-           [:a {:href "mailto:clientes@mariscoriasbajas.com"} "clientes@mariscoriasbajas.com"]]]
-         [:div {:fqcss [::instagram]}
-          [:img {:src sub-footer-instagram}]]]]))))
+    [:div.footer
+     [:div.ui.container
+      [:div.footer__columns
+       [:div.footer__column
+        [:p (i18n ::footer-text)]]
+       [:div.footer__column
+        [:h4 (i18n ::links)]
+        [:ul
+         [:li
+          [:a {:href (routes/path-for :frontend.legal-notice)}
+           (i18n ::legal-notice)]
+          [:a {:href (routes/path-for :frontend.privacy-policy)}
+           (i18n ::privacy-policy)]
+          [:a {:href (routes/path-for :frontend.cookie-usage)}
+           (i18n ::cookie-usage)]
+          [:a {:href (routes/path-for :frontend.faq)}
+           (i18n ::faq)]
+          [:a {:href (routes/path-for :frontend.shipping-fees)}
+           (i18n ::shipping-fees)]]]]
+       [:div.footer__column
+        [:h4 (i18n ::contact)]
+        [:br]
+        (let [email @(rf/subscribe [:ventas/db [:configuration :email]])]
+          [:p (i18n ::email) ":"]
+          [:a {:href "mailto:" email}
+           email])]]
+      [:div.footer__instagram
+       (let [footer-instagram @(rf/subscribe [:ventas/db [:resources :footer-instagram]])]
+         [:img {:src footer-instagram}])]]]))

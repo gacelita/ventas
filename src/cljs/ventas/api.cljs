@@ -69,9 +69,9 @@
    {:ws-request (merge {:name :products.save} options)}))
 
 (rf/reg-event-fx
- :api/reference.user.role
+ :api/reference
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :reference.user.role}
+   {:ws-request (merge {:name :reference}
                        options)}))
 
 (rf/reg-event-fx
@@ -109,26 +109,44 @@
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :users.session} options)}))
 
-(utils.ui/reg-kw-sub :reference.user.role)
+(rf/reg-event-fx
+ :ventas/configuration.get
+ (fn [cofx [_ key]]
+   {:dispatch [:api/configuration.get
+               {:params {:key key}
+                :success-fn
+                (fn [data]
+                  (rf/dispatch [:ventas/db [:configuration key] %]))}]}))
 
 (rf/reg-event-fx
- :ventas/reference.user.role
- (fn [cofx [_]]
-   (rf/dispatch [:api/reference.user.role
-                 {:success-fn
-                  (fn [options]
-                    (rf/dispatch [:ventas/db [:reference.user.role]
-                                  (map (fn [option]
-                                         {:text (i18n (keyword option)) :value option})
-                                       options)]))}])))
+ :ventas/reference
+ (fn [cofx [_ type]]
+   {:dispatch [:api/reference
+               {:params {:type type}
+                :success-fn
+                (fn [options]
+                  (rf/dispatch [:ventas/db [:reference type]
+                                (map (fn [option]
+                                       {:text (i18n (keyword option))
+                                        :value option})
+                                     options)]))}]}))
+
+(rf/reg-event-fx
+ :ventas/resources.get
+ (fn [cofx [_ key]]
+   {:dispatch [:api/resources.get
+               {:params {:key key}
+                :success-fn
+                (fn [data]
+                  (rf/dispatch [:ventas/db [:resources key] %]))}]}))
 
 (rf/reg-event-fx
  :ventas/entities.sync
  (fn [cofx [_ eid]]
-   (rf/dispatch [:api/entities.find eid
-                 {:sync true
-                  :success-fn (fn [entity-data]
-                                (rf/dispatch [:ventas/db [:entities eid] entity-data]))}])))
+   {:dispatch [:api/entities.find eid
+               {:sync true
+                :success-fn (fn [entity-data]
+                              (rf/dispatch [:ventas/db [:entities eid] entity-data]))}]}))
 
 (rf/reg-event-fx
  :ventas/entities.remove

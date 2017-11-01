@@ -19,7 +19,6 @@
 (defn products-datatable [action-column]
   (let [sub-key :products]
     (rf/dispatch [:api/products.list {:success-fn #(rf/dispatch [:ventas/db [sub-key] %])}])
-    (utils.ui/reg-kw-sub sub-key)
     (fn [action-column]
       (let [id (keyword (gensym "products"))]
         [:div

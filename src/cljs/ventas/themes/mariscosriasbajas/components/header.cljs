@@ -1,10 +1,10 @@
 (ns ventas.themes.mariscosriasbajas.components.header
-  (:require [fqcss.core :refer [wrap-reagent]]
-            [reagent.core :as reagent]
-            [re-frame.core :as rf]
-            [soda-ash.core :as sa]
-            [ventas.routes :as routes :refer [go-to]]
-            [ventas.utils :as util]))
+  (:require
+   [reagent.core :as reagent]
+   [re-frame.core :as rf]
+   [ventas.routes :as routes]
+   [ventas.components.base :as base]
+   [ventas.i18n :refer [i18n]]))
 
 (rf/reg-sub
  :resources/logo
@@ -33,25 +33,38 @@
    (assoc db ::opened false)))
 
 (defn header []
-  [:div
-   (reagent/with-let [sub-logo (util/sub-resource-url :logo)
-                      sub-title (util/sub-configuration :site-title)]
-     (wrap-reagent
-      [:div {:fqcss [::header]}
-       [:div.ui.container
-        [:div {:fqcss [::header-logo]}
-         [:a {:title (get-in @(rf/subscribe [sub-title]) [:value]) :href (-> js/window (.-location) (.-origin))}
-          [:img {:src (get-in @(rf/subscribe [sub-logo]) [:file :url])}]]]
-        [:div {:fqcss [::header-right]}
-         [:div {:fqcss [::header-info]}
-          [:div {:fqcss [::header-info-shipping]}
-           [:strong "ENVÍOS" [:br] "GRATIS"]]
-          [:div {:fqcss [::header-info-from]}
-           "a partir" [:br] "de " [:strong "130 €"]]]
-         [:div {:fqcss [::header-buttons]}
-          [:button {:on-click #(go-to :frontend.cart)} [sa/Icon {:name "add to cart"}] "Mi cesta"]
-          [:button {:on-click #(go-to :frontend.login) :on-blur #(rf/dispatch [::close])} [sa/Icon {:name "user"}] "Mi cuenta"
-           [sa/Icon {:name "caret down" :on-click (fn [e] (-> e .stopPropagation) (rf/dispatch [::toggle]))}]
-           [sa/Menu {:vertical true :fqcss [::user-menu] :class (if @(rf/subscribe [::opened]) "visible" "unvisible")}
-            [sa/MenuItem {:on-click #(rf/dispatch [:ventas/session.stop])} "Cerrar sesión"]]]
-          ]]]]))])
+  (rf/dispatch [:ventas/configuration.get :site-title])
+  (rf/dispatch [:ventas/resources.get :logo])
+  (fn []
+    [:div.header
+     [:div.ui.container
+      [:div.header__logo
+       (let [title @(rf/subscribe [:ventas.db [:configuration :site-title]])
+             logo @(rf/subscribe [:ventas.db [:resources :logo]])]
+         [:a {:title (:value title)
+              :href (-> js/window (.-location) (.-origin))}
+          [:img {:src (get-in logo [:file :url])}]])]
+      [:div.header__right
+       [:div.header__info
+        [:div.header__shipping
+         [:strong (i18n ::free-shipping)]]
+        [:div.header__from
+         (i18n ::from-130-euro)]]
+       [:div.header__buttons
+        [:button {:on-click #(routes/go-to :frontend.cart)}
+         [base/icon {:name "add to cart"}]
+         (i18n ::my-cart)]
+        [:button {:on-click #(routes/go-to :frontend.login)
+                  :on-blur #(rf/dispatch [::close])}
+         [base/icon {:name "user"}]
+         (i18n ::my-account)
+         [base/icon {:name "caret down"
+                     :on-click (fn [e] (-> e (.stopPropagation))
+                                 (rf/dispatch [::toggle]))}]
+         [base/menu {:vertical true
+                     :class (str "header__user-menu "
+                                 (if @(rf/subscribe [::opened])
+                                   "visible"
+                                   "unvisible"))}
+          [base/menuItem {:on-click #(rf/dispatch [:ventas/session-stop])}
+           (i18n ::logout)]]]]]]]))
