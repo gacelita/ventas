@@ -33,6 +33,11 @@
    {:ws-request (merge {:name :users.list} options)}))
 
 (rf/reg-event-fx
+ :api/users.save
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.save} options)}))
+
+(rf/reg-event-fx
  :api/products.list
  (fn [cofx [_ options]]
    {:ws-request (common.util/deep-merge
