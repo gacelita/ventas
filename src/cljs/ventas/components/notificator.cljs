@@ -6,8 +6,7 @@
    [fqcss.core :refer [wrap-reagent]]
    [cljs.core.async :refer [<! >! put! close! timeout chan]]
    [re-frame.core :as rf]
-   [ventas.components.base :as base]
-   [ventas.components.notificator :as notificator])
+   [ventas.components.base :as base])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
 

@@ -17,7 +17,7 @@
                  [org.clojure/spec.alpha "0.1.123" :scope "provided"]
 
                  ;; Namespace tools
-                 [org.clojure/tools.namespace "0.2.11"]
+                 [org.clojure/tools.namespace "0.3.0-alpha4"]
 
                  ;; Conflict resolution
                  [com.google.guava/guava "23.0"]
