@@ -1,11 +1,8 @@
 (ns ventas.components.product-list
-  (:require [ventas.utils :as util]
-            [re-frame.core :as rf]
-            [clojure.string :as s]
-            [soda-ash.core :as sa]
-            [fqcss.core :refer [wrap-reagent]]
-            [cljs.pprint :refer [pprint]]
-            [ventas.routes :as routes]))
+  (:require
+   [ventas.utils :as utils]
+   [re-frame.core :as rf]
+   [ventas.routes :as routes]))
 
 (def products-key ::products)
 
@@ -27,4 +24,4 @@
            [:a {:href (routes/path-for :frontend.product :id id)}
             name]
            [:div.product-list__price
-            [:span (util/format-price price)]]]]))]))
+            [:span (utils/format-price price)]]]]))]))

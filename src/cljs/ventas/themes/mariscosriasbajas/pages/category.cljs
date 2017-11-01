@@ -1,36 +1,22 @@
 (ns ventas.themes.mariscosriasbajas.pages.category
-  (:require [reagent.core :as reagent :refer [atom]]
-            [reagent.session :as session]
-            [re-frame.core :as rf]
-            [bidi.bidi :as bidi]
-            [re-frame-datatable.core :as dt]
-            [fqcss.core :refer [wrap-reagent]]
-            [ventas.utils.logging :refer [trace debug info warn error]]
-            [ventas.page :refer [pages]]
-            [ventas.routes :refer [route-parents routes]]
-            [ventas.components.notificator :as ventas.notificator]
-            [ventas.components.popup :as ventas.popup]
-            [ventas.components.category-list :refer [category-list]]
-            [ventas.components.product-list :refer [products-list]]
-            [ventas.components.cart :as ventas.cart]
-            [ventas.themes.mariscosriasbajas.components.header :refer [header]]
-            [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
-            [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
-            [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
-            [ventas.utils :as util :refer [value-handler]]
-            [ventas.plugin :as plugin]
-            [soda-ash.core :as sa]))
+  (:require
+   [re-frame.core :as rf]
+   [reagent.core :as reagent :refer [atom]]
+   [ventas.components.base :as base]
+   [ventas.components.product-list :refer [products-list]]
+   [ventas.i18n :refer [i18n]]
+   [ventas.page :refer [pages]]
+   [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
+   [ventas.utils :as util :refer [value-handler]]))
 
 (defmethod pages :frontend.category []
   (reagent/with-let [data (atom {})]
     [skeleton
-     (wrap-reagent
-      [:div {:fqcss [::page]}
-       [:div {:fqcss [::sidebar]}
-        [:h2 "tast"]
-        [sa/Form
-         [sa/FormField
-          [:input {:placeholder "Buscar"
-                   :on-change (value-handler #(swap! data assoc :name %))}]]]]
-       [:div {:fqcss [::content]}
-        [products-list]]])]))
+     [:div.category-page
+      [:div.category-page__sidebar
+       [base/form
+        [base/form-field
+         [:input {:placeholder (i18n ::search)
+                  :on-change (value-handler #(swap! data assoc :name %))}]]]]
+      [:div.category-page__content
+       [products-list]]]]))

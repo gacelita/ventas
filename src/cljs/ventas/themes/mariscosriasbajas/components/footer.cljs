@@ -1,6 +1,5 @@
 (ns ventas.themes.mariscosriasbajas.components.footer
   (:require
-   [fqcss.core :refer [wrap-reagent]]
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [ventas.routes :as routes]

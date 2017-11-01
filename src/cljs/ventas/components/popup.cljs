@@ -1,41 +1,42 @@
 (ns ventas.components.popup
-  (:require [ventas.utils :as util]
-            [soda-ash.core :as sa]
-            [clojure.string :as s]
-            [reagent.core :as reagent]
-            [fqcss.core :refer [wrap-reagent]]
-            [re-frame.core :as rf]))
+  (:require
+   [reagent.core :as reagent]
+   [re-frame.core :as rf]
+   [ventas.components.base :as base]))
 
-(rf/reg-sub :components/popup
-  (fn [db _] (-> db :components :popup)))
+(def data-key ::popup)
 
-(rf/reg-event-db :components.popup/close
-  (fn [db [_]]
-    (-> db (update-in [:components :popup] drop-last))))
+(rf/reg-event-db
+ ::close
+ (fn [db [_]]
+   (-> db (update data-key drop-last))))
 
-(rf/reg-event-db :components.popup/show
+(rf/reg-event-db
+ ::show
   (fn [db [_ title message]]
-    (js/console.log "Title" title "message" message)
     (let [data {:open true :message message :title title}]
-      (if (vector? (get-in db [:components :popup]))
-        (update-in db [:components :popup] conj data)
-        (assoc-in db [:components :popup] [data])))))
+      (if (seq (get db data-key))
+        (update db data-key conj data)
+        (assoc db data-key [data])))))
 
 (defn popup
   "A popup, useful for displaying messages to the user"
   []
-  (wrap-reagent
-   [:div.ventas {:fqcss [::popup]}
-    (let [items @(rf/subscribe [:components/popup])]
-      (if-let [data (last items)]
-        [sa/Modal {:basic true :open (:open data) :size "small"}
-         [sa/Header
-          [sa/Icon {:name "remove"}]
-          [:div.content (:title data)]
-          [:div.ventas {:fqcss [::popup-counter]} (str (count items) "/" (count items))]]
-         [sa/ModalContent
-          [:p (do (js/console.log data) (:message data))]]
-         [sa/ModalActions
-          [sa/Button {:color "green" :inverted true :on-click #(rf/dispatch [:components.popup/close])}
-           [sa/Icon {:name "checkmark"}] "OK"]]]))]))
+  [:div.popup
+   (let [items @(rf/subscribe [:ventas/db [data-key]])]
+     (when-let [data (last items)]
+       [base/modal {:basic true :open (:open data) :size "small"}
+        [base/header
+         [base/icon {:name "remove"}]
+         [:div.content {:title data}]
+         [:div.popup__counter
+          (str (count items) "/" (count items))]]
+        [base/modalContent
+         [:p (:message data)]]
+        [base/modalActions
+         [base/button {:color "green"
+                       :inverted true
+                       :on-click #(rf/dispatch [::close])}
+          [base/icon {:name "checkmark"}]
+          "OK"]]]))])
 

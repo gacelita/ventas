@@ -1,14 +1,10 @@
 (ns ventas.components.notificator
   (:require
-   [ventas.utils :as util]
-   [soda-ash.core :as sa]
-   [clojure.string :as s]
-   [fqcss.core :refer [wrap-reagent]]
-   [cljs.core.async :refer [<! >! put! close! timeout chan]]
+   [cljs.core.async :refer [<! timeout]]
    [re-frame.core :as rf]
    [ventas.components.base :as base])
   (:require-macros
-   [cljs.core.async.macros :refer [go go-loop]]))
+   [cljs.core.async.macros :refer [go]]))
 
 (rf/reg-event-db ::add
  (fn [db [_ notification]]

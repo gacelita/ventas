@@ -1,10 +1,7 @@
-(ns ventas.themes.mariscosriasbajas.components.heading
-  (:require [fqcss.core :refer [wrap-reagent]]
-            [reagent.core :as reagent]))
+(ns ventas.themes.mariscosriasbajas.components.heading)
 
 (defn heading [text]
-  (wrap-reagent
-    [:div {:fqcss [::heading]}
-      [:div {:fqcss [::line]}]
-      [:div {:fqcss [::text]}
-        [:h3 [:strong text]]]]))
+  [:div.heading
+   [:div.heading__line]
+   [:div.heading__text
+    [:h3 [:strong text]]]])
