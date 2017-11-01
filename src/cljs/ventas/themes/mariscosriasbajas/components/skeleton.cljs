@@ -1,45 +1,31 @@
 (ns ventas.themes.mariscosriasbajas.components.skeleton
-  (:require [reagent.core :as reagent :refer [atom]]
-            [reagent.session :as session]
-            [re-frame.core :as rf]
-            [bidi.bidi :as bidi]
-            [re-frame-datatable.core :as dt]
-            [ventas.utils.logging :refer [trace debug info warn error]]
-            [fqcss.core :refer [wrap-reagent]]
-            [ventas.page :refer [pages]]
-            [ventas.routes :refer [route-parents routes]]
-            [ventas.components.notificator :as ventas.notificator]
-            [ventas.components.popup :as ventas.popup]
-            [ventas.components.category-list :refer [category-list]]
-            [ventas.components.product-list :refer [products-list]]
-            [ventas.components.cart :as ventas.cart]
-            [ventas.components.cookies :as ventas.cookies]
-            [ventas.components.menu :as ventas.menu]
-            [ventas.components.breadcrumbs :as ventas.breadcrumbs]
-            [ventas.themes.mariscosriasbajas.components.header :refer [header]]
-            [ventas.themes.mariscosriasbajas.components.footer :refer [footer]]
-            [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
-            [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
-            [ventas.util :as util]
-            [ventas.plugin :as plugin]
-            [soda-ash.core :as sa]
-            [ventas.routes :as routes]))
+  (:require
+   [reagent.core :refer [atom]]
+   [re-frame.core :as rf]
+   [ventas.components.notificator :as ventas.notificator]
+   [ventas.components.popup :as ventas.popup]
+   [ventas.components.cookies :as ventas.cookies]
+   [ventas.components.menu :as ventas.menu]
+   [ventas.components.breadcrumbs :as ventas.breadcrumbs]
+   [ventas.themes.mariscosriasbajas.components.header :refer [header]]
+   [ventas.themes.mariscosriasbajas.components.footer :refer [footer]]
+   [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
+   [ventas.routes :as routes]
+   [ventas.components.base :as base]
+   [ventas.i18n :refer [i18n]]))
 
 (defn skeleton [contents]
-  (wrap-reagent
-   [:div {:fqcss [::root]}
-    [ventas.notificator/notificator]
-    [ventas.popup/popup]
-    [ventas.cookies/cookies
-     "Esta tienda utiliza cookies y otras tecnologías para que podamos
-      mejorar su experiencia en nuestros sitios."]
-    [:div {:fqcss [::wrapper]}
-     [preheader]
-     [header]
-     [ventas.menu/menu [{:text "Inicio" :href (routes/path-for :frontend)}
-                        {:text "Mariscos" :href (routes/path-for :frontend.category :id 1)}]]
-     [sa/Container
-      [ventas.breadcrumbs/breadcrumbs]]
-     [sa/Divider]
-     contents
-     [footer]]]))
+  [:div.root
+   [ventas.notificator/notificator]
+   [ventas.popup/popup]
+   [ventas.cookies/cookies (i18n ::cookies)]
+   [:div.root__wrapper
+    [preheader]
+    [header]
+    [ventas.menu/menu [{:text (i18n ::home) :href (routes/path-for :frontend)}
+                       {:text (i18n ::seafood) :href (routes/path-for :frontend.category :id 1)}]]
+    [base/container
+     [ventas.breadcrumbs/breadcrumbs]]
+    [base/divider]
+    contents
+    [footer]]])
