@@ -53,5 +53,5 @@
           [:button {:on-click #(go-to :frontend.login) :on-blur #(rf/dispatch [::close])} [sa/Icon {:name "user"}] "Mi cuenta"
            [sa/Icon {:name "caret down" :on-click (fn [e] (-> e .stopPropagation) (rf/dispatch [::toggle]))}]
            [sa/Menu {:vertical true :fqcss [::user-menu] :class (if @(rf/subscribe [::opened]) "visible" "unvisible")}
-            [sa/MenuItem {:on-click #(rf/dispatch [:app/session.stop])} "Cerrar sesión"]]]
+            [sa/MenuItem {:on-click #(rf/dispatch [:ventas/session.stop])} "Cerrar sesión"]]]
           ]]]]))])

@@ -49,7 +49,7 @@
            [:div
             [base/button {:icon true :on-click #(routes/go-to :admin.products.edit :id (:id row))}
              [base/icon {:name "edit"}]]
-            [base/button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:products]])}
+            [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
              [base/icon {:name "remove"}]]])]
      [:div.admin-products__page
       [products-datatable action-column]

@@ -34,11 +34,6 @@
    {:id 17592186046160
     :quantity 5}])
 
-(rf/reg-sub
- :app/products
- (fn [db [_ id]]
-   (-> db :app/products (get id))))
-
 (defn line [data]
   (rf/dispatch [:ventas/entities.sync (:id data)])
   (fn [data]

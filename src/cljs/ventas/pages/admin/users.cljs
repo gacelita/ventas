@@ -47,7 +47,7 @@
            [:div
             [base/button {:icon true :on-click #(routes/go-to :admin.users.edit :id (:id row))}
              [base/icon {:name "edit"}]]
-            [base/button {:icon true :on-click #(rf/dispatch [:app/entity-remove {:id (:id row)} [:users]])}
+            [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
              [base/icon {:name "remove"}]]])]
      [:div.admin-users__page
       [users-datatable action-column]

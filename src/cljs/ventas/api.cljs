@@ -129,3 +129,43 @@
                  {:sync true
                   :success-fn (fn [entity-data]
                                 (rf/dispatch [:ventas/db [:entities eid] entity-data]))}])))
+
+(rf/reg-event-fx
+ :ventas/entities.remove
+ (fn [cofx [_ eid]]
+   {:dispatch [:api/entities.remove
+               {:params {:id eid}
+                :success-fn #(rf/dispatch [:ventas/entities.remove.next eid])}]}))
+
+(rf/reg-event-db
+ :ventas/entities.remove.next
+ (fn [db [_ eid]]
+   (update db :entities #(dissoc eid))))
+
+(rf/reg-event-fx
+ :ventas/session.start
+ [(rf/inject-cofx :local-storage)]
+ (fn [{:keys [db local-storage]} [_]]
+   (let [token (:token local-storage)]
+     (when (seq token)
+       {:dispatch [:api/users.session
+                   {:params {:token token}
+                    :success-fn #(rf/dispatch [:ventas/db [:session] %])}]}))))
+
+(rf/reg-event-fx
+ :ventas/session.stop
+ [(rf/inject-cofx :local-storage)]
+ (fn [{:keys [local-storage db]}]
+   {:db (dissoc db :session)
+    :local-storage (dissoc local-storage :token)}))
+
+(rf/reg-event-fx
+ :ventas/upload
+ (fn [cofx [_ {:keys [source file]}]]
+   (let [fr (js/FileReader.)]
+     (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request
+                                        {:name :upload
+                                         :upload-key :bytes
+                                         :upload-data (-> fr .-result)
+                                         :params {:source source}}]))
+     (.readAsArrayBuffer fr file))))

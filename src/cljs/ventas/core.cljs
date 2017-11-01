@@ -49,45 +49,9 @@
   (fn [[route params]]
     (go-to route params)))
 
-(rf/reg-event-fx :app/entity-remove
-  (fn [cofx [_ data key-vec]]
-    {:dispatch [:api/entities.remove {:params data
-                                      :success-fn #(rf/dispatch [:app/entity-remove.next key-vec (:id data)])}]}))
-
-(rf/reg-event-db :app/entity-remove.next
-  (fn [db [_ where what]]
-    (assoc-in db where (filter #(not (= (:id %1) what)) (get-in db where)))))
-
-(rf/reg-event-fx :app/upload
-  (fn [cofx [_ {:keys [source file]}]]
-    (let [fr (js/FileReader.)]
-      (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request {:name :upload
-                                                                     :upload-key :bytes
-                                                                     :upload-data (-> fr .-result)
-                                                                     :params {:source source}
-                                                      }]))
-      (.readAsArrayBuffer fr file))))
-
-(rf/reg-event-fx
- :app/session.start
- [(rf/inject-cofx :local-storage)]
- (fn [{:keys [db local-storage]} [_]]
-   (let [token (:token local-storage)]
-     (when (seq token)
-       {:dispatch [:api/users.session
-                   {:params {:token token}
-                    :success-fn #(rf/dispatch [:ventas/db [:session] %])}]}))))
-
-(rf/reg-event-fx
- :app/session.stop
- [(rf/inject-cofx :local-storage)]
- (fn [{:keys [local-storage db]}]
-   {:db (dissoc db :session)
-    :local-storage (dissoc local-storage :token)}))
-
 (defn page []
   (info "Rendering...")
-  (rf/dispatch [:app/session.start])
+  (rf/dispatch [:ventas/session.start])
   (let [{:keys [current-page]} (session/get :route)]
     [p/pages current-page]))
 
