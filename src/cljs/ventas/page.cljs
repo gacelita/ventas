@@ -4,12 +4,10 @@
 (defmulti pages identity)
 
 (defmethod pages :not-found []
-  "Non-existing routes go here"
   [:span
-   [:h1 "404: Aquí no hay nada"]])
+   [:h1 (i18n ::404)]])
 
 (defmethod pages :default []
-  "Configured routes, missing an implementation, go here"
   [:span
-   [:h1 "No implementado"]
-   [:p (str "Esta página ( " (:current-page (session/get :route)) " ) no ha sido implementada.")]])
+   [:h1 (i18n ::not-implemented)]
+   [:p (i18n ::this-page-has-not-been-implemented)]])

@@ -1,11 +1,12 @@
 (ns ventas.util
-  (:require [bidi.bidi :as bidi]
-            [reagent.session :as session]
-            [re-frame.core :as rf]
-            [ventas.routes :as routes]
-            [ventas.utils.logging :refer [trace debug info warn error]]
-            [cljs.spec.alpha :as spec]
-            [expound.alpha :as expound]))
+  (:require
+   [bidi.bidi :as bidi]
+   [reagent.session :as session]
+   [re-frame.core :as rf]
+   [ventas.routes :as routes]
+   [ventas.utils.logging :refer [trace debug info warn error]]
+   [cljs.spec.alpha :as spec]
+   [expound.alpha :as expound]))
 
 (defn route-param [kw]
   (get-in (session/get :route) [:route-params kw]))

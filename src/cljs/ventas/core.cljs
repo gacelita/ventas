@@ -1,33 +1,30 @@
 (ns ventas.core
-  (:require [reagent.core :as reagent :refer [atom]]
-            [reagent.session :as session]
-            [re-frame.core :as rf]
-            [re-frame.loggers :as rf.loggers]
-            [bidi.bidi :as bidi]
-            [accountant.core :as accountant]
-            [ventas.utils.logging :refer [trace debug info warn error]]
-            [cljs.core.async :refer [<! >! put! close! timeout chan]]
-            [ventas.api :as api]
-            [ventas.ws :as ws]
-            [ventas.subs :as subs]
-            [ventas.local-storage :as storage]
-            [ventas.devcards.core]
-
-            [ventas.routes :as routes :refer [go-to]]
-            [ventas.page :as p]
-
-            [ventas.plugins.core]
-            [ventas.pages.admin]
-            [ventas.pages.admin.users]
-            [ventas.pages.admin.users.edit]
-            [ventas.pages.admin.products]
-            [ventas.pages.admin.products.edit]
-            [ventas.pages.admin.plugins]
-            [ventas.pages.datadmin]
-            [ventas.pages.api]
-            [ventas.themes.mariscosriasbajas.core])
+  (:require
+   [reagent.core :as reagent]
+   [reagent.session :as session]
+   [re-frame.core :as rf]
+   [re-frame.loggers :as rf.loggers]
+   [accountant.core :as accountant]
+   [ventas.utils.logging :refer [debug info]]
+   [cljs.core.async :refer [<!]]
+   [ventas.api :as api]
+   [ventas.ws :as ws]
+   [ventas.local-storage :as storage]
+   [ventas.devcards.core]
+   [ventas.routes :as routes]
+   [ventas.page :as p]
+   [ventas.plugins.core]
+   [ventas.pages.admin]
+   [ventas.pages.admin.users]
+   [ventas.pages.admin.users.edit]
+   [ventas.pages.admin.products]
+   [ventas.pages.admin.products.edit]
+   [ventas.pages.admin.plugins]
+   [ventas.pages.datadmin]
+   [ventas.pages.api]
+   [ventas.themes.mariscosriasbajas.core])
   (:require-macros
-    [cljs.core.async.macros :refer (go go-loop)]))
+   [cljs.core.async.macros :refer [go]]))
 
 (enable-console-print!)
 
@@ -47,7 +44,7 @@
 
 (rf/reg-fx :go-to
   (fn [[route params]]
-    (go-to route params)))
+    (routes/go-to route params)))
 
 (defn page []
   (info "Rendering...")
