@@ -3,11 +3,20 @@
    [ventas.routes :as routes]
    [ventas.i18n :refer [i18n]]))
 
+(def menu-items
+  [{:route :admin.users :label ::users}
+   {:route :admin.products :label ::products}
+   {:route :admin.plugins :label ::plugins}
+   {:route :admin.taxes :label ::taxes}])
+
 (defn- menu []
   [:ul
-   [:li [:a {:href (routes/path-for :admin.users)} (i18n ::users)]]
-   [:li [:a {:href (routes/path-for :admin.products)} (i18n ::products)]]
-   [:li [:a {:href (routes/path-for :admin.plugins)} (i18n ::plugins)]]])
+   (map-indexed
+    (fn [idx {:keys [route label]}]
+      [:li {:key idx}
+       [:a {:href (routes/path-for route)}
+        (i18n label)]])
+    menu-items)])
 
 (defn skeleton [content]
   [:div.admin__skeleton

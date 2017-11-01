@@ -32,12 +32,37 @@
    {:dispatch [::notificator/add {:message (i18n ::product-saved-notification) :theme "success"}]
     :go-to [:admin.products]}))
 
+(def image-modal-key ::image-modal)
+
+(rf/reg-event-db
+ ::image-modal.open
+ (fn [db [_ url]]
+   (assoc db image-modal-key {:open true
+                              :url url})))
+
+(rf/reg-event-db
+ ::image-modal.close
+ (fn [db [_]]
+   (assoc-in db [image-modal-key :open] false)))
+
+(defn image-modal []
+  (let [{:keys [open url]} @(rf/subscribe [:ventas/db [image-modal-key]])]
+    [base/modal {:basic true
+                 :size "small"
+                 :open open
+                 :on-close #(rf/dispatch [::image-modal.close])}
+     [base/modalContent {:image true}
+      [base/image {:wrapped true
+                   :size "large"
+                   :src url}]]]))
+
 (defn image [eid]
   (rf/dispatch [:ventas/entities.sync eid])
   (fn [eid]
     (let [data @(rf/subscribe [:ventas/db [:entities eid]])]
       [base/image {:src (:url data)
-                   :size "medium"}])))
+                   :size "small"
+                   :on-click #(rf/dispatch [::image-modal.open (:url data)])}])))
 
 (defn product-form []
   (let [data (atom {})
@@ -52,69 +77,71 @@
 
     (fn []
       ^{:key @key}
-      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}
-       [base/form-input
-        {:label (i18n ::name)
-         :default-value (:name @data)
-         :on-change #(swap! data assoc :name (-> % .-target .-value))}]
-       [base/form-field
-        [:label (i18n ::active)]
-        [base/checkbox
-         {:toggle true
-          :checked (:active @data)
-          :on-change #(swap! data assoc :active (-> % .-target .-value))}]]
-       [base/form-input
-        {:label (i18n ::price)
-         :default-value (:price @data)
-         :on-change #(swap! data assoc :price (-> % .-target .-value))}]
-       [base/form-input
-        {:label (i18n ::reference)
-         :default-value (:reference @data)
-         :on-change #(swap! data assoc :reference (-> % .-target .-value))}]
-       [base/form-input
-        {:label (i18n ::ean13)
-         :default-value (:ean13 @data)
-         :on-change #(swap! data assoc :ean13 (-> % .-target .-value))}]
-       [base/form-textarea
-        {:label (i18n ::description)
-         :default-value (:description @data)
-         :on-change #(swap! data assoc :description (-> % .-target .-value))}]
-       [base/form-field
-        [:label (i18n ::tags)]
-        [base/dropdown
-         {:allowAdditions true
-          :multiple true
-          :fluid true
-          :search true
-          :options (map (fn [v] {:text v :value v})
-                        (:tags @data))
-          :selection true
-          :default-value (:tags @data)
-          :on-change #(swap! data assoc :tags (set (map common.util/read-keyword (.-value %2))))}]]
-       [base/form-field
-        [:label (i18n ::brand)]
-        [base/dropdown
-         {:fluid true
-          :selection true
-          :options (map (fn [v] {:text (:name v) :value (:id v)})
-                        @(rf/subscribe [:ventas/db [brands-sub-key]]))
-          :default-value (:brand @data)
-          :on-change #(swap! data assoc :brand (.-value %2))}]]
-       [base/form-field
-        [:label (i18n ::tax)]
-        [base/dropdown
-         {:fluid true
-          :selection true
-          :options (map (fn [v] {:text (:name v) :value (:id v)})
-                        @(rf/subscribe [:ventas/db [taxes-sub-key]]))
-          :default-value (:tax @data)
-          :on-change #(swap! data assoc :tax (.-value %2))}]]
-       [base/form-field
-        [:label (i18n ::images)]
-        [base/imageGroup
-         (for [eid (:images @data)]
-           ^{:key eid} [image eid])]]
-       [base/form-button {:type "submit"} (i18n ::send)]])))
+      [:div
+       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}
+        [base/form-input
+         {:label (i18n ::name)
+          :default-value (:name @data)
+          :on-change #(swap! data assoc :name (-> % .-target .-value))}]
+        [base/form-field
+         [:label (i18n ::active)]
+         [base/checkbox
+          {:toggle true
+           :checked (:active @data)
+           :on-change #(swap! data assoc :active (-> % .-target .-value))}]]
+        [base/form-input
+         {:label (i18n ::price)
+          :default-value (:price @data)
+          :on-change #(swap! data assoc :price (-> % .-target .-value))}]
+        [base/form-input
+         {:label (i18n ::reference)
+          :default-value (:reference @data)
+          :on-change #(swap! data assoc :reference (-> % .-target .-value))}]
+        [base/form-input
+         {:label (i18n ::ean13)
+          :default-value (:ean13 @data)
+          :on-change #(swap! data assoc :ean13 (-> % .-target .-value))}]
+        [base/form-textarea
+         {:label (i18n ::description)
+          :default-value (:description @data)
+          :on-change #(swap! data assoc :description (-> % .-target .-value))}]
+        [base/form-field
+         [:label (i18n ::tags)]
+         [base/dropdown
+          {:allowAdditions true
+           :multiple true
+           :fluid true
+           :search true
+           :options (map (fn [v] {:text v :value v})
+                         (:tags @data))
+           :selection true
+           :default-value (:tags @data)
+           :on-change #(swap! data assoc :tags (set (map common.util/read-keyword (.-value %2))))}]]
+        [base/form-field
+         [:label (i18n ::brand)]
+         [base/dropdown
+          {:fluid true
+           :selection true
+           :options (map (fn [v] {:text (:name v) :value (:id v)})
+                         @(rf/subscribe [:ventas/db [brands-sub-key]]))
+           :default-value (:brand @data)
+           :on-change #(swap! data assoc :brand (.-value %2))}]]
+        [base/form-field
+         [:label (i18n ::tax)]
+         [base/dropdown
+          {:fluid true
+           :selection true
+           :options (map (fn [v] {:text (:name v) :value (:id v)})
+                         @(rf/subscribe [:ventas/db [taxes-sub-key]]))
+           :default-value (:tax @data)
+           :on-change #(swap! data assoc :tax (.-value %2))}]]
+        [base/form-field
+         [:label (i18n ::images)]
+         [base/imageGroup
+          (for [eid (:images @data)]
+            ^{:key eid} [image eid])]]
+        [base/form-button {:type "submit"} (i18n ::send)]]
+       [image-modal]])))
 
 (defn page []
   [admin.skeleton/skeleton
