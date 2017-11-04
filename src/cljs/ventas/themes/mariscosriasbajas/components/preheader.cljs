@@ -6,9 +6,9 @@
     [:div.preheader__item
      [:strong "Att. cliente y pedidos: "]
      [:a "666 555 444"]
-     [:div.ventas {:fqcss [::preheader-separator]} "|"]
+     [:div.preheader__separator "|"]
      [:a "666 555 444"]
-     [:div.ventas {:fqcss [::preheader-separator]} "|"]
+     [:div.preheader__separator "|"]
      [:a "444 333 222"]]
     [:div.preheader__separator "-"]
     [:div.preheader__item

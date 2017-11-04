@@ -58,9 +58,9 @@
         (entity/to-json))))
 
 (register-endpoint!
-  :reference.user.role
-  (fn [_ _]
-    (db/enum-values "user.role")))
+  :reference
+  (fn [{:keys [params]} _]
+    (db/enum-values (name (:type params)))))
 
 (register-endpoint!
   :users.list
@@ -169,6 +169,14 @@
   (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :tax))]
       (paginate items pagination))))
+
+(register-endpoint!
+  :taxes.save
+  (fn [message state]
+    (clojure.pprint/pprint (-> (:params message)
+                               (update :amount float)))
+    (entity/upsert :tax (-> (:params message)
+                            (update :amount float)))))
 
 
 

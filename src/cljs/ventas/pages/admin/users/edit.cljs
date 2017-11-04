@@ -9,7 +9,6 @@
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.page :refer [pages]]
-   [ventas.pages.admin.users :as users-page]
    [ventas.routes :as routes]
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]

@@ -4,7 +4,8 @@
    [ventas.utils.logging :refer [debug]]
    [ventas.utils.ui :as utils.ui]
    [ventas.common.util :as common.util]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.utils.formatting :as formatting]))
 
 #_"
   Universal subscription and event.
@@ -83,6 +84,11 @@
  :api/taxes.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :taxes.list} options)}))
+
+(rf/reg-event-fx
+ :api/taxes.save
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :taxes.save} options)}))
 
 (rf/reg-event-fx
  :api/users.list
@@ -176,6 +182,23 @@
  (fn [{:keys [local-storage db]}]
    {:db (dissoc db :session)
     :local-storage (dissoc local-storage :token)}))
+
+(rf/reg-event-fx
+ :ventas/taxes.list
+ (fn [cofx [_ db-key]]
+   {:dispatch [:api/taxes.list {:success-fn #(rf/dispatch [:ventas/taxes.list.next db-key %])}]}))
+
+
+
+(rf/reg-event-db
+ :ventas/taxes.list.next
+ (fn [db [_ db-key data]]
+   (->> data
+        (map #(assoc % :quantity (formatting/format-number
+                                  (:amount %)
+                                  (keyword "ventas.utils.formatting"
+                                           (name (:kind %))))))
+        (assoc-in db db-key))))
 
 (rf/reg-event-fx
  :ventas/upload

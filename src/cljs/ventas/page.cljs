@@ -7,7 +7,7 @@
 
 (defmethod pages :not-found []
   [:span
-   [:h1 (i18n ::404)]])
+   [:h1 (i18n ::not-found)]])
 
 (defmethod pages :default []
   [:span

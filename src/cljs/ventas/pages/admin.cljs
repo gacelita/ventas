@@ -7,6 +7,7 @@
    [ventas.pages.admin.skeleton :as skeleton]
    [ventas.pages.admin.users]
    [ventas.pages.admin.users.edit]
+   [ventas.pages.admin.taxes]
    [ventas.routes :as routes]))
 
 (defn page []

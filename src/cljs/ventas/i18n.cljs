@@ -6,7 +6,8 @@
 (def dicts
   {:en_US
 
-   {:ventas.pages.admin.products/create-product "Create product"
+   {:ventas.page/not-found "404"
+    :ventas.pages.admin.products/create-product "Create product"
     :ventas.pages.admin.products/name "Name"
     :ventas.pages.admin.products/email "Email"
     :ventas.pages.admin.products/actions "Actions"
@@ -18,6 +19,8 @@
 
     :ventas.pages.admin.users.edit/page "Edit user"
     :ventas.pages.admin.users.edit/user-saved-notification "Usuario guardado"
+
+    :ventas.pages.admin/nothing-here "(Empty page)"
 
     :ventas.pages.admin.products/page "Products"
 
@@ -39,11 +42,26 @@
     :ventas.pages.admin.skeleton/plugins "Plugins"
     :ventas.pages.admin.skeleton/products "Products"
     :ventas.pages.admin.skeleton/users "Users"
-    :ventas.pages.admin.skeleton/taxes "taxes"
+    :ventas.pages.admin.skeleton/taxes "Taxes"
+    :ventas.pages.admin.taxes/name "Name"
+    :ventas.pages.admin.taxes/quantity "Quantity"
+    :ventas.pages.admin.taxes/actions "Actions"
+    :ventas.pages.admin.taxes/create-tax "Create tax"
+    :ventas.pages.admin.taxes.edit/amount "Amount"
+    :ventas.pages.admin.taxes.edit/name "Name"
+    :ventas.pages.admin.taxes.edit/kind "Type"
+    :ventas.pages.admin.taxes.edit/submit "Submit"
+
+
+    :ventas.utils.formatting/percentage "%"
+    :ventas.utils.formatting/amount ""
+
 
 
     :user.role/administrator "Administrator"
-    :user.role/user "User"}
+    :user.role/user "User"
+    :tax.kind/amount "Amount"
+    :tax.kind/percentage "Percentage"}
 
    :tongue/fallback :en_US})
 

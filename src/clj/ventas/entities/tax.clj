@@ -23,10 +23,6 @@
     :db/valueType :db.type/float
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :tax/type
-    :schema/deprecated true
-    :schema/see-instead :tax/kind}
-
    {:db/ident :tax/kind
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
