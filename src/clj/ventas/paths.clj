@@ -15,3 +15,7 @@
 (def images
   "Public images"
   (str public-files "/img"))
+
+(def transformed-images
+  "Redimensioned or otherwise altered images"
+  (str images "/transformed"))

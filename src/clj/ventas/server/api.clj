@@ -10,7 +10,8 @@
    [ventas.database.entity :as entity]
    [ventas.paths :as paths]
    [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
-   [ventas.util :as util]))
+   [ventas.util :as util]
+   [ventas.utils.images :as utils.images]))
 
 (defn register-endpoint!
   ([kw f]
@@ -230,26 +231,30 @@ Eventos:
     "image/tiff" :file.extension/tiff
     false))
 
+(defn save-image [source-path]
+  (let [mime (mime/mime-type-of (clojure.java.io/file source-path))
+        entity (entity/create :file {:extension (mime->keyword mime)})
+        target-path (str paths/images "/" (:db/id entity) (mime/extension-for-name mime))]
+    (.renameTo
+     (clojure.java.io/file source-path)
+     (clojure.java.io/file target-path))
+    (utils.images/transform-image
+     target-path
+     paths/transformed-images
+     {:width 150})
+    entity))
+
 (register-endpoint!
   :upload
   {:binary? true}
-  (fn [message state]
-    (let [buffer (get-in message [:params :bytes])
-          is-first (get-in message [:params :is-first])
-          is-last (get-in message [:params :is-last])
-          file-id (if is-first (gensym "temp-file") (get-in message [:params :file-id]))
+  (fn [{:keys [params]} state]
+    (let [{:keys [bytes is-first is-last file-id]} params
+          file-id (if is-first (gensym "temp-file") file-id)
           path (str paths/project-resources "/" file-id)]
-      (with-open [r (byte-streams/to-input-stream buffer)
+      (with-open [r (byte-streams/to-input-stream bytes)
                   w (clojure.java.io/output-stream (clojure.java.io/file path) :append (not is-first))]
         (clojure.java.io/copy r w))
       (cond
-        is-last
-        (let [mime (mime/mime-type-of (clojure.java.io/file path))
-              entity (entity/create :file {:extension (mime->keyword mime)})]
-          (.renameTo
-           (clojure.java.io/file path)
-           (clojure.java.io/file (str paths/images "/" (:db/id entity) (mime/extension-for-name mime))))
-          entity)
-        is-first
-        file-id
+        is-last (save-image path)
+        is-first file-id
         :default true))))
