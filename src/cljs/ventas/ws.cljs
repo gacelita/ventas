@@ -65,10 +65,13 @@
 (defmethod ws-event-dispatch :default [event]
   (debug "Unhandled event: " event))
 
-(defn receive-messages! [websocket-channel]
+(defn receive-messages! [websocket-channel format]
   "Receives messages from the server and calls an appropiate dispatcher"
   (go-loop []
-    (let [{:keys [type] :as message} (common.util/process-input-message (:message (<! websocket-channel)))]
+    (let [message (:message (<! websocket-channel))
+          {:keys [type] :as message} (if (= format :json-kw)
+                                       (common.util/process-input-message message)
+                                       message)]
       (debug ::receive-messages! message)
       (case type
         :event (ws-event-dispatch message)
@@ -80,11 +83,14 @@
 
 (defn- send-messages!
   "Receives messages from output-channel and send them to the server"
-  [output-channel websocket-channel]
+  [output-channel websocket-channel format]
   (go-loop []
-    (when-let [message (common.util/process-output-message (<! output-channel))]
-      (>! websocket-channel message)
-      (recur))))
+   (let [message (<! output-channel)
+         message (if (= format :json-kw)
+                   (common.util/process-output-message message)
+                   message)]
+     (>! websocket-channel message)
+     (recur))))
 
 (defn- start-websocket [format]
   {:pre [(#{:fressian :json-kw} format)]}
@@ -98,8 +104,8 @@
            (>! channel false))
          (do
            (swap! output-channels assoc format (doto (chan)
-                                                 (send-messages! ws-channel)))
-           (receive-messages! ws-channel)
+                                                 (send-messages! ws-channel format)))
+           (receive-messages! ws-channel format)
            (>! channel true)))))
     channel))
 
@@ -146,11 +152,11 @@
                    (assoc :is-last is-last)
                    (assoc :is-first is-first)
                    (assoc :file-id file-id))
-       :callback  (fn [response]
-                    (debug "Executing upload callback" start end is-first is-last)
-                    (if-not is-last
-                      (effect-ws-upload-request request (if is-first (:data response) file-id) end)
-                      (fn [a] ((:success-fn request) (:data response)))))}
+       :callback (fn [response]
+                   (if-not is-last
+                     (effect-ws-upload-request request (if is-first (:data response) file-id) end)
+                     (let [success-fn (:success-fn request)]
+                       (success-fn (:data response)))))}
       :binary? true))))
 
 (rf/reg-fx :ws-request effect-ws-request)

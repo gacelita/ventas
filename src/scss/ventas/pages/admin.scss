@@ -46,9 +46,10 @@
 }
 
 .admin__default-content {
-    padding: 10px 20px;
+    padding: 15px;
 }
 
 @import "ventas/pages/admin/users";
 @import "ventas/pages/admin/products";
 @import "ventas/pages/admin/taxes";
+@import "ventas/pages/admin/activity-log";

@@ -71,7 +71,7 @@
 
 (defn page []
   [admin.skeleton/skeleton
-   [:div.admin-users-edit__page
+   [:div.admin__default-content.admin-users-edit__page
     [user-form]]])
 
 (routes/define-route!

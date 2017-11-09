@@ -1,6 +1,12 @@
 (ns ventas.common.util
-  (:require
-    [clojure.string :as str]))
+  #?(:clj
+     (:require
+      [clojure.string :as str]))
+  #?(:cljs
+     (:require
+      [clojure.string :as str]
+      [cljs.reader :as reader]
+      [cognitect.transit :as transit])))
 
 (defn map-values
   "Like using `map` over the values of a map, leaving the keys intact"
@@ -20,6 +26,14 @@
 
 (def set-identifier "__set")
 
+(defn str->bigdec [v]
+  #?(:clj (bigdec v))
+  #?(:cljs (transit/bigdec v)))
+
+(defn bigdec->str [v]
+  #?(:clj (str v))
+  #?(:cljs (reader/read-string (.-rep v))))
+
 (defn process-input-message
   "Properly decode keywords and sets"
   [message]
@@ -27,9 +41,10 @@
     (map? message)
       (map-values process-input-message message)
     (string? message)
-      (if (str/starts-with? message ":")
-        (read-keyword message)
-        message)
+      (cond
+        (str/starts-with? message ":")
+          (read-keyword message)
+        :else message)
     (vector? message)
       (if (= (first message) set-identifier)
         (set (map process-input-message (rest message)))

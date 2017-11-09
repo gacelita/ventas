@@ -41,5 +41,4 @@
                          (assoc :ventas/pluginId plugin-kw)
                          (assoc :ventas/pluginVersion plugin-version)))
                    attrs)]
-    (clojure.pprint/pprint attrs)
     (schema/register-migration! attrs)))

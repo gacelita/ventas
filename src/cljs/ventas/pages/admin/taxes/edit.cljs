@@ -61,7 +61,7 @@
 
 (defn page []
   [admin.skeleton/skeleton
-   [:div.admin-taxes-edit__page
+   [:div.admin__default-content.admin-taxes-edit__page
     [form]]])
 
 (routes/define-route!

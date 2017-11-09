@@ -1,7 +1,7 @@
 (ns ventas.routes
   (:require [clojure.string :as str]
             [bidi.bidi :as bidi]
-            [ventas.utils.logging :refer [trace debug info warn error]]
+            [ventas.utils.logging :refer [error]]
             [accountant.core :as accountant]
             [ventas.page :as page]
             [reagent.session :as session]))
@@ -43,7 +43,6 @@
   (let [routes (prepare-routes routes)
         indexed-urls (index-urls routes)]
     ["" (-> (reduce (fn [acc item]
-                       (debug "calling reducer" (:route item) acc item)
                        (reducer acc item indexed-urls))
                      {}
                      routes)
@@ -55,9 +54,6 @@
 (def routes (atom (compile-routes @route-data)))
 
 (defn define-route! [name {:keys [component] :as attrs}]
-  (debug "--")
-  (debug "define-route!" name attrs)
-  (debug "--")
   (swap! route-data conj (assoc attrs :route name))
   (reset! routes (compile-routes @route-data))
   (when component
@@ -84,8 +80,6 @@
 (defn match-route
   "bidi/match-route wrapper"
   [& args]
-  (debug @route-data)
-  (debug @routes)
   (apply bidi/match-route @routes args))
 
 (defn go-to [& args]

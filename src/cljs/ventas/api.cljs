@@ -58,6 +58,11 @@
                        options)}))
 
 (rf/reg-event-fx
+ :api/events.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :events.list} options)}))
+
+(rf/reg-event-fx
  :api/products.list
  (fn [cofx [_ options]]
    {:ws-request (common.util/deep-merge
@@ -202,11 +207,11 @@
 
 (rf/reg-event-fx
  :ventas/upload
- (fn [cofx [_ {:keys [source file]}]]
+ (fn [cofx [_ {:keys [success-fn file]}]]
    (let [fr (js/FileReader.)]
      (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request
                                         {:name :upload
                                          :upload-key :bytes
                                          :upload-data (-> fr .-result)
-                                         :params {:source source}}]))
+                                         :success-fn success-fn}]))
      (.readAsArrayBuffer fr file))))

@@ -242,7 +242,8 @@
                                  (attributes entity-type))
               enum-idents (map :db/ident enum-attrs)]
           (mapcat (fn [{:keys [ident new-val]}]
-                 (let [diff (set/difference (get entity ident) new-val)]
+                 (let [diff (set/difference (set (get entity ident))
+                                            (set new-val))]
                    (map (fn [val-to-retract]
                           [:db/retract (:db/id data) ident val-to-retract])
                         diff)))

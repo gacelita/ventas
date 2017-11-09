@@ -7,7 +7,8 @@
   [{:route :admin.users :label ::users}
    {:route :admin.products :label ::products}
    {:route :admin.plugins :label ::plugins}
-   {:route :admin.taxes :label ::taxes}])
+   {:route :admin.taxes :label ::taxes}
+   {:route :admin.activity-log :label ::activity-log}])
 
 (defn- menu []
   [:ul

@@ -8,6 +8,7 @@
    [ventas.pages.admin.users]
    [ventas.pages.admin.users.edit]
    [ventas.pages.admin.taxes]
+   [ventas.pages.admin.activity-log]
    [ventas.routes :as routes]))
 
 (defn page []

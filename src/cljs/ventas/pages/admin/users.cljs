@@ -22,15 +22,19 @@
       (let [id (keyword (gensym "users"))]
         [:div
          [dt/datatable id [:ventas/db [sub-key]]
-          [{::dt/column-key [:id] ::dt/column-label "#"
+          [{::dt/column-key [:id]
+            ::dt/column-label "#"
             ::dt/sorting {::dt/enabled? true}}
 
-           {::dt/column-key [:name] ::dt/column-label "Name"}
+           {::dt/column-key [:name]
+            ::dt/column-label "Name"}
 
-           {::dt/column-key [:email] ::dt/column-label "Email"
+           {::dt/column-key [:email]
+            ::dt/column-label "Email"
             ::dt/sorting {::dt/enabled? true}}
 
-           {::dt/column-key [:actions] ::dt/column-label "Actions"
+           {::dt/column-key [:actions]
+            ::dt/column-label "Actions"
             ::dt/render-fn action-column}]
 
           {::dt/pagination {::dt/enabled? true
@@ -49,7 +53,7 @@
              [base/icon {:name "edit"}]]
             [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
              [base/icon {:name "remove"}]]])]
-     [:div.admin-users__page
+     [:div.admin__default-content.admin-users__page
       [users-datatable action-column]
       [base/button {:onClick #(routes/go-to :admin.users.edit :id 0)} "Crear usuario"]])])
 

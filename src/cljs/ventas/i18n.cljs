@@ -37,6 +37,7 @@
     :ventas.pages.admin.products.edit/send "Send"
     :ventas.pages.admin.products.edit/tags "Tags"
     :ventas.pages.admin.products.edit/tax "Tax"
+    :ventas.pages.admin.skeleton/activity-log "Activity log"
     :ventas.pages.admin.skeleton/administration "Administration"
     :ventas.pages.admin.skeleton/nothing-here "Nothing here"
     :ventas.pages.admin.skeleton/plugins "Plugins"
@@ -51,6 +52,7 @@
     :ventas.pages.admin.taxes.edit/name "Name"
     :ventas.pages.admin.taxes.edit/kind "Type"
     :ventas.pages.admin.taxes.edit/submit "Submit"
+    :ventas.pages.admin.activity-log/whats-the-activity-log "In the activity log you can see everything that happens in your store. Filter the messages by category to find the information you want."
 
 
     :ventas.utils.formatting/percentage "%"

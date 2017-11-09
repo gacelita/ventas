@@ -1,14 +1,15 @@
 (ns ventas.server.api
   (:require
-   [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
-   [ventas.database.entity :as entity]
-   [ventas.database :as db]
-   [ring.util.response :refer [response redirect]]
-   [pantomime.mime :as mime]
    [buddy.hashers :as hashers]
    [byte-streams :as byte-streams]
    [clojure.spec.alpha :as spec]
+   [pantomime.mime :as mime]
+   [ring.util.response :refer [response redirect]]
    [taoensso.timbre :as timbre :refer [trace debug info warn error]]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.paths :as paths]
+   [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
    [ventas.util :as util]))
 
 (defn register-endpoint!
@@ -133,6 +134,21 @@
         (entity/to-json value)
         (throw (Error. (str "Could not find configuration value: " kw)))))))
 
+#_ "
+
+Eventos:
+   - cualquier transacción de la base de datos
+   - cualquier evento introducido de manera artificial
+¿Deberían los eventos ser entidades separadas de las transacciones, con una transacción
+ opcionalmente asociada, creados primariamente por una función en la base de datos?
+¿Deberían los eventos ser realmente transacciones?
+ De ser así, los eventos artificiales podrían ser las únicas entidades
+ Esto es muy probablemente más ligero y seguro"
+
+(register-endpoint!
+  :events.list
+  (fn [{:keys [pagination params]} state]
+    (let [items (map entity/to-json (entity/query :event))])))
 
 
 (register-endpoint!
@@ -145,6 +161,12 @@
   (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :product))]
       (paginate items pagination))))
+
+(register-endpoint!
+  :products.save
+  (fn [message state]
+    (entity/upsert :product (-> (:params message)
+                                (update :price bigdec)))))
 
 
 
@@ -173,8 +195,6 @@
 (register-endpoint!
   :taxes.save
   (fn [message state]
-    (clojure.pprint/pprint (-> (:params message)
-                               (update :amount float)))
     (entity/upsert :tax (-> (:params message)
                             (update :amount float)))))
 
@@ -204,10 +224,10 @@
 
 (defn mime->keyword [mime]
   (case mime
-    "image/jpeg" :image.extension/jpg
-    "image/png" :image.extension/png
-    "image/gif" :image.extension/gif
-    "image/tiff" :image.extension/tiff
+    "image/jpeg" :file.extension/jpg
+    "image/png" :file.extension/png
+    "image/gif" :file.extension/gif
+    "image/tiff" :file.extension/tiff
     false))
 
 (register-endpoint!
@@ -218,18 +238,17 @@
           is-first (get-in message [:params :is-first])
           is-last (get-in message [:params :is-last])
           file-id (if is-first (gensym "temp-file") (get-in message [:params :file-id]))
-          path (str "resources/" file-id)]
+          path (str paths/project-resources "/" file-id)]
       (with-open [r (byte-streams/to-input-stream buffer)
                   w (clojure.java.io/output-stream (clojure.java.io/file path) :append (not is-first))]
         (clojure.java.io/copy r w))
       (cond
         is-last
         (let [mime (mime/mime-type-of (clojure.java.io/file path))
-              entity (entity/create :image {:extension (mime->keyword mime)
-                                            :source (get-in message [:params :source])})]
+              entity (entity/create :file {:extension (mime->keyword mime)})]
           (.renameTo
            (clojure.java.io/file path)
-           (clojure.java.io/file (str "resources/public/images/" (:id entity) (mime/extension-for-name mime))))
+           (clojure.java.io/file (str paths/images "/" (:db/id entity) (mime/extension-for-name mime))))
           entity)
         is-first
         file-id

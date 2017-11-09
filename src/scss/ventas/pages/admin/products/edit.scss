@@ -1,4 +1,25 @@
 
-.admin-products-edit__page {
-    padding: 20px;
+.admin-products-edit__images {
+    .ui.small.image {
+        height: 150px;
+    }
+}
+
+.ui.small.image.admin-products-edit__image-placeholder {
+    background-color: #d0d0d0;
+    font-size: 2.5rem;
+
+    .icon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        line-height: normal;
+    }
+
+    input {
+        display: none;
+    }
 }

@@ -70,10 +70,20 @@
   []
   (-> db d/db d/basis-t))
 
+(defn log
+  "log wrapper"
+  []
+  (d/log db))
+
+(defn transaction-log
+  "Gets the list of all transactions"
+  []
+  (get-in (log) [:tail :txes]))
+
 (defn transaction
   "Gets a transaction by t"
   [t]
-  (-> db d/log (d/tx-range t nil) first))
+  (-> (log) (d/tx-range t nil) first))
 
 (defn entity
   "entity wrapper"

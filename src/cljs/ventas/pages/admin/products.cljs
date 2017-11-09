@@ -18,21 +18,32 @@
 
 (def products-key :products)
 
-(defn products-datatable [action-column]
+(defn- action-column [_ row]
+  [:div
+   [base/button {:icon true :on-click #(routes/go-to :admin.products.edit :id (:id row))}
+    [base/icon {:name "edit"}]]
+   [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
+    [base/icon {:name "remove"}]]])
+
+(defn products-datatable []
   (rf/dispatch [:api/products.list {:success-fn #(rf/dispatch [:ventas/db [products-key] %])}])
-  (fn [action-column]
+  (fn []
     (let [id (keyword (gensym "products"))]
       [:div
        [dt/datatable id [:ventas/db [products-key]]
-        [{::dt/column-key [:id] ::dt/column-label "#"
+        [{::dt/column-key [:id]
+          ::dt/column-label "#"
           ::dt/sorting {::dt/enabled? true}}
 
-         {::dt/column-key [:name] ::dt/column-label (i18n ::name)}
+         {::dt/column-key [:name]
+          ::dt/column-label (i18n ::name)}
 
-         {::dt/column-key [:email] ::dt/column-label (i18n ::email)
+         {::dt/column-key [:email]
+          ::dt/column-label (i18n ::email)
           ::dt/sorting {::dt/enabled? true}}
 
-         {::dt/column-key [:actions] ::dt/column-label (i18n ::actions)
+         {::dt/column-key [:actions]
+          ::dt/column-label (i18n ::actions)
           ::dt/render-fn action-column}]
 
         {::dt/pagination {::dt/enabled? true
@@ -44,16 +55,9 @@
 
 (defn page []
   [admin.skeleton/skeleton
-   (let [action-column
-         (fn [_ row]
-           [:div
-            [base/button {:icon true :on-click #(routes/go-to :admin.products.edit :id (:id row))}
-             [base/icon {:name "edit"}]]
-            [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
-             [base/icon {:name "remove"}]]])]
-     [:div.admin-products__page
-      [products-datatable action-column]
-      [base/button {:onClick #(routes/go-to :admin.products.edit :id 0)} (i18n ::create-product)]])])
+   [:div.admin__default-content.admin-products__page
+    [products-datatable]
+    [base/button {:onClick #(routes/go-to :admin.products.edit :id 0)} (i18n ::create-product)]]])
 
 (routes/define-route!
  :admin.products
