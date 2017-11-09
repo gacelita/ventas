@@ -55,7 +55,7 @@
   (let [result (tn/refresh)]
     (if (instance? Exception result)
       (throw result)
-      (do
+      (when (= (str *ns*) "repl")
         (init-aliases)
         (go (>! (events/pub :init) true))
         :done))))
