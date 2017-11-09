@@ -111,6 +111,9 @@
                  [org.clojure/test.check "0.9.0"]
                  [com.gfredericks/test.chuck "0.2.8" :exclusions [instaparse]]
 
+                 ;; Image processing
+                 [fivetonine/collage "0.2.1"]
+
                  [binaryage/devtools "0.9.4"]
 
                  ; Error reporting for Ring
@@ -195,7 +198,7 @@
                                   [figwheel-sidecar "0.5.13"]
                                   [com.cemerick/piggieback "0.2.2"]
                                   [org.clojure/tools.nrepl "0.2.13"]
-                                  [com.cemerick/pomegranate "0.4.0" :exclusions [org.codehaus.plexus/plexus-utils]]
+                                  [com.cemerick/pomegranate "1.0.0"]
                                   [org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.8"]]
                     :plugins [[lein-figwheel "0.5.13" :exclusions [org.clojure/clojure]]
