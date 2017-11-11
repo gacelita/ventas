@@ -1,4 +1,4 @@
-(ns ventas.themes.mariscosriasbajas.components.skeleton
+(ns ventas.themes.clothing.components.skeleton
   (:require
    [reagent.core :refer [atom]]
    [re-frame.core :as rf]
@@ -7,9 +7,9 @@
    [ventas.components.cookies :as ventas.cookies]
    [ventas.components.menu :as ventas.menu]
    [ventas.components.breadcrumbs :as ventas.breadcrumbs]
-   [ventas.themes.mariscosriasbajas.components.header :refer [header]]
-   [ventas.themes.mariscosriasbajas.components.footer :refer [footer]]
-   [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
+   [ventas.themes.clothing.components.header :refer [header]]
+   [ventas.themes.clothing.components.footer :refer [footer]]
+   [ventas.themes.clothing.components.preheader :refer [preheader]]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]))

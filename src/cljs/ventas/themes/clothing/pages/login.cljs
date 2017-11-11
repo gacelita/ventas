@@ -1,10 +1,10 @@
-(ns ventas.themes.mariscosriasbajas.pages.login
+(ns ventas.themes.clothing.pages.login
   (:require
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.page :refer [pages]]
-   [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.i18n :refer [i18n]]
    [ventas.components.base :as base]
    [ventas.utils :as util :refer [value-handler]]

@@ -1,4 +1,4 @@
-(ns ventas.themes.mariscosriasbajas.components.heading)
+(ns ventas.themes.clothing.components.heading)
 
 (defn heading [text]
   [:div.heading

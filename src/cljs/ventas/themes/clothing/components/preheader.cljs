@@ -1,4 +1,4 @@
-(ns ventas.themes.mariscosriasbajas.components.preheader)
+(ns ventas.themes.clothing.components.preheader)
 
 (defn preheader []
   [:div.preheader

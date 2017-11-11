@@ -1,4 +1,4 @@
-(ns ventas.themes.mariscosriasbajas.pages.category
+(ns ventas.themes.clothing.pages.category
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent :refer [atom]]
@@ -6,7 +6,7 @@
    [ventas.components.product-list :refer [products-list]]
    [ventas.i18n :refer [i18n]]
    [ventas.page :refer [pages]]
-   [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.utils :as util :refer [value-handler]]))
 
 (defmethod pages :frontend.category []

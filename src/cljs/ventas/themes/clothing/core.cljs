@@ -1,10 +1,10 @@
-(ns ventas.themes.mariscosriasbajas.core
-  (:require [ventas.themes.mariscosriasbajas.pages.frontend]
-            [ventas.themes.mariscosriasbajas.pages.category]
-            [ventas.themes.mariscosriasbajas.pages.product]
-            [ventas.themes.mariscosriasbajas.pages.privacy-policy]
-            [ventas.themes.mariscosriasbajas.pages.login]
-            [ventas.themes.mariscosriasbajas.pages.cart]
+(ns ventas.themes.clothing.core
+  (:require [ventas.themes.clothing.pages.frontend]
+            [ventas.themes.clothing.pages.category]
+            [ventas.themes.clothing.pages.product]
+            [ventas.themes.clothing.pages.privacy-policy]
+            [ventas.themes.clothing.pages.login]
+            [ventas.themes.clothing.pages.cart]
             [ventas.routes :as routes]))
 
 (routes/define-routes!

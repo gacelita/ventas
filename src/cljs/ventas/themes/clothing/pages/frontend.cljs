@@ -1,4 +1,4 @@
-(ns ventas.themes.mariscosriasbajas.pages.frontend
+(ns ventas.themes.clothing.pages.frontend
   (:require
    [reagent.core :as reagent :refer [atom]]
    [reagent.session :as session]
@@ -14,10 +14,10 @@
    [ventas.components.product-list :refer [products-list]]
    [ventas.components.cart :as ventas.cart]
    [ventas.components.slider :as ventas.slider]
-   [ventas.themes.mariscosriasbajas.components.header :refer [header]]
-   [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
-   [ventas.themes.mariscosriasbajas.components.preheader :refer [preheader]]
-   [ventas.themes.mariscosriasbajas.components.heading :as theme.heading]
+   [ventas.themes.clothing.components.header :refer [header]]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
+   [ventas.themes.clothing.components.preheader :refer [preheader]]
+   [ventas.themes.clothing.components.heading :as theme.heading]
    [ventas.utils :as util]
    [ventas.plugin :as plugin]
    [soda-ash.core :as sa]

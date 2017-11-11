@@ -17,7 +17,7 @@
    [ventas.pages.admin]
    [ventas.pages.datadmin]
    [ventas.pages.api]
-   [ventas.themes.mariscosriasbajas.core])
+   [ventas.themes.clothing.core])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 

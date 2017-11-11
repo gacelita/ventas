@@ -1,4 +1,4 @@
-(ns ventas.themes.mariscosriasbajas.components.header
+(ns ventas.themes.clothing.components.header
   (:require
    [reagent.core :as reagent]
    [re-frame.core :as rf]

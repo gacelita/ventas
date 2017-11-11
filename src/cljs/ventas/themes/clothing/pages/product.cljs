@@ -1,11 +1,11 @@
-(ns ventas.themes.mariscosriasbajas.pages.product
+(ns ventas.themes.clothing.pages.product
   (:require
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
    [ventas.page :refer [pages]]
    [ventas.utils :refer [value-handler]]
    [soda-ash.core :as sa]
-   [ventas.themes.mariscosriasbajas.components.skeleton :refer [skeleton]]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.i18n :refer [i18n]]))
