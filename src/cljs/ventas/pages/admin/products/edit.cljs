@@ -5,7 +5,6 @@
    [re-frame.core :as rf]
    [bidi.bidi :as bidi]
    [re-frame-datatable.core :as dt]
-   [soda-ash.core :as sa]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.page :refer [pages]]

@@ -1,6 +1,4 @@
-(ns ventas.components.menu
-  (:require [soda-ash.core :as sa]
-            [re-frame.core :as rf]))
+(ns ventas.components.menu)
 
 (defn menu-item [data]
   [:li

@@ -44,7 +44,7 @@
              logo @(rf/subscribe [:ventas/db [:resources :logo]])]
          [:a {:title (:value title)
               :href (-> js/window (.-location) (.-origin))}
-          [:img {:src (get-in logo [:file :url])}]])]
+          [:img {:src "resources/logo"}]])]
       [:div.header__right
        [:div.header__buttons
         [:button {:on-click #(routes/go-to :frontend.cart)}

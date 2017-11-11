@@ -18,9 +18,15 @@
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.components.preheader :refer [preheader]]
    [ventas.themes.clothing.components.heading :as theme.heading]
+   [ventas.themes.clothing.pages.frontend.category]
+   [ventas.themes.clothing.pages.frontend.product]
+   [ventas.themes.clothing.pages.frontend.privacy-policy]
+   [ventas.themes.clothing.pages.frontend.login]
+   [ventas.themes.clothing.pages.frontend.cart]
    [ventas.utils :as util]
-   [soda-ash.core :as sa]
-   [ventas.components.base :as base]))
+   [ventas.components.base :as base]
+   [ventas.routes :as routes]
+   [ventas.i18n :refer [i18n]]))
 
 (def ids
   [17592186045684
@@ -42,7 +48,7 @@
 
 (defmethod slides 2 [index])
 
-(defmethod pages :frontend []
+(defn page []
   [skeleton
      [:div
        [ventas.slider/slider
@@ -53,4 +59,10 @@
          [category-list]
          [theme.heading/heading "Sugerencias de la semana"]
          [products-list]]]])
+
+(routes/define-route!
+ :frontend
+ {:name (i18n ::page)
+  :url ""
+  :component page})
 

@@ -8,7 +8,7 @@
 
 (defcard-rg regular-breadcrumb
   "Regular breadcrumb"
-  [components.breadcrumbs/breadcrumb-view :frontend.legal-notice])
+  [components.breadcrumbs/breadcrumb-view :frontend.privacy-policy])
 
 (defcard-rg parameterized-breadcrumb
   "Parameterized breadcrumb"

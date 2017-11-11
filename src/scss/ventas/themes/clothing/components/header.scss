@@ -8,33 +8,26 @@
         align-items: center;
     }
 }
-.header-right__1653201707 {
+
+.header__logo {
+    width: 60px;
+
+    img {
+        width: 100%;
+    }
+}
+
+.header__right {
     width: 100%;
     text-align: right;
     height: 40px;
 }
-.header-info__1653201707 {
+.header__info {
     text-align: center;
     display: inline-block;
     vertical-align: middle;
 }
-.header-info-shipping__1653201707 {
-    color: white;
-    display: inline-block;
-    padding: 0 10px;
-    margin-right: 10px;
-    font-family: 'Raleway',sans-serif;
-    font-size: 19px;
-    border-right: solid 1px white;
-}
-.header-info-from__1653201707 {
-    display: inline-block;
-    font-family: 'Raleway',sans-serif;
-    font-size: 15px;
-    color: white;
-    text-align: left;
-}
-.header-buttons__1653201707 {
+.header__buttons {
     margin-left: 35px;
     display: inline-block;
     vertical-align: middle;
@@ -53,7 +46,7 @@
     }
 }
 
-.ui.vertical.menu.user-menu__1653201707 {
+.ui.vertical.menu.header__user-menu {
     position: absolute;
     margin-top: 7px;
     width: auto;

@@ -1,4 +1,4 @@
-(ns ventas.themes.clothing.pages.login
+(ns ventas.themes.clothing.pages.frontend.login
   (:require
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
@@ -8,7 +8,8 @@
    [ventas.i18n :refer [i18n]]
    [ventas.components.base :as base]
    [ventas.utils :as util :refer [value-handler]]
-   [ventas.components.notificator :as notificator]))
+   [ventas.components.notificator :as notificator]
+   [ventas.routes :as routes]))
 
 (defn- login-successful [{:keys [user token]}]
   (rf/dispatch [::notificator/add {:message (i18n ::session-started)}])
@@ -75,7 +76,7 @@
                     :on-click #(rf/dispatch [::register @data])}
        (i18n ::register)]]]))
 
-(defmethod pages :frontend.login []
+(defn page []
   [skeleton
    [:div.login-page
     (let [session @(rf/subscribe [:session])]
@@ -95,3 +96,9 @@
         [base/container
          [login]
          [register]]))]])
+
+(routes/define-route!
+ :frontend.cart
+ {:name (i18n ::page)
+  :url ["cart"]
+  :component page})

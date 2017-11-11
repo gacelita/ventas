@@ -5,11 +5,7 @@
    [:div.ui.container
     [:div.preheader__item
      [:strong "Att. cliente y pedidos: "]
-     [:a "666 555 444"]
-     [:div.preheader__separator "|"]
-     [:a "666 555 444"]
-     [:div.preheader__separator "|"]
-     [:a "444 333 222"]]
+     [:a "667 943 180"]]
     [:div.preheader__separator "-"]
     [:div.preheader__item
      [:strong "Horario:"]

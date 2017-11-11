@@ -7,7 +7,6 @@
    [re-frame-datatable.core :as dt]
    [re-frame-datatable.views :as dt.views]
    [ventas.page :refer [pages]]
-   [soda-ash.core :as sa]
    [ventas.utils :as utils]
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]

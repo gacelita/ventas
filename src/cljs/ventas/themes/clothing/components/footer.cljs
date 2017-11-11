@@ -17,16 +17,8 @@
         [:h4 (i18n ::links)]
         [:ul
          [:li
-          [:a {:href (routes/path-for :frontend.legal-notice)}
-           (i18n ::legal-notice)]
           [:a {:href (routes/path-for :frontend.privacy-policy)}
-           (i18n ::privacy-policy)]
-          [:a {:href (routes/path-for :frontend.cookie-usage)}
-           (i18n ::cookie-usage)]
-          [:a {:href (routes/path-for :frontend.faq)}
-           (i18n ::faq)]
-          [:a {:href (routes/path-for :frontend.shipping-fees)}
-           (i18n ::shipping-fees)]]]]
+           (i18n ::privacy-policy)]]]]
        [:div.footer__column
         [:h4 (i18n ::contact)]
         [:br]

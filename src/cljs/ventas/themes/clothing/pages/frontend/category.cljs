@@ -1,4 +1,4 @@
-(ns ventas.themes.clothing.pages.category
+(ns ventas.themes.clothing.pages.frontend.category
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent :refer [atom]]
@@ -7,9 +7,10 @@
    [ventas.i18n :refer [i18n]]
    [ventas.page :refer [pages]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.utils :as util :refer [value-handler]]))
+   [ventas.utils :as util :refer [value-handler]]
+   [ventas.routes :as routes]))
 
-(defmethod pages :frontend.category []
+(defn page []
   (reagent/with-let [data (atom {})]
     [skeleton
      [:div.category-page
@@ -20,3 +21,9 @@
                   :on-change (value-handler #(swap! data assoc :name %))}]]]]
       [:div.category-page__content
        [products-list]]]]))
+
+(routes/define-route!
+ :frontend.category
+ {:name (i18n ::page)
+  :url ["category/" :keyword]
+  :component page})

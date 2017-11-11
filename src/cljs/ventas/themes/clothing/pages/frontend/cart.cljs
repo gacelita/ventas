@@ -1,4 +1,4 @@
-(ns ventas.themes.clothing.pages.cart
+(ns ventas.themes.clothing.pages.frontend.cart
   (:require
    [reagent.core :as reagent :refer [atom]]
    [reagent.session :as session]
@@ -18,7 +18,6 @@
    [ventas.themes.clothing.components.preheader :refer [preheader]]
    [ventas.themes.clothing.components.heading :as theme.heading]
    [ventas.utils :as util]
-   [soda-ash.core :as sa]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]))
@@ -45,7 +44,7 @@
        [base/tableCell (:quantity data)]
        [base/tableCell (* (:quantity data) (:price product))]])))
 
-(defmethod pages :frontend.cart []
+(defn page []
   [skeleton
    [base/container
     [:div.cart-page
@@ -61,3 +60,9 @@
       [base/tableBody
        (map-indexed (fn [idx data] [line data])
                     products)]]]]])
+
+(routes/define-route!
+ :frontend.login
+ {:name (i18n ::page)
+  :url ["login"]
+  :component page})

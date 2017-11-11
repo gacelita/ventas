@@ -8,6 +8,7 @@
    [ventas.components.menu :as ventas.menu]
    [ventas.components.breadcrumbs :as ventas.breadcrumbs]
    [ventas.themes.clothing.components.header :refer [header]]
+   [ventas.themes.clothing.components.menu :as menu]
    [ventas.themes.clothing.components.footer :refer [footer]]
    [ventas.themes.clothing.components.preheader :refer [preheader]]
    [ventas.routes :as routes]
@@ -22,8 +23,7 @@
    [:div.root__wrapper
     [preheader]
     [header]
-    [ventas.menu/menu [{:text (i18n ::home) :href (routes/path-for :frontend)}
-                       {:text (i18n ::seafood) :href (routes/path-for :frontend.category :id 1)}]]
+    [menu/menu]
     [base/container
      [ventas.breadcrumbs/breadcrumbs]]
     [base/divider]
