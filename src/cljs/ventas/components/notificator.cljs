@@ -15,7 +15,7 @@
       (<! (timeout 4000))
       (rf/dispatch [::remove sym]))
      (if (seq (:notifications db))
-       (update db :notifications #(conj notification))
+       (update db :notifications #(conj % notification))
        (assoc db :notifications [notification])))))
 
 (rf/reg-event-db ::remove
