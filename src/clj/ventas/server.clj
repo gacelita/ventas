@@ -25,7 +25,9 @@
    [ventas.config :as config]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.util :as util])
+   [ventas.util :as util]
+   [ventas.entities.file :as entities.file]
+   [ventas.paths :as paths])
   (:gen-class)
   (:import (clojure.lang Keyword)))
 
@@ -187,16 +189,24 @@
 
 ;; All routes
 (defroutes routes
-  (GET "/ws/json-kw" [] (-> #(ws-handler %)
-                    (wrap-websocket-handler {:format :json-kw})))
-  (GET "/ws/fressian" [] (-> #(ws-binary-handler %) ;; todo
-                           (wrap-websocket-handler {:format :fressian})))
-  (GET "/files/*" {{resource-path :*} :route-params}
-    (let [root "public"
-          resource-response (ring.response/resource-response (str root "/" resource-path))]
-      (if resource-response
-        (add-mime-type resource-response resource-path)
+  (GET "/ws/json-kw" []
+    (-> #(ws-handler %)
+        (wrap-websocket-handler {:format :json-kw})))
+  (GET "/ws/fressian" []
+    (-> #(ws-binary-handler %)
+        (wrap-websocket-handler {:format :fressian})))
+  (GET "/files/*" {{path :*} :route-params}
+    (let [resource-path (paths/path->resource (str paths/public path))]
+      (if-let [resource-response (ring.response/resource-response resource-path)]
+        (add-mime-type resource-response path)
         (compojure.route/not-found nil))))
+  (GET "/resources/*" {{resource-kw :*} :route-params}
+    (if-let [resource (first (entity/query :resource {:keyword (keyword resource-kw)}))]
+      (let [filename (entities.file/filename (entity/find (:resource/file resource)))
+            resource-path (paths/path->resource (str paths/images "/" filename))]
+        (-> (ring.response/resource-response resource-path)
+            (add-mime-type filename)))
+      (compojure.route/not-found nil)))
   (GET "/*" _
     {:status 200
      :headers {"Content-Type" "text/html; charset=utf-8"}

@@ -6,14 +6,20 @@
             [ventas.database.entity :as entity]
             [ventas.config :as config]
             [clojure.java.io :as io]
-            [ventas.util :refer [find-files]]))
+            [ventas.util :refer [find-files]]
+            [ventas.paths :as paths]))
 
 (spec/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
 
 (spec/def :schema.type/file
   (spec/keys :req [:file/extension]))
 
-(entity/register-type! :file
+(defn filename [entity]
+  (println entity)
+  (str (:db/id entity) "." (name (:file/extension entity))))
+
+(entity/register-type!
+ :file
  {:attributes
   [{:db/ident :file/extension
     :db/valueType :db.type/ref
@@ -31,12 +37,12 @@
 
   :after-seed
   (fn [this]
-    (let [file (rand-nth (find-files "resources/seeds/files" (re-pattern ".*?")))
-          path (str "resources/public/files/img/" (:db/id this) ".jpg")]
+    (let [file (rand-nth (find-files (str paths/seeds "/files") (re-pattern ".*?")))
+          path (str paths/images "/" (filename this))]
       (io/copy file (io/file path))))
 
   :filter-json
   (fn [this]
-    (-> this
-        (assoc :url (str (config/get :base-url) "files/img/" (:db/id this)
-                         "." (name (:file/extension this))))))})
+    (let [path (str paths/images "/" (filename this))]
+      (-> this
+          (assoc :url (paths/path->url path)))))})
