@@ -4,7 +4,8 @@
    [re-frame.core :as rf]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.api :as api]))
 
 (rf/reg-sub
  :resources/logo
@@ -39,8 +40,8 @@
     [:div.header
      [:div.ui.container
       [:div.header__logo
-       (let [title @(rf/subscribe [:ventas.db [:configuration :site-title]])
-             logo @(rf/subscribe [:ventas.db [:resources :logo]])]
+       (let [title @(rf/subscribe [:ventas/db [:configuration :site-title]])
+             logo @(rf/subscribe [:ventas/db [:resources :logo]])]
          [:a {:title (:value title)
               :href (-> js/window (.-location) (.-origin))}
           [:img {:src (get-in logo [:file :url])}]])]

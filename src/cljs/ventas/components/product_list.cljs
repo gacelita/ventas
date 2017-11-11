@@ -15,7 +15,7 @@
   (rf/dispatch [::products])
   (fn []
     [:div.product-list
-     (let [products @(rf/subscribe [:ventas.db [products-key]])]
+     (let [products @(rf/subscribe [:ventas/db [products-key]])]
        (for [{:keys [id images price]} products]
          [:div.product-list__product {:key id}
           (when (seq images)

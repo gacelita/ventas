@@ -19,7 +19,7 @@
   (js/setInterval #(rf/dispatch [::next]) 100000)
   (fn [{:keys [slides]}]
     [:div.slider
-     (let [data @(rf/subscribe [:ventas.db [data-key]])]
+     (let [data @(rf/subscribe [:ventas/db [data-key]])]
        [:div.slider__slides {:style {:left (* -1
                                               (-> js/window (.-innerWidth))
                                               (:current-index data))}}

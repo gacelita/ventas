@@ -2,7 +2,8 @@
   (:require
    [cljs.core.async :refer [<! timeout]]
    [re-frame.core :as rf]
-   [ventas.components.base :as base])
+   [ventas.components.base :as base]
+   [ventas.api :as api])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
@@ -25,7 +26,7 @@
   "Displays notifications"
   []
   [:div.notificator
-   (let [notifications @(rf/subscribe [:ventas/db :notifications])]
+   (let [notifications @(rf/subscribe [:ventas/db [:notifications]])]
      (for [{:keys [theme message icon sym]} notifications]
        [:div.notificator__item {:key (gensym) :class theme}
         [base/icon {:class "bu close"

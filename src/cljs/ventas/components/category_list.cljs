@@ -9,7 +9,7 @@
  ::init
   (fn [cofx [_]]
     {:dispatch [:api/categories.list
-                {:success-fn #(rf/dispatch [:ventas.db [categories-key] %])}]}))
+                {:success-fn #(rf/dispatch [:ventas/db [categories-key] %])}]}))
 
 (defn category-list []
   (rf/dispatch [::init])
