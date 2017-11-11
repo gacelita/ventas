@@ -194,6 +194,12 @@ Eventos:
       (paginate items pagination))))
 
 (register-endpoint!
+  :image-sizes.list
+  (fn [{{:keys [pagination]} :params} state]
+    (let [items (map entity/to-json (entity/query :image-size))]
+      (paginate items pagination))))
+
+(register-endpoint!
   :taxes.save
   (fn [message state]
     (entity/upsert :tax (-> (:params message)

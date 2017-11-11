@@ -1,16 +1,17 @@
 (ns ventas.database.entity
   (:refer-clojure :exclude [find type update])
-  (:require [ventas.database :as db]
-            [clojure.core :as clj]
-            [taoensso.timbre :as timbre :refer [trace debug info warn error]]
-            [slingshot.slingshot :refer [throw+ try+]]
-            [clojure.spec.alpha :as spec]
-            [datomic.api :as d]
-            [ventas.util :as util]
-            [ventas.events :as events]
-            [clojure.core.async :refer [go <! go-loop]]
-            [ventas.database.schema :as schema]
-            [clojure.set :as set]))
+  (:require
+   [ventas.database :as db]
+   [clojure.core :as clj]
+   [taoensso.timbre :as timbre :refer [trace debug info warn error]]
+   [slingshot.slingshot :refer [throw+ try+]]
+   [clojure.spec.alpha :as spec]
+   [datomic.api :as d]
+   [ventas.util :as util]
+   [ventas.events :as events]
+   [clojure.core.async :refer [go <! go-loop]]
+   [ventas.database.schema :as schema]
+   [clojure.set :as set]))
 
 (defn is-entity? [entity]
   (contains? (set (keys entity)) :schema/type))

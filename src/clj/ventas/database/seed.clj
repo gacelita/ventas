@@ -50,4 +50,5 @@
   (seed-type :country 10)
   (seed-type :state 10)
   (seed-type :address 10)
-  (seed-type :order 10))
+  (seed-type :order 10)
+  (seed-type :image-size 10))

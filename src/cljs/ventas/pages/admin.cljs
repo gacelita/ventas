@@ -1,6 +1,7 @@
 (ns ventas.pages.admin
   (:require
    [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.configuration]
    [ventas.pages.admin.plugins]
    [ventas.pages.admin.products.edit]
    [ventas.pages.admin.products]

@@ -11,6 +11,7 @@
   Universal subscription and event.
   Use a more specific subscription or event as needed."
 
+(js/console.log "reg-sub!")
 (rf/reg-sub
  :ventas/db
  (fn [db [_ where]]
@@ -61,6 +62,11 @@
  :api/events.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :events.list} options)}))
+
+(rf/reg-event-fx
+ :api/image-sizes.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :image-sizes.list} options)}))
 
 (rf/reg-event-fx
  :api/products.list
@@ -189,11 +195,14 @@
     :local-storage (dissoc local-storage :token)}))
 
 (rf/reg-event-fx
+ :ventas/image-sizes.list
+ (fn [cofx [_ db-key]]
+   {:dispatch [:api/image-sizes.list {:success-fn #(rf/dispatch [:ventas/db db-key %])}]}))
+
+(rf/reg-event-fx
  :ventas/taxes.list
  (fn [cofx [_ db-key]]
    {:dispatch [:api/taxes.list {:success-fn #(rf/dispatch [:ventas/taxes.list.next db-key %])}]}))
-
-
 
 (rf/reg-event-db
  :ventas/taxes.list.next

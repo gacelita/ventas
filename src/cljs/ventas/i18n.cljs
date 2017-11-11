@@ -7,6 +7,12 @@
   {:en_US
 
    {:ventas.page/not-found "404"
+    :ventas.pages.admin.configuration.image-sizes/actions "Actions"
+    :ventas.pages.admin.configuration.image-sizes/create-image-size "Create image size"
+    :ventas.pages.admin.configuration.image-sizes/width "Width"
+    :ventas.pages.admin.configuration.image-sizes/height "Height"
+    :ventas.pages.admin.configuration.image-sizes/algorithm "Algorithm"
+
     :ventas.pages.admin.products/create-product "Create product"
     :ventas.pages.admin.products/name "Name"
     :ventas.pages.admin.products/email "Email"
@@ -39,6 +45,8 @@
     :ventas.pages.admin.products.edit/tax "Tax"
     :ventas.pages.admin.skeleton/activity-log "Activity log"
     :ventas.pages.admin.skeleton/administration "Administration"
+    :ventas.pages.admin.skeleton/configuration "Configuration"
+    :ventas.pages.admin.skeleton/image-sizes "Image sizes"
     :ventas.pages.admin.skeleton/nothing-here "Nothing here"
     :ventas.pages.admin.skeleton/plugins "Plugins"
     :ventas.pages.admin.skeleton/products "Products"

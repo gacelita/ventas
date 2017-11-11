@@ -3,21 +3,32 @@
    [ventas.routes :as routes]
    [ventas.i18n :refer [i18n]]))
 
+(def configuration-items
+  [{:route :admin.configuration.image-sizes :label ::image-sizes}])
+
 (def menu-items
   [{:route :admin.users :label ::users}
    {:route :admin.products :label ::products}
    {:route :admin.plugins :label ::plugins}
    {:route :admin.taxes :label ::taxes}
-   {:route :admin.activity-log :label ::activity-log}])
+   {:route :admin.activity-log :label ::activity-log}
+   {:route :admin.configuration
+    :label ::configuration
+    :children configuration-items}])
+
+(defn- menu-item [{:keys [route label children]}]
+  [:li
+   [:a {:href (routes/path-for route)}
+    (i18n label)]
+   (when children
+     [:ul
+      (for [child children]
+        ^{:key (hash child)} [menu-item child])])])
 
 (defn- menu []
   [:ul
-   (map-indexed
-    (fn [idx {:keys [route label]}]
-      [:li {:key idx}
-       [:a {:href (routes/path-for route)}
-        (i18n label)]])
-    menu-items)])
+   (for [item menu-items]
+     ^{:key (hash item)} [menu-item item])])
 
 (defn skeleton [content]
   [:div.admin__skeleton
