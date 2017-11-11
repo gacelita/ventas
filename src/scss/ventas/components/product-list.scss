@@ -1,10 +1,10 @@
 
-.list__-2068594430 {
+.product-list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
-.product__-2068594430 {
+.product-list__product {
     width: calc(25% - 8px);
     margin: 4px;
     position: relative;
@@ -21,10 +21,12 @@
     img {
         width: 100%;
     }
-    .price__-2068594430 {
-
-    }
 }
-.content__-2068594430 {
+
+.product-list__content {
     padding: 7px 15px 12px;
+}
+
+.product-list__price {
+
 }

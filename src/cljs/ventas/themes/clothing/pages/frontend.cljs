@@ -19,7 +19,6 @@
    [ventas.themes.clothing.components.preheader :refer [preheader]]
    [ventas.themes.clothing.components.heading :as theme.heading]
    [ventas.utils :as util]
-   [ventas.plugin :as plugin]
    [soda-ash.core :as sa]
    [ventas.components.base :as base]))
 

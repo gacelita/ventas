@@ -1,6 +1,5 @@
 (ns ventas.plugins.blog.core
   (:require
-   [ventas.plugin :as plugin]
    [ventas.routes :as routes]
    [re-frame.core :as rf]
    [ventas.utils.ui :as utils.ui]

@@ -1,9 +1,6 @@
-(ns ventas.plugins.featured-products.core
-  (:require
-   [ventas.plugin :as plugin]))
+(ns ventas.plugins.featured-products.core)
 
-(defmethod plugin/widget :plugins.featured-products/list [_]
+(defn featured-products-list []
   [:ul
    [:li "Product A"]
    [:li "Product C"]])
-

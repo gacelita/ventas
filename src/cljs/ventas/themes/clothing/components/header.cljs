@@ -46,11 +46,6 @@
               :href (-> js/window (.-location) (.-origin))}
           [:img {:src (get-in logo [:file :url])}]])]
       [:div.header__right
-       [:div.header__info
-        [:div.header__shipping
-         [:strong (i18n ::free-shipping)]]
-        [:div.header__from
-         (i18n ::from-130-euro)]]
        [:div.header__buttons
         [:button {:on-click #(routes/go-to :frontend.cart)}
          [base/icon {:name "add to cart"}]

@@ -1,7 +1,8 @@
 
-.slider__-917546998 {
+.slider {
     position: relative;
     height: 620px;
+
     button {
         position: absolute;
         top: 0;
@@ -22,14 +23,14 @@
     }
 }
 
-.slides__-917546998 {
+.slider__slides {
     position: relative;
     transition: all 300ms;
     height: 100%;
     width: 1000%;
 }
 
-.slide__-917546998 {
+.slider__slide {
     display: inline-block;
     width: 100vw;
     background-position: center;

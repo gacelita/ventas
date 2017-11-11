@@ -16,7 +16,7 @@
   (fn []
     [:div.category-list
      (let [categories @(rf/subscribe [:ventas/db [categories-key]])]
-       (for [[id {:keys [name description image]}] categories]
+       (for [{:keys [id name description image]} categories]
          [:div.category-list__category {:key id
                                         :on-click #(routes/go-to :frontend.category :id id)}
           (when image

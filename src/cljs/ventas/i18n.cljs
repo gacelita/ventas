@@ -29,7 +29,6 @@
     :ventas.pages.admin/nothing-here "(Empty page)"
 
     :ventas.pages.admin.products/page "Products"
-
     :ventas.pages.admin.products.edit/active "Active"
     :ventas.pages.admin.products.edit/brand "Brand"
     :ventas.pages.admin.products.edit/description "Description"
@@ -62,11 +61,12 @@
     :ventas.pages.admin.taxes.edit/submit "Submit"
     :ventas.pages.admin.activity-log/whats-the-activity-log "In the activity log you can see everything that happens in your store. Filter the messages by category to find the information you want."
 
+    :ventas.themes.clothing.components.header/my-cart "My cart"
+    :ventas.themes.clothing.components.header/my-account "My account"
+    :ventas.themes.clothing.components.header/logout "Logout"
 
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
-
-
 
     :user.role/administrator "Administrator"
     :user.role/user "User"
