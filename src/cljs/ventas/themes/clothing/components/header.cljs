@@ -34,13 +34,13 @@
    (assoc db ::opened false)))
 
 (defn header []
-  (rf/dispatch [:ventas/configuration.get :site-title])
+  (rf/dispatch [:ventas/configuration.get :site.title])
   (rf/dispatch [:ventas/resources.get :logo])
   (fn []
     [:div.header
      [:div.ui.container
       [:div.header__logo
-       (let [title @(rf/subscribe [:ventas/db [:configuration :site-title]])
+       (let [title @(rf/subscribe [:ventas/db [:configuration :site.title]])
              logo @(rf/subscribe [:ventas/db [:resources :logo]])]
          [:a {:title (:value title)
               :href (-> js/window (.-location) (.-origin))}

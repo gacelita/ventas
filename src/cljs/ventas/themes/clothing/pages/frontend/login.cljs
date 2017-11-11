@@ -79,7 +79,7 @@
 (defn page []
   [skeleton
    [:div.login-page
-    (let [session @(rf/subscribe [:session])]
+    (let [session @(rf/subscribe [:ventas/db [:session]])]
       (if (seq session)
         [base/container
          [:p (i18n ::welcome (:name session))]

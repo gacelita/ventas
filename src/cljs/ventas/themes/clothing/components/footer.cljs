@@ -6,7 +6,6 @@
    [ventas.i18n :refer [i18n]]))
 
 (defn footer []
-  (rf/dispatch [:ventas/resources.get :footer-instagram])
   (fn []
     [:div.footer
      [:div.ui.container
@@ -27,5 +26,4 @@
           [:a {:href (str "mailto:" email)}
            email])]]
       [:div.footer__instagram
-       (let [footer-instagram @(rf/subscribe [:ventas/db [:resources :footer-instagram]])]
-         [:img {:src footer-instagram}])]]]))
+       [:img {:src "resources/footer-instagram"}]]]]))

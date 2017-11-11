@@ -1,7 +1,8 @@
 (ns ventas.i18n
   (:require
    [tongue.core :as tongue]
-   [ventas.utils.logging :refer [debug]]))
+   [ventas.utils.logging :refer [debug]]
+   [ventas.utils.goog :as utils.goog]))
 
 (def dicts
   {:en_US
@@ -70,6 +71,7 @@
     :ventas.themes.clothing.components.skeleton/cookies "Al navegar por nuestra tienda indicas que estás de acuerdo con nuestra política de cookies."
 
     :ventas.themes.clothing.pages.frontend/page "Home"
+    :ventas.themes.clothing.pages.frontend.category/page "%s"
 
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
@@ -84,4 +86,4 @@
 (def ^:private translation-fn (tongue/build-translate dicts))
 
 (defn i18n [kw & args]
-  (translation-fn :en_US kw))
+  (apply utils.goog/format (translation-fn :en_US kw) args))

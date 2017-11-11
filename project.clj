@@ -14,7 +14,7 @@
                  [org.clojure/core.async "0.3.443"
                   :exclusions [org.clojure/tools.reader]]
                  [expound "0.3.3"]
-                 [org.clojure/spec.alpha "0.1.143" :scope "provided"]
+                 [org.clojure/spec.alpha "0.1.123" :scope "provided"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]

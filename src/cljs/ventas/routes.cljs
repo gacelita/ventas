@@ -90,3 +90,12 @@
   "Returns the current route"
   []
   (session/get :route))
+
+(defn route-name
+  "Returns the name of a route"
+  [kw & [route-params]]
+  {:pre [(or (nil? route-params) (map? route-params))]}
+  (let [{:keys [name]} (find-route kw)]
+    (if (string? name)
+      name
+      (name route-params))))

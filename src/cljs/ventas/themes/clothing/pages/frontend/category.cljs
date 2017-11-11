@@ -24,6 +24,8 @@
 
 (routes/define-route!
  :frontend.category
- {:name (i18n ::page)
+ {:name (fn [params]
+          (js/console.log "route params" params)
+          (apply i18n ::page (vals params)))
   :url ["category/" :keyword]
   :component page})
