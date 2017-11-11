@@ -228,9 +228,12 @@
 (defn start-server! [& [port]]
   (util/print-info "Starting server")
   (let [port (Integer. (or port (config/get :http-port) 10555))
-        ring-handler (var http-handler)]
-    (info "Starting server on port:" port)
-    (http-kit/run-server ring-handler {:port port :join? false})))
+        ip (or (config/get :http-ip) "0.0.0.0")]
+    (info "Starting server on" (str ip ":" port))
+    (http-kit/run-server http-handler
+                         {:ip ip
+                          :port port
+                          :join? false})))
 
 (defstate server
   :start
