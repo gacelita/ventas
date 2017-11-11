@@ -14,7 +14,8 @@
    [clojure.set :as set]))
 
 (defn is-entity? [entity]
-  (contains? (set (keys entity)) :schema/type))
+  (when (map? entity)
+    (contains? (set (keys entity)) :schema/type)))
 
 (spec/def ::entity-type
   (spec/keys :opt-un [::attributes
@@ -53,21 +54,6 @@
   [type]
   {:pre [(keyword? type)]}
   (not (nil? (get @registered-types type))))
-
-(defonce entity-fixtures (atom {}))
-
-(defn register-fixtures!
-  "Registers the fixtures for a type"
-  [kw fixtures]
-  {:pre [(keyword? kw) (coll? fixtures)]}
-  (swap! entity-fixtures assoc kw fixtures))
-
-(defn fixtures
-  "Gets the fixtures of a type"
-  [kw]
-  (map (fn [fixture]
-         (assoc fixture :schema/type (db/kw->type kw)))
-       (get @entity-fixtures kw)))
 
 (defn type
   "Returns the type of an entity"
@@ -164,15 +150,23 @@
   (-> (db/resolve-tempid (:tempids tx) tempid)
       (find)))
 
+(defn- prepare-pre-entity [pre-entity & [initial-tempid]]
+  (into {}
+        (map (fn [[k v]]
+               [k (if (is-entity? v)
+                    (prepare-pre-entity v)
+                    v)])
+             (-> pre-entity
+                 (assoc :db/id (or initial-tempid (d/tempid :db.part/user)))
+                 (filter-transact)))))
+
 (defn transact
   "Transacts an entity"
   [pre-entity]
-  {:pre [(spec pre-entity)]}
+  {:pre [(do (println pre-entity) true) (spec pre-entity)]}
   (before-transact pre-entity)
   (let [tempid (d/tempid :db.part/user)
-        pre-entity (-> pre-entity
-                       (assoc :db/id tempid)
-                       (filter-transact))
+        pre-entity (prepare-pre-entity pre-entity tempid)
         tx (db/transact [pre-entity])
         entity (transaction->entity tx tempid)]
     (after-transact entity)
@@ -212,6 +206,11 @@
 (defn attributes
   [type]
   (:attributes (type-fns type)))
+
+(defn fixtures
+  [type]
+  (when-let [fixtures-fn (:fixtures (type-fns type))]
+    (fixtures-fn)))
 
 (defn attributes-by-ident
   [type]

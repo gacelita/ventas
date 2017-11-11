@@ -118,22 +118,22 @@
 (register-endpoint!
   :resources.get
   (fn [{:keys [params]} state]
-    {:pre [(keyword? (:key params))]}
-    (let [kw (:key params)]
+    {:pre [(keyword? (:keyword params))]}
+    (let [kw (:keyword params)]
       (if-let [resource (first (entity/query :resource {:keyword kw}))]
         (entity/to-json resource)
-        (throw (Error. (str "Could not find resource with id: " kw)))))))
+        (throw (Error. (str "Could not find resource with keyword: " kw)))))))
 
 
 
 (register-endpoint!
   :configuration.get
   (fn [{:keys [params]} state]
-    {:pre [(keyword? (:key params))]}
-    (let [kw (:key params)]
-      (if-let [value (first (entity/query :configuration {:key kw}))]
+    {:pre [(keyword? (:keyword params))]}
+    (let [kw (:keyword params)]
+      (if-let [value (first (entity/query :configuration {:keyword kw}))]
         (entity/to-json value)
-        (throw (Error. (str "Could not find configuration value: " kw)))))))
+        (throw (Error. (str "Could not find configuration with keyword: " kw)))))))
 
 #_ "
 

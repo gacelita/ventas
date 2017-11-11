@@ -33,22 +33,9 @@
   [& {:keys [recreate?]}]
   (when recreate?
     (schema/migrate :recreate? recreate?))
-  (doseq [type (keys @entity/registered-types)]
+  (doseq [type [:tax :file :brand :configuration :resource :attribute
+                :attribute-value :category :product :product-variation :user
+                :country :state :address :order :image-size]]
     (doseq [fixture (entity/fixtures type)]
-      (entity/transact fixture)))
-  (seed-type :tax 10)
-  (seed-type :file 10)
-  (seed-type :brand 10)
-  (seed-type :configuration 20)
-  (seed-type :resource 5)
-  (seed-type :attribute 10)
-  (seed-type :attribute-value 10)
-  (seed-type :category 10)
-  (seed-type :product 10)
-  (seed-type :product-variation 10)
-  (seed-type :user 10)
-  (seed-type :country 10)
-  (seed-type :state 10)
-  (seed-type :address 10)
-  (seed-type :order 10)
-  (seed-type :image-size 10))
+      (entity/transact fixture))
+    (seed-type type 10)))

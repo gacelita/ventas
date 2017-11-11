@@ -5,17 +5,17 @@
             [ventas.database :as db]
             [ventas.database.entity :as entity]))
 
-(spec/def :configuration/key keyword?)
+(spec/def :configuration/keyword keyword?)
 (spec/def :configuration/value string?)
 
 (spec/def :schema.type/configuration
-  (spec/keys :req [:configuration/key
-                :configuration/value]))
+  (spec/keys :req [:configuration/keyword
+                   :configuration/value]))
 
 (entity/register-type!
  :configuration
  {:attributes
-  [{:db/ident :configuration/key
+  [{:db/ident :configuration/keyword
     :db/valueType :db.type/keyword
     :db/cardinality :db.cardinality/one}
 

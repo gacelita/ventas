@@ -15,7 +15,7 @@
  :resources/logo
  (fn [cofx [_]]
    {:dispatch [:api/resources.get
-               {:params {:key :logo}
+               {:params {:keyword :logo}
                 :success-fn #(rf/dispatch [:ventas/db [:resources :logo] %])}]}))
 
 (rf/reg-sub

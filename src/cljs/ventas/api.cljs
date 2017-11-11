@@ -130,7 +130,7 @@
  :ventas/configuration.get
  (fn [cofx [_ key]]
    {:dispatch [:api/configuration.get
-               {:params {:key key}
+               {:params {:keyword key}
                 :success-fn
                 (fn [data]
                   (rf/dispatch [:ventas/db [:configuration key] data]))}]}))
@@ -152,7 +152,7 @@
  :ventas/resources.get
  (fn [cofx [_ key]]
    {:dispatch [:api/resources.get
-               {:params {:key key}
+               {:params {:keyword key}
                 :success-fn
                 (fn [data]
                   (rf/dispatch [:ventas/db [:resources key] data]))}]}))

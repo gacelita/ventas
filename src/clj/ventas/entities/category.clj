@@ -31,8 +31,12 @@
 
    {:db/ident :category/image
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]})
+    :db/cardinality :db.cardinality/one}
 
-(entity/register-fixtures!
- :category
- [{:category/name "Default"}])
+   {:db/ident :category/keyword
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one}]
+  :fixtures
+  (fn []
+    [{:schema/type :schema.type/category
+      :category/name "Default"}])})
