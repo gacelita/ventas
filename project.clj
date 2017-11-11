@@ -13,8 +13,8 @@
                  [org.clojure/clojurescript "1.9.854" :scope "provided"]
                  [org.clojure/core.async "0.3.443"
                   :exclusions [org.clojure/tools.reader]]
-                 [expound "0.2.1"]
-                 [org.clojure/spec.alpha "0.1.123" :scope "provided"]
+                 [expound "0.3.3"]
+                 [org.clojure/spec.alpha "0.1.143" :scope "provided"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
@@ -49,7 +49,7 @@
                  [buddy "2.0.0" :exclusions [instaparse]]
 
                  ;; Ring
-                 [ring "1.6.2"]
+                 [ring "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
                  [bk/ring-gzip "0.2.1"]
                  [ring.middleware.logger "0.5.0" :exclusions [log4j onelog]]
@@ -67,16 +67,16 @@
                  ;; Reagent
                  [reagent "0.7.0"]
                  [reagent-utils "0.2.1"]
-                 [re-frame "0.10.1"]
+                 [re-frame "0.10.2"]
                  [re-frame-datatable "0.6.0"]
-                 [soda-ash "0.4.0"]
+                 [soda-ash "0.76.0"]
 
                  ; Routing
                  [bidi "2.1.2"]
-                 [venantius/accountant "0.2.0"]
+                 [venantius/accountant "0.2.3"]
 
                  ; HTML templating
-                 [selmer "1.11.1" :exclusions [cheshire joda-time]]
+                 [selmer "1.11.3" :exclusions [cheshire joda-time]]
 
                  ;; component alternative
                  [mount "0.1.11"]
@@ -114,7 +114,7 @@
                  ;; Image processing
                  [fivetonine/collage "0.2.1"]
 
-                 [binaryage/devtools "0.9.4"]
+                 [binaryage/devtools "0.9.7"]
 
                  ; Error reporting for Ring
                  [prone "1.1.4"]
@@ -194,8 +194,8 @@
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
 
-  :profiles {:dev {:dependencies [[figwheel "0.5.13"]
-                                  [figwheel-sidecar "0.5.13"]
+  :profiles {:dev {:dependencies [[figwheel "0.5.14"]
+                                  [figwheel-sidecar "0.5.14"]
                                   [com.cemerick/piggieback "0.2.2"]
                                   [org.clojure/tools.nrepl "0.2.13"]
                                   [com.cemerick/pomegranate "1.0.0"]
