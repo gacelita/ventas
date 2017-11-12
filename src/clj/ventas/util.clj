@@ -78,3 +78,6 @@
   (if (get thing kw)
     (update thing kw update-fn)
     thing))
+
+(defn has-duplicates? [xs]
+  (not= (count (distinct xs)) (count xs)))

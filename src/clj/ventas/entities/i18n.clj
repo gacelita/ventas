@@ -1,7 +1,9 @@
 (ns ventas.entities.i18n
   (:require
    [clojure.spec.alpha :as spec]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.util :as util]
+   [clojure.test.check.generators :as gen]))
 
 (spec/def :i18n.language/keyword keyword?)
 
@@ -62,10 +64,19 @@
     [(:i18n.language/keyword (entity/find (:i18n.translation/language this)))
      (:i18n.translation/value this)])})
 
+(defn translations-generator-for-language [language-id]
+  (gen/elements
+   (map :db/id
+        (entity/query :i18n.translation
+                      {:i18n.translation/language language-id}))))
 
+(defn translations-generator []
+  (let [language-ids (map :db/id (entity/query :i18n.language))]
+    (apply gen/tuple (map translations-generator-for-language language-ids))))
 
 (spec/def :i18n/translations
-  (spec/with-gen ::entity/refs #(entity/refs-generator :i18n.translation)))
+  (spec/with-gen ::entity/refs
+                 translations-generator))
 
 (spec/def :schema.type/i18n
   (spec/keys :req [:i18n/translations]))
@@ -80,6 +91,13 @@
 
   :dependencies
   #{:i18n.translation}
+
+  :before-transact
+  (fn [this]
+    (when (->> (:i18n/translations this)
+               (map #(:i18n.translation/language (entity/find %)))
+               (util/has-duplicates?))
+      (throw (Error. "You can't add to a :i18n entity more than one translation per language"))))
 
   :to-json
   (fn [this]

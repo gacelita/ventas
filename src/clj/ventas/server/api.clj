@@ -169,34 +169,34 @@ Eventos:
     (entity/upsert :product (-> (:params message)
                                 (update :price bigdec)))))
 
+(defn term-counts []
+  (->> (db/q '[:find (count ?product-eid) ?term-eid ?term-translation-value ?term-taxonomy ?tax-translation-value
+               :in $
+               :where
+               [?product-eid :product/terms ?term-eid]
+               [?term-eid :product.taxonomy.term/name ?term-name]
+               [?term-eid :product.taxonomy.term/taxonomy ?term-taxonomy]
+               [?term-name :i18n/translations ?term-translation]
+               [?term-translation :i18n.translation/value ?term-translation-value]
+               [?term-translation :i18n.translation/language [:i18n.language/keyword :en]]
+               [?term-taxonomy :product.taxonomy/name ?tax-name]
+               [?tax-name :i18n/translations ?tax-translation]
+               [?tax-translation :i18n.translation/value ?tax-translation-value]
+               [?tax-translation :i18n.translation/language [:i18n.language/keyword :en]]])
+       (map (fn [[count term-id term-name tax-id tax-name]]
+              {:count count
+               :id term-id
+               :name term-name
+               :taxonomy {:id tax-id
+                          :name tax-name}}))))
+
 (register-endpoint!
   :products/term-counts
   (fn [message _]
-    (->> (db/q '[:find (count ?product-eid) ?term-eid ?term-translation-value ?term-taxonomy ?tax-translation-value
-                 :in $
-                 :where
-                 [?product-eid :product/terms ?term-eid]
-                 [?term-eid :product.taxonomy.term/name ?term-name]
-                 [?term-eid :product.taxonomy.term/taxonomy ?term-taxonomy]
-                 [?term-name :i18n/translations ?term-translation]
-                 [?term-translation :i18n.translation/value ?term-translation-value]
-                 [?term-translation :i18n.translation/language [:i18n.language/keyword :en]]
-                 [?term-taxonomy :product.taxonomy/name ?tax-name]
-                 [?tax-name :i18n/translations ?tax-translation]
-                 [?tax-translation :i18n.translation/value ?tax-translation-value]
-                 [?tax-translation :i18n.translation/language [:i18n.language/keyword :en]]])
-         (map (fn [[count term-id term-name tax-id tax-name]]
-                {:count count
-                 :id term-id
-                 :name term-name
-                 :taxonomy {:id tax-id
-                            :name tax-name}})))
-    [{:taxonomy {:name "smth"
-                 :id 1}
-      :terms [{:count 20
-               :name "smth"
-               :id 1}]}])
-  )
+    (map (fn [[k v]]
+           {:taxonomy k
+            :terms (map #(dissoc % :taxonomy) v)})
+         (group-by :taxonomy (term-counts)))))
 
 
 
