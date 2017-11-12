@@ -41,16 +41,17 @@
 
 ;; product:
 ;;    ...
-;; product-variation:
+;; product.variation:
 ;;    product-variation.price: some specific price
 ;;    product-variation.name: some specific name
 ;;    product-variation.product: ref to product
-;;    product-variation.attribute-values: list of refs to attribute values
-;; attribute:
-;;    attribute.name: "Color"
-;; attribute-value:
-;;    attribute-value.name: "Blue"
-;;    attribute-value.attribute: ref to attribute
+;;    product-variation.terms: list of refs to terms
+;; product.taxonomy:
+;;    taxonomy.name: "Color"
+;;    taxonomy.keyword: :color
+;; product.taxonomy.term:
+;;    term.name: "Blue"
+;;    term.taxonomy: ref to attribute
 
 (spec/def :schema.type/product
   (spec/keys :req [:product/name
@@ -90,6 +91,22 @@
     :db/valueType :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident :product/description
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/images
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident :product/tax
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product/brand
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident :product/condition
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
@@ -97,22 +114,6 @@
    {:db/ident :product.condition/new}
    {:db/ident :product.condition/used}
    {:db/ident :product.condition/refurbished}
-
-   {:db/ident :product/description
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident :product/tags
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/many}
-
-   {:db/ident :product/tax
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident :product/images
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
 
    {:db/ident :product/categories
     :db/valueType :db.type/ref

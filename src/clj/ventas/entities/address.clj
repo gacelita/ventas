@@ -1,24 +1,32 @@
 (ns ventas.entities.address
-  (:require [clojure.spec.alpha :as spec]
-            [clojure.test.check.generators :as gen]
-            [com.gfredericks.test.chuck.generators :as gen']
-            [ventas.database :as db]
-            [ventas.database.entity :as entity]))
+  (:require
+   [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [ventas.database.entity :as entity]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (spec/def :address/name string?)
+
 (spec/def :address/person-name string?)
+
 (spec/def :address/address string?)
+
 (spec/def :address/zip integer?)
+
 (spec/def :address/city string?)
+
 (spec/def :address/country
   (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :country)))))
+
 (spec/def :address/state
   (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :state)))))
+
 (spec/def :address/user
   (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :user)))))
-(spec/def :address/phone string?)
-(spec/def :address/comments string?)
 
+(spec/def :address/phone string?)
+
+(spec/def :address/comments string?)
 
 (spec/def :schema.type/address
   (spec/keys :req [:address/name

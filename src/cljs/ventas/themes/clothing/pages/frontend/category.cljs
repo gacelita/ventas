@@ -13,7 +13,7 @@
 (defn page []
   (reagent/with-let [data (atom {})]
     [skeleton
-     [:div.category-page
+     [:div.category-page.ui.container
       [:div.category-page__sidebar
        [base/form
         [base/form-field

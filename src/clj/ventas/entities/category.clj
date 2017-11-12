@@ -1,20 +1,18 @@
 (ns ventas.entities.category
   (:require
    [clojure.spec.alpha :as spec]
-   [clojure.core.async :refer [<! go-loop]]
-   [clojure.test.check.generators :as gen]
-   [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.events :as events]
+   [ventas.entities.i18n :as entities.i18n]
    [ventas.util :refer [update-if-exists]]))
 
-(spec/def :category/name string?)
+(spec/def :category/name ::entities.i18n/ref)
+
 (spec/def :category/parent
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :category)))))
+  (spec/with-gen integer? #(entity/ref-generator :category)))
 
 (spec/def :category/image
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :file)))))
+  (spec/with-gen integer? #(entity/ref-generator :file)))
 
 (spec/def :category/keyword keyword?)
 
@@ -45,7 +43,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :category/name
-    :db/valueType :db.type/string
+    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :category/image
