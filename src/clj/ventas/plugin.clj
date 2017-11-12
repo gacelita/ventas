@@ -23,6 +23,9 @@
   {:pre [(keyword? kw)]}
   (get @plugins kw))
 
+(defn all-plugins []
+  (set (keys @plugins)))
+
 (defn check-plugin [kw]
   {:pre [(keyword? kw)]}
   (if-not (plugin kw)
@@ -42,3 +45,7 @@
                          (assoc :ventas/pluginVersion plugin-version)))
                    attrs)]
     (schema/register-migration! attrs)))
+
+(defn fixtures [plugin-kw]
+  (when-let [fixtures-fn (:fixtures (plugin plugin-kw))]
+    (fixtures-fn)))

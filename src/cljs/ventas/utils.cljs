@@ -5,6 +5,7 @@
    [re-frame.core :as rf]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [trace debug info warn error]]
+   [ventas.utils.formatting :as utils.formatting]
    [cljs.spec.alpha :as spec]
    [expound.alpha :as expound]))
 
@@ -41,7 +42,7 @@
 (defn format-price
   "Really naive method"
   [price]
-  (str price " €"))
+  (utils.formatting/format-number price ::utils.formatting/euro))
 
 (defn check [& args]
   "([spec x] [spec x form])

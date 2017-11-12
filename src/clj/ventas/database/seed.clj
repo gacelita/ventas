@@ -6,7 +6,8 @@
    [taoensso.timbre :as timbre :refer [info]]
    [clojure.test.check.generators :as gen]
    [clojure.spec.alpha :as spec]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [ventas.plugin :as plugin]))
 
 (defn generate-1
   "Generate one sample of a given entity type"
@@ -23,7 +24,6 @@
 (defn seed-type
   "Seeds the database with n entities of a type"
   [type n]
-  (info "Seeding " type)
   (doseq [attributes (generate-n (db/kw->type type) n)]
     (let [seed-entity (entity/filter-seed attributes)
           _ (entity/before-seed seed-entity)
@@ -64,6 +64,11 @@
   (when recreate?
     (schema/migrate :recreate? recreate?))
   (doseq [type (get-sorted-types)]
+    (info "Seeding type " type)
     (doseq [fixture (entity/fixtures type)]
       (entity/transact fixture))
-    (seed-type type 10)))
+    (seed-type type 10))
+  (doseq [plugin-kw (plugin/all-plugins)]
+    (info "Seeding plugin " plugin-kw)
+    (doseq [fixture (plugin/fixtures plugin-kw)]
+      (entity/transact fixture))))

@@ -1,6 +1,7 @@
 
 .heading {
     position: relative;
+    margin: 36px 0 50px;
 }
 .heading__line {
     position: absolute;
@@ -16,7 +17,6 @@
 .heading__text {
     text-align: center;
     position: relative;
-    margin: 36px 0 50px;
     h3 {
         text-transform: uppercase;
         display: inline-block;

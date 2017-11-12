@@ -73,3 +73,8 @@
     true
     (catch Exception e
       false)))
+
+(defn update-if-exists [thing kw update-fn]
+  (if (get thing kw)
+    (update thing kw update-fn)
+    thing))

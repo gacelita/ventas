@@ -1,9 +1,11 @@
 (ns ventas.entities.product
-  (:require [clojure.spec.alpha :as spec]
-            [clojure.test.check.generators :as gen]
-            [com.gfredericks.test.chuck.generators :as gen']
-            [ventas.database :as db]
-            [ventas.database.entity :as entity]))
+  (:require
+   [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [com.gfredericks.test.chuck.generators :as gen']
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.util :refer [update-if-exists]]))
 
 (spec/def :product/name string?)
 (spec/def :product/reference string?)
@@ -20,12 +22,22 @@
                (gen/double* {:NaN? false :min 0 :max 999})))))
 
 (spec/def :product/brand
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :brand)))))
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :brand)))
+
 (spec/def :product/tax
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :tax)))))
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :tax)))
+
 (spec/def :product/images
-  (spec/with-gen (spec/coll-of integer?)
-              #(gen/vector (gen/elements (map :db/id (entity/query :file))))))
+  (spec/with-gen ::entity/refs
+                 #(entity/refs-generator :file)))
+
+(spec/def :product/categories
+  (spec/with-gen ::entity/refs
+                 #(entity/refs-generator :category)))
+
+
 
 ;; product:
 ;;    ...
@@ -42,16 +54,17 @@
 
 (spec/def :schema.type/product
   (spec/keys :req [:product/name
-                :product/active
-                :product/price]
-          :opt [:product/reference
-                :product/ean13
-                :product/description
-                :product/condition
-                :product/tags
-                :product/brand
-                :product/tax
-                :product/images]))
+                   :product/active
+                   :product/price]
+             :opt [:product/reference
+                   :product/ean13
+                   :product/description
+                   :product/condition
+                   :product/tags
+                   :product/brand
+                   :product/tax
+                   :product/images
+                   :product/categories]))
 
 (entity/register-type!
  :product
@@ -99,15 +112,19 @@
 
    {:db/ident :product/images
     :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident :product/categories
+    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many}]
 
   :dependencies
-  #{:brand :tax :file}
+  #{:brand :tax :file :category}
 
   :to-json
   (fn [this]
     (-> this
-        (update :product/brand (comp entity/to-json entity/find))
-        (update :product/tax (comp entity/to-json entity/find))
-        (update :product/images #(map (comp entity/to-json entity/find) %))
+        (update-if-exists :product/brand (comp entity/to-json entity/find))
+        (update-if-exists :product/tax (comp entity/to-json entity/find))
+        (update-if-exists :product/images #(map (comp entity/to-json entity/find) %))
         ((:to-json entity/default-type))))})

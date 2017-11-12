@@ -5,5 +5,4 @@
 
 (defn format
   [fmt & args]
-  (js/console.log "goog format" fmt args)
   (apply gstring/format fmt args))

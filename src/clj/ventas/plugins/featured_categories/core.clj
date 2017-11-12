@@ -1,4 +1,4 @@
-(ns ventas.plugins.featured-products.core
+(ns ventas.plugins.featured-categories.core
   (:require
    [ventas.plugin :as plugin]
    [ventas.server.api :as api]
@@ -7,28 +7,28 @@
    [ventas.database.seed :as seed]
    [ventas.database :as db]))
 
-(def plugin-kw :featured-products)
+(def plugin-kw :featured-categories)
 
 (plugin/register!
  plugin-kw
  {:version "0.1"
-  :name "Featured products"
+  :name "Featured categories"
   :fixtures
   (fn []
-    (->> (db/filtered-query '([?id :product/images _]))
-         (map (comp entity/find first))
-         (map #(assoc % :product/featured true))
+    (->> (entity/query :category)
+         (take 4)
+         (map #(assoc % :category/featured true))
          (map #(dissoc % :db/id))))})
 
-(spec/def :product/featured boolean?)
+(spec/def :category/featured boolean?)
 
 (plugin/register-plugin-migration!
  plugin-kw
- [{:db/ident :product/featured
+ [{:db/ident :category/featured
    :db/valueType :db.type/boolean
    :db/cardinality :db.cardinality/one}])
 
 (api/register-endpoint!
-  ::featured-products.list
+  ::featured-categories.list
   (fn [{:keys [params] :as message} state]
-    (map entity/to-json (entity/query :product {:featured true}))))
+    (map entity/to-json (entity/query :category {:featured true}))))

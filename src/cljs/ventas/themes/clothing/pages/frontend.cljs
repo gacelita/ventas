@@ -15,6 +15,7 @@
    [ventas.components.cart :as ventas.cart]
    [ventas.plugins.slider.core :as plugins.slider]
    [ventas.plugins.featured-products.core :as plugins.featured-products]
+   [ventas.plugins.featured-categories.core :as plugins.featured-categories]
    [ventas.themes.clothing.components.header :refer [header]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.components.preheader :refer [preheader]]
@@ -31,12 +32,14 @@
 
 (defn page []
   [skeleton
-     [:div
-       [plugins.slider/slider :sample-slider]
-       [base/container
-         [category-list]
-         [theme.heading/heading "Sugerencias de la semana"]
-         [plugins.featured-products/featured-products]]]])
+   [:div
+    [plugins.slider/slider :sample-slider]
+    [base/container
+     [category-list]
+     [theme.heading/heading "Sugerencias de la semana"]
+     [plugins.featured-products/featured-products]
+     [theme.heading/heading "Novedades para ti"]
+     [plugins.featured-categories/featured-categories]]]])
 
 (routes/define-route!
  :frontend

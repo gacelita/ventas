@@ -1,6 +1,7 @@
 (ns ventas.plugins.featured-products.core
   (:require
    [ventas.plugins.featured-products.api :as api]
+   [ventas.components.product-list :as components.product-list]
    [re-frame.core :as rf]))
 
 (rf/reg-event-fx
@@ -13,7 +14,4 @@
   (rf/dispatch [::featured-products.list])
   (fn []
     (let [products @(rf/subscribe [:ventas/db [::featured-products]])]
-      (js/console.log "Products" products)
-      [:ul
-       [:li "Product A"]
-       [:li "Product C"]])))
+      [components.product-list/products-list products])))
