@@ -1,10 +1,12 @@
 (ns ventas.database.seed
-  (:require [ventas.database :as db]
-            [ventas.database.entity :as entity]
-            [ventas.database.schema :as schema]
-            [taoensso.timbre :as timbre :refer (trace debug info warn error)]
-            [clojure.test.check.generators :as gen]
-            [clojure.spec.alpha :as spec]))
+  (:require
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.database.schema :as schema]
+   [taoensso.timbre :as timbre :refer [info]]
+   [clojure.test.check.generators :as gen]
+   [clojure.spec.alpha :as spec]
+   [clojure.set :as set]))
 
 (defn generate-1
   "Generate one sample of a given entity type"
@@ -28,14 +30,40 @@
           entity (entity/transact seed-entity)]
       (entity/after-seed entity))))
 
+(defn- get-sorted-types*
+  [current remaining]
+  (if (seq remaining)
+    (let [new-types (->> remaining
+                         (map (fn [type]
+                                [type (entity/dependencies type)]))
+                         (into {})
+                         (filter (fn [[type dependencies]]
+                                   (or (empty? dependencies) (set/subset? dependencies (set current)))))
+                         (keys))]
+      (recur
+       (vec (concat current new-types))
+       (set/difference remaining new-types)))
+    current))
+
+(defn- detect-circular-dependencies! [types]
+  (doseq [type types]
+    (let [dependencies (entity/dependencies type)]
+      (when (contains? dependencies type)
+        (throw (Error. (str "The type " type " depends on itself")))))))
+
+(defn get-sorted-types
+  "Returns the types in dependency order"
+  []
+  (let [types (set (keys @entity/registered-types))]
+    (detect-circular-dependencies! types)
+    (get-sorted-types* [] types)))
+
 (defn seed
   "Seeds the database with sample data"
   [& {:keys [recreate?]}]
   (when recreate?
     (schema/migrate :recreate? recreate?))
-  (doseq [type [:tax :file :brand :configuration :resource :attribute
-                :attribute-value :category :product :product-variation :user
-                :country :state :address :order :image-size]]
+  (doseq [type (get-sorted-types)]
     (doseq [fixture (entity/fixtures type)]
       (entity/transact fixture))
     (seed-type type 10)))

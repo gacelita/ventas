@@ -6,21 +6,21 @@
             [ventas.database.entity :as entity]))
 
 (spec/def :order-line/order
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :order)))))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :order)))
 
 (spec/def :order-line/product
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :product)))))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :product)))
 
 (spec/def :order-line/product-variation
-  (spec/with-gen integer? #(gen/elements (map :id (entity/query :product-variation)))))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :product-variation)))
 
 (spec/def :order-line/quantity (spec/and integer? pos?))
 
 (spec/def :schema.type/order-line
   (spec/keys :req [:order-line/order
-                :order-line/product
-                :order-line/quantity]
-          :opt [:order-line/product-variation]))
+                   :order-line/product
+                   :order-line/quantity]
+             :opt [:order-line/product-variation]))
 
 (entity/register-type!
  :order-line
@@ -39,4 +39,7 @@
 
    {:db/ident :order-line/product-variation
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]})
+    :db/cardinality :db.cardinality/one}]
+
+  :dependencies
+  #{:order :product :product-variation}})

@@ -99,4 +99,7 @@
 
    {:db/ident :product/images
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]})
+    :db/cardinality :db.cardinality/many}]
+
+  :dependencies
+  #{:brand :tax :file}})

@@ -35,8 +35,11 @@
 
    {:db/ident :category/keyword
     :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one}]
+    :db/cardinality :db.cardinality/one
+    :db/unique :db.unique/identity}]
   :fixtures
   (fn []
     [{:schema/type :schema.type/category
-      :category/name "Default"}])})
+      :category/name "Default"}])
+  :dependencies
+  #{:file}})

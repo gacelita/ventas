@@ -1,17 +1,18 @@
 (ns ventas.database.entity
   (:refer-clojure :exclude [find type update])
   (:require
-   [ventas.database :as db]
    [clojure.core :as clj]
-   [taoensso.timbre :as timbre :refer [trace debug info warn error]]
-   [slingshot.slingshot :refer [throw+ try+]]
-   [clojure.spec.alpha :as spec]
-   [datomic.api :as d]
-   [ventas.util :as util]
-   [ventas.events :as events]
    [clojure.core.async :refer [go <! go-loop]]
+   [clojure.set :as set]
+   [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [datomic.api :as d]
+   [slingshot.slingshot :refer [throw+ try+]]
+   [taoensso.timbre :as timbre :refer [trace debug info warn error]]
+   [ventas.database :as db]
    [ventas.database.schema :as schema]
-   [clojure.set :as set]))
+   [ventas.events :as events]
+   [ventas.util :as util]))
 
 (defn is-entity? [entity]
   (when (map? entity)
@@ -19,7 +20,7 @@
 
 (spec/def ::entity-type
   (spec/keys :opt-un [::attributes
-                      ::filter-json
+                      ::to-json
                       ::filter-seed
                       ::filter-transact
                       ::filter-update
@@ -68,7 +69,10 @@
 
 (def default-type
   {:attributes []
-   :filter-json identity
+   :to-json (fn [entity]
+              (-> entity
+                  (dissoc :schema/type)
+                  (util/dequalify-keywords)))
    :filter-seed identity
    :filter-transact identity
    :filter-update (fn [entity data] data)
@@ -86,9 +90,11 @@
                    (kw default-type))]
     (apply type-fn entity args)))
 
-(defn filter-json [entity]
+(defn to-json
+  "Transforms an entity into a stripped map, suitable for sending to the outside"
+  [entity]
   {:pre [(is-entity? entity)]}
-  (call-type-fn :filter-json entity))
+  (call-type-fn :to-json entity))
 
 (defn filter-seed [entity]
   {:pre [(is-entity? entity)]}
@@ -135,14 +141,9 @@
       (util/check spec entity))))
 
 (defn find
-  "Finds an entity by eid"
+  "Finds an entity by eid or lookup ref"
   [eid]
-  {:pre [(number? eid)]}
-  (let [db-entity (db/touch-eid eid)]
-    (when (seq db-entity)
-      (-> db-entity
-          (assoc :db/id eid)
-          (db/EntityMaps->eids)))))
+  (db/touch-eid eid))
 
 (defn transaction->entity
   "Returns an entity from a transaction"
@@ -153,9 +154,10 @@
 (defn- prepare-pre-entity [pre-entity & [initial-tempid]]
   (into {}
         (map (fn [[k v]]
-               [k (if (is-entity? v)
-                    (prepare-pre-entity v)
-                    v)])
+               [k (cond
+                    (is-entity? v) (prepare-pre-entity v)
+                    (and (coll? v) (is-entity? (first v))) (map prepare-pre-entity v)
+                    :else v)])
              (-> pre-entity
                  (assoc :db/id (or initial-tempid (d/tempid :db.part/user)))
                  (filter-transact)))))
@@ -182,14 +184,6 @@
             (assoc :schema/type (db/kw->type type)))]
     (transact entity)))
 
-(defn to-json
-  "Transforms an entity into a stripped map, suitable for sending to the outside"
-  [entity]
-  (-> entity
-      (filter-json)
-      (dissoc :type)
-      (util/dequalify-keywords)))
-
 (defn from-json
   "Inverse of to-json"
   [attributes]
@@ -211,6 +205,10 @@
   [type]
   (when-let [fixtures-fn (:fixtures (type-fns type))]
     (fixtures-fn)))
+
+(defn dependencies
+  [type]
+  (or (:dependencies (type-fns type)) #{}))
 
 (defn attributes-by-ident
   [type]
@@ -296,3 +294,19 @@
          (filters->wheres type filters)
          (zipmap (map db/keyword->db-symbol (keys filters))
                  (vals filters))))))
+
+(spec/def
+  ::ref
+  (spec/or :eid number?
+           :entity is-entity?
+           :lookup-ref vector?))
+
+(defn ref-generator [type]
+  (gen/elements (map :db/id (query type))))
+
+(spec/def
+  ::refs
+  (spec/coll-of ::ref))
+
+(defn refs-generator [type]
+  (gen/vector (ref-generator type)))

@@ -85,4 +85,7 @@
 
    {:db/ident :order/payment-reference
     :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}]})
+    :db/cardinality :db.cardinality/one}]
+
+  :dependencies
+  #{:address :user}})

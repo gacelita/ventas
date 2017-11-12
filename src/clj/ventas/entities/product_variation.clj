@@ -26,4 +26,7 @@
 
    {:db/ident :product-variation/attribute-values
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]})
+    :db/cardinality :db.cardinality/many}]
+
+  :dependencies
+  #{:product :attribute-value}})

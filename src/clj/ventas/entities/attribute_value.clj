@@ -22,4 +22,7 @@
 
    {:db/ident :attribute-value/attribute
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]})
+    :db/cardinality :db.cardinality/one}]
+
+  :dependencies
+  #{:attribute}})

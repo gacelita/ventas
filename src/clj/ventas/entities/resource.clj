@@ -9,8 +9,7 @@
 (spec/def :resource/name string?)
 (spec/def :resource/file
   (spec/with-gen
-   (spec/or :eid integer?
-            :nested-entity map?)
+   ::entity/ref
    #(gen/elements (map :db/id (entity/query :file)))))
 
 (spec/def :schema.type/resource
@@ -23,7 +22,8 @@
  {:attributes
   [{:db/ident :resource/keyword
     :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/unique :db.unique/identity}
 
    {:db/ident :resource/name
     :db/valueType :db.type/string
@@ -32,9 +32,13 @@
    {:db/ident :resource/file
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
+
   :fixtures
   (fn []
     [{:resource/keyword :logo
       :resource/name "Logo"
       :schema/type :schema.type/resource
-      :resource/file (:db/id (first (entity/query :file)))}])})
+      :resource/file (:db/id (first (entity/query :file)))}])
+
+  :dependencies
+  #{:file}})

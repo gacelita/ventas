@@ -1,13 +1,14 @@
 (ns ventas.entities.file
-  (:require [clojure.spec.alpha :as spec]
-            [clojure.test.check.generators :as gen]
-            [com.gfredericks.test.chuck.generators :as gen']
-            [ventas.database :as db]
-            [ventas.database.entity :as entity]
-            [ventas.config :as config]
-            [clojure.java.io :as io]
-            [ventas.util :refer [find-files]]
-            [ventas.paths :as paths]))
+  (:require
+   [clojure.java.io :as io]
+   [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [com.gfredericks.test.chuck.generators :as gen']
+   [ventas.config :as config]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.paths :as paths]
+   [ventas.util :refer [find-files]]))
 
 (spec/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
 
@@ -15,8 +16,10 @@
   (spec/keys :req [:file/extension]))
 
 (defn filename [entity]
-  (println entity)
   (str (:db/id entity) "." (name (:file/extension entity))))
+
+(spec/def ::ref
+  (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
 
 (entity/register-type!
  :file
@@ -41,8 +44,9 @@
           path (str paths/images "/" (filename this))]
       (io/copy file (io/file path))))
 
-  :filter-json
+  :to-json
   (fn [this]
     (let [path (str paths/images "/" (filename this))]
       (-> this
-          (assoc :url (paths/path->url path)))))})
+          (assoc :url (paths/path->url path))
+          ((:to-json entity/default-type)))))})

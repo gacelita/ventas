@@ -156,23 +156,26 @@
        :where [:db.part/db :db.install/partition ?p]
               [?p :db/ident ?ident]]))
 
-(defn touch-eid
-  "Touches an entity by eid"
-  [eid]
-  (into {} (d/touch (entity eid))))
-
 (defn EntityMaps->eids
   "EntityMap -> eid"
   [m]
   (into {}
-    (for [[k v] m]
-      [k (cond
-           (instance? datomic.query.EntityMap v) (:db/id v)
-           (set? v)
-             (cond
-               (instance? datomic.query.EntityMap (first v)) (map :db/id v)
-               :else v)
-           :else v)])))
+        (for [[k v] m]
+          [k (cond
+               (instance? datomic.query.EntityMap v) (:db/id v)
+               (set? v)
+               (cond
+                 (instance? datomic.query.EntityMap (first v)) (map :db/id v)
+                 :else v)
+               :else v)])))
+
+(defn touch-eid
+  "Touches an entity by eid"
+  [eid]
+  (let [result (d/touch (entity eid))]
+    (-> (into {} result)
+        (assoc :db/id (:db/id result))
+        (EntityMaps->eids))))
 
 (defn schema
   "Gets the current database schema"

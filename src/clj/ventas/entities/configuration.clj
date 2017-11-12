@@ -17,7 +17,8 @@
  {:attributes
   [{:db/ident :configuration/keyword
     :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/unique :db.unique/identity}
 
    {:db/ident :configuration/value
     :db/valueType :db.type/string
