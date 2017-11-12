@@ -42,6 +42,10 @@
   (spec/with-gen ::entity/refs
                  #(entity/refs-generator :category)))
 
+(spec/def :product/terms
+  (spec/with-gen ::entity/refs
+                 #(entity/refs-generator :product.taxonomy.term)))
+
 
 
 ;; product:
@@ -69,7 +73,8 @@
                    :product/brand
                    :product/tax
                    :product/images
-                   :product/categories]))
+                   :product/categories
+                   :product/terms]))
 
 (entity/register-type!
  :product
@@ -121,10 +126,14 @@
 
    {:db/ident :product/categories
     :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident :product/terms
+    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many}]
 
   :dependencies
-  #{:brand :tax :file :category}
+  #{:brand :tax :file :category :product.taxonomy.term}
 
   :to-json
   (fn [this]

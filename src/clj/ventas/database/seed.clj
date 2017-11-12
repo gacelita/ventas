@@ -72,7 +72,7 @@
     (info "Seeding type " type)
     (doseq [fixture (entity/fixtures type)]
       (entity/transact fixture))
-    (seed-type type 10))
+    (seed-type type (entity/seed-number type)))
   (doseq [plugin-kw (plugin/all-plugins)]
     (info "Seeding plugin " plugin-kw)
     (doseq [fixture (plugin/fixtures plugin-kw)]

@@ -85,7 +85,7 @@
                  [me.raynes/conch "0.8.0"]
 
                  ;; Database
-                 [com.datomic/datomic-pro "0.9.5394" :exclusions [org.slf4j/log4j-over-slf4j org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
+                 [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/log4j-over-slf4j org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.5.1"]
 
                  ;; Text colors

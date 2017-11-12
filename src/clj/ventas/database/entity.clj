@@ -210,6 +210,10 @@
   [type]
   (or (:dependencies (type-fns type)) #{}))
 
+(defn seed-number
+  [type]
+  (or (:seed-number (type-fns type)) 30))
+
 (defn attributes-by-ident
   [type]
   "Returns a map whose keys are idents and whose values are valueTypes of those idents"

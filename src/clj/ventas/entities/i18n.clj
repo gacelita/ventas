@@ -29,7 +29,9 @@
       :i18n.language/name "English"}
      {:schema/type :schema.type/i18n.language
       :i18n.language/keyword :es
-      :i18n.language/name "Español"}])})
+      :i18n.language/name "Español"}])
+
+  :seed-number 0})
 
 
 

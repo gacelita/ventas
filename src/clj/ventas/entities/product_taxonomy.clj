@@ -19,4 +19,10 @@
     :db/isComponent true}]
 
   :dependencies
-  #{:i18n}})
+  #{:i18n}
+
+  :to-json
+  (fn [this]
+    (-> this
+        (update :product.taxonomy/name (comp entity/to-json entity/find))
+        ((:to-json entity/default-type))))})
