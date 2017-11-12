@@ -6,7 +6,8 @@
 
 (defn menu [items]
   [:div.menu
-   [:ul
-    (map-indexed
-     (fn [item idx] ^{:key idx} [menu-item item])
-     items)]])
+   [:div.ui.container
+    [:ul
+     (map-indexed
+      (fn [idx item] ^{:key idx} [menu-item item])
+      items)]]])

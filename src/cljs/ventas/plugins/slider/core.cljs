@@ -13,32 +13,34 @@
 
 (rf/reg-event-db
  ::next
- (fn [db [_]]
-   (update-in db [::state :current-index] #(mod (inc %) 3))))
+ (fn [db [_ kw]]
+   (let [{:keys [slides]} (get-in db [::sliders kw])]
+     (update-in db [::state kw :current-index] #(mod (inc %) (count slides))))))
 
 (rf/reg-event-db
  ::previous
- (fn [db [_]]
-   (update-in db [::state :current-index] #(mod (dec %) 3))))
+ (fn [db [_ kw]]
+   (let [{:keys [slides]} (get-in db [::sliders kw])]
+     (update-in db [::state kw :current-index] #(mod (dec %) (count slides))))))
 
-(defn slider* [{:keys [slides]}]
-  (js/setInterval #(rf/dispatch [::next]) 100000)
-  (fn [{:keys [slides]}]
+(defn slider* [{:keys [slides keyword auto auto-speed]}]
+  (when auto
+    (js/setInterval #(rf/dispatch [::next keyword]) auto-speed))
+  (fn [{:keys [slides keyword]}]
     [:div.slider
-     (let [component-state @(rf/subscribe [:ventas/db [::state]])]
+     (let [component-state @(rf/subscribe [:ventas/db [::state keyword]])]
        [:div.slider__slides {:style {:left (* -1
                                               (-> js/window (.-innerWidth))
                                               (:current-index component-state))}}
-        (for [{:keys [file]} slides]
-          [:div.slider__slide {:style {:background-image (str "url(" (:url file) ")")}}])])
-     [:button.slider__left {:on-click #(rf/dispatch [::previous])}
+        (for [{:keys [file id]} slides]
+          ^{:key id} [:div.slider__slide {:style {:background-image (str "url(" (:url file) ")")}}])])
+     [:button.slider__left {:on-click #(rf/dispatch [::previous keyword])}
       [base/icon {:name "chevron left"}]]
-     [:button.slider__right {:on-click #(rf/dispatch [::next])}
+     [:button.slider__right {:on-click #(rf/dispatch [::next keyword])}
       [base/icon {:name "chevron right"}]]]))
 
 (defn slider [kw]
   (rf/dispatch [::sliders.get kw])
   (fn [kw]
     (let [slider-data @(rf/subscribe [:ventas/db [::sliders kw]])]
-      (js/console.log slider-data)
       [slider* slider-data])))

@@ -1,13 +1,16 @@
 
 .menu {
+    background-color: rgba(246,246,246,0.8);
+
     ul {
-        text-align: center;
-        background-color: rgba(246,246,246,0.8);
         padding: 10px 0px;
         margin: 0px;
+        text-align: center;
     }
+
     li {
         display: inline-block;
+
         a {
             font-family: 'Raleway',sans-serif;
             font-weight: bold;
@@ -19,6 +22,7 @@
             padding: 8px 10px;
             text-decoration: none !important;
         }
+
         &:hover {
             a {
                 color: #888;

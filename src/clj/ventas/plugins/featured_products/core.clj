@@ -3,20 +3,24 @@
    [ventas.plugin :as plugin]
    [ventas.server.api :as api]
    [ventas.database.entity :as entity]
-   [ventas.database.schema :as schema]))
+   [clojure.spec.alpha :as spec]))
+
+(def plugin-kw :featured-products)
 
 (plugin/register!
- :featured-products
+ plugin-kw
  {:version "0.1"
-  :name "Posts"})
+  :name "Featured products"})
+
+(spec/def :product/featured boolean?)
 
 (plugin/register-plugin-migration!
- :featured-products
- [{:db/ident :post/name
-   :db/valueType :db.type/string
+ plugin-kw
+ [{:db/ident :product/featured
+   :db/valueType :db.type/boolean
    :db/cardinality :db.cardinality/one}])
 
 (api/register-endpoint!
-  :featured-products.view
+  ::featured-products.list
   (fn [{:keys [params] :as message} state]
-    (entity/find (:id params))))
+    (map entity/to-json (entity/query :product {:featured true}))))

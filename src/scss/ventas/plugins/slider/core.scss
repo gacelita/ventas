@@ -1,7 +1,7 @@
 
 .slider {
     position: relative;
-    height: 620px;
+    height: 350px;
 
     button {
         position: absolute;
@@ -14,13 +14,15 @@
         border-radius: 4px;
         font-size: 10px;
         border: 0;
-        &.left__-917546998 {
-            left: 15px;
-        }
-        &.right__-917546998 {
-            right: 15px;
-        }
     }
+}
+
+.slider__left {
+    left: 15px;
+}
+
+.slider__right {
+    right: 15px;
 }
 
 .slider__slides {

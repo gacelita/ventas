@@ -13,8 +13,8 @@
    [ventas.components.category-list :refer [category-list]]
    [ventas.components.product-list :refer [products-list]]
    [ventas.components.cart :as ventas.cart]
-   [ventas.components.slider :as ventas.slider]
    [ventas.plugins.slider.core :as plugins.slider]
+   [ventas.plugins.featured-products.core :as plugins.featured-products]
    [ventas.themes.clothing.components.header :refer [header]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.components.preheader :refer [preheader]]
@@ -36,7 +36,7 @@
        [base/container
          [category-list]
          [theme.heading/heading "Sugerencias de la semana"]
-         [products-list]]]])
+         [plugins.featured-products/featured-products]]]])
 
 (routes/define-route!
  :frontend
