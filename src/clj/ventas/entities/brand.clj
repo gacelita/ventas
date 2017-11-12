@@ -33,4 +33,10 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:file}})
+  #{:file}
+
+  :to-json
+  (fn [this]
+    (-> this
+        (update :brand/logo (comp entity/to-json entity/find))
+        ((:to-json entity/default-type))))})

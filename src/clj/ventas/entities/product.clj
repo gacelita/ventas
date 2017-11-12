@@ -102,4 +102,12 @@
     :db/cardinality :db.cardinality/many}]
 
   :dependencies
-  #{:brand :tax :file}})
+  #{:brand :tax :file}
+
+  :to-json
+  (fn [this]
+    (-> this
+        (update :product/brand (comp entity/to-json entity/find))
+        (update :product/tax (comp entity/to-json entity/find))
+        (update :product/images #(map (comp entity/to-json entity/find) %))
+        ((:to-json entity/default-type))))})

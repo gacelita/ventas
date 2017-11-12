@@ -206,21 +206,6 @@ Eventos:
                             (update :amount float)))))
 
 
-
-(register-endpoint!
-  :db.pull
-  (fn [{:keys [params]} state]
-    (db/pull (:query params)
-             (:id params))))
-
-(register-endpoint!
-  :db.query
-  (fn [{:keys [params]} state]
-    (db/q (:query params)
-          (:filters params))))
-
-
-
 (register-endpoint!
   :datadmin/datoms
   (fn [message state]
