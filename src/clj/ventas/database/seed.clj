@@ -32,6 +32,7 @@
 
 (defn- get-sorted-types*
   [current remaining]
+  (println current remaining)
   (if (seq remaining)
     (let [new-types (->> remaining
                          (map (fn [type]
@@ -40,7 +41,7 @@
                          (filter (fn [[type dependencies]]
                                    (or (empty? dependencies) (set/subset? dependencies (set current)))))
                          (keys))]
-      (recur
+      (get-sorted-types*
        (vec (concat current new-types))
        (set/difference remaining new-types)))
     current))
@@ -49,7 +50,10 @@
   (doseq [type types]
     (let [dependencies (entity/dependencies type)]
       (when (contains? dependencies type)
-        (throw (Error. (str "The type " type " depends on itself")))))))
+        (throw (Error. (str "The type " type " depends on itself"))))
+      (doseq [dependency dependencies]
+        (when-not (entity/type-exists? dependency)
+          (throw (Error. (str "The type " type " is depending on the type " dependency ", which does not exist"))))))))
 
 (defn get-sorted-types
   "Returns the types in dependency order"
@@ -63,6 +67,7 @@
   [& {:keys [recreate?]}]
   (when recreate?
     (schema/migrate :recreate? recreate?))
+  (info "Migrations done!")
   (doseq [type (get-sorted-types)]
     (info "Seeding type " type)
     (doseq [fixture (entity/fixtures type)]

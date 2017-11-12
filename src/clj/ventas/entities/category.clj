@@ -58,17 +58,17 @@
   :fixtures
   (fn []
     [{:schema/type :schema.type/category
-      :category/name "Default"
+      :category/name (entities.i18n/get-i18n-entity {:en "Default"})
       :category/keyword :default}
      {:schema/type :schema.type/category
-      :category/name "Sample category"
+      :category/name (entities.i18n/get-i18n-entity {:en "Sample category"})
       :category/keyword :sample-category}
      {:schema/type :schema.type/category
-      :category/name "Winter"
+      :category/name (entities.i18n/get-i18n-entity {:en "Winter"})
       :category/keyword :winter}])
 
   :dependencies
-  #{:file}
+  #{:file :i18n}
 
   :to-json
   (fn [this]

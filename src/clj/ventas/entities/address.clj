@@ -84,4 +84,4 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:country :state :user}})
+  #{:country :state :user :i18n}})

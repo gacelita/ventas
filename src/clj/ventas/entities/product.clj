@@ -8,12 +8,17 @@
    [ventas.util :refer [update-if-exists]]))
 
 (spec/def :product/name string?)
+
 (spec/def :product/reference string?)
+
 (spec/def :product/ean13 string?)
+
 (spec/def :product/active boolean?)
+
 (spec/def :product/description string?)
+
 (spec/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
-(spec/def :product/tags (spec/coll-of string?))
+
 (spec/def :product/price
   (spec/with-gen
    (spec/and bigdec? pos?)
@@ -61,7 +66,6 @@
                    :product/ean13
                    :product/description
                    :product/condition
-                   :product/tags
                    :product/brand
                    :product/tax
                    :product/images

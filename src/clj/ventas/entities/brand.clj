@@ -35,7 +35,7 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:file}
+  #{:file :i18n}
 
   :to-json
   (fn [this]

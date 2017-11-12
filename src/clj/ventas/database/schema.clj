@@ -22,7 +22,7 @@
    Usage:
      (create-migration-file
        `my-migration`
-       [{:db/ident :product-variation/product
+       [{:db/ident :product.variation/product
          :db/valueType :db.type/ref
          :db/cardinality :db.cardinality/one}])"
   [kw & [initial-contents]]
@@ -92,6 +92,7 @@
     (info "Running migrations")
     (doseq [migration migrations]
       (doseq [[k v] migration]
+        (info "Migration " k)
         (db/ensure-conforms k v)))))
 
 (register-migration!

@@ -14,4 +14,7 @@
  {:attributes
   [{:db/ident :country/name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]})
+    :db/cardinality :db.cardinality/one}]
+
+  :dependencies
+  #{:i18n}})

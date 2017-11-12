@@ -7,7 +7,7 @@
 
 (spec/def :product.taxonomy/name ::entities.i18n/ref)
 
-(spec/def :schema.type/attribute
+(spec/def :schema.type/product.taxonomy
   (spec/keys :req [:product.taxonomy/name]))
 
 (entity/register-type!
@@ -16,4 +16,7 @@
   [{:db/ident :product.taxonomy/name
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}]})
+    :db/isComponent true}]
+
+  :dependencies
+  #{:i18n}})

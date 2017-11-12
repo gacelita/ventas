@@ -8,7 +8,7 @@
 
 (spec/def  :product.taxonomy.term/taxonomy
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :taxonomy)))
+                 #(entity/ref-generator :product.taxonomy)))
 
 (spec/def :schema.type/product.taxonomy.term
   (spec/keys :req [:product.taxonomy.term/name
@@ -26,4 +26,4 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:product.taxonomy}})
+  #{:product.taxonomy :i18n}})

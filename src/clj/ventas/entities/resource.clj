@@ -1,9 +1,10 @@
 (ns ventas.entities.resource
-  (:require [clojure.spec.alpha :as spec]
-            [clojure.test.check.generators :as gen]
-            [com.gfredericks.test.chuck.generators :as gen']
-            [ventas.database :as db]
-            [ventas.database.entity :as entity]))
+  (:require
+   [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [com.gfredericks.test.chuck.generators :as gen']
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]))
 
 (spec/def :resource/keyword keyword?)
 (spec/def :resource/name string?)

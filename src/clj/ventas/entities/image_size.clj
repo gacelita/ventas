@@ -32,7 +32,7 @@
   (spec/coll-of #{:schema.type/brand
                   :schema.type/category
                   :schema.type/product
-                  :schema.type/product-variation
+                  :schema.type/product.variation
                   :schema.type/resource
                   :schema.type/user}
                 :kind set?))
