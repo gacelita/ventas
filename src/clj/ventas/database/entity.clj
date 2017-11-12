@@ -235,9 +235,11 @@
                    (assoc data :db/id (:db/id entity))
                    (assoc data :schema/type (db/kw->type entity-type)))
         enum-retractions
-        (let [enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
+        (let [relevant-attrs (filter #(contains? (set (keys data)) (:db/ident %))
+                                     (attributes entity-type))
+              enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
                                        (= (:db/valueType %) :db.type/ref))
-                                 (attributes entity-type))
+                                 relevant-attrs)
               enum-idents (map :db/ident enum-attrs)]
           (mapcat (fn [{:keys [ident new-val]}]
                  (let [diff (set/difference (set (get entity ident))
