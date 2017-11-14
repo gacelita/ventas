@@ -4,6 +4,7 @@
    [reagent.core :as reagent :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.product-list :refer [products-list]]
+   [ventas.components.product-filters :as components.product-filters]
    [ventas.i18n :refer [i18n]]
    [ventas.page :refer [pages]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
@@ -15,10 +16,7 @@
     [skeleton
      [:div.category-page.ui.container
       [:div.category-page__sidebar
-       [base/form
-        [base/form-field
-         [:input {:placeholder (i18n ::search)
-                  :on-change (value-handler #(swap! data assoc :name %))}]]]]
+       [components.product-filters/product-filters]]
       [:div.category-page__content
        [products-list]]]]))
 

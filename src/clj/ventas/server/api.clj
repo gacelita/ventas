@@ -171,7 +171,6 @@ Eventos:
 
 (defn term-counts []
   (->> (db/q '[:find (count ?product-eid) ?term-eid ?term-translation-value ?term-taxonomy ?tax-translation-value
-               :in $
                :where
                [?product-eid :product/terms ?term-eid]
                [?term-eid :product.taxonomy.term/name ?term-name]
