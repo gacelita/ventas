@@ -44,7 +44,7 @@
 
 (spec/def :product/terms
   (spec/with-gen ::entity/refs
-                 #(entity/refs-generator :product.taxonomy.term)))
+                 #(entity/refs-generator :product.term)))
 
 
 
@@ -58,7 +58,7 @@
 ;; product.taxonomy:
 ;;    taxonomy.name: "Color"
 ;;    taxonomy.keyword: :color
-;; product.taxonomy.term:
+;; product.term:
 ;;    term.name: "Blue"
 ;;    term.taxonomy: ref to attribute
 
@@ -133,7 +133,7 @@
     :db/cardinality :db.cardinality/many}]
 
   :dependencies
-  #{:brand :tax :file :category :product.taxonomy.term}
+  #{:brand :tax :file :category :product.term}
 
   :to-json
   (fn [this]

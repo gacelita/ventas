@@ -173,8 +173,8 @@ Eventos:
   (->> (db/q '[:find (count ?product-eid) ?term-eid ?term-translation-value ?term-taxonomy ?tax-translation-value
                :where
                [?product-eid :product/terms ?term-eid]
-               [?term-eid :product.taxonomy.term/name ?term-name]
-               [?term-eid :product.taxonomy.term/taxonomy ?term-taxonomy]
+               [?term-eid :product.term/name ?term-name]
+               [?term-eid :product.term/taxonomy ?term-taxonomy]
                [?term-name :i18n/translations ?term-translation]
                [?term-translation :i18n.translation/value ?term-translation-value]
                [?term-translation :i18n.translation/language [:i18n.language/keyword :en]]

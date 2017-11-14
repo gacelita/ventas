@@ -9,7 +9,7 @@
 
 (spec/def :product.variation/terms
   (spec/with-gen ::entity/refs
-                 #(entity/refs-generator :product.taxonomy.term)))
+                 #(entity/refs-generator :product.term)))
 
 (spec/def :schema.type/product.variation
   (spec/keys :req [:product.variation/product
@@ -27,4 +27,4 @@
     :db/cardinality :db.cardinality/many}]
 
   :dependencies
-  #{:product :product.taxonomy.term}})
+  #{:product :product.term}})
