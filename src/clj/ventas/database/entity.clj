@@ -284,11 +284,18 @@
      :updated-at (get result 1)}))
 
 (defn- filters->wheres [type filters]
-  (map (fn [[attribute value]]
-         (let [attribute (if (namespace attribute) attribute (util/qualify-keyword attribute type))
-               value (if (= value :any) '_ (db/keyword->db-symbol attribute))]
-           ['?id attribute value]))
-       filters))
+  (->> filters
+       (map (fn [[attribute value]]
+              (let [attribute (if (namespace attribute)
+                                attribute
+                                (util/qualify-keyword attribute type))
+                    value (if (= value :any) '_ value)]
+                ['?id attribute value])))
+       (mapcat (fn [[var attribute value]]
+                 (if (set? value)
+                   (for [item value]
+                     [var attribute item])
+                   [[var attribute value]])))))
 
 (defn query
   "Performs a high-level query."
@@ -297,9 +304,7 @@
   ([type filters]
    (map #(find (first %))
         (db/filtered-query
-         (filters->wheres type filters)
-         (zipmap (map db/keyword->db-symbol (keys filters))
-                 (vals filters))))))
+         (filters->wheres type filters)))))
 
 (spec/def
   ::ref
