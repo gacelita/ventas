@@ -72,6 +72,7 @@
 (defn path-for
   "bidi/path-for wrapper"
   [& args]
+  (js/console.log "path-for" args)
   (let [path (apply bidi/path-for @routes args)]
     (when-not path
       (error "Route not found" args))

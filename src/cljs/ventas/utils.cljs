@@ -50,3 +50,18 @@
   (if (apply spec/valid? args)
     true
     (throw (js/Error. (with-out-str (apply expound/expound args))))))
+
+(defn debounce
+  "Returns a function that will call f only after threshold has passed without new calls
+  to the function. Calls prep-fn on the args in a sync way, which can be used for things like
+  calling .persist on the event object to be able to access the event attributes in f"
+  ([threshold f] (debounce threshold f (constantly nil)))
+  ([threshold f prep-fn]
+   (let [t (atom nil)]
+     (fn [& args]
+       (when @t (js/clearTimeout @t))
+       (apply prep-fn args)
+       (reset! t (js/setTimeout #(do
+                                   (reset! t nil)
+                                   (apply f args))
+                                threshold))))))

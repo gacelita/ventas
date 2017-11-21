@@ -59,11 +59,29 @@
            taxonomies)))
 
 (rf/reg-event-fx
+ ::init
+ (fn [{:keys [db]} [_ products-path]]
+   {:db (assoc-in db products-path {:products []
+                                    :pagination {:items-per-page 4
+                                                 :page 0}})
+    :dispatch [::apply-filters products-path]}))
+
+(rf/reg-event-fx
  ::apply-filters
  (fn [{:keys [db]} [_ products-path]]
+   (js/console.log "APPLYING FILTERS")
    {:dispatch [:api/products.list
-               {:params {:filters {:terms (state->api-params (get db filters-key))}}
-                :success-fn #(rf/dispatch [:ventas/db products-path %])}]}))
+               {:params {:filters {:terms (state->api-params (get db filters-key))}
+                         :pagination (:pagination (get-in db products-path))}
+                :success-fn #(rf/dispatch [::apply-filters.next products-path %])}]}))
+
+(rf/reg-event-db
+ ::apply-filters.next
+ (fn [db [_ products-path products]]
+   (let [state (get-in db products-path)]
+     (-> db
+         (update-in (conj products-path :products) #(concat % products))
+         (update-in (concat products-path [:pagination :page]) inc)))))
 
 (rf/reg-event-fx
  ::add-filter
@@ -105,7 +123,7 @@
         [product-term products-path taxonomy term])]]))
 
 (defn product-filters [{:keys [products-path]}]
-  (rf/dispatch [::apply-filters products-path])
+  (rf/dispatch [::init products-path])
   (fn [{:keys [taxonomies products-path]}]
     (assert (coll? products-path))
     [:div.product-filters

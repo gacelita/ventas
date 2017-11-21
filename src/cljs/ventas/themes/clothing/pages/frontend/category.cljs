@@ -9,7 +9,8 @@
    [ventas.page :refer [pages]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.utils :as util :refer [value-handler]]
-   [ventas.routes :as routes]))
+   [ventas.routes :as routes]
+   [ventas.components.infinite-scroll :as scroll]))
 
 (def term-counts-key ::term-counts)
 
@@ -28,8 +29,12 @@
             (merge data
                    {:products-path [products-key]})]))]
       [:div.category-page__content
-       (let [products @(rf/subscribe [:ventas/db [products-key]])]
-         [products-list products])]]]))
+       (let [products @(rf/subscribe [:ventas/db [products-key :products]])]
+         [products-list products])
+       [scroll/infinite-scroll
+        (let [more-items-available? true]
+          {:can-show-more? more-items-available?
+           :load-fn #(rf/dispatch [::components.product-filters/apply-filters [products-key]])})]]]]))
 
 (routes/define-route!
  :frontend.category
