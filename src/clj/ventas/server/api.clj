@@ -162,7 +162,17 @@ Eventos:
   (fn [{{:keys [pagination filters]} :params} state]
     (let [{:keys [terms price]} filters]
       (assert (or (nil? terms) (set? terms)))
-      (let [items (map entity/to-json (entity/query :product {:terms terms}))]
+
+      (let [wheres
+            (as-> (entity/filters->wheres :product {:terms terms}) wheres
+                  (if (seq price)
+                    (let [{:keys [min max] :or {min '?price max '?price}} price]
+                      (concat wheres [['?id :product/price '?price]
+                                      [[<= min '?price max]]]))
+                    wheres))
+            items (map #(-> % :id entity/find entity/to-json)
+                       (db/nice-query {:find '[?id]
+                                       :where wheres}))]
         (paginate items pagination)))))
 
 (register-endpoint!

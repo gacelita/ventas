@@ -283,7 +283,7 @@
     {:created-at (get result 0)
      :updated-at (get result 1)}))
 
-(defn- filters->wheres [type filters]
+(defn filters->wheres [type filters]
   (->> filters
        (map (fn [[attribute value]]
               (let [attribute (if (namespace attribute)
