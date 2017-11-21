@@ -283,7 +283,7 @@
     {:created-at (get result 0)
      :updated-at (get result 1)}))
 
-(defn filters->wheres [type filters]
+(defn- filters->wheres* [type filters]
   (->> filters
        (map (fn [[attribute value]]
               (let [attribute (if (namespace attribute)
@@ -302,17 +302,27 @@
                      [[var attribute value]])
                    [[var attribute value]])))))
 
+(defn filters->wheres
+  "Generates `:where` clauses"
+  [type filters]
+  (filters->wheres*
+   type
+   (as-> filters filters
+         (filter (fn [[k v]]
+                   (or (and (not (coll? v)) v)
+                       (seq v)))
+                 filters)
+         (if (empty? filters)
+           {:schema/type (db/kw->type type)}
+           filters))))
+
 (defn query
   "Performs a high-level query.
    Accepts optional `wheres` clauses"
   [type & [filters]]
-  (let [filters (filter (fn [[k v]] v) filters)
-        filters (if (empty? filters)
-                  {:schema/type (db/kw->type type)}
-                  filters)]
-    (map #(find (:id %))
-         (db/nice-query {:find '[?id]
-                         :where (filters->wheres type filters)}))))
+  (map #(find (:id %))
+       (db/nice-query {:find '[?id]
+                       :where (filters->wheres type filters)})))
 
 (spec/def
   ::ref

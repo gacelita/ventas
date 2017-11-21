@@ -104,9 +104,11 @@
       (for [term terms]
         [product-term products-path taxonomy term])]]))
 
-(defn product-filters [{:keys [taxonomies products-path]}]
-  (assert (coll? products-path))
-  [:div.product-filters
-   (for [taxonomy taxonomies]
-     ^{:key (:id taxonomy)}
-     [product-filter products-path taxonomy])])
+(defn product-filters [{:keys [products-path]}]
+  (rf/dispatch [::apply-filters products-path])
+  (fn [{:keys [taxonomies products-path]}]
+    (assert (coll? products-path))
+    [:div.product-filters
+     (for [taxonomy taxonomies]
+       ^{:key (:id taxonomy)}
+       [product-filter products-path taxonomy])]))
