@@ -75,6 +75,11 @@
   []
   (d/log db))
 
+(defn index-range
+  "index-range wrapper"
+  [attrid start end]
+  (d/index-range (d/db db) attrid start end))
+
 (defn transaction-log
   "Gets the list of all transactions"
   []
@@ -224,28 +229,44 @@
 (defn keyword->db-symbol [keyword]
   (symbol (str "?" (name keyword))))
 
+(defn db-symbol->keyword [db-symbol]
+  (keyword (subs (str db-symbol) 1)))
+
 (defn kw->type [kw]
   {:pre [(keyword? kw)]}
   (keyword "schema.type" (name kw)))
+
+(defn type->kw [type]
+  {:pre [(keyword? type)]}
+  (keyword (name type)))
 
 (defn map->query [m]
   (vec (concat '(:find) (:find m)
                '(:in) (:in m)
                '(:where) (:where m))))
 
-(defn- filtered-query* [wheres filters]
-  (map->query {:in (concat ['$] (remove nil? (keys filters)))
-               :where wheres
-               :find '(?id)}))
+(defn- nice-query* [{:keys [find where in]}]
+  (map->query {:find (remove nil? find)
+               :in (concat ['$] (remove nil? in))
+               :where where}))
 
-(defn filtered-query
-  "Filtered query.
-   Usage: (filtered-query '([?id :user/email ?email]) {:email \"some-email@example.com\"})"
-  ([] (filtered-query '() {}))
-  ([wheres] (filtered-query wheres {}))
-  ([wheres filters]
-   (let [query (filtered-query* wheres filters)]
-     (q query (vals filters)))))
+(defn nice-query
+  "Automates the :in argument and returns maps instead of vectors"
+  [{:keys [find in where]}]
+  {:pre [(sequential? find) (or (nil? in) (map? in)) (sequential? where)]}
+  (let [in (or in {})
+        where (or where [])
+        find (vec find)
+        query (nice-query* {:find find
+                            :in (keys in)
+                            :where where})]
+    (map (fn [result]
+           (into {}
+                 (map-indexed
+                  (fn [idx itm]
+                    [(db-symbol->keyword (nth find idx)) itm])
+                  result)))
+         (q query (vals in)))))
 
 (defn recreate
   "Recreates the database"

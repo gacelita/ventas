@@ -3,11 +3,12 @@
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.util :as util]
-   [clojure.test.check.generators :as gen]))
+   [clojure.test.check.generators :as gen]
+   [ventas.database.generators :as generators]))
 
-(spec/def :i18n.language/keyword keyword?)
+(spec/def :i18n.language/keyword ::generators/keyword)
 
-(spec/def :i18n.language/name string?)
+(spec/def :i18n.language/name ::generators/string)
 
 (spec/def :schema.type/i18n.language
   (spec/keys :req [:i18n.language/keyword
@@ -37,7 +38,7 @@
 
 
 
-(spec/def :i18n.translation/value string?)
+(spec/def :i18n.translation/value ::generators/string)
 
 (spec/def :i18n.translation/language
   (spec/with-gen ::entity/ref #(entity/ref-generator :i18n.language)))
@@ -65,14 +66,17 @@
      (:i18n.translation/value this)])})
 
 (defn translations-generator-for-language [language-id]
-  (gen/elements
-   (map :db/id
-        (entity/query :i18n.translation
-                      {:i18n.translation/language language-id}))))
+  (let [translations (entity/query :i18n.translation
+                                   {:i18n.translation/language language-id})]
+    (when (seq translations)
+      (gen/elements
+       (map :db/id translations)))))
 
 (defn translations-generator []
   (let [language-ids (map :db/id (entity/query :i18n.language))]
-    (apply gen/tuple (map translations-generator-for-language language-ids))))
+    (apply gen/tuple
+           (remove nil?
+                   (map translations-generator-for-language language-ids)))))
 
 (spec/def :i18n/translations
   (spec/with-gen ::entity/refs

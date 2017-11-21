@@ -4,10 +4,11 @@
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]))
 
-(spec/def :resource/keyword keyword?)
-(spec/def :resource/name string?)
+(spec/def :resource/keyword ::generators/keyword)
+(spec/def :resource/name ::generators/string)
 (spec/def :resource/file
   (spec/with-gen
    ::entity/ref

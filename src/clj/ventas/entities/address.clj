@@ -3,17 +3,18 @@
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [ventas.database.entity :as entity]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [ventas.database.generators :as generators]))
 
-(spec/def :address/name string?)
+(spec/def :address/name ::generators/string)
 
-(spec/def :address/person-name string?)
+(spec/def :address/person-name ::generators/string)
 
-(spec/def :address/address string?)
+(spec/def :address/address ::generators/string)
 
 (spec/def :address/zip integer?)
 
-(spec/def :address/city string?)
+(spec/def :address/city ::generators/string)
 
 (spec/def :address/country
   (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :country)))))
@@ -24,9 +25,9 @@
 (spec/def :address/user
   (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :user)))))
 
-(spec/def :address/phone string?)
+(spec/def :address/phone ::generators/string)
 
-(spec/def :address/comments string?)
+(spec/def :address/comments ::generators/string)
 
 (spec/def :schema.type/address
   (spec/keys :req [:address/name

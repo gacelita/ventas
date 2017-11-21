@@ -24,11 +24,22 @@
 (defn seed-type
   "Seeds the database with n entities of a type"
   [type n]
+  (doseq [fixture (entity/fixtures type)]
+    (entity/transact fixture))
   (doseq [attributes (generate-n (db/kw->type type) n)]
     (let [seed-entity (entity/filter-seed attributes)
           _ (entity/before-seed seed-entity)
           entity (entity/transact seed-entity)]
       (entity/after-seed entity))))
+
+(defn seed-type-with-deps
+  [type n]
+  (info "Seeding type with deps:" type)
+  (let [deps (entity/dependencies type)]
+    (doseq [dep deps]
+      (seed-type-with-deps dep 1))
+    (info "-> " type)
+    (seed-type type n)))
 
 (defn- get-sorted-types*
   [current remaining]
@@ -58,7 +69,7 @@
 (defn get-sorted-types
   "Returns the types in dependency order"
   []
-  (let [types (set (keys @entity/registered-types))]
+  (let [types (entity/types)]
     (detect-circular-dependencies! types)
     (get-sorted-types* [] types)))
 
@@ -70,8 +81,6 @@
   (info "Migrations done!")
   (doseq [type (get-sorted-types)]
     (info "Seeding type " type)
-    (doseq [fixture (entity/fixtures type)]
-      (entity/transact fixture))
     (seed-type type (entity/seed-number type)))
   (doseq [plugin-kw (plugin/all-plugins)]
     (info "Seeding plugin " plugin-kw)

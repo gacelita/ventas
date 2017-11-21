@@ -49,7 +49,7 @@
 (defn types
   "Returns all types"
   []
-  (keys @registered-types))
+  (set (keys @registered-types)))
 
 (defn type-exists?
   [type]
@@ -295,16 +295,24 @@
                  (if (set? value)
                    (for [item value]
                      [var attribute item])
+                   [[var attribute value]])))
+       (mapcat (fn [[var attribute value]]
+                 (if (vector? value)
+                   (let [[min max] value]
+                     [[var attribute value]])
                    [[var attribute value]])))))
 
 (defn query
-  "Performs a high-level query."
-  ([type]
-   (query type {:schema/type (db/kw->type type)}))
-  ([type filters]
-   (map #(find (first %))
-        (db/filtered-query
-         (filters->wheres type filters)))))
+  "Performs a high-level query.
+   Accepts optional `wheres` clauses"
+  [type & [filters]]
+  (let [filters (filter (fn [[k v]] v) filters)
+        filters (if (empty? filters)
+                  {:schema/type (db/kw->type type)}
+                  filters)]
+    (map #(find (:id %))
+         (db/nice-query {:find '[?id]
+                         :where (filters->wheres type filters)}))))
 
 (spec/def
   ::ref

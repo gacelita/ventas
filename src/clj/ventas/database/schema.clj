@@ -87,8 +87,7 @@
     (mount.core/stop #'db/db)
     (db/recreate)
     (mount.core/start #'db/db))
-  (let [database-url (config/get [:database :url])
-        migrations (get-migrations)]
+  (let [migrations (get-migrations)]
     (info "Running migrations")
     (doseq [migration migrations]
       (doseq [[k v] migration]

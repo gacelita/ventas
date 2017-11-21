@@ -11,7 +11,6 @@
   Universal subscription and event.
   Use a more specific subscription or event as needed."
 
-(js/console.log "reg-sub!")
 (rf/reg-sub
  :ventas/db
  (fn [db [_ where]]
@@ -79,6 +78,11 @@
  :api/products.save
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :products.save} options)}))
+
+(rf/reg-event-fx
+ :api/products.aggregations
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :products.aggregations} options)}))
 
 (rf/reg-event-fx
  :api/reference

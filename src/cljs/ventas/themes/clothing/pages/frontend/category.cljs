@@ -11,19 +11,29 @@
    [ventas.utils :as util :refer [value-handler]]
    [ventas.routes :as routes]))
 
+(def term-counts-key ::term-counts)
+
+(def products-key ::products)
+
 (defn page []
-  (reagent/with-let [data (atom {})]
+  (rf/dispatch [:api/products.aggregations
+                {:success-fn #(rf/dispatch [:ventas/db [term-counts-key] %])}])
+  (fn []
     [skeleton
      [:div.category-page.ui.container
       [:div.category-page__sidebar
-       [components.product-filters/product-filters]]
+       (let [data @(rf/subscribe [:ventas/db [term-counts-key]])]
+         (when (seq data)
+           [components.product-filters/product-filters
+            (merge data
+                   {:products-path [products-key]})]))]
       [:div.category-page__content
-       [products-list]]]]))
+       (let [products @(rf/subscribe [:ventas/db [products-key]])]
+         [products-list products])]]]))
 
 (routes/define-route!
  :frontend.category
  {:name (fn [params]
-          (js/console.log "route params" params)
           (apply i18n ::page (vals params)))
   :url ["category/" :keyword]
   :component page})

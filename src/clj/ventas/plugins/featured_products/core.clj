@@ -15,8 +15,9 @@
   :name "Featured products"
   :fixtures
   (fn []
-    (->> (db/filtered-query '([?id :product/images _]))
-         (map (comp entity/find first))
+    (->> (db/nice-query {:find ['?id]
+                         :where [['?id :product/images '_]]})
+         (map (comp entity/find :id))
          (map #(assoc % :product/featured true))
          (map #(dissoc % :db/id))))})
 

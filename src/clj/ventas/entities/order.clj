@@ -4,7 +4,8 @@
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]))
 
 #_"
   Orders have:
@@ -31,11 +32,11 @@
 (spec/def :order/billing-address
   (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :address)))))
 
-(spec/def :order/shipping-method keyword?)
-(spec/def :order/shipping-comments string?)
+(spec/def :order/shipping-method ::generators/keyword)
+(spec/def :order/shipping-comments ::generators/string)
 
-(spec/def :order/payment-method keyword?)
-(spec/def :order/payment-reference string?)
+(spec/def :order/payment-method ::generators/keyword)
+(spec/def :order/payment-reference ::generators/string)
 
 (spec/def :schema.type/order
   (spec/keys :req [:order/user

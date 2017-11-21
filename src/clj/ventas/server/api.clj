@@ -159,9 +159,11 @@ Eventos:
 
 (register-endpoint!
   :products.list
-  (fn [{{:keys [pagination]} :params} state]
-    (let [items (map entity/to-json (entity/query :product))]
-      (paginate items pagination))))
+  (fn [{{:keys [pagination filters]} :params} state]
+    (let [{:keys [terms price]} filters]
+      (assert (or (nil? terms) (set? terms)))
+      (let [items (map entity/to-json (entity/query :product {:terms terms}))]
+        (paginate items pagination)))))
 
 (register-endpoint!
   :products.save
@@ -169,8 +171,13 @@ Eventos:
     (entity/upsert :product (-> (:params message)
                                 (update :price bigdec)))))
 
-(defn term-counts []
-  (->> (db/q '[:find (count ?product-eid) ?term-eid ?term-translation-value ?term-taxonomy ?tax-translation-value
+(defn- term-counts []
+  (->> (db/q '[:find (count ?product-eid)
+                     ?term-eid
+                     ?term-translation-value
+                     ?term-taxonomy
+                     ?tax-translation-value
+                     ?tax-keyword
                :where
                [?product-eid :product/terms ?term-eid]
                [?term-eid :product.term/name ?term-name]
@@ -179,23 +186,33 @@ Eventos:
                [?term-translation :i18n.translation/value ?term-translation-value]
                [?term-translation :i18n.translation/language [:i18n.language/keyword :en]]
                [?term-taxonomy :product.taxonomy/name ?tax-name]
+               [?term-taxonomy :product.taxonomy/keyword ?tax-keyword]
                [?tax-name :i18n/translations ?tax-translation]
                [?tax-translation :i18n.translation/value ?tax-translation-value]
                [?tax-translation :i18n.translation/language [:i18n.language/keyword :en]]])
-       (map (fn [[count term-id term-name tax-id tax-name]]
+       (map (fn [[count term-id term-name tax-id tax-name tax-keyword]]
               {:count count
                :id term-id
                :name term-name
                :taxonomy {:id tax-id
-                          :name tax-name}}))))
+                          :name tax-name
+                          :keyword tax-keyword}}))))
+
+(defn- prices []
+  (let [[min max]
+        (->> (db/q '[:find (min ?price) (max ?price)
+                     :where [_ :product/price ?price]])
+             (first))]
+    {:min min :max max}))
 
 (register-endpoint!
-  :products/term-counts
+  :products.aggregations
   (fn [message _]
-    (map (fn [[k v]]
-           {:taxonomy k
-            :terms (map #(dissoc % :taxonomy) v)})
-         (group-by :taxonomy (term-counts)))))
+    {:taxonomies
+     (map (fn [[k v]]
+            (assoc k :terms (map #(dissoc % :taxonomy) v)))
+          (group-by :taxonomy (term-counts)))
+     :prices (prices)}))
 
 
 

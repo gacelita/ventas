@@ -1,6 +1,7 @@
 (ns ventas.components.product-filters
-  (:require [ventas.components.base :as base]
-            [re-frame.core :as rf]))
+  (:require
+   [ventas.components.base :as base]
+   [re-frame.core :as rf]))
 
 (def mock-data
   {:products-path [::products]
@@ -52,16 +53,16 @@
    (update-in db [filters-key taxonomy-id :closed] not)))
 
 (defn state->api-params [taxonomies]
-  (into {}
-        (map (fn [[taxonomy-id {:keys [selection]}]]
-               [taxonomy-id selection])
-             taxonomies)))
+  (set
+   (mapcat (fn [[taxonomy-id {:keys [selection]}]]
+             selection)
+           taxonomies)))
 
 (rf/reg-event-fx
  ::apply-filters
  (fn [{:keys [db]} [_ products-path]]
    {:dispatch [:api/products.list
-               {:params {:filters (state->api-params (get db filters-key))}
+               {:params {:filters {:terms (state->api-params (get db filters-key))}}
                 :success-fn #(rf/dispatch [:ventas/db products-path %])}]}))
 
 (rf/reg-event-fx
@@ -86,7 +87,7 @@
                   :on-change #(rf/dispatch [::add-filter {:products-path products-path
                                                           :taxonomy-id (:id taxonomy)
                                                           :term-id (:id term)
-                                                          :term-value (:checked %2)}])}])
+                                                          :term-value (.-checked %2)}])}])
 
 (defn product-term [products-path {:keys [keyword] :as taxonomy} term]
   [:div.product-filter__term {:class (str "product-filter__term--" (name keyword))}
@@ -103,10 +104,9 @@
       (for [term terms]
         [product-term products-path taxonomy term])]]))
 
-(defn product-filters [data]
-  (let [{:keys [taxonomies products-path]} mock-data]
-    (assert (coll? products-path))
-    [:div.product-filters
-     (for [taxonomy taxonomies]
-       ^{:key (:id taxonomy)}
-       [product-filter products-path taxonomy])]))
+(defn product-filters [{:keys [taxonomies products-path]}]
+  (assert (coll? products-path))
+  [:div.product-filters
+   (for [taxonomy taxonomies]
+     ^{:key (:id taxonomy)}
+     [product-filter products-path taxonomy])])

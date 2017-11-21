@@ -6,13 +6,14 @@
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.util :as util]))
+   [ventas.util :as util]
+   [ventas.database.generators :as generators]))
 
-(spec/def :user/name string?)
+(spec/def :user/name ::generators/string)
 
-(spec/def :user/password string?)
+(spec/def :user/password ::generators/string)
 
-(spec/def :user/description string?)
+(spec/def :user/description ::generators/string)
 
 (spec/def :user/status
   #{:user.status/pending

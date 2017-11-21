@@ -4,9 +4,10 @@
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]))
 
-(spec/def :state/name string?)
+(spec/def :state/name ::generators/string)
 
 (spec/def :schema.type/state
   (spec/keys :req [:state/name]))

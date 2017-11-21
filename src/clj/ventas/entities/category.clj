@@ -4,7 +4,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.util :refer [update-if-exists]]))
+   [ventas.util :refer [update-if-exists]]
+   [ventas.database.generators :as generators]))
 
 (spec/def :category/name ::entities.i18n/ref)
 
@@ -14,7 +15,7 @@
 (spec/def :category/image
   (spec/with-gen integer? #(entity/ref-generator :file)))
 
-(spec/def :category/keyword keyword?)
+(spec/def :category/keyword ::generators/keyword)
 
 (spec/def :schema.type/category
   (spec/keys :req [:category/name
@@ -27,11 +28,12 @@
     (-> (:category/image entity)
         (entity/find)
         (entity/to-json))
-    (-> (db/filtered-query '([_ :product/categories ?category]
-                             [_ :product/images ?id])
-                           {'?category (:db/id entity)})
+    (-> (db/nice-query {:find ['?id]
+                        :in {'?category (:db/id entity)}
+                        :where '[[_ :product/categories ?category]
+                                 [_ :product/images ?id]]})
         (first)
-        (first)
+        (:id)
         (entity/find)
         (entity/to-json))))
 

@@ -4,9 +4,10 @@
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]))
 
-(spec/def :tax/name string?)
+(spec/def :tax/name ::generators/string)
 (spec/def :tax/kind #{:tax.kind/percentage :tax.kind/amount})
 (spec/def :tax/amount double?)
 

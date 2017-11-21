@@ -2,20 +2,21 @@
   (:require
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
+   [ventas.database.generators :as generators]
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.util :refer [update-if-exists]]))
 
-(spec/def :product/name string?)
+(spec/def :product/name ::generators/string)
 
-(spec/def :product/reference string?)
+(spec/def :product/reference ::generators/string)
 
-(spec/def :product/ean13 string?)
+(spec/def :product/ean13 ::generators/string)
 
 (spec/def :product/active boolean?)
 
-(spec/def :product/description string?)
+(spec/def :product/description ::generators/string)
 
 (spec/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
 
@@ -62,26 +63,43 @@
 ;;    term.name: "Blue"
 ;;    term.taxonomy: ref to attribute
 
-(spec/def :schema.type/product
+(spec/def ::product-for-generation
   (spec/keys :req [:product/name
                    :product/active
-                   :product/price]
+                   :product/price
+                   :product/images]
              :opt [:product/reference
                    :product/ean13
                    :product/description
                    :product/condition
                    :product/brand
                    :product/tax
-                   :product/images
                    :product/categories
                    :product/terms]))
+
+(spec/def :schema.type/product
+  (spec/with-gen
+   (spec/keys :req [:product/name
+                    :product/active
+                    :product/price]
+              :opt [:product/reference
+                    :product/ean13
+                    :product/description
+                    :product/condition
+                    :product/brand
+                    :product/tax
+                    :product/images
+                    :product/categories
+                    :product/terms])
+   #(spec/gen ::product-for-generation)))
 
 (entity/register-type!
  :product
  {:attributes
   [{:db/ident :product/price
     :db/valueType :db.type/bigdec
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/index true}
 
    {:db/ident :product/name
     :db/valueType :db.type/string
