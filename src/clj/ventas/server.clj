@@ -75,7 +75,10 @@
 ;; Calls an appropiate function depending on message type
 (defn ws-message-handler [message client-id session ws-channel req]
   ; Get all of that state into a single map, just in case something needs it
-  (let [state {:client-id client-id :ws-channel ws-channel :request req :session session}]
+  (let [state {:client-id client-id
+               :ws-channel ws-channel
+               :request req
+               :session session}]
     (case (:type message)
       :event
       (ws-event-handler message state)

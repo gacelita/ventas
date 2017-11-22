@@ -1,5 +1,9 @@
 
-.ui.segment.segment__-1505837922 {
+.login-page {
+    margin: 30px 0px 40px;
+}
+
+.ui.segment.login-page__segment {
     display: inline-block;
     vertical-align: top;
     width: calc(50% - 40px);
@@ -11,11 +15,8 @@
     }
 }
 
-.forgot-password__-1505837922 {
+.login-page__forgot-password {
     display: block;
     margin: 14px 0px;
 }
 
-.page__-1505837922 {
-    margin: 30px 0px 40px;
-}

@@ -33,9 +33,10 @@
     :quantity 5}])
 
 (defn line [data]
+  (js/console.log "line" data)
   (rf/dispatch [:ventas/entities.sync (:id data)])
   (fn [data]
-    (let [product @(rf/subscribe [:ventas/db [:entities (:id data)]])]
+    (when-let [product @(rf/subscribe [:ventas/db [:entities (:id data)]])]
       [base/tableRow
        [base/tableCell
         [:a {:href (routes/path-for :frontend.product :id (:id product))} (:name product)]]

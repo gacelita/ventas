@@ -59,6 +59,7 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident :order.status/draft}
    {:db/ident :order.status/unpaid}
    {:db/ident :order.status/paid}
    {:db/ident :order.status/acknowledged}

@@ -11,7 +11,8 @@
    [ventas.paths :as paths]
    [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
    [ventas.util :as util]
-   [ventas.utils.images :as utils.images]))
+   [ventas.utils.images :as utils.images]
+   [ventas.auth :as auth]))
 
 (defn register-endpoint!
   ([kw f]
@@ -85,33 +86,59 @@
       (let [user (first (entity/query :user {:email email}))]
         (when-not user
           (throw (Exception. "User not found")))
-        (when-not (hashers/check password (:password user))
+        (when-not (hashers/check password (:user/password user))
           (throw (Exception. "Invalid credentials")))
-        (swap! session assoc :identity (:id user))
-        {:user (entity/to-json user)
-         :token {:email email
-                 :password password}}))))
+        (let [token (auth/user->token user)]
+          (swap! session assoc :token token)
+          {:user (entity/to-json user)
+           :token token})))))
+
+(register-endpoint!
+  :users.session.start
+  (fn [{:keys [params] :as message} {:keys [session] :as state}]
+    (when-let [token (:token params)]
+      (when-let [user (auth/token->user token)]
+        (swap! session assoc :token token)
+        {:identity (entity/to-json user)}))))
 
 (register-endpoint!
   :users.session
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [{:keys [email password]} (:token params)]
-      (first (entity/query :user {:email email})))))
+    (when-let [token (or (:token params) (get @session :token))]
+      (when-let [user (auth/token->user token)]
+        (when (:token params)
+          (swap! session assoc :token token))
+        {:identity (entity/to-json user)}))))
 
 (register-endpoint!
   :users.logout
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [identity (:identity session)]
-      (when identity
-        (swap! session dissoc :identity)))))
+    (let [token (:token session)]
+      (when token
+        (swap! session dissoc :token)))))
 
 (register-endpoint!
   :users.register
-  (fn [{:keys [params] :as message} state]
+  (fn [{:keys [params] :as message} {:keys [session] :as state}]
     (let [{:keys [email password name]} params]
-      (if (and (seq email) (seq password) (seq name))
-        (entity/create :user {:name name :email email :password password})
-        (throw (Exception. "Email, password and name are required"))))))
+      (when (or (empty? email) (empty? password) (empty? name))
+        (throw (Exception. "Email, password and name are required")))
+      (let [user (entity/create :user {:name name
+                                       :email email
+                                       :password password})
+            token (auth/user->token user)]
+        {:user (entity/to-json user)
+         :token token}))))
+
+(register-endpoint!
+  :users.draft-order
+  (fn [{:keys [params]} state]
+    (let [user {}]
+      (-> (entity/query :order {:status :order.status/draft
+                                :user (:id user)})
+          (first)
+          (entity/find)
+          (entity/to-json)))))
 
 
 

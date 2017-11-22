@@ -80,18 +80,19 @@
   [skeleton
    [:div.login-page
     (let [session @(rf/subscribe [:ventas/db [:session]])]
-      (if (seq session)
-        [base/container
-         [:p (i18n ::welcome (:name session))]
-         [base/button
-          [base/icon {:name "user"}]
-          (i18n ::my-profile)]
-         [base/button
-          [base/icon {:name "unordered list"}]
-          (i18n ::my-orders)]
-         [base/button
-          [base/icon {:name "address book"}]
-          (i18n ::my-addresses)]]
+      (if (get-in session [:identity :id])
+        (let [user (:identity session)]
+          [base/container
+           [:p (i18n ::welcome (:name user))]
+           [base/button
+            [base/icon {:name "user"}]
+            (i18n ::my-profile)]
+           [base/button
+            [base/icon {:name "unordered list"}]
+            (i18n ::my-orders)]
+           [base/button
+            [base/icon {:name "address book"}]
+            (i18n ::my-addresses)]])
 
         [base/container
          [login]

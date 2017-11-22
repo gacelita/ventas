@@ -72,6 +72,26 @@
 
     :ventas.themes.clothing.pages.frontend/page "Home"
     :ventas.themes.clothing.pages.frontend.category/page "%s"
+    :ventas.themes.clothing.pages.frontend.cart/cart "Cart"
+    :ventas.themes.clothing.pages.frontend.cart/page "Cart"
+    :ventas.themes.clothing.pages.frontend.cart/product "Product"
+    :ventas.themes.clothing.pages.frontend.cart/description "Description"
+    :ventas.themes.clothing.pages.frontend.cart/price "Price"
+    :ventas.themes.clothing.pages.frontend.cart/quantity "Quantity"
+    :ventas.themes.clothing.pages.frontend.cart/total "Total"
+
+    :ventas.themes.clothing.pages.frontend.login/login "Login"
+    :ventas.themes.clothing.pages.frontend.login/register "Register"
+    :ventas.themes.clothing.pages.frontend.login/full-name "Full name"
+    :ventas.themes.clothing.pages.frontend.login/email "Email"
+    :ventas.themes.clothing.pages.frontend.login/password "Password"
+    :ventas.themes.clothing.pages.frontend.login/welcome "Welcome %s"
+    :ventas.themes.clothing.pages.frontend.login/my-profile "My profile"
+    :ventas.themes.clothing.pages.frontend.login/my-addresses "My addresses"
+    :ventas.themes.clothing.pages.frontend.login/my-orders "My orders"
+
+    :ventas.themes.clothing.pages.frontend.login/forgot-password "Password forgotten?"
+    :ventas.themes.clothing.pages.frontend.login/user-registered "Your account is ready. Welcome!"
 
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
