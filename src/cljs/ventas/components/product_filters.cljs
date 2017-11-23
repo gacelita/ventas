@@ -1,6 +1,7 @@
 (ns ventas.components.product-filters
   (:require
    [ventas.components.base :as base]
+   [ventas.components.sidebar :as sidebar]
    [re-frame.core :as rf]))
 
 (def mock-data
@@ -47,11 +48,6 @@
 
 (def filters-key ::product-filters)
 
-(rf/reg-event-db
- ::toggle-filter
- (fn [db [_ taxonomy-id]]
-   (update-in db [filters-key taxonomy-id :closed] not)))
-
 (defn state->api-params [taxonomies]
   (set
    (mapcat (fn [[taxonomy-id {:keys [selection]}]]
@@ -69,7 +65,6 @@
 (rf/reg-event-fx
  ::apply-filters
  (fn [{:keys [db]} [_ products-path]]
-   (js/console.log "APPLYING FILTERS")
    {:dispatch [:api/products.list
                {:params {:filters {:terms (state->api-params (get db filters-key))}
                          :pagination (:pagination (get-in db products-path))}
@@ -111,22 +106,15 @@
   [:div.product-filter__term {:class (str "product-filter__term--" (name keyword))}
    [product-term* products-path taxonomy term]])
 
-(defn product-filter [products-path {:keys [id name keyword terms] :as taxonomy}]
-  (let [{:keys [closed]} @(rf/subscribe [:ventas/db [filters-key id]])]
-    [:div.product-filter {:class (if closed "product-filter--closed" "product-filter--open")}
-     [:div.product-filter__header
-      {:on-click #(rf/dispatch [::toggle-filter id])}
-      [:h2 name]
-      [base/icon {:name (str "chevron " (if closed "down" "up"))}]]
-     [:div.product-filter__content
-      (for [term terms]
-        [product-term products-path taxonomy term])]]))
-
 (defn product-filters [{:keys [products-path]}]
   (rf/dispatch [::init products-path])
   (fn [{:keys [taxonomies products-path]}]
     (assert (coll? products-path))
-    [:div.product-filters
-     (for [taxonomy taxonomies]
-       ^{:key (:id taxonomy)}
-       [product-filter products-path taxonomy])]))
+    [sidebar/sidebar
+     [:div.product-filters
+      (for [taxonomy taxonomies]
+        ^{:key (:id taxonomy)}
+        [sidebar/sidebar-section {:id (:id taxonomy)
+                                  :name (:name taxonomy)}
+         (for [term (:terms taxonomy)]
+           [product-term products-path taxonomy term])])]]))

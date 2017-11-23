@@ -9,6 +9,7 @@
    [ventas.components.base :as base]
    [ventas.utils :as util :refer [value-handler]]
    [ventas.components.notificator :as notificator]
+   [ventas.components.sidebar :as sidebar]
    [ventas.routes :as routes]))
 
 (defn- login-successful [{:keys [user token]}]
@@ -77,26 +78,16 @@
        (i18n ::register)]]]))
 
 (defn page []
-  [skeleton
-   [:div.login-page
-    (let [session @(rf/subscribe [:ventas/db [:session]])]
-      (if (get-in session [:identity :id])
-        (let [user (:identity session)]
-          [base/container
-           [:p (i18n ::welcome (:name user))]
-           [base/button
-            [base/icon {:name "user"}]
-            (i18n ::my-profile)]
-           [base/button
-            [base/icon {:name "unordered list"}]
-            (i18n ::my-orders)]
-           [base/button
-            [base/icon {:name "address book"}]
-            (i18n ::my-addresses)]])
-
+  (let [session @(rf/subscribe [:ventas/db [:session]])]
+    (if (get-in session [:identity :id])
+      (do
+        (routes/go-to :frontend.profile)
+        [:div])
+      [skeleton
+       [:div.login-page
         [base/container
          [login]
-         [register]]))]])
+         [register]]]])))
 
 (routes/define-route!
  :frontend.cart

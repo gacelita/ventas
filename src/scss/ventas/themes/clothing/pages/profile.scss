@@ -1,0 +1,26 @@
+
+.profile-page {
+    margin: 20px 0px 50px;
+    display: flex !important;
+
+    .sidebar {
+        width: 300px;
+    }
+
+    .ui.segment {
+        cursor: pointer;
+        &:hover {
+            background-color: #f5f5f5;
+        }
+    }
+}
+
+.profile-page__content {
+    width: 100%;
+    padding-left: 8px;
+}
+
+.profile-page__name {
+    font-weight: normal;
+    margin: 18px 0px;
+}

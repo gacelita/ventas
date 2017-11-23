@@ -1,42 +1,10 @@
 
-.product-filters {
-
-}
-
 .product-filter {
-    background-color: #ececec;
-    padding: 13px;
-    margin-bottom: 20px;
-
-    &.product-filter--closed {
-        .product-filter__content {
-            height: 0px;
+    .sidebar-section__content {
+        .ui.checkbox {
+            display: block;
+            margin: 11px 0px;
         }
-    }
-}
-
-.product-filter__header {
-    border-bottom: solid 1px #cacaca;
-    display: flex;
-    padding-bottom: 9px;
-    cursor: pointer;
-    padding-top: 10px;
-    margin-top: -10px;
-
-    h2 {
-        font-size: 1.2rem;
-        flex: 1;
-        margin-bottom: 0px;
-    }
-}
-
-.product-filter__content {
-    overflow: hidden;
-    margin-top: 10px;
-
-    .ui.checkbox {
-        display: block;
-        margin: 11px 0px;
     }
 }
 
