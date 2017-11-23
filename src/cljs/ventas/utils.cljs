@@ -7,7 +7,9 @@
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.utils.formatting :as utils.formatting]
    [cljs.spec.alpha :as spec]
-   [expound.alpha :as expound]))
+   [expound.alpha :as expound])
+  (:require-macros
+   [ventas.utils]))
 
 (defn route-param [kw]
   (get-in (session/get :route) [:route-params kw]))
@@ -65,3 +67,9 @@
                                    (reset! t nil)
                                    (apply f args))
                                 threshold))))))
+
+(defn get-identity []
+  (let [session @(rf/subscribe [:ventas/db [:session]])]
+    (when-not (get-in session [:identity :id])
+      (routes/go-to :frontend.login))
+    (:identity session)))

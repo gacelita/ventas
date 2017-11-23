@@ -1,23 +1,21 @@
 
-.profile-page {
+.profile-skeleton {
     margin: 20px 0px 50px;
     display: flex !important;
+}
 
-    .sidebar {
-        width: 300px;
-    }
+.profile-skeleton__content {
+    width: 100%;
+    padding-left: 8px;
+}
 
+.profile-page {
     .ui.segment {
         cursor: pointer;
         &:hover {
             background-color: #f5f5f5;
         }
     }
-}
-
-.profile-page__content {
-    width: 100%;
-    padding-left: 8px;
 }
 
 .profile-page__name {

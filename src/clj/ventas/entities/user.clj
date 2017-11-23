@@ -15,6 +15,12 @@
 
 (spec/def :user/description ::generators/string)
 
+(spec/def :user/first-name ::generators/string)
+
+(spec/def :user/last-name ::generators/string)
+
+(spec/def :user/company ::generators/string)
+
 (spec/def :user/status
   #{:user.status/pending
     :user.status/active
@@ -32,7 +38,9 @@
    #(gen'/string-from-regex #"[a-z0-9]{3,6}@[a-z0-9]{3,6}\.(com|es|org)")))
 
 (spec/def :schema.type/user
-  (spec/keys :req [:user/name
+  (spec/keys :req [:user/first-name
+                   :user/last-name
+                   :user/company
                    :user/email]
              :opt [:user/description
                    :user/roles
@@ -41,7 +49,19 @@
 
 (entity/register-type! :user
  {:attributes
-  [{:db/ident :user/name
+  [{:db/ident :user/first-name
+    :db/valueType :db.type/string
+    :db/fulltext true
+    :db/index true
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :user/last-name
+    :db/valueType :db.type/string
+    :db/fulltext true
+    :db/index true
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :user/company
     :db/valueType :db.type/string
     :db/fulltext true
     :db/index true
