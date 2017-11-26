@@ -91,15 +91,15 @@
   :fixtures
   (fn []
     [{:schema/type :schema.type/slider.slider
-      :slider.slider/name (entities.i18n/get-i18n-entity {:en "Sample slider"})
+      :slider.slider/name (entities.i18n/get-i18n-entity {:en_US "Sample slider"})
       :slider.slider/keyword :sample-slider
       :slider.slider/auto true
       :slider.slider/auto-speed 4000
       :slider.slider/slides [{:schema/type :schema.type/slider.slide
-                              :slider.slide/name (entities.i18n/get-i18n-entity {:en "First slide"})
+                              :slider.slide/name (entities.i18n/get-i18n-entity {:en_US "First slide"})
                               :slider.slide/file (first (entity/query :file))}
                              {:schema/type :schema.type/slider.slide
-                              :slider.slide/name (entities.i18n/get-i18n-entity {:en "Second slide"})
+                              :slider.slide/name (entities.i18n/get-i18n-entity {:en_US "Second slide"})
                               :slider.slide/file (second (entity/query :file))}]}])
 
   :to-json

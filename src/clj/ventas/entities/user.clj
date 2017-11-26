@@ -35,11 +35,14 @@
 
 (spec/def :user/roles roles)
 
+
+
 (def cultures
   #{:user.culture/en_US
     :user.culture/es_ES})
 
-(spec/def :user/culture cultures)
+(spec/def :user/culture
+  (spec/with-gen ::entity/ref #(entity/ref-generator :i18n.culture)))
 
 (spec/def :user/email
   (spec/with-gen
@@ -102,28 +105,16 @@
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/one}
 
-    {:db/ident :user.status/pending}
-    {:db/ident :user.status/active}
-    {:db/ident :user.status/inactive}
-    {:db/ident :user.status/cancelled}
-
     {:db/ident :user/culture
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/one}
 
-    {:db/ident :user.culture/es_ES}
-    {:db/ident :user.culture/en_US}
-
     {:db/ident :user/roles
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many}
+     :db/cardinality :db.cardinality/many}]
 
-    {:db/ident :user.role/administrator}
-    {:db/ident :user.role/user}]
-
-  (map #(hash-map :db/ident %) statuses)
-  (map #(hash-map :db/ident %) cultures)
-  (map #(hash-map :db/ident %) roles))
+   (map #(hash-map :db/ident %) statuses)
+   (map #(hash-map :db/ident %) roles))
 
   :filter-transact
   (fn [this]
@@ -143,4 +134,4 @@
       :user/email "test@test.com"
       :user/status :user.status/active
       :user/password "test"
-      :user/culture :user.culture/en_US}])})
+      :user/culture [:i18n.culture/keyword :en_US]}])})

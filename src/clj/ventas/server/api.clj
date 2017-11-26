@@ -221,12 +221,12 @@ Eventos:
                [?term-eid :product.term/taxonomy ?term-taxonomy]
                [?term-name :i18n/translations ?term-translation]
                [?term-translation :i18n.translation/value ?term-translation-value]
-               [?term-translation :i18n.translation/language [:i18n.language/keyword :en]]
+               [?term-translation :i18n.translation/language [:i18n.culture/keyword :en_US]]
                [?term-taxonomy :product.taxonomy/name ?tax-name]
                [?term-taxonomy :product.taxonomy/keyword ?tax-keyword]
                [?tax-name :i18n/translations ?tax-translation]
                [?tax-translation :i18n.translation/value ?tax-translation-value]
-               [?tax-translation :i18n.translation/language [:i18n.language/keyword :en]]])
+               [?tax-translation :i18n.translation/language [:i18n.culture/keyword :en_US]]])
        (map (fn [[count term-id term-name tax-id tax-name tax-keyword]]
               {:count count
                :id term-id
