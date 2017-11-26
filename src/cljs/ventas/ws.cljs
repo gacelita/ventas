@@ -120,19 +120,19 @@
         (>! channel (and json-result fressian-result))))
     channel))
 
-(defn effect-ws-request [request]
+(defn effect-ws-request [{:keys [name params success success-fn]}]
   (send-request!
-   {:name (:name request)
-    :params (:params request)
+   {:name name
+    :params params
     :callback
     (fn [data]
       (cond
         (not (:success data))
           (rf/dispatch [::notificator/add {:message (:data data) :theme "warning"}])
-        (:success request)
-          (rf/dispatch [(:success request) (:data data)])
-        (:success-fn request)
-          ((:success-fn request) (:data data))))}))
+        success
+          (rf/dispatch [success (:data data)])
+        success-fn
+          (success-fn (:data data))))}))
 
 
 (defn effect-ws-upload-request
