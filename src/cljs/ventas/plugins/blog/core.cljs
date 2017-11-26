@@ -8,7 +8,7 @@
 (defn page []
   (let [sub-key :blog.core]
     (rf/dispatch [::blog.api/posts.list
-                  {:success-fn #(rf/dispatch [:ventas/db [sub-key] %])}])
+                  {:success #(rf/dispatch [:ventas/db [sub-key] %])}])
     (fn []
       [:div "My page"
        [:ul

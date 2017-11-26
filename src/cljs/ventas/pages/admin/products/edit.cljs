@@ -91,7 +91,7 @@
        [:input {:type "file"
                 :ref #(reset! ref %)
                 :on-change (fn [e]
-                             (rf/dispatch [:ventas/upload {:success-fn #(rf/dispatch [::upload.next %])
+                             (rf/dispatch [:ventas/upload {:success #(rf/dispatch [::upload.next %])
                                                            :file (-> (-> e .-target .-files)
                                                                      (js/Array.from)
                                                                      first)}]))}]])))
@@ -99,11 +99,11 @@
 (defn product-form []
   (rf/dispatch [:api/entities.find
                 (get-in (routes/current) [:route-params :id])
-                {:success-fn (fn [entity-data]
+                {:success (fn [entity-data]
                                (rf/dispatch [:ventas/db [form-data-key] entity-data])
                                (rf/dispatch [:ventas/db [form-hash-key] (hash entity-data)]))}])
-  (rf/dispatch [:api/brands.list {:success-fn #(rf/dispatch [:ventas/db [brands-sub-key] %])}])
-  (rf/dispatch [:api/taxes.list {:success-fn #(rf/dispatch [:ventas/db [taxes-sub-key] %])}])
+  (rf/dispatch [:api/brands.list {:success #(rf/dispatch [:ventas/db [brands-sub-key] %])}])
+  (rf/dispatch [:api/taxes.list {:success #(rf/dispatch [:ventas/db [taxes-sub-key] %])}])
 
   (fn []
     (let [form-data @(rf/subscribe [:ventas/db [form-data-key]])

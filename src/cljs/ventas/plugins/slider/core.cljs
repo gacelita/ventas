@@ -9,7 +9,7 @@
  (fn [cofx [_ kw]]
    {:dispatch [::api/sliders.get
                {:params {:keyword kw}
-                :success-fn #(rf/dispatch [:ventas/db [::sliders kw] %])}]}))
+                :success #(rf/dispatch [:ventas/db [::sliders kw] %])}]}))
 
 (rf/reg-event-db
  ::next

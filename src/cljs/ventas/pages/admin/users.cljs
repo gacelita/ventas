@@ -16,7 +16,7 @@
 
 (defn users-datatable [action-column]
   (let [sub-key :users]
-    (rf/dispatch [:api/users.list {:success-fn #(rf/dispatch [:ventas/db [sub-key] %])}])
+    (rf/dispatch [:api/users.list {:success #(rf/dispatch [:ventas/db [sub-key] %])}])
     (fn [action-column]
       (let [id (keyword (gensym "users"))]
         [:div

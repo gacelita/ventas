@@ -35,7 +35,7 @@
         key (atom nil)]
     (rf/dispatch [:api/entities.find
                   (get-in (routes/current) [:route-params :id])
-                  {:success-fn (fn [user]
+                  {:success (fn [user]
                                  (reset! data user)
                                  (reset! key (hash user)))}])
     (rf/dispatch [:ventas/reference :user.role])

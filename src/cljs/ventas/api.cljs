@@ -148,7 +148,7 @@
  (fn [cofx [_ key]]
    {:dispatch [:api/configuration.get
                {:params {:keyword key}
-                :success-fn
+                :success
                 (fn [data]
                   (rf/dispatch [:ventas/db [:configuration key] data]))}]}))
 
@@ -157,7 +157,7 @@
  (fn [cofx [_ type]]
    {:dispatch [:api/reference
                {:params {:type type}
-                :success-fn
+                :success
                 (fn [options]
                   (rf/dispatch [:ventas/db [:reference type]
                                 (map (fn [option]
@@ -170,7 +170,7 @@
  (fn [cofx [_ key]]
    {:dispatch [:api/resources.get
                {:params {:keyword key}
-                :success-fn
+                :success
                 (fn [data]
                   (rf/dispatch [:ventas/db [:resources key] data]))}]}))
 
@@ -179,7 +179,7 @@
  (fn [cofx [_ eid]]
    {:dispatch [:api/entities.find eid
                {:sync true
-                :success-fn (fn [entity-data]
+                :success (fn [entity-data]
                               (rf/dispatch [:ventas/db [:entities eid] entity-data]))}]}))
 
 (rf/reg-event-fx
@@ -187,7 +187,7 @@
  (fn [cofx [_ eid]]
    {:dispatch [:api/entities.remove
                {:params {:id eid}
-                :success-fn #(rf/dispatch [:ventas/entities.remove.next eid])}]}))
+                :success #(rf/dispatch [:ventas/entities.remove.next eid])}]}))
 
 (rf/reg-event-db
  :ventas/entities.remove.next
@@ -202,12 +202,18 @@
      (when (seq token)
        {:dispatch [:api/users.session
                    {:params {:token token}
-                    :success :ventas/session.start.next}]}))))
+                    :success :ventas/session.start.next
+                    :error :ventas/session.start.error}]}))))
 
 (rf/reg-event-fx
  :ventas/session.start.next
  (fn [cofx [_ data]]
    {:dispatch [:ventas/db [:session] data]}))
+
+(rf/reg-event-fx
+ :ventas/session.start.error
+ (fn [cofx [_ data]]
+   {:dispatch [:ventas/db [:session] ::error]}))
 
 (rf/reg-event-fx
  :ventas/session.stop
@@ -219,12 +225,12 @@
 (rf/reg-event-fx
  :ventas/image-sizes.list
  (fn [cofx [_ db-key]]
-   {:dispatch [:api/image-sizes.list {:success-fn #(rf/dispatch [:ventas/db db-key %])}]}))
+   {:dispatch [:api/image-sizes.list {:success #(rf/dispatch [:ventas/db db-key %])}]}))
 
 (rf/reg-event-fx
  :ventas/taxes.list
  (fn [cofx [_ db-key]]
-   {:dispatch [:api/taxes.list {:success-fn #(rf/dispatch [:ventas/taxes.list.next db-key %])}]}))
+   {:dispatch [:api/taxes.list {:success #(rf/dispatch [:ventas/taxes.list.next db-key %])}]}))
 
 (rf/reg-event-db
  :ventas/taxes.list.next
@@ -238,11 +244,11 @@
 
 (rf/reg-event-fx
  :ventas/upload
- (fn [cofx [_ {:keys [success-fn file]}]]
+ (fn [cofx [_ {:keys [success file]}]]
    (let [fr (js/FileReader.)]
      (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request
                                         {:name :upload
                                          :upload-key :bytes
                                          :upload-data (-> fr .-result)
-                                         :success-fn success-fn}]))
+                                         :success success}]))
      (.readAsArrayBuffer fr file))))

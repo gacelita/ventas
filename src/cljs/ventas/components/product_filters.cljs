@@ -68,7 +68,7 @@
    {:dispatch [:api/products.list
                {:params {:filters {:terms (state->api-params (get db filters-key))}
                          :pagination (:pagination (get-in db products-path))}
-                :success-fn #(rf/dispatch [::apply-filters.next products-path %])}]}))
+                :success #(rf/dispatch [::apply-filters.next products-path %])}]}))
 
 (rf/reg-event-db
  ::apply-filters.next

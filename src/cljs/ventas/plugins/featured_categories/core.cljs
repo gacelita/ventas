@@ -8,7 +8,7 @@
  ::featured-categories.list
  (fn [cofx [_]]
    {:dispatch [::api/featured-categories.list
-               {:success-fn #(rf/dispatch [:ventas/db [::featured-categories] %])}]}))
+               {:success #(rf/dispatch [:ventas/db [::featured-categories] %])}]}))
 
 (defn featured-categories []
   (rf/dispatch [::featured-categories.list])

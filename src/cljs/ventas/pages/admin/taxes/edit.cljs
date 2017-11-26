@@ -32,7 +32,7 @@
         key (atom nil)]
     (rf/dispatch [:api/entities.find
                   (get-in (routes/current) [:route-params :id])
-                  {:success-fn (fn [entity]
+                  {:success (fn [entity]
                                  (reset! data entity)
                                  (reset! key (hash entity)))}])
     (rf/dispatch [:ventas/reference :tax.kind])

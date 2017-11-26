@@ -25,7 +25,7 @@
     [base/icon {:name "remove"}]]])
 
 (defn products-datatable []
-  (rf/dispatch [:api/products.list {:success-fn #(rf/dispatch [:ventas/db [products-key] %])}])
+  (rf/dispatch [:api/products.list {:success #(rf/dispatch [:ventas/db [products-key] %])}])
   (fn []
     (let [id (keyword (gensym "products"))]
       [:div

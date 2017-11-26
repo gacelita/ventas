@@ -18,7 +18,7 @@
 
 (defn page []
   (rf/dispatch [:api/products.aggregations
-                {:success-fn #(rf/dispatch [:ventas/db [term-counts-key] %])}])
+                {:success #(rf/dispatch [:ventas/db [term-counts-key] %])}])
   (fn []
     [skeleton
      [:div.category-page.ui.container

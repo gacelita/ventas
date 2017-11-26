@@ -8,7 +8,7 @@
  ::featured-products.list
  (fn [cofx [_]]
    {:dispatch [::api/featured-products.list
-               {:success-fn #(rf/dispatch [:ventas/db [::featured-products] %])}]}))
+               {:success #(rf/dispatch [:ventas/db [::featured-products] %])}]}))
 
 (defn featured-products []
   (rf/dispatch [::featured-products.list])

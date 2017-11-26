@@ -47,7 +47,7 @@
   (fn [cofx [_]]
     {:ws-request {:name :datadmin/datoms
                   :params {}
-                  :success-fn #(rf/dispatch [:ventas/db [:datadmin :datoms] (:datoms %)])}}))
+                  :success #(rf/dispatch [:ventas/db [:datadmin :datoms] (:datoms %)])}}))
 
 (defn page []
   (rf/dispatch [:datadmin/datoms])

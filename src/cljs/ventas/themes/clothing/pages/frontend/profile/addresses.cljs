@@ -96,7 +96,7 @@
 
 (defn- content [identity]
   (rf/dispatch [:api/users.addresses
-                {:success-fn #(rf/dispatch [:ventas/db [addresses-key] %])}])
+                {:success #(rf/dispatch [:ventas/db [addresses-key] %])}])
   (fn [identity]
     [:div
      [base/header {:as "h3"}

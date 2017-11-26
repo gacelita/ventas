@@ -120,44 +120,51 @@
         (>! channel (and json-result fressian-result))))
     channel))
 
-(defn effect-ws-request [{:keys [name params success success-fn]}]
+(defn- call [fx-or-fn data]
+  (condp #(%1 %2) fx-or-fn
+    keyword? (rf/dispatch [fx-or-fn data])
+    fn? (fx-or-fn data)
+    (error "Not an effect or function: " fx-or-fn)))
+
+(defn effect-ws-request [{:keys [name params success error]}]
   (send-request!
    {:name name
     :params params
     :callback
-    (fn [data]
+    (fn [{data :data request-succeeded? :success}]
       (cond
-        (not (:success data))
-          (rf/dispatch [::notificator/add {:message (:data data) :theme "warning"}])
+        (not request-succeeded?)
+          (do
+            (rf/dispatch [::notificator/add {:message data :theme "warning"}])
+            (when error
+              (call error data)))
         success
-          (rf/dispatch [success (:data data)])
-        success-fn
-          (success-fn (:data data))))}))
+        (call success data)))}))
 
 
-(defn effect-ws-upload-request
-  ([request] (effect-ws-upload-request request false 0))
-  ([request file-id start]
-   (let [data (:upload-data request)
-         data-length (-> data .-byteLength)
-         raw-end (+ start ws-upload-chunk-size)
-         is-last (> raw-end data-length)
-         is-first (zero? start)
-         end (if is-last data-length raw-end)
-         chunk (.slice data start end)]
-     (send-request!
-      {:name (:name request)
-       :params (-> (:params request)
-                   (assoc (:upload-key request) chunk)
-                   (assoc :is-last is-last)
-                   (assoc :is-first is-first)
-                   (assoc :file-id file-id))
-       :callback (fn [response]
-                   (if-not is-last
-                     (effect-ws-upload-request request (if is-first (:data response) file-id) end)
-                     (let [success-fn (:success-fn request)]
-                       (success-fn (:data response)))))}
-      :binary? true))))
+(defn effect-ws-upload-request [request & [file-id start]]
+  (let [file-id (or file-id false)
+        start (or start 0)
+        {:keys [name upload-data params upload-key success]} request
+        data-length (-> upload-data .-byteLength)
+        raw-end (+ start ws-upload-chunk-size)
+        is-last (> raw-end data-length)
+        is-first (zero? start)
+        end (if is-last data-length raw-end)]
+    (send-request!
+     {:name name
+      :params (merge params
+                     {upload-key (.slice upload-data start end)
+                      :is-last is-last
+                      :is-first is-first
+                      :file-id file-id})
+      :callback (fn [{:keys [data]}]
+                  (if is-last
+                    (success data)
+                    (effect-ws-upload-request request
+                                              (if is-first data file-id)
+                                              end)))}
+     :binary? true)))
 
 (rf/reg-fx :ws-request effect-ws-request)
 

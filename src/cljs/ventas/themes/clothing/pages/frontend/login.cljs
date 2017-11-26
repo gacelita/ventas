@@ -29,7 +29,7 @@
     {:dispatch [:api/users.login
                 {:params {:email email
                           :password password}
-                 :success-fn login-successful}]}))
+                 :success login-successful}]}))
 
 (rf/reg-event-fx
  ::register
@@ -38,7 +38,7 @@
                {:params {:name name
                          :email email
                          :password password}
-                :success-fn #(rf/dispatch [::notificator/add {:message (i18n ::user-registered)}])}]}))
+                :success #(rf/dispatch [::notificator/add {:message (i18n ::user-registered)}])}]}))
 
 (defn- login []
   (reagent/with-let [data (atom {})]
