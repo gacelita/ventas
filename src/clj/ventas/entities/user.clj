@@ -108,4 +108,14 @@
      [(fn [user]
         (if (:user/password user)
           (update user :user/password hashers/derive)
-          user))]))})
+          user))]))
+
+  :fixtures
+  (fn []
+    [{:schema/type :schema.type/user
+      :user/first-name "Test"
+      :user/last-name "User"
+      :user/company "Test Company"
+      :user/email "test@test.com"
+      :user/status :user.status/active
+      :user/password "test"}])})

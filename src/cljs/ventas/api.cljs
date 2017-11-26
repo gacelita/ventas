@@ -131,6 +131,11 @@
    {:ws-request (merge {:name :users.session} options)}))
 
 (rf/reg-event-fx
+ :api/users.addresses
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.addresses} options)}))
+
+(rf/reg-event-fx
  :ventas/configuration.get
  (fn [cofx [_ key]]
    {:dispatch [:api/configuration.get

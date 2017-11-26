@@ -26,8 +26,7 @@
 
 (defn skeleton [content]
   [ventas.skeleton/skeleton
-   (let [identity (utils/get-identity)]
-     [:div.ui.container.profile-skeleton
-      [sidebar]
-      [:div.profile-skeleton__content
-       [content identity]]])])
+   [:div.ui.container.profile-skeleton
+    [sidebar]
+    [:div.profile-skeleton__content
+     content]]])

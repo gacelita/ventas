@@ -94,21 +94,21 @@
            :token token})))))
 
 (register-endpoint!
-  :users.session.start
-  (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (when-let [token (:token params)]
-      (when-let [user (auth/token->user token)]
-        (swap! session assoc :token token)
-        {:identity (entity/to-json user)}))))
-
-(register-endpoint!
   :users.session
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
     (when-let [token (or (:token params) (get @session :token))]
       (when-let [user (auth/token->user token)]
         (when (:token params)
-          (swap! session assoc :token token))
+          (swap! session assoc :token token)
+          (swap! session assoc :user user))
         {:identity (entity/to-json user)}))))
+
+(register-endpoint!
+  :users.addresses
+  (fn [{:keys [params] :as message} {:keys [session] :as state}]
+    (let [user (:user @session)]
+      (->> (entity/query :address {:user (:db/id user)})
+           (map entity/to-json)))))
 
 (register-endpoint!
   :users.logout

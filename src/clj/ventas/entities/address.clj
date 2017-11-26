@@ -6,49 +6,56 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.database.generators :as generators]))
 
-(spec/def :address/name ::generators/string)
+(spec/def :address/first-name ::generators/string)
 
-(spec/def :address/person-name ::generators/string)
+(spec/def :address/last-name ::generators/string)
+
+(spec/def :address/company ::generators/string)
 
 (spec/def :address/address ::generators/string)
 
-(spec/def :address/zip integer?)
+(spec/def :address/address-second-line ::generators/string)
+
+(spec/def :address/zip ::generators/string)
 
 (spec/def :address/city ::generators/string)
 
 (spec/def :address/country
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :country)))))
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :country)))
 
 (spec/def :address/state
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :state)))))
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :state)))
 
 (spec/def :address/user
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :user)))))
-
-(spec/def :address/phone ::generators/string)
-
-(spec/def :address/comments ::generators/string)
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :user)))
 
 (spec/def :schema.type/address
-  (spec/keys :req [:address/name
-                   :address/person-name
+  (spec/keys :req [:address/first-name
+                   :address/last-name
                    :address/address
                    :address/zip
                    :address/city
                    :address/country
                    :address/state
                    :address/user]
-             :opt [:address/phone
-                   :address/comments]))
+             :opt [:address/company
+                   :address/address-second-line]))
 
 (entity/register-type!
  :address
  {:attributes
-  [{:db/ident :address/name
+  [{:db/ident :address/first-name
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/person-name
+   {:db/ident :address/last-name
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :address/company
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -56,8 +63,12 @@
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident :address/address-second-line
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident :address/zip
-    :db/valueType :db.type/long
+    :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :address/city
@@ -72,17 +83,23 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/comments
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident :address/phone
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
-
    {:db/ident :address/user
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:country :state :user :i18n}})
+  #{:country :state :user :i18n}
+
+  :fixtures
+  (fn []
+    [{:schema/type :schema.type/address
+      :address/first-name "Test"
+      :address/last-name "Address"
+      :address/company "Test Address Company"
+      :address/address "Test Street, 210"
+      :address/address-second-line "5º A"
+      :address/zip "67943"
+      :address/city "Test City"
+      :address/country (-> (entity/query :country) first :db/id)
+      :address/state (-> (entity/query :state) first :db/id)
+      :address/user [:user/email "test@test.com"]}])})

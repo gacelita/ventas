@@ -17,4 +17,13 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:i18n}})
+  #{:i18n}
+
+  :fixtures
+  (fn []
+    [{:schema/type :schema.type/country
+      :country/name (entities.i18n/get-i18n-entity {:en "Spain"
+                                                    :es "España"})}
+     {:schema/type :schema.type/country
+      :country/name (entities.i18n/get-i18n-entity {:en "United States"
+                                                    :es "Estados Unidos"})}])})

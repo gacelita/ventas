@@ -37,16 +37,16 @@
   (rf/dispatch [:ventas/configuration.get :site.title])
   (rf/dispatch [:ventas/resources.get :logo])
   (fn []
-    [:div.header
+    [:div.skeleton-header
      [:div.ui.container
-      [:div.header__logo
+      [:div.skeleton-header__logo
        (let [title @(rf/subscribe [:ventas/db [:configuration :site.title]])
              logo @(rf/subscribe [:ventas/db [:resources :logo]])]
          [:a {:title (:value title)
               :href (-> js/window (.-location) (.-origin))}
           [:img {:src "resources/logo"}]])]
-      [:div.header__right
-       [:div.header__buttons
+      [:div.skeleton-header__right
+       [:div.skeleton-header__buttons
         [:button {:on-click #(routes/go-to :frontend.cart)}
          [base/icon {:name "add to cart"}]
          (i18n ::my-cart)]
@@ -58,7 +58,7 @@
                      :on-click (fn [e] (-> e (.stopPropagation))
                                  (rf/dispatch [::toggle]))}]
          [base/menu {:vertical true
-                     :class (str "header__user-menu "
+                     :class (str "skeleton-header__user-menu "
                                  (if @(rf/subscribe [::opened])
                                    "visible"
                                    "unvisible"))}
