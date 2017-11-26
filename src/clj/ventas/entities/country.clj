@@ -19,6 +19,8 @@
   :dependencies
   #{:i18n}
 
+  :autoresolve? true
+
   :fixtures
   (fn []
     [{:schema/type :schema.type/country

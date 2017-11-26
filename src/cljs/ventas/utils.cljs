@@ -70,7 +70,8 @@
 
 (defn get-identity []
   (let [session @(rf/subscribe [:ventas/db [:session]])]
-    (when-not (get-in session [:identity :id])
+    (when (and session
+               (not (get-in session [:identity :id])))
       (routes/go-to :frontend.login))
     (:identity session)))
 

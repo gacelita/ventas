@@ -5,7 +5,8 @@
    [ventas.utils.ui :as utils.ui]
    [ventas.common.util :as common.util]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.formatting :as formatting]))
+   [ventas.utils.formatting :as formatting]
+   [day8.re-frame.forward-events-fx]))
 
 #_"
   Universal subscription and event.
@@ -87,8 +88,7 @@
 (rf/reg-event-fx
  :api/reference
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :reference}
-                       options)}))
+   {:ws-request (merge {:name :reference} options)}))
 
 (rf/reg-event-fx
  :api/resources.get
@@ -133,7 +133,15 @@
 (rf/reg-event-fx
  :api/users.addresses
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :users.addresses} options)}))
+   {:forward-events {:register ::users.addresses.listener
+                     :events #{:ventas/session.start.next}
+                     :dispatch-to [:api/users.addresses.next options]}}))
+
+(rf/reg-event-fx
+ :api/users.addresses.next
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.addresses} options)
+    :forward-events {:unregister ::users.addresses.listener}}))
 
 (rf/reg-event-fx
  :ventas/configuration.get
@@ -194,7 +202,12 @@
      (when (seq token)
        {:dispatch [:api/users.session
                    {:params {:token token}
-                    :success-fn #(rf/dispatch [:ventas/db [:session] %])}]}))))
+                    :success :ventas/session.start.next}]}))))
+
+(rf/reg-event-fx
+ :ventas/session.start.next
+ (fn [cofx [_ data]]
+   {:dispatch [:ventas/db [:session] data]}))
 
 (rf/reg-event-fx
  :ventas/session.stop

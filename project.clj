@@ -70,6 +70,7 @@
                  [re-frame "0.10.2"]
                  [re-frame-datatable "0.6.0"]
                  [soda-ash "0.76.0"]
+                 [day8.re-frame/forward-events-fx "0.0.5"]
 
                  ; Routing
                  [bidi "2.1.2"]

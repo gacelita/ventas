@@ -151,12 +151,4 @@
     :db/cardinality :db.cardinality/many}]
 
   :dependencies
-  #{:brand :tax :file :category :product.term}
-
-  :to-json
-  (fn [this]
-    (-> this
-        (update-if-exists :product/brand (comp entity/to-json entity/find))
-        (update-if-exists :product/tax (comp entity/to-json entity/find))
-        (update-if-exists :product/images #(map (comp entity/to-json entity/find) %))
-        ((:to-json entity/default-type))))})
+  #{:brand :tax :file :category :product.term}})

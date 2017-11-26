@@ -35,11 +35,7 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
 
-  :dependencies
-  #{:file :i18n}
+  :autoresolve? true
 
-  :to-json
-  (fn [this]
-    (-> this
-        (update-if-exists :brand/logo (comp entity/to-json entity/find))
-        ((:to-json entity/default-type))))})
+  :dependencies
+  #{:file :i18n}})

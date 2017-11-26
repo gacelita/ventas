@@ -7,6 +7,7 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.util :as util]
+   [clojure.string :as str]
    [ventas.database.generators :as generators]))
 
 (spec/def :user/name ::generators/string)
@@ -21,85 +22,108 @@
 
 (spec/def :user/company ::generators/string)
 
-(spec/def :user/status
+(def statuses
   #{:user.status/pending
     :user.status/active
     :user.status/inactive
     :user.status/cancelled})
 
-(spec/def :user/roles
-  (spec/coll-of #{:user.role/administrator
-                  :user.role/user}
-                :kind set?))
+(spec/def :user/status statuses)
+
+(def roles
+  #{:user.role/administrator})
+
+(spec/def :user/roles roles)
+
+(def cultures
+  #{:user.culture/en_US
+    :user.culture/es_ES})
+
+(spec/def :user/culture cultures)
 
 (spec/def :user/email
   (spec/with-gen
-   (spec/and string? #(re-matches #"^.+@.+$" %))
+   (spec/and string? #(str/includes? % "@"))
    #(gen'/string-from-regex #"[a-z0-9]{3,6}@[a-z0-9]{3,6}\.(com|es|org)")))
 
 (spec/def :schema.type/user
   (spec/keys :req [:user/first-name
                    :user/last-name
                    :user/company
-                   :user/email]
+                   :user/email
+                   :user/culture
+                   :user/status
+                   :user/culture]
              :opt [:user/description
                    :user/roles
-                   :user/password
-                   :user/status]))
+                   :user/password]))
 
-(entity/register-type! :user
+(entity/register-type!
+ :user
  {:attributes
-  [{:db/ident :user/first-name
-    :db/valueType :db.type/string
-    :db/fulltext true
-    :db/index true
-    :db/cardinality :db.cardinality/one}
+  (concat
+   [{:db/ident :user/first-name
+     :db/valueType :db.type/string
+     :db/fulltext true
+     :db/index true
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user/last-name
-    :db/valueType :db.type/string
-    :db/fulltext true
-    :db/index true
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :user/last-name
+     :db/valueType :db.type/string
+     :db/fulltext true
+     :db/index true
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user/company
-    :db/valueType :db.type/string
-    :db/fulltext true
-    :db/index true
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :user/company
+     :db/valueType :db.type/string
+     :db/fulltext true
+     :db/index true
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user/password
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :user/password
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user/email
-    :db/valueType :db.type/string
-    :db/index true
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :user/email
+     :db/valueType :db.type/string
+     :db/index true
+     :db/unique :db.unique/identity
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user/description
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :user/description
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user/avatar
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :user/avatar
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user/status
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :user/status
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user.status/pending}
-   {:db/ident :user.status/active}
-   {:db/ident :user.status/inactive}
-   {:db/ident :user.status/cancelled}
+    {:db/ident :user.status/pending}
+    {:db/ident :user.status/active}
+    {:db/ident :user.status/inactive}
+    {:db/ident :user.status/cancelled}
 
-   {:db/ident :user/roles
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    {:db/ident :user/culture
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :user.role/administrator}
-   {:db/ident :user.role/user}]
+    {:db/ident :user.culture/es_ES}
+    {:db/ident :user.culture/en_US}
+
+    {:db/ident :user/roles
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many}
+
+    {:db/ident :user.role/administrator}
+    {:db/ident :user.role/user}]
+
+  (map #(hash-map :db/ident %) statuses)
+  (map #(hash-map :db/ident %) cultures)
+  (map #(hash-map :db/ident %) roles))
 
   :filter-transact
   (fn [this]
@@ -118,4 +142,5 @@
       :user/company "Test Company"
       :user/email "test@test.com"
       :user/status :user.status/active
-      :user/password "test"}])})
+      :user/password "test"
+      :user/culture :user.culture/en_US}])})

@@ -44,6 +44,8 @@
           path (str paths/images "/" (filename this))]
       (io/copy file (io/file path))))
 
+  :autoresolve? true
+
   :to-json
   (fn [this]
     (let [path (str paths/images "/" (filename this))]

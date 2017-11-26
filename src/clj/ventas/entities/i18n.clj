@@ -14,6 +14,8 @@
   (spec/keys :req [:i18n.language/keyword
                    :i18n.language/name]))
 
+(def ^:dynamic *culture* nil)
+
 (entity/register-type!
  :i18n.language
  {:attributes
@@ -106,7 +108,9 @@
   :to-json
   (fn [this]
     (into {}
-          (map (comp entity/to-json entity/find) (:i18n/translations this))))})
+          (map (comp entity/to-json entity/find) (:i18n/translations this))))
+
+  :autoresolve? true})
 
 
 

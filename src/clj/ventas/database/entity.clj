@@ -62,31 +62,17 @@
   {:pre [(is-entity? entity)]}
   (keyword (name (:schema/type entity))))
 
-(defn type-fns
+(defn type-properties
   "Returns the functions of an entity type"
   [type]
   (get @registered-types type))
 
-(def default-type
-  {:attributes []
-   :to-json (fn [entity]
-              (-> entity
-                  (dissoc :schema/type)
-                  (util/dequalify-keywords)))
-   :filter-seed identity
-   :filter-transact identity
-   :filter-update (fn [entity data] data)
-   :before-seed (fn [_] true)
-   :before-transact (fn [_] true)
-   :before-delete (fn [_] true)
-   :after-seed (fn [_] true)
-   :after-transact (fn [_] true)
-   :after-delete (fn [_] true)})
+(declare default-type)
 
 (defn- call-type-fn [kw entity & args]
-  (let [type-fns (type-fns (type entity))
-        type-fn (if (kw type-fns)
-                   (kw type-fns)
+  (let [type-properties (type-properties (type entity))
+        type-fn (if (kw type-properties)
+                   (kw type-properties)
                    (kw default-type))]
     (apply type-fn entity args)))
 
@@ -199,29 +185,97 @@
 
 (defn attributes
   [type]
-  (:attributes (type-fns type)))
+  (:attributes (type-properties type)))
 
 (defn fixtures
   [type]
-  (when-let [fixtures-fn (:fixtures (type-fns type))]
+  (when-let [fixtures-fn (:fixtures (type-properties type))]
     (fixtures-fn)))
+
+(defn autoresolve?
+  [type]
+  (:autoresolve? (type-properties type)))
 
 (defn dependencies
   [type]
-  (or (:dependencies (type-fns type)) #{}))
+  (or (:dependencies (type-properties type)) #{}))
 
 (defn seed-number
   [type]
-  (or (:seed-number (type-fns type)) 30))
+  (or (:seed-number (type-properties type)) 30))
+
+(spec/def
+  ::ref
+  (spec/or :eid number?
+           :entity is-entity?
+           :lookup-ref vector?))
+
+(spec/def
+  ::refs
+  (spec/coll-of ::ref))
 
 (defn attributes-by-ident
   [type]
-  "Returns a map whose keys are idents and whose values are valueTypes of those idents"
+  "Returns a map whose keys are idents and whose values are the properties of each ident"
   (into {}
         (map
          (fn [attr]
            [(:db/ident attr) attr])
          (attributes type))))
+
+(defn idents-with-value-type
+  "Returns the idents of an entity type with the given valueType"
+  [type value-type]
+  (let [attrs (attributes-by-ident type)]
+    (->> attrs
+         (filter (fn [[k v]]
+                   (= value-type (:db/valueType v))))
+         (into {})
+         (keys)
+         (set))))
+
+(defn- autoresolve-ref [ref]
+  (println "autoresolving ref" ref)
+  (let [subentity (-> ref find)]
+    (if (autoresolve? (db/type->kw (:schema/type subentity)))
+      (to-json subentity)
+      ref)))
+
+(defn autoresolve
+  "Resolves references to entity types that have an :autoresolve?
+   property with a truthy value"
+  [entity]
+  (println "autoresolving" entity)
+  (let [ref-idents (idents-with-value-type (db/type->kw (:schema/type entity))
+                                           :db.type/ref)]
+    (->> entity
+         (map (fn [[ident value]]
+                [ident (if-not (contains? ref-idents ident)
+                         value
+                         (do (println "cond" ident value)
+                           (cond
+                             (spec/valid? ::refs value) (map autoresolve-ref value)
+                             (spec/valid? ::ref value) (autoresolve-ref value)
+                             :else value)))]))
+         (into {}))))
+
+(defn- default-to-json [entity]
+  (-> (autoresolve entity)
+      (dissoc :schema/type)
+      (util/dequalify-keywords)))
+
+(def default-type
+  {:attributes []
+   :to-json default-to-json
+   :filter-seed identity
+   :filter-transact identity
+   :filter-update (fn [entity data] data)
+   :before-seed (fn [_] true)
+   :before-transact (fn [_] true)
+   :before-delete (fn [_] true)
+   :after-seed (fn [_] true)
+   :after-transact (fn [_] true)
+   :after-delete (fn [_] true)})
 
 (defn update
   "Takes an eid and a list of attributes to transact.
@@ -324,18 +378,8 @@
        (db/nice-query {:find '[?id]
                        :where (filters->wheres type filters)})))
 
-(spec/def
-  ::ref
-  (spec/or :eid number?
-           :entity is-entity?
-           :lookup-ref vector?))
-
 (defn ref-generator [type]
   (gen/elements (map :db/id (query type))))
-
-(spec/def
-  ::refs
-  (spec/coll-of ::ref))
 
 (defn refs-generator [type]
   (gen/vector (ref-generator type)))

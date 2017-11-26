@@ -30,4 +30,6 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :tax.kind/percentage}
-   {:db/ident :tax.kind/amount}]})
+   {:db/ident :tax.kind/amount}]
+
+  :autoresolve? true})

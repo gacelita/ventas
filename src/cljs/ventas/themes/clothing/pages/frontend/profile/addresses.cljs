@@ -91,7 +91,7 @@
          [base/segment
           [:p (:first-name address) " " (:last-name address)]
           [:p (:address address) " " (:address-second-line address)]
-          [:p (:zip-code address) " " (:city address) (:name state)]
+          [:p (:zip-code address) " " (:city address) " " (:name state)]
           [:p (:name country)]]]))))
 
 (defn- content [identity]
@@ -102,7 +102,7 @@
      [base/header {:as "h3"}
       (i18n ::my-addresses)]
      (when-let [addresses @(rf/subscribe [:ventas/db [addresses-key]])]
-       [base/grid {:columns 3}
+       [base/grid {:columns 3 :class "smaller-padding"}
         [base/gridRow
          (for [address addresses]
            [base/gridColumn

@@ -26,10 +26,4 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:i18n}
-
-  :to-json
-  (fn [this]
-    (-> this
-        (update :product.taxonomy/name (comp entity/to-json entity/find))
-        ((:to-json entity/default-type))))})
+  #{:i18n}})

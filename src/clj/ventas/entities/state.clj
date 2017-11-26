@@ -20,6 +20,8 @@
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}]
 
+  :autoresolve? true
+
   :fixtures
   (fn []
     [{:schema/type :schema.type/state
