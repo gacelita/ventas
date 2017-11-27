@@ -33,7 +33,6 @@
     :quantity 5}])
 
 (defn line [data]
-  (js/console.log "line" data)
   (rf/dispatch [:ventas/entities.sync (:id data)])
   (fn [data]
     (when-let [product @(rf/subscribe [:ventas/db [:entities (:id data)]])]

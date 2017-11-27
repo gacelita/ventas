@@ -8,9 +8,12 @@
    [ventas.utils :as utils]
    [ventas.utils.forms :as forms]
    [ventas.components.base :as base]
-   [reagent.core :as reagent]))
+   [reagent.core :as reagent]
+   [ventas.components.notificator :as notificator]))
 
 (def addresses-key ::addresses)
+
+(def edition-key ::edition)
 
 (def regular-length-validator [::length-error validation/length-validator {:max 30}])
 
@@ -28,21 +31,31 @@
                        ::phone [regular-length-validator]
                        ::privacy-policy [[::required-error validation/required-validator]]}})
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::save
+ (fn [{:keys [db]} [_]]
+   {:dispatch [:api/users.addresses.save
+               {:params
+                (->> (get db (::forms/state-key form-config))
+                     (map (fn [[k v]]
+                            [(keyword (name k)) (:value v)]))
+                     (into {}))}]}))
+
+(rf/reg-event-db
+ ::cancel-edition
  (fn [db [_]]
-   (let [data (get db (::forms/state-key form-config))]
-     (js/console.log data)
-     db)))
+   (dissoc db edition-key)))
 
 (defn- address-form [address]
   (rf/dispatch [::forms/populate form-config (utils/map-keys #(utils/ns-kw %) address)])
   (let [data @(rf/subscribe [:ventas/db [(::forms/state-key form-config)]])]
     ^{:key (::forms/population-hash data)}
-    [:div
+    [:div.addresses-page__form
      [base/header {:as "h3"
                    :attached "top"}
-      (i18n ::new-address)]
+      (if (:id address)
+        (i18n ::editing-address)
+        (i18n ::new-address))]
      [base/segment {:attached true}
       [base/form {:error (forms/valid-form? data)}
 
@@ -75,24 +88,67 @@
          [forms/text-input form-config ::state]]]
 
        [base/button {:type "button"
+                     :basic true
+                     :color "grey"
+                     :icon true
                      :on-click #(rf/dispatch [::save])}
-        (i18n ::save)]]]]))
+        [base/icon {:name "save"}]
+        (i18n ::save)]
+       [base/button {:type "button"
+                     :basic true
+                     :color "red"
+                     :icon true
+                     :on-click #(rf/dispatch [::cancel-edition])}
+        [base/icon {:name "cancel"}]
+        (i18n ::cancel)]]]]))
+
+(rf/reg-event-fx
+ ::remove
+ (fn [cofx [_ eid]]
+   {:dispatch [:api/entities.remove
+               {:params {:id eid}
+                :success #(rf/dispatch [::remove.next eid])}]}))
+
+(rf/reg-event-fx
+ ::remove.next
+ (fn [cofx [_ eid]]
+   (let [update-call [:ventas/db.update
+                      [addresses-key]
+                      (fn [addresses]
+                        (->> addresses
+                             (remove #(= (:id %) eid))))]
+         notify-call [::notificator/add {:message (i18n ::address-removed)
+                                         :theme "success"}]]
+     {:dispatch-n [update-call notify-call]})))
+
+(rf/reg-event-fx
+ ::edit
+ (fn [cofx [_ address]]
+   {:dispatch [:ventas/db [edition-key] address]}))
 
 (defn- address-view [address]
-  (rf/dispatch [:ventas/entities.sync (:country address)])
-  (rf/dispatch [:ventas/entities.sync (:state address)])
-  (fn [address]
-    (let [country @(rf/subscribe [:ventas/db [:entities (:country address)]])
-          state @(rf/subscribe [:ventas/db [:entities (:state address)]])]
-      (js/console.log "address" address "country" country "state" state)
-      (when (and (or (nil? (:country address)) country)
-                 (or (nil? (:state address)) state))
-        [:div
-         [base/segment
-          [:p (:first-name address) " " (:last-name address)]
-          [:p (:address address) " " (:address-second-line address)]
-          [:p (:zip-code address) " " (:city address) " " (:name state)]
-          [:p (:name country)]]]))))
+  [:div
+   [base/card
+    [base/cardContent
+     [:p (:first-name address) " " (:last-name address)]
+     [:p (:address address) " " (:address-second-line address)]
+     [:p (:zip address) " " (:city address) " " (:name (:state address))]
+     [:p (:name (:country address))]]
+    [base/cardContent {:extra true}
+
+     [base/button {:icon true
+                   :basic true
+                   :color "grey"
+                   :on-click #(rf/dispatch [::edit address])}
+      [base/icon {:name "edit"}]
+      (i18n ::edit)]
+
+     [base/button {:icon true
+                   :basic true
+                   :color "red"
+                   :on-click #(rf/dispatch [::remove (:id address)])}
+      [base/icon {:name "remove"}]
+      (i18n ::remove)]]]])
 
 (defn- content [identity]
   (rf/dispatch [:api/users.addresses
@@ -107,7 +163,14 @@
          (for [address addresses]
            [base/gridColumn
             [address-view address]])]])
-     [address-form identity]]))
+
+     (let [editing @(rf/subscribe [:ventas/db [edition-key]])]
+       (if editing
+         [address-form @(rf/subscribe [:ventas/db [edition-key]])]
+         [base/button {:basic true
+                       :color "grey"
+                       :on-click #(rf/dispatch [::edit (select-keys identity #{:first-name :last-name :company})])}
+          (i18n ::new-address)]))]))
 
 (defn page []
   [profile.skeleton/skeleton

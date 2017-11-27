@@ -22,13 +22,13 @@
   (spec/keys :opt-un [::attributes
                       ::to-json
                       ::filter-seed
-                      ::filter-transact
+                      ::filter-create
                       ::filter-update
                       ::before-seed
-                      ::before-transact
+                      ::before-create
                       ::before-delete
                       ::after-seed
-                      ::after-transact
+                      ::after-create
                       ::after-delete]))
 
 (defonce registered-types (atom {}))
@@ -78,17 +78,17 @@
 
 (defn to-json
   "Transforms an entity into a stripped map, suitable for sending to the outside"
-  [entity]
+  [entity & [options]]
   {:pre [(is-entity? entity)]}
-  (call-type-fn :to-json entity))
+  (call-type-fn :to-json entity options))
 
 (defn filter-seed [entity]
   {:pre [(is-entity? entity)]}
   (call-type-fn :filter-seed entity))
 
-(defn filter-transact [entity]
+(defn filter-create [entity]
   {:pre [(is-entity? entity)]}
-  (call-type-fn :filter-transact entity))
+  (call-type-fn :filter-create entity))
 
 (defn filter-update [entity data]
   {:pre [(is-entity? entity) (map? data)]}
@@ -98,9 +98,9 @@
   {:pre [(is-entity? entity)]}
   (call-type-fn :before-seed entity))
 
-(defn before-transact [entity]
+(defn before-create [entity]
   {:pre [(is-entity? entity)]}
-  (call-type-fn :before-transact entity))
+  (call-type-fn :before-create entity))
 
 (defn before-delete [entity]
   {:pre [(is-entity? entity)]}
@@ -110,9 +110,9 @@
   {:pre [(is-entity? entity)]}
   (call-type-fn :after-seed entity))
 
-(defn after-transact [entity]
+(defn after-create [entity]
   {:pre [(is-entity? entity)]}
-  (call-type-fn :after-transact entity))
+  (call-type-fn :after-create entity))
 
 (defn after-delete [entity]
   {:pre [(is-entity? entity)]}
@@ -137,45 +137,45 @@
   (-> (db/resolve-tempid (:tempids tx) tempid)
       (find)))
 
-(defn- prepare-pre-entity [pre-entity & [initial-tempid]]
+(defn- prepare-creation-attrs [pre-entity & [initial-tempid]]
   (into {}
         (map (fn [[k v]]
                [k (cond
-                    (is-entity? v) (prepare-pre-entity v)
-                    (and (coll? v) (is-entity? (first v))) (map prepare-pre-entity v)
+                    (is-entity? v) (prepare-creation-attrs v)
+                    (and (coll? v) (is-entity? (first v))) (map prepare-creation-attrs v)
                     :else v)])
              (-> pre-entity
                  (assoc :db/id (or initial-tempid (d/tempid :db.part/user)))
-                 (filter-transact)))))
+                 (filter-create)))))
 
-(defn transact
-  "Transacts an entity"
-  [pre-entity]
-  {:pre [(do (println pre-entity) true) (spec pre-entity)]}
-  (before-transact pre-entity)
+(defn create*
+  "Creates an entity"
+  [attrs]
+  {:pre [(do (println attrs) true) (spec attrs)]}
+  (before-create attrs)
   (let [tempid (d/tempid :db.part/user)
-        pre-entity (prepare-pre-entity pre-entity tempid)
+        pre-entity (prepare-creation-attrs attrs tempid)
         tx (db/transact [pre-entity])
         entity (transaction->entity tx tempid)]
-    (after-transact entity)
+    (after-create entity)
     entity))
 
 (defn create
-  "Creates an entity and transacts it.
+  "Creates an entity from unqualified attributes.
    Example usage:
    (create :user {:name `Joel` :email `test@test.com`})"
   [type attributes]
   (let [entity
         (-> (util/qualify-map-keywords (util/filter-empty-vals attributes) type)
             (assoc :schema/type (db/kw->type type)))]
-    (transact entity)))
+    (create* entity)))
 
 (defn from-json
   "Inverse of to-json"
   [attributes]
   {:pre [(map? attributes)]}
   (let [id (:id attributes)
-        type (:type attributes)]
+        type (:schema/type (find id))]
     (-> attributes
         (dissoc :id)
         (dissoc :type)
@@ -234,17 +234,16 @@
          (keys)
          (set))))
 
-(defn- autoresolve-ref [ref]
-  (println "autoresolving ref" ref)
+(defn- autoresolve-ref [ref & [options]]
   (let [subentity (-> ref find)]
     (if (autoresolve? (db/type->kw (:schema/type subentity)))
-      (to-json subentity)
+      (to-json subentity options)
       ref)))
 
 (defn autoresolve
   "Resolves references to entity types that have an :autoresolve?
    property with a truthy value"
-  [entity]
+  [entity & [options]]
   (println "autoresolving" entity)
   (let [ref-idents (idents-with-value-type (db/type->kw (:schema/type entity))
                                            :db.type/ref)]
@@ -254,13 +253,13 @@
                          value
                          (do (println "cond" ident value)
                            (cond
-                             (spec/valid? ::refs value) (map autoresolve-ref value)
-                             (spec/valid? ::ref value) (autoresolve-ref value)
+                             (spec/valid? ::refs value) (map #(autoresolve-ref % options) value)
+                             (spec/valid? ::ref value) (autoresolve-ref value options)
                              :else value)))]))
          (into {}))))
 
-(defn- default-to-json [entity]
-  (-> (autoresolve entity)
+(defn- default-to-json [entity & [options]]
+  (-> (autoresolve entity options)
       (dissoc :schema/type)
       (util/dequalify-keywords)))
 
@@ -268,47 +267,53 @@
   {:attributes []
    :to-json default-to-json
    :filter-seed identity
-   :filter-transact identity
+   :filter-create identity
    :filter-update (fn [entity data] data)
    :before-seed (fn [_] true)
-   :before-transact (fn [_] true)
+   :before-create (fn [_] true)
    :before-delete (fn [_] true)
    :after-seed (fn [_] true)
-   :after-transact (fn [_] true)
+   :after-create (fn [_] true)
    :after-delete (fn [_] true)})
 
-(defn update
-  "Takes an eid and a list of attributes to transact.
+(defn- get-enum-retractions [entity new-values]
+  (let [relevant-attrs (filter #(contains? (set (keys new-values)) (:db/ident %))
+                               (attributes (type entity)))
+        enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
+                                 (= (:db/valueType %) :db.type/ref))
+                           relevant-attrs)
+        enum-idents (map :db/ident enum-attrs)]
+    (mapcat (fn [{:keys [ident new-val]}]
+              (let [diff (set/difference (set (get entity ident))
+                                         (set new-val))]
+                (map (fn [val-to-retract]
+                       [:db/retract (:db/id new-values) ident val-to-retract])
+                     diff)))
+            (map #(hash-map :ident % :new-val (get new-values %))
+                 enum-idents))))
+
+(defn update*
+  "Updates an entity.
    Example usage:
-   (update 1234567 {:name `Other name`})"
-  [eid attrs]
-  {:pre [(map? attrs) (number? eid)]}
-  (let [entity (find eid)
-        entity-type (type entity)
-        data (as-> attrs data
-                   (filter-update entity data)
-                   (dissoc data :id)
-                   (dissoc data :type)
-                   (util/qualify-map-keywords data entity-type)
-                   (assoc data :db/id (:db/id entity))
-                   (assoc data :schema/type (db/kw->type entity-type)))
-        enum-retractions
-        (let [relevant-attrs (filter #(contains? (set (keys data)) (:db/ident %))
-                                     (attributes entity-type))
-              enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
-                                       (= (:db/valueType %) :db.type/ref))
-                                 relevant-attrs)
-              enum-idents (map :db/ident enum-attrs)]
-          (mapcat (fn [{:keys [ident new-val]}]
-                 (let [diff (set/difference (set (get entity ident))
-                                            (set new-val))]
-                   (map (fn [val-to-retract]
-                          [:db/retract (:db/id data) ident val-to-retract])
-                        diff)))
-               (map #(hash-map :ident % :new-val (get data %))
-                    enum-idents)))]
-    (db/transact (concat [data] enum-retractions))
-    (find eid)))
+   (update {:db/id 1234567
+            :user/name `Other name`})"
+  [{:keys [id] :as attrs}]
+  (let [entity (find id)]
+    (filter-update entity attrs)
+    (db/transact (concat [attrs] (get-enum-retractions entity attrs)))
+    (find id)))
+
+(defn update
+  "Updates an entity from unqualified attributes.
+   Example usage:
+   (update {:id 1234567 :name `Other name`})"
+  [{:keys [id] :as attrs}]
+  {:pre [(map? attrs) id]}
+  (let [entity (find id)]
+    (update* (-> attrs
+                 (dissoc :id)
+                 (util/qualify-map-keywords (type entity))
+                 (assoc :db/id (:db/id entity))))))
 
 (defn delete [eid]
   "Deletes an entity by eid"
@@ -318,12 +323,10 @@
     (after-delete entity)))
 
 (defn upsert
-  "Like create, but if the list of attributes contains an id, it is used as
-   the argument for `update`"
   [type {:keys [id] :as attributes}]
   {:pre [(keyword? type) (map? attributes)]}
   (if id
-    (update id attributes)
+    (update attributes)
     (create type attributes)))
 
 (defn dates

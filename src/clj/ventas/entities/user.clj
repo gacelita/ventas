@@ -116,7 +116,7 @@
    (map #(hash-map :db/ident %) statuses)
    (map #(hash-map :db/ident %) roles))
 
-  :filter-transact
+  :filter-create
   (fn [this]
     (util/transform
      this

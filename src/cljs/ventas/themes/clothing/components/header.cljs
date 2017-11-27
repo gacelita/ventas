@@ -62,5 +62,5 @@
                                  (if @(rf/subscribe [::opened])
                                    "visible"
                                    "unvisible"))}
-          [base/menuItem {:on-click #(rf/dispatch [:ventas/session-stop])}
+          [base/menuItem {:on-click #(rf/dispatch [:ventas/session.stop])}
            (i18n ::logout)]]]]]]]))

@@ -38,7 +38,7 @@
       :i18n.culture/name "Español (España)"}])
 
   :to-json
-  (fn [this]
+  (fn [this _]
     (:i18n.culture/keyword this))
 
   :seed-number 0
@@ -69,7 +69,7 @@
   #{:i18n.culture}
 
   :to-json
-  (fn [this]
+  (fn [this _]
     [(:i18n.culture/keyword (entity/find (:i18n.translation/culture this)))
      (:i18n.translation/value this)])})
 
@@ -104,7 +104,7 @@
   :dependencies
   #{:i18n.translation}
 
-  :before-transact
+  :before-create
   (fn [this]
     (when (->> (:i18n/translations this)
                (map #(:i18n.translation/culture (entity/find %)))
@@ -112,8 +112,9 @@
       (throw (Error. "You can't add to a :i18n entity more than one translation per culture"))))
 
   :to-json
-  (fn [this]
-    (if-not *culture*
+  (fn [this & [{:keys [culture]}]]
+    (println "JSON-IZING I18N" culture)
+    (if-not culture
       (->> (:i18n/translations this)
            (map (comp entity/to-json entity/find))
            (into {}))
@@ -123,7 +124,7 @@
                   [?this-eid :i18n/translations ?term-translation]
                   [?term-translation :i18n.translation/value ?translated]
                   [?term-translation :i18n.translation/culture ?culture]]
-                [(:db/id this) [:i18n.culture/keyword *culture*]])
+                [(:db/id this) culture])
           (first)
           (first))))
 

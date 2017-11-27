@@ -53,7 +53,7 @@
     padding: 15px;
 }
 
-@import "ventas/pages/admin/users";
-@import "ventas/pages/admin/products";
-@import "ventas/pages/admin/taxes";
-@import "ventas/pages/admin/activity-log";
+@import "./admin/users";
+@import "./admin/products";
+@import "./admin/taxes";
+@import "./admin/activity-log";

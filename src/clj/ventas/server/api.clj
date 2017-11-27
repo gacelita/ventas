@@ -12,7 +12,8 @@
    [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
    [ventas.util :as util]
    [ventas.utils.images :as utils.images]
-   [ventas.auth :as auth]))
+   [ventas.auth :as auth]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (defn register-endpoint!
   ([kw f]
@@ -50,7 +51,7 @@
 (register-endpoint!
   :entities.remove
   (fn [{:keys [params]} state]
-    (entity/delete (entity/find (:id params)))))
+    (entity/delete (:id params))))
 
 (register-endpoint!
   :entities.find
@@ -108,7 +109,16 @@
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
     (let [user (:user @session)]
       (->> (entity/query :address {:user (:db/id user)})
-           (map entity/to-json)))))
+           (map #(entity/to-json % {:culture (:user/culture user)}))))))
+
+(register-endpoint!
+  :users.addresses.save
+  (fn [{:keys [params] :as message} {:keys [session] :as state}]
+    (let [user (:user @session)
+          address (entity/find (:id params))]
+      (when-not (= (:db/id user) (:address/user address))
+        (throw (Exception. "Unauthorized")))
+      (entity/upsert :address params))))
 
 (register-endpoint!
   :users.logout

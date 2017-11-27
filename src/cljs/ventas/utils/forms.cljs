@@ -9,15 +9,15 @@
 (rf/reg-event-db
  ::populate
  (fn [db [_ {::keys [state-key]} data]]
-   (->
-    (reduce (fn [acc [field value]]
-              (update-in acc [state-key field :value]
-                         #(if (nil? %)
-                            value
-                            %)))
-            db
-            data)
-    (assoc-in [state-key ::population-hash] (hash data)))))
+   (let [last-hash (get-in db [state-key ::population-hash])]
+     (if (= last-hash (hash data))
+       db
+       (->
+        (reduce (fn [acc [field value]]
+                  (assoc-in acc [state-key field :value] value))
+                db
+                data)
+        (assoc-in [state-key ::population-hash] (hash data)))))))
 
 (rf/reg-event-db
  ::set-field

@@ -17,7 +17,8 @@
    [ventas.pages.admin]
    [ventas.pages.datadmin]
    [ventas.pages.api]
-   [ventas.themes.clothing.core])
+   [ventas.themes.clothing.core]
+   [ventas.components.base :as base])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
@@ -41,11 +42,24 @@
   (fn [[route params]]
     (routes/go-to route params)))
 
+(defn loading []
+  [base/segment
+   [base/dimmer {:active true
+                 :inverted true}
+    [base/loader {:inverted true}
+     "Loading"]]])
+
 (defn page []
   (info "Rendering...")
   (rf/dispatch [:ventas/session.start])
-  (let [{:keys [current-page]} (session/get :route)]
-    [p/pages current-page]))
+  (let [session @(rf/subscribe [:ventas/db [:session]])]
+    (if-not session
+      [loading]
+      (let [{:keys [current-page]} (session/get :route)]
+        [p/pages current-page]))))
+
+(defn app-element []
+  (js/document.getElementById "app"))
 
 (defn init []
   (accountant/configure-navigation!
@@ -64,16 +78,13 @@
   (go
     (when (<! (ws/init))
       (accountant/dispatch-current!)
-      (reagent/render [page] (js/document.getElementById "app")))))
+      (reagent/render [page] (app-element)))))
 
 (defn start []
   (info "Starting...")
   (init))
 
-(defn stop []
-  (info "Stopping..."))
-
 (defn on-figwheel-reload []
   (debug "Reloading...")
-  (when-let [el (js/document.getElementById "app")]
-    (reagent/render [page] el)))
+  (when-let [element (app-element)]
+    (reagent/render [page] element)))

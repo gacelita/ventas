@@ -127,6 +127,13 @@
     :ventas.themes.clothing.pages.frontend.profile.addresses/company "Company"
     :ventas.themes.clothing.pages.frontend.profile.addresses/new-address "New address"
     :ventas.themes.clothing.pages.frontend.profile.addresses/my-addresses "My addresses"
+    :ventas.themes.clothing.pages.frontend.profile.addresses/edit "Edit"
+    :ventas.themes.clothing.pages.frontend.profile.addresses/remove "Remove"
+    :ventas.themes.clothing.pages.frontend.profile.addresses/page "My addresses"
+    :ventas.themes.clothing.pages.frontend.profile.addresses/address-removed "Address removed!"
+    :ventas.themes.clothing.pages.frontend.profile.addresses/editing-address "Editing an address"
+    :ventas.themes.clothing.pages.frontend.profile.addresses/cancel "Cancel"
+
 
 
     :ventas.utils.formatting/percentage "%"

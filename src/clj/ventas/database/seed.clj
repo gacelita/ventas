@@ -25,11 +25,11 @@
   "Seeds the database with n entities of a type"
   [type n]
   (doseq [fixture (entity/fixtures type)]
-    (entity/transact fixture))
+    (entity/create* fixture))
   (doseq [attributes (generate-n (db/kw->type type) n)]
     (let [seed-entity (entity/filter-seed attributes)
           _ (entity/before-seed seed-entity)
-          entity (entity/transact seed-entity)]
+          entity (entity/create* seed-entity)]
       (entity/after-seed entity))))
 
 (defn seed-type-with-deps
@@ -85,4 +85,4 @@
   (doseq [plugin-kw (plugin/all-plugins)]
     (info "Seeding plugin " plugin-kw)
     (doseq [fixture (plugin/fixtures plugin-kw)]
-      (entity/transact fixture))))
+      (entity/create* fixture))))

@@ -47,7 +47,7 @@
   :autoresolve? true
 
   :to-json
-  (fn [this]
+  (fn [this _]
     (let [path (str paths/images "/" (filename this))]
       (-> this
           (assoc :url (paths/path->url path))

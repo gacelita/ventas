@@ -73,7 +73,7 @@
   #{:file :i18n}
 
   :to-json
-  (fn [this]
+  (fn [this _]
     (-> this
         (assoc :category/image (get-image this))
         ((:to-json entity/default-type))))})

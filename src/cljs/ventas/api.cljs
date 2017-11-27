@@ -23,6 +23,12 @@
    (debug :ventas/db where what)
    (assoc-in db where what)))
 
+(rf/reg-event-db
+ :ventas/db.update
+ (fn [db [_ where what-fn]]
+   (debug :ventas/db.update where what-fn)
+   (update-in db where what-fn)))
+
 #_"
   Using :ws-request directly is discouraged.
   Available API calls should be registered here, to have control of what
@@ -144,6 +150,11 @@
     :forward-events {:unregister ::users.addresses.listener}}))
 
 (rf/reg-event-fx
+ :api/users.addresses.save
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.addresses.save} options)}))
+
+(rf/reg-event-fx
  :ventas/configuration.get
  (fn [cofx [_ key]]
    {:dispatch [:api/configuration.get
@@ -199,11 +210,12 @@
  [(rf/inject-cofx :local-storage)]
  (fn [{:keys [db local-storage]} [_]]
    (let [token (:token local-storage)]
-     (when (seq token)
+     (if (seq token)
        {:dispatch [:api/users.session
                    {:params {:token token}
                     :success :ventas/session.start.next
-                    :error :ventas/session.start.error}]}))))
+                    :error :ventas/session.start.error}]}
+       {:dispatch [:ventas/session.start.error]}))))
 
 (rf/reg-event-fx
  :ventas/session.start.next
@@ -212,7 +224,7 @@
 
 (rf/reg-event-fx
  :ventas/session.start.error
- (fn [cofx [_ data]]
+ (fn [cofx [_]]
    {:dispatch [:ventas/db [:session] ::error]}))
 
 (rf/reg-event-fx

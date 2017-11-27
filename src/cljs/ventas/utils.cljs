@@ -7,7 +7,8 @@
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.utils.formatting :as utils.formatting]
    [cljs.spec.alpha :as spec]
-   [expound.alpha :as expound])
+   [expound.alpha :as expound]
+   [ventas.api :as api])
   (:require-macros
    [ventas.utils]))
 
@@ -70,8 +71,7 @@
 
 (defn get-identity []
   (let [session @(rf/subscribe [:ventas/db [:session]])]
-    (when (and session
-               (not (get-in session [:identity :id])))
+    (when (not (get-in session [:identity :id]))
       (routes/go-to :frontend.login))
     (:identity session)))
 
