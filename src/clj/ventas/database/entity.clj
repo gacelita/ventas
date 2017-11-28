@@ -297,7 +297,7 @@
    Example usage:
    (update {:db/id 1234567
             :user/name `Other name`})"
-  [{:keys [id] :as attrs}]
+  [{:db/keys [id] :as attrs}]
   (let [entity (find id)]
     (filter-update entity attrs)
     (db/transact (concat [attrs] (get-enum-retractions entity attrs)))

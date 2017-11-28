@@ -36,10 +36,12 @@
  (fn [{:keys [db]} [_]]
    {:dispatch [:api/users.addresses.save
                {:params
-                (->> (get db (::forms/state-key form-config))
-                     (map (fn [[k v]]
-                            [(keyword (name k)) (:value v)]))
-                     (into {}))}]}))
+                (->> (forms/get-values form-config)
+                     (utils/map-keys #(keyword (name %))))
+                :success #(do (rf/dispatch [::notificator/add
+                                            {:message (i18n ::address-saved)
+                                             :theme "success"}])
+                              (rf/dispatch [::cancel-edition]))}]}))
 
 (rf/reg-event-db
  ::cancel-edition
@@ -47,17 +49,23 @@
    (dissoc db edition-key)))
 
 (defn- address-form [address]
-  (rf/dispatch [::forms/populate form-config (utils/map-keys #(utils/ns-kw %) address)])
-  (let [data @(rf/subscribe [:ventas/db [(::forms/state-key form-config)]])]
-    ^{:key (::forms/population-hash data)}
+  (rf/dispatch [:api/states.list
+                {:success #(forms/set-field-property! form-config ::state :options %)}])
+
+  (rf/dispatch [:api/countries.list
+                {:success #(forms/set-field-property! form-config ::country :options %)}])
+
+  (fn [address]
+
+    ^{:key (forms/get-key form-config)}
     [:div.addresses-page__form
      [base/header {:as "h3"
                    :attached "top"}
-      (if (:id address)
+      (if (forms/get-value form-config ::id)
         (i18n ::editing-address)
         (i18n ::new-address))]
      [base/segment {:attached true}
-      [base/form {:error (forms/valid-form? data)}
+      [base/form {:error (forms/valid-form? form-config)}
 
        [base/form-group
         [base/form-field {:width 5}
@@ -85,7 +93,7 @@
          [forms/text-input form-config ::city]]
 
         [base/form-field {:width 7}
-         [forms/text-input form-config ::state]]]
+         [forms/dropdown-input form-config ::state]]]
 
        [base/button {:type "button"
                      :basic true
@@ -121,10 +129,18 @@
                                          :theme "success"}]]
      {:dispatch-n [update-call notify-call]})))
 
+(defn transform-address-for-edition [address]
+  (-> address
+      (update ::state :id)
+      (update ::country :id)))
+
 (rf/reg-event-fx
  ::edit
  (fn [cofx [_ address]]
-   {:dispatch [:ventas/db [edition-key] address]}))
+   {:dispatch-n [[:ventas/db [edition-key] true]
+                 [::forms/populate form-config (->> address
+                                                    (utils/map-keys #(utils/ns-kw %))
+                                                    (transform-address-for-edition))]]}))
 
 (defn- address-view [address]
   [:div
@@ -164,13 +180,12 @@
            [base/gridColumn
             [address-view address]])]])
 
-     (let [editing @(rf/subscribe [:ventas/db [edition-key]])]
-       (if editing
-         [address-form @(rf/subscribe [:ventas/db [edition-key]])]
-         [base/button {:basic true
-                       :color "grey"
-                       :on-click #(rf/dispatch [::edit (select-keys identity #{:first-name :last-name :company})])}
-          (i18n ::new-address)]))]))
+     (if @(rf/subscribe [:ventas/db [edition-key]])
+       [address-form]
+       [base/button {:basic true
+                     :color "grey"
+                     :on-click #(rf/dispatch [::edit (select-keys identity #{:first-name :last-name :company})])}
+        (i18n ::new-address)])]))
 
 (defn page []
   [profile.skeleton/skeleton

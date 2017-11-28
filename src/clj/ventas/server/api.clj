@@ -20,14 +20,17 @@
    (register-endpoint! kw {:binary false} f))
   ([kw opts f]
    {:pre [(keyword? kw) (ifn? f) (map? opts)]}
-   (let [{:keys [binary?]} opts]
+   (let [{:keys [binary? middlewares] :or {middlewares []}} opts]
      (cond
        (not binary?)
-       (defmethod ws-request-handler kw [message state]
-         (f message state))
+       (defmethod ws-request-handler kw [request state]
+         (:response (reduce (fn [acc middleware]
+                              (middleware acc))
+                            {:request request :state state :response (f request state)}
+                            middlewares)))
        binary?
-       (defmethod ws-binary-request-handler kw [message state]
-         (f message state))))))
+       (defmethod ws-binary-request-handler kw [request state]
+         (f request state))))))
 
 (defn limit
   ([coll quantity]
@@ -94,6 +97,23 @@
           {:user (entity/to-json user)
            :token token})))))
 
+(defn- get-culture [session]
+  (let [user (:user @session)]
+    (or (:user/culture user)
+        (entity/find [:i18n.culture/keyword :en_US]))))
+
+(defn- wrap-paginate [previous]
+  (let [pagination (get-in previous [:request :params :pagination])]
+    (-> previous
+        (update :response #(paginate % pagination)))))
+
+(register-endpoint!
+  :states.list
+  {:middlewares [wrap-paginate]}
+  (fn [_ {:keys [session]}]
+    (map #(entity/to-json % {:culture (get-culture session)})
+         (entity/query :state))))
+
 (register-endpoint!
   :users.session
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
@@ -109,7 +129,7 @@
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
     (let [user (:user @session)]
       (->> (entity/query :address {:user (:db/id user)})
-           (map #(entity/to-json % {:culture (:user/culture user)}))))))
+           (map #(entity/to-json % {:culture (get-culture session)}))))))
 
 (register-endpoint!
   :users.addresses.save

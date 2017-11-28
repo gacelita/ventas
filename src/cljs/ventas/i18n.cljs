@@ -133,6 +133,7 @@
     :ventas.themes.clothing.pages.frontend.profile.addresses/address-removed "Address removed!"
     :ventas.themes.clothing.pages.frontend.profile.addresses/editing-address "Editing an address"
     :ventas.themes.clothing.pages.frontend.profile.addresses/cancel "Cancel"
+    :ventas.themes.clothing.pages.frontend.profile.addresses/address-saved "Address saved!"
 
 
 

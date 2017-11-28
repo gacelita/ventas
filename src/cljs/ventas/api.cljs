@@ -155,6 +155,11 @@
    {:ws-request (merge {:name :users.addresses.save} options)}))
 
 (rf/reg-event-fx
+ :api/states.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :states.list} options)}))
+
+(rf/reg-event-fx
  :ventas/configuration.get
  (fn [cofx [_ key]]
    {:dispatch [:api/configuration.get
