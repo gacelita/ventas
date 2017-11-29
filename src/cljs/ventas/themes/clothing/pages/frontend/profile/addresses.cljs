@@ -5,11 +5,12 @@
    [re-frame.core :as rf]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
    [ventas.utils.validation :as validation]
-   [ventas.utils :as utils]
+   [ventas.utils :as utils :include-macros true]
    [ventas.utils.forms :as forms]
    [ventas.components.base :as base]
    [reagent.core :as reagent]
-   [ventas.components.notificator :as notificator]))
+   [ventas.components.notificator :as notificator]
+   [ventas.common.utils :as common.utils]))
 
 (def addresses-key ::addresses)
 
@@ -37,7 +38,7 @@
    {:dispatch [:api/users.addresses.save
                {:params
                 (->> (forms/get-values form-config)
-                     (utils/map-keys #(keyword (name %))))
+                     (common.utils/map-keys #(keyword (name %))))
                 :success #(do (rf/dispatch [::notificator/add
                                             {:message (i18n ::address-saved)
                                              :theme "success"}])
@@ -139,7 +140,7 @@
  (fn [cofx [_ address]]
    {:dispatch-n [[:ventas/db [edition-key] true]
                  [::forms/populate form-config (->> address
-                                                    (utils/map-keys #(utils/ns-kw %))
+                                                    (common.utils/map-keys #(utils/ns-kw %))
                                                     (transform-address-for-edition))]]}))
 
 (defn- address-view [address]

@@ -218,7 +218,9 @@
      (if (seq token)
        {:dispatch [:api/users.session
                    {:params {:token token}
-                    :success :ventas/session.start.next
+                    :success #(if (seq %)
+                                (rf/dispatch [:ventas/session.start.next %])
+                                (rf/dispatch [:ventas/session.start.error]))
                     :error :ventas/session.start.error}]}
        {:dispatch [:ventas/session.start.error]}))))
 

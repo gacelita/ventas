@@ -6,11 +6,12 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.sidebar]
-   [ventas.utils :as utils]
+   [ventas.utils :as utils :include-macros true]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
    [reagent.core :as reagent]
    [ventas.utils.validation :as validation]
-   [ventas.utils.forms :as forms]))
+   [ventas.utils.forms :as forms]
+   [ventas.common.utils :as common.utils]))
 
 (def regular-length-validator [::length-error validation/length-validator {:max 30}])
 
@@ -33,7 +34,7 @@
  (fn [cofx [_]]))
 
 (defn- content [identity]
-  (rf/dispatch [::forms/populate form-config (utils/map-keys #(utils/ns-kw %) identity)])
+  (rf/dispatch [::forms/populate form-config (common.utils/map-keys #(utils/ns-kw %) identity)])
   ^{:key (forms/get-key form-config)}
   [base/segment
    [base/form {:error (forms/valid-form? form-config)}
