@@ -12,7 +12,7 @@
 (spec/def ::pagination
   (spec/keys :req-un [::page ::items-per-page]))
 
-(defn- paginate [coll {:keys [items-per-page page] :as pagination}]
+(defn paginate [coll {:keys [items-per-page page] :as pagination}]
   {:pre [(or (nil? pagination) (util/check ::pagination pagination))]}
   (if pagination
     (limit coll
@@ -20,7 +20,7 @@
            items-per-page)
     coll))
 
-(defn- wrap-paginate [previous]
+(defn wrap-paginate [previous]
   (let [pagination (get-in previous [:request :params :pagination])]
     (-> previous
         (update :response #(paginate % pagination)))))

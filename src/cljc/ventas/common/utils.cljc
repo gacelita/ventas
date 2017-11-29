@@ -28,7 +28,7 @@
     (apply merge-with deep-merge maps)
     (last maps)))
 
-(defn- read-keyword [str]
+(defn read-keyword [str]
   (keyword (str/replace str #"\:" "")))
 
 (def ^:private set-identifier "__set")

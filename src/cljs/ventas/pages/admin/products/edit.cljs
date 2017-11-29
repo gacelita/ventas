@@ -148,7 +148,7 @@
                          (:tags form-data))
            :selection true
            :default-value (:tags form-data)
-           :on-change #(rf/dispatch [::set-field :tags (set (map common.utils/read-keyword (.-value %2)))])}]]
+           :on-change #(rf/dispatch [::set-field :tags (set (.-value %2))])}]]
         [base/form-field
          [:label (i18n ::brand)]
          [base/dropdown

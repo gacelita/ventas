@@ -1,11 +1,11 @@
 (ns ventas.server
   (:require
-   [buddy.auth.backends.session :refer [session-backend]]
-   [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
+   [buddy.auth.backends.session :as buddy.session]
+   [buddy.auth.middleware :as buddy.middleware]
    [chord.format.fressian]
-   [chord.http-kit :refer [wrap-websocket-handler]]
+   [chord.http-kit]
    [clj-uuid :as uuid]
-   [clojure.core.async :as core.async :refer [<! >! close! go go-loop chan]]
+   [clojure.core.async :as core.async :refer [<! >! go go-loop chan]]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [compojure.core :refer [GET defroutes]]
@@ -20,16 +20,15 @@
    [ring.middleware.session :refer [wrap-session]]
    [ring.util.mime-type :as ring.mime-type]
    [ring.util.response :as ring.response]
-   [taoensso.timbre :as timbre :refer [trace debug info warn error]]
+   [taoensso.timbre :as timbre :refer [debug info]]
    [ventas.common.utils :as common.utils]
    [ventas.config :as config]
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.util :as util]
    [ventas.entities.file :as entities.file]
    [ventas.paths :as paths])
   (:gen-class)
-  (:import (clojure.lang Keyword)))
+  (:import [clojure.lang Keyword]))
 
 (cheshire.generate/add-encoder Keyword cheshire.generate/encode-str)
 
@@ -117,7 +116,7 @@
                   ;; Cuando llega un mensaje global, se inserta en el canal local (es decir, se envía a este cliente)
                   (>! ws-channel message)
                   (recur))
-                (close! ws-channel)))
+                (core.async/close! ws-channel)))
           ;; Este es el canal local, por aquí llegan los mensajes que envía el cliente
           ws-channel
             ([message]
@@ -165,17 +164,7 @@
 
 (def backend
   "The Buddy session backend"
-  (session-backend))
-
-(defn wrap-user
-  "Wraps a Ring request with the active user, based on
-   the database and (:identity req)"
-  [handler]
-  (fn [{user-id :identity :as req}]
-    (if-not (nil? user-id)
-      (handler (assoc req :user (entity/find user-id)))
-      (handler req))))
-
+  (buddy.session/session-backend))
 
 (defn wrap-prone
   "If the debug mode is enabled, wraps a Ring request
@@ -194,10 +183,10 @@
 (defroutes routes
   (GET "/ws/json-kw" []
     (-> #(ws-handler %)
-        (wrap-websocket-handler {:format :json-kw})))
+        (chord.http-kit/wrap-websocket-handler {:format :json-kw})))
   (GET "/ws/fressian" []
     (-> #(ws-binary-handler %)
-        (wrap-websocket-handler {:format :fressian})))
+        (chord.http-kit/wrap-websocket-handler {:format :fressian})))
   (GET "/files/*" {{path :*} :route-params}
     (let [resource-path (paths/path->resource (str paths/public path))]
       (if-let [resource-response (ring.response/resource-response resource-path)]
@@ -219,8 +208,8 @@
 (def http-handler
   (-> routes
       (wrap-prone)
-      (wrap-authentication backend)
-      (wrap-authorization backend)
+      (buddy.middleware/wrap-authentication backend)
+      (buddy.middleware/wrap-authorization backend)
       (wrap-session)
       (wrap-params)
       (wrap-defaults site-defaults)
@@ -256,5 +245,5 @@
     (start-server!))
   :stop
   (do
-    (close! @shared-ws-channel)
+    (core.async/close! @shared-ws-channel)
     (stop-server! server)))

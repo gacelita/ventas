@@ -65,7 +65,7 @@
            :selection true
            :options (role-options)
            :default-value (map str (:roles @data))
-           :on-change #(swap! data assoc :roles (set (map common.utils/read-keyword (.-value %2))))}]]]
+           :on-change #(swap! data assoc :roles (set (.-value %2)))}]]]
        [base/form-button {:type "submit"} "Enviar"]])))
 
 (defn page []
