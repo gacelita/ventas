@@ -113,7 +113,6 @@
 
   :to-json
   (fn [this & [{:keys [culture]}]]
-    (println "JSON-IZING I18N" culture)
     (if-not culture
       (->> (:i18n/translations this)
            (map (comp entity/to-json entity/find))

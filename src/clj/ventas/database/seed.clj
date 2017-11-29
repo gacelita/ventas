@@ -43,7 +43,6 @@
 
 (defn- get-sorted-types*
   [current remaining]
-  (println current remaining)
   (if (seq remaining)
     (let [new-types (->> remaining
                          (map (fn [type]

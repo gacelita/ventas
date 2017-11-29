@@ -8,6 +8,9 @@
   (buddy.jwt/sign {:user-id (:db/id user)} (config/get :auth-secret)))
 
 (defn token->user [token]
-  (-> (buddy.jwt/unsign token (config/get :auth-secret))
-      :user-id
-      (entity/find)))
+  (let [user (-> (buddy.jwt/unsign token (config/get :auth-secret))
+                 :user-id
+                 (entity/find))]
+    (if (entity/is-entity? user)
+      user
+      nil)))

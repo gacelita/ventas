@@ -9,12 +9,12 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.paths :as paths]
-   [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
    [ventas.utils :as utils]
    [ventas.utils.images :as utils.images]
    [ventas.auth :as auth]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.server.pagination :as pagination]))
+   [ventas.server.pagination :as pagination]
+   [ventas.server.ws :as server.ws]))
 
 (defn register-endpoint!
   ([kw f]
@@ -24,13 +24,13 @@
    (let [{:keys [binary? middlewares] :or {middlewares []}} opts]
      (cond
        (not binary?)
-       (defmethod ws-request-handler kw [request state]
+       (defmethod server.ws/handle-request kw [request state]
          (:response (reduce (fn [acc middleware]
                               (middleware acc))
                             {:request request :state state :response (f request state)}
                             middlewares)))
        binary?
-       (defmethod ws-binary-request-handler kw [request state]
+       (defmethod server.ws/handle-binary-request kw [request state]
          (f request state))))))
 
 (register-endpoint!

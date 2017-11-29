@@ -10,6 +10,7 @@
 (def aliases
   {'config 'ventas.config
    'server 'ventas.server
+   'ws 'ventas.server.ws
    'api 'ventas.server.api
    'db 'ventas.database
    'schema 'ventas.database.schema

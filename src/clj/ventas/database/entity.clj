@@ -243,18 +243,18 @@
   "Resolves references to entity types that have an :autoresolve?
    property with a truthy value"
   [entity & [options]]
-  (println "autoresolving" entity)
   (let [ref-idents (idents-with-value-type (db/type->kw (:schema/type entity))
                                            :db.type/ref)]
     (->> entity
          (map (fn [[ident value]]
                 [ident (if-not (contains? ref-idents ident)
                          value
-                         (do (println "cond" ident value)
-                           (cond
-                             (spec/valid? ::refs value) (map #(autoresolve-ref % options) value)
-                             (spec/valid? ::ref value) (autoresolve-ref value options)
-                             :else value)))]))
+                         (cond
+                           (spec/valid? (spec/coll-of number?) value)
+                             (map #(autoresolve-ref % options) value)
+                           (spec/valid? number? value)
+                             (autoresolve-ref value options)
+                           :else value))]))
          (into {}))))
 
 (defn- default-to-json [entity & [options]]
