@@ -4,7 +4,6 @@
    [ventas.server.api :as api]
    [ventas.database.entity :as entity]
    [clojure.spec.alpha :as spec]
-   [ventas.database.seed :as seed]
    [ventas.database :as db]))
 
 (def plugin-kw :featured-products)
