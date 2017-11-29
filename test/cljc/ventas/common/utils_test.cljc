@@ -1,6 +1,6 @@
-(ns ventas.common.util-test
+(ns ventas.common.utils-test
   #? (:cljs (:require-macros [cljs.test :refer [is deftest testing]]))
-  (:require [ventas.common.util :as sut]
+  (:require [ventas.common.utils :as sut]
             #?(:clj [clojure.test :refer :all]
                :cljs [cljs.test])))
 
