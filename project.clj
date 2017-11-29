@@ -1,6 +1,6 @@
 (defproject ventas "0.0.2"
   :description "The Ventas eCommerce platform"
-  :url "https://kazer.es"
+  :url "https://github.com/JoelSanchez/ventas"
   :license {:name "GPL"
             :url "https://opensource.org/licenses/GPL-2.0"}
 
@@ -15,12 +15,10 @@
                   :exclusions [org.clojure/tools.reader]]
                  [expound "0.3.3"]
                  [org.clojure/spec.alpha "0.1.123" :scope "provided"]
+                 [com.google.guava/guava "23.0"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
-
-                 ;; Conflict resolution
-                 [com.google.guava/guava "23.0"]
 
                  ;; Logging
                  [org.clojure/tools.logging "0.4.0"]
@@ -181,7 +179,6 @@
                            :parallel-build true}}]}
 
   :figwheel {:css-dirs ["resources/public/files/css"]
-             :open-file-command "open-with-subl3"
              :server-logfile "log/figwheel.log"
              :repl false}
 
