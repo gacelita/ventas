@@ -34,62 +34,44 @@
 
 (defn- content [identity]
   (rf/dispatch [::forms/populate form-config (utils/map-keys #(utils/ns-kw %) identity)])
-  (let [data @(rf/subscribe [:ventas/db [(::forms/state-key form-config)]])]
-    ^{:key (::forms/population-hash data)}
-    [base/form {:error (forms/valid-form? data)}
+  ^{:key (forms/get-key form-config)}
+  [base/segment
+   [base/form {:error (forms/valid-form? form-config)}
 
-     [base/form-group
-      [base/form-field {:width 5}
-       [forms/text-input form-config ::first-name]]
+    [base/form-group
+     [base/form-field {:width 5}
+      [forms/text-input form-config ::first-name]]
 
-      [base/form-field {:width 11}
-       [forms/text-input form-config ::last-name]]]
+     [base/form-field {:width 11}
+      [forms/text-input form-config ::last-name]]]
 
-     [base/form-group
-      [base/form-field {:width 16}
-       [forms/text-input form-config ::company]]]
-
-     [base/form-group
-      [base/form-field {:width 8}
-       [forms/text-input form-config ::address]]
-
-      [base/form-field {:width 8}
-       [forms/text-input form-config ::address-second-line]]]
-
-     [base/form-group
-      [base/form-field {:width 2}
-       [forms/text-input form-config ::zip-code]]
-
-      [base/form-field {:width 7}
-       [forms/text-input form-config ::city]]
-
-      [base/form-field {:width 7}
-       [forms/text-input form-config ::state]]]
-
-     [base/form-group
-      [base/form-field {:width 8}
-       [forms/text-input form-config ::email]]
-
-      [base/form-field {:width 8}
-       [forms/text-input form-config ::phone]]]
-
-     [base/form-group
-      (let [field ::privacy-policy
-            {:keys [valid? value infractions]} (get data field)]
-        [base/form-field {:control "checkbox"
-                          :error (and (not (nil? valid?)) (not valid?))}
-         [base/checkbox
-          {:label (reagent/as-element
-                   [:label (str (i18n ::privacy-policy-text) " ")
-                    [:a {:href #(routes/path-for :frontend.privacy-policy)}
-                     (i18n field)]])
-           :on-change #(rf/dispatch [::set-field form-config field (get (js->clj %2) "checked")])}]])]
+    [base/form-group
+     [base/form-field {:width 16}
+      [forms/text-input form-config ::company]]]
 
 
+    [base/form-group
+     [base/form-field {:width 8}
+      [forms/text-input form-config ::email]]
 
-     [base/button {:type "button"
-                   :on-click #(rf/dispatch [::save])}
-      (i18n ::save)]]))
+     [base/form-field {:width 8}
+      [forms/text-input form-config ::phone]]]
+
+    [base/form-group
+     (let [field ::privacy-policy
+           {:keys [valid? value infractions]} (forms/get-field form-config field)]
+       [base/form-field {:control "checkbox"
+                         :error (and (not (nil? valid?)) (not valid?))}
+        [base/checkbox
+         {:label (reagent/as-element
+                  [:label (str (i18n ::privacy-policy-text) " ")
+                   [:a {:href #(routes/path-for :frontend.privacy-policy)}
+                    (i18n field)]])
+          :on-change #(rf/dispatch [::forms/set-field form-config field (get (js->clj %2) "checked")])}]])]
+
+    [base/button {:type "button"
+                  :on-click #(rf/dispatch [::save])}
+     (i18n ::save)]]])
 
 (defn page []
   [profile.skeleton/skeleton

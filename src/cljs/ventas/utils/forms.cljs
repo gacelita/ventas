@@ -7,29 +7,32 @@
    [ventas.i18n :refer [i18n]]
    [clojure.set :as set]))
 
+(defn- set-field! [db {::keys [state-key validators]} field value]
+  (let [{:keys [valid? infractions]} (validation/validate validators field value)]
+    (assoc-in db
+              [state-key ::fields field]
+              {:value value
+               :valid? valid?
+               :infractions infractions})))
+
+(rf/reg-event-db
+ ::set-field
+ (fn [db [_ config field value]]
+   (set-field! db config field value)))
+
 (rf/reg-event-db
  ::populate
- (fn [db [_ {::keys [state-key]} data]]
+ (fn [db [_ {::keys [state-key] :as config} data]]
    (let [last-hash (get-in db [state-key ::population-hash])]
      (if (= last-hash (hash data))
        db
        (let [field-keys (set/union (keys data) (keys (get-in db [state-key ::fields])))]
          (->
           (reduce (fn [acc field-key]
-                    (assoc-in acc [state-key ::fields field-key :value] (get data field-key)))
+                    (set-field! acc config field-key (get data field-key)))
                   db
                   field-keys)
           (assoc-in [state-key ::population-hash] (hash data))))))))
-
-(rf/reg-event-db
- ::set-field
- (fn [db [_ {::keys [state-key validators]} field value]]
-   (let [{:keys [valid? infractions]} (validation/validate validators field value)]
-     (assoc-in db
-               [state-key ::fields field]
-               {:value value
-                :valid? valid?
-                :infractions infractions}))))
 
 (defn get-fields [{::keys [state-key]}]
   @(rf/subscribe [:ventas/db [state-key ::fields]]))
@@ -89,10 +92,10 @@
                                         :params params})}]))]))
 
 (defn valid-form? [config]
-  (not (->> (get-fields config)
-            (vals)
-            (map :valid?)
-            (every? identity))))
+  (->> (get-fields config)
+       (vals)
+       (map :valid?)
+       (every? #(not= false %))))
 
 (defn set-field-property! [{::keys [state-key]} field property value]
   (rf/dispatch [:ventas/db [state-key ::fields field property] value]))

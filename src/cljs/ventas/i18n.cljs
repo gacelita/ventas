@@ -114,6 +114,7 @@
     :ventas.themes.clothing.pages.frontend.profile.account/privacy-policy "privacy policy"
     :ventas.themes.clothing.pages.frontend.profile.account/page "My account"
     :ventas.themes.clothing.pages.frontend.profile.account/save "Save"
+    :ventas.themes.clothing.pages.frontend.profile.account/phone "Phone"
 
     :ventas.themes.clothing.pages.frontend.profile.addresses/address "Address"
     :ventas.themes.clothing.pages.frontend.profile.addresses/address-second-line "Address (second line)"

@@ -3,9 +3,11 @@
    [clojure.string :as str]))
 
 (defn length-validator [{:keys [min max] :or {min -1}} value]
-  (let [length (count value)
-        max (or max (inc (count value)))]
-    (< min length max)))
+  (if-not (seqable? value)
+    true
+    (let [length (count value)
+          max (or max (inc (count value)))]
+      (< min length max))))
 
 (defn email-validator [_ value]
   (or (empty? value)

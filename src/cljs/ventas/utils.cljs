@@ -74,15 +74,3 @@
     (when (not (get-in session [:identity :id]))
       (routes/go-to :frontend.login))
     (:identity session)))
-
-(defn map-keys [f m]
-  (->> m
-       (map (fn [[k v]]
-              [(f k) v]))
-       (into {})))
-
-(defn map-vals [f m]
-  (->> m
-       (map (fn [[k v]]
-              [k (f v)]))
-       (into {})))
