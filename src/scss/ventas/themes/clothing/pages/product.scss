@@ -1,10 +1,10 @@
 
-.top__564222132 {
+.product-page__top {
     display: flex;
     margin: 15px;
 }
 
-.images__564222132 {
+.product-page__images {
     position: relative;
     img {
         top: 0;
@@ -16,11 +16,11 @@
     }
 }
 
-.info__564222132 {
+.product-page__info {
     margin: 15px;
 }
 
-.name__564222132 {
+.product-page__name {
     font-family: 'Raleway',sans-serif;
     font-weight: bold;
     font-size: 22px;
@@ -28,13 +28,13 @@
     margin-bottom: 0px !important;
 }
 
-.price__564222132 {
+.product-page__price {
     font-size: 24px;
     color: #0092c5;
     margin: 0px !important;
 }
 
-.description__564222132 {
+.product-page__description {
     font-family: 'Raleway',sans-serif;
     font-size: 14px;
     margin: 10px 0px;
