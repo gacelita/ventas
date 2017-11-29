@@ -13,7 +13,8 @@
    [ventas.util :as util]
    [ventas.utils.images :as utils.images]
    [ventas.auth :as auth]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [ventas.server.pagination :as pagination]))
 
 (defn register-endpoint!
   ([kw f]
@@ -31,25 +32,6 @@
        binary?
        (defmethod ws-binary-request-handler kw [request state]
          (f request state))))))
-
-(defn limit
-  ([coll quantity]
-   (limit coll 0 quantity))
-  ([coll offset quantity]
-   (take quantity (drop offset coll))))
-
-(spec/def ::page number?)
-(spec/def ::items-per-page number?)
-(spec/def ::pagination
-  (spec/keys :req-un [::page ::items-per-page]))
-
-(defn- paginate [coll {:keys [items-per-page page] :as pagination}]
-  {:pre [(or (nil? pagination) (util/check ::pagination pagination))]}
-  (if pagination
-    (limit coll
-           (* items-per-page page)
-           items-per-page)
-    coll))
 
 (register-endpoint!
   :entities.remove
@@ -74,7 +56,7 @@
   (fn [{{:keys [pagination]} :params} state]
     (let [{items :schema/_type} (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}])
                                          :schema.type/user)]
-      (paginate (map util/dequalify-keywords items) pagination))))
+      (pagination/paginate (map util/dequalify-keywords items) pagination))))
 
 (register-endpoint!
   :users.save
@@ -102,14 +84,9 @@
     (or (:user/culture user)
         (entity/find [:i18n.culture/keyword :en_US]))))
 
-(defn- wrap-paginate [previous]
-  (let [pagination (get-in previous [:request :params :pagination])]
-    (-> previous
-        (update :response #(paginate % pagination)))))
-
 (register-endpoint!
   :states.list
-  {:middlewares [wrap-paginate]}
+  {:middlewares [pagination/wrap-paginate]}
   (fn [_ {:keys [session]}]
     (map #(entity/to-json % {:culture (get-culture session)})
          (entity/query :state))))
@@ -230,7 +207,7 @@ Eventos:
             items (map #(-> % :id entity/find entity/to-json)
                        (db/nice-query {:find '[?id]
                                        :where wheres}))]
-        (paginate items pagination)))))
+        (pagination/paginate items pagination)))))
 
 (register-endpoint!
   :products.save
@@ -287,7 +264,7 @@ Eventos:
   :categories.list
   (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :category))]
-      (paginate items pagination))))
+      (pagination/paginate items pagination))))
 
 
 
@@ -295,7 +272,7 @@ Eventos:
   :brands.list
   (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :brand))]
-      (paginate items pagination))))
+      (pagination/paginate items pagination))))
 
 
 
@@ -303,13 +280,13 @@ Eventos:
   :taxes.list
   (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :tax))]
-      (paginate items pagination))))
+      (pagination/paginate items pagination))))
 
 (register-endpoint!
   :image-sizes.list
   (fn [{{:keys [pagination]} :params} state]
     (let [items (map entity/to-json (entity/query :image-size))]
-      (paginate items pagination))))
+      (pagination/paginate items pagination))))
 
 (register-endpoint!
   :taxes.save
