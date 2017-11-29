@@ -13,7 +13,6 @@
    [ventas.components.product-list :refer [products-list]]
    [ventas.components.cart :as cart]
    [ventas.utils :as util]
-   [ventas.plugin :as plugin]
    [ventas.components.base :as base]
    [ventas.routes :as routes]))
 
