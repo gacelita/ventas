@@ -12,7 +12,7 @@
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
-   [ventas.common.util :as common.util]
+   [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]))
 
 (defn- role-options []
@@ -65,7 +65,7 @@
            :selection true
            :options (role-options)
            :default-value (map str (:roles @data))
-           :on-change #(swap! data assoc :roles (set (map common.util/read-keyword (.-value %2))))}]]]
+           :on-change #(swap! data assoc :roles (set (map common.utils/read-keyword (.-value %2))))}]]]
        [base/form-button {:type "submit"} "Enviar"]])))
 
 (defn page []

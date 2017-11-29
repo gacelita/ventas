@@ -12,7 +12,7 @@
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
-   [ventas.common.util :as common.util]
+   [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]))
 
 (def brands-sub-key ::brands)
@@ -148,7 +148,7 @@
                          (:tags form-data))
            :selection true
            :default-value (:tags form-data)
-           :on-change #(rf/dispatch [::set-field :tags (set (map common.util/read-keyword (.-value %2)))])}]]
+           :on-change #(rf/dispatch [::set-field :tags (set (map common.utils/read-keyword (.-value %2)))])}]]
         [base/form-field
          [:label (i18n ::brand)]
          [base/dropdown

@@ -12,7 +12,7 @@
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
-   [ventas.common.util :as common.util]
+   [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]))
 
 (rf/reg-event-fx

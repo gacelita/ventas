@@ -4,7 +4,7 @@
             [cljs.core.async :refer [<! >! close! chan]]
             [chord.client :as chord]
             [chord.format.fressian]
-            [ventas.common.util :as common.util]
+            [ventas.common.utils :as common.utils]
             [ventas.components.notificator :as notificator]
             [re-frame.core :as rf])
   (:require-macros
@@ -70,7 +70,7 @@
   (go-loop []
     (let [message (:message (<! websocket-channel))
           {:keys [type] :as message} (if (= format :json-kw)
-                                       (common.util/process-input-message message)
+                                       (common.utils/process-input-message message)
                                        message)]
       (debug ::receive-messages! message)
       (case type
@@ -87,7 +87,7 @@
   (go-loop []
    (let [message (<! output-channel)
          message (if (= format :json-kw)
-                   (common.util/process-output-message message)
+                   (common.utils/process-output-message message)
                    message)]
      (>! websocket-channel message)
      (recur))))

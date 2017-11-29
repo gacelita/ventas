@@ -3,7 +3,7 @@
    [re-frame.core :as rf]
    [ventas.utils.logging :refer [debug]]
    [ventas.utils.ui :as utils.ui]
-   [ventas.common.util :as common.util]
+   [ventas.common.utils :as common.utils]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.formatting :as formatting]
    [day8.re-frame.forward-events-fx]))
@@ -43,7 +43,7 @@
 (rf/reg-event-fx
  :api/categories.list
  (fn [cofx [_ options]]
-   {:ws-request (common.util/deep-merge
+   {:ws-request (common.utils/deep-merge
                  {:name :categories.list
                   :params {:pagination {:page 0 :items-per-page 5}}} options)}))
 
@@ -77,7 +77,7 @@
 (rf/reg-event-fx
  :api/products.list
  (fn [cofx [_ options]]
-   {:ws-request (common.util/deep-merge
+   {:ws-request (common.utils/deep-merge
                  {:name :products.list
                   :params {:pagination {:page 0 :items-per-page 5}}} options)}))
 

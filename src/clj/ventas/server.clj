@@ -21,7 +21,7 @@
    [ring.util.mime-type :as ring.mime-type]
    [ring.util.response :as ring.response]
    [taoensso.timbre :as timbre :refer [trace debug info warn error]]
-   [ventas.common.util :as common.util]
+   [ventas.common.utils :as common.utils]
    [ventas.config :as config]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
@@ -123,7 +123,7 @@
             ([message]
               (if message
                 (do
-                  (ws-message-handler (common.util/process-input-message (:message message)) client-id session ws-channel req)
+                  (ws-message-handler (common.utils/process-input-message (:message message)) client-id session ws-channel req)
                   (recur))
 
                  (do
