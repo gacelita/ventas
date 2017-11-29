@@ -22,6 +22,8 @@
 
 (spec/def :user/company ::generators/string)
 
+(spec/def :user/phone ::generators/string)
+
 (def statuses
   #{:user.status/pending
     :user.status/active
@@ -54,7 +56,7 @@
                    :user/last-name
                    :user/company
                    :user/email
-                   :user/culture
+                   :user/phone
                    :user/status
                    :user/culture]
              :opt [:user/description
@@ -91,6 +93,10 @@
      :db/valueType :db.type/string
      :db/index true
      :db/unique :db.unique/identity
+     :db/cardinality :db.cardinality/one}
+
+    {:db/ident :user/phone
+     :db/valueType :db.type/string
      :db/cardinality :db.cardinality/one}
 
     {:db/ident :user/description
@@ -134,4 +140,5 @@
       :user/email "test@test.com"
       :user/status :user.status/active
       :user/password "test"
+      :user/phone "+34 654 543 431"
       :user/culture [:i18n.culture/keyword :en_US]}])})
