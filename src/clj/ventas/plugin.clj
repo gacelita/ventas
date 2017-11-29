@@ -5,7 +5,6 @@
    [clojure.core.async :refer [<! go go-loop]]
    [ventas.database :as db]
    [io.rkn.conformity :as conformity]
-   [ventas.events :as events]
    [ventas.database.schema :as schema]))
 
 (spec/def ::version string?)

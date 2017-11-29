@@ -1,6 +1,7 @@
 (ns ventas.components.sidebar
-  (:require [ventas.components.base :as base]
-            [re-frame.core :as rf]))
+  (:require
+   [ventas.components.base :as base]
+   [re-frame.core :as rf]))
 
 (def state-key ::state)
 

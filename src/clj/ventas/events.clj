@@ -5,11 +5,16 @@
 
 (defonce events (atom {}))
 
-(defn event [evt-name]
-  (let [evt-data (get @events evt-name)]
-    (when-not evt-data
-      (throw (Exception. (str "No event named " evt-name))))
+(defn register-event! [evt-name]
+  (let [ch (chan)
+        evt-data {:chan ch :mult (core.async/mult ch)}]
+    (swap! events assoc evt-name evt-data)
     evt-data))
+
+(defn event [evt-name]
+  (if-let [evt-data (get @events evt-name)]
+    evt-data
+    (register-event! evt-name)))
 
 (defn pub [evt-name]
   (let [data (event evt-name)]
@@ -18,15 +23,3 @@
 (defn sub [evt-name]
   (let [data (event evt-name)]
     (core.async/tap (get data :mult) (chan))))
-
-(defn register-event! [evt-name]
-  (let [ch (chan)
-        evt-data {:chan ch :mult (core.async/mult ch)}]
-    (swap! events assoc evt-name evt-data)
-    (go-loop []
-      (when (<! (sub evt-name))
-        (debug "Event happened: " evt-name)
-        (recur)))))
-
-(register-event! :db-init)
-(register-event! :init)

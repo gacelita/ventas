@@ -1,12 +1,13 @@
 (ns ventas.ws
   "Requests and responses, abstracted over websocket communication"
-  (:require [ventas.utils.logging :refer [trace debug info warn error]]
-            [cljs.core.async :refer [<! >! close! chan]]
-            [chord.client :as chord]
-            [chord.format.fressian]
-            [ventas.common.utils :as common.utils]
-            [ventas.components.notificator :as notificator]
-            [re-frame.core :as rf])
+  (:require
+   [ventas.utils.logging :refer [trace debug info warn error]]
+   [cljs.core.async :refer [<! >! close! chan]]
+   [chord.client :as chord]
+   [chord.format.fressian]
+   [ventas.common.utils :as common.utils]
+   [ventas.components.notificator :as notificator]
+   [re-frame.core :as rf])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
 

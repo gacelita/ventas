@@ -1,12 +1,13 @@
 (ns ventas.components.cart
-  (:require [ventas.utils :as util]
-            [re-frame.core :as rf]
-            [reagent.core :as reagent]
-            [clojure.string :as s]
-            [bidi.bidi :as bidi]
-            [ventas.components.base :as base]
-            [ventas.routes :refer [routes]]
-            [ventas.utils.ui :refer [with-handler]]))
+  (:require
+   [ventas.utils :as util]
+   [re-frame.core :as rf]
+   [reagent.core :as reagent]
+   [clojure.string :as s]
+   [bidi.bidi :as bidi]
+   [ventas.components.base :as base]
+   [ventas.routes :refer [routes]]
+   [ventas.utils.ui :refer [with-handler]]))
 
 ;; Main state subscription
 (rf/reg-sub

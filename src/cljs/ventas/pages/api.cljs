@@ -1,18 +1,19 @@
 (ns ventas.pages.api
-  (:require [reagent.core :as reagent :refer [atom]]
-            [reagent.session :as session]
-            [re-frame.core :as rf]
-            [bidi.bidi :as bidi]
-            [re-frame-datatable.core :as dt]
-            [ventas.utils.logging :refer [trace debug info warn error]]
-            [ventas.page :refer [pages]]
-            [ventas.routes :as routes]
-            [ventas.components.notificator]
-            [ventas.components.popup]
-            [ventas.components.product-list :refer [products-list]]
-            [ventas.components.cart :as cart]
-            [ventas.utils :as util]
-            [soda-ash.core :as sa]))
+  (:require
+   [reagent.core :as reagent :refer [atom]]
+   [reagent.session :as session]
+   [re-frame.core :as rf]
+   [bidi.bidi :as bidi]
+   [re-frame-datatable.core :as dt]
+   [ventas.utils.logging :refer [trace debug info warn error]]
+   [ventas.page :refer [pages]]
+   [ventas.routes :as routes]
+   [ventas.components.notificator]
+   [ventas.components.popup]
+   [ventas.components.product-list :refer [products-list]]
+   [ventas.components.cart :as cart]
+   [ventas.utils :as util]
+   [soda-ash.core :as sa]))
 
 (defn skeleton [contents]
   (info "Rendering...")

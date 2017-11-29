@@ -1,9 +1,10 @@
 (ns ventas.config
   (:refer-clojure :exclude [get set])
-  (:require [clojure.core :as clj]
-            [cprop.core :refer [load-config]]
-            [ventas.util :refer [print-info]]
-            [mount.core :as mount :refer [defstate]]))
+  (:require
+   [clojure.core :as clj]
+   [cprop.core :refer [load-config]]
+   [ventas.util :refer [print-info]]
+   [mount.core :as mount :refer [defstate]]))
 
 (defonce ^:private config (atom (load-config)))
 

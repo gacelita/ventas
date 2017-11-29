@@ -1,10 +1,11 @@
 (ns ventas.routes
-  (:require [clojure.string :as str]
-            [bidi.bidi :as bidi]
-            [ventas.utils.logging :refer [error]]
-            [accountant.core :as accountant]
-            [ventas.page :as page]
-            [reagent.session :as session]))
+  (:require
+   [clojure.string :as str]
+   [bidi.bidi :as bidi]
+   [ventas.utils.logging :refer [error]]
+   [accountant.core :as accountant]
+   [ventas.page :as page]
+   [reagent.session :as session]))
 
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"

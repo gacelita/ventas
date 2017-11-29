@@ -1,6 +1,7 @@
 (ns ventas.paths
-  (:require [clojure.string :as str]
-            [ventas.config :as config]))
+  (:require
+   [clojure.string :as str]
+   [ventas.config :as config]))
 
 (def project-resources
   "A path for project-wide resources, like the configuration"

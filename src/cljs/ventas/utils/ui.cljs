@@ -1,6 +1,4 @@
-(ns ventas.utils.ui
-  (:require [re-frame.core :as rf]
-            [re-frame.registrar :as rf.registrar]))
+(ns ventas.utils.ui)
 
 (defn with-handler [cb]
   (fn [e]

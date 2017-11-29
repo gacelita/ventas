@@ -11,7 +11,6 @@
    [taoensso.timbre :as timbre :refer [trace debug info warn error]]
    [ventas.database :as db]
    [ventas.database.schema :as schema]
-   [ventas.events :as events]
    [ventas.util :as util]))
 
 (defn is-entity? [entity]

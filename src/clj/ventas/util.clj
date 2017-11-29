@@ -1,9 +1,10 @@
 (ns ventas.util
-  (:require [io.aviso.ansi :as clansi]
-            [clojure.java.io :as io]
-            [clojure.spec.alpha :as spec]
-            [expound.alpha :as expound]
-            [slingshot.slingshot :refer [throw+]])
+  (:require
+   [io.aviso.ansi :as clansi]
+   [clojure.java.io :as io]
+   [clojure.spec.alpha :as spec]
+   [expound.alpha :as expound]
+   [slingshot.slingshot :refer [throw+]])
   (:import [java.io File]))
 
 (defn filter-vals
