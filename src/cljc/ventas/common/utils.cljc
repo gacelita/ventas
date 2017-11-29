@@ -1,4 +1,4 @@
-(ns ventas.common.util
+(ns ventas.common.utils
   #?(:clj
      (:require
       [clojure.string :as str]))
@@ -8,10 +8,17 @@
       [cljs.reader :as reader]
       [cognitect.transit :as transit])))
 
-(defn map-values
-  "Like using `map` over the values of a map, leaving the keys intact"
-  [f m]
-  (reduce-kv #(assoc %1 %2 (f %3)) {} m))
+(defn map-keys [f m]
+  (->> m
+       (map (fn [[k v]]
+              [(f k) v]))
+       (into {})))
+
+(defn map-vals [f m]
+  (->> m
+       (map (fn [[k v]]
+              [k (f v)]))
+       (into {})))
 
 (defn deep-merge
   "Like merge, but merges maps recursively.
@@ -21,10 +28,10 @@
     (apply merge-with deep-merge maps)
     (last maps)))
 
-(defn read-keyword [str]
+(defn- read-keyword [str]
   (keyword (str/replace str #"\:" "")))
 
-(def set-identifier "__set")
+(def ^:private set-identifier "__set")
 
 (defn str->bigdec [v]
   #?(:clj (bigdec v))
@@ -39,7 +46,7 @@
   [message]
   (cond
     (map? message)
-      (map-values process-input-message message)
+      (map-vals process-input-message message)
     (string? message)
       (cond
         (str/starts-with? message ":")
@@ -55,7 +62,7 @@
   "Properly encode keywords and sets"
   [message]
   (cond
-    (map? message) (map-values process-output-message message)
+    (map? message) (map-vals process-output-message message)
     (vector? message) (map process-output-message message)
     (keyword? message) (str message)
     (set? message) (vec (concat [set-identifier] (map process-output-message message)))
