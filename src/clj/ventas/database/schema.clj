@@ -10,38 +10,6 @@
    [ventas.util :as util]
    [taoensso.timbre :as timbre :refer (trace debug info warn error)]))
 
-(defn- ^:deprecated get-migrations-from-files []
-  "Returns a list of migrations"
-  (let [files (sort (.listFiles (io/file "resources/migrations")))]
-    (map (fn [file]
-           {(keyword (.getName file)) {:txes [(read-string (slurp file))]}})
-         files)))
-
-(defn ^:deprecated create-migration-file
-  "Creates a migration file.
-   Usage:
-     (create-migration-file
-       `my-migration`
-       [{:db/ident :product.variation/product
-         :db/valueType :db.type/ref
-         :db/cardinality :db.cardinality/one}])"
-  [kw & [initial-contents]]
-  {:pre [(keyword? kw)]}
-  (let [now (time/now)
-        date (time-format/unparse (time-format/formatter "yyyy_MM_dd") now)
-        hours (read-string (time-format/unparse (time-format/formatter "h") now))
-        minutes (read-string (time-format/unparse (time-format/formatter "m") now))
-        seconds (read-string (time-format/unparse (time-format/formatter "s") now))
-        dt-identifier (str date "_" (+ (* 60 60 hours) (* 60 minutes) seconds))]
-    (spit (str "resources/migrations/" dt-identifier "_" (name kw) ".edn") initial-contents)))
-
-(defn ^:deprecated delete-migration-file [kw]
-  "Deletes a migration.
-   Usage:
-     (delete-migration 'my-migration')"
-  (if-let [file (first (util/find-files "resources/migrations" (re-pattern (str ".*?" (name kw) ".*?"))))]
-    (.delete file)))
-
 (defonce migrations
  (let [initial-schema
        [{:db/ident :schema/deprecated
