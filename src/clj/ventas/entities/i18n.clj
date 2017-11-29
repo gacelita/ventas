@@ -2,7 +2,7 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [clojure.test.check.generators :as gen]
    [ventas.database.generators :as generators]
    [ventas.database :as db]))
@@ -108,7 +108,7 @@
   (fn [this]
     (when (->> (:i18n/translations this)
                (map #(:i18n.translation/culture (entity/find %)))
-               (util/has-duplicates?))
+               (utils/has-duplicates?))
       (throw (Error. "You can't add to a :i18n entity more than one translation per culture"))))
 
   :to-json

@@ -1,4 +1,4 @@
-(ns ventas.util
+(ns ventas.utils
   (:require
    [io.aviso.ansi :as clansi]
    [clojure.java.io :as io]

@@ -11,7 +11,7 @@
    [taoensso.timbre :as timbre :refer [trace debug info warn error]]
    [ventas.database :as db]
    [ventas.database.schema :as schema]
-   [ventas.util :as util]))
+   [ventas.utils :as utils]))
 
 (defn is-entity? [entity]
   (when (map? entity)
@@ -37,7 +37,7 @@
    Example: (register-entity-type! :user)"
   [kw & [m]]
   {:pre [(keyword? kw) (or (nil? m)
-                           (and (map? m) (util/check ::entity-type m)))]}
+                           (and (map? m) (utils/check ::entity-type m)))]}
   (let [m (or m {})]
     (schema/register-migration!
      [{:db/ident (db/kw->type kw)}])
@@ -122,8 +122,8 @@
   [entity]
   {:pre [(type-exists? (type entity))]}
   (let [spec (:schema/type entity)]
-    (when (util/spec-exists? spec)
-      (util/check spec entity))))
+    (when (utils/spec-exists? spec)
+      (utils/check spec entity))))
 
 (defn find
   "Finds an entity by eid or lookup ref"
@@ -165,7 +165,7 @@
    (create :user {:name `Joel` :email `test@test.com`})"
   [type attributes]
   (let [entity
-        (-> (util/qualify-map-keywords (util/filter-empty-vals attributes) type)
+        (-> (utils/qualify-map-keywords (utils/filter-empty-vals attributes) type)
             (assoc :schema/type (db/kw->type type)))]
     (create* entity)))
 
@@ -178,7 +178,7 @@
     (-> attributes
         (dissoc :id)
         (dissoc :type)
-        (util/qualify-map-keywords type)
+        (utils/qualify-map-keywords type)
         (assoc :schema/type type)
         (assoc :db/id id))))
 
@@ -260,7 +260,7 @@
 (defn- default-to-json [entity & [options]]
   (-> (autoresolve entity options)
       (dissoc :schema/type)
-      (util/dequalify-keywords)))
+      (utils/dequalify-keywords)))
 
 (def default-type
   {:attributes []
@@ -311,7 +311,7 @@
   (let [entity (find id)]
     (update* (-> attrs
                  (dissoc :id)
-                 (util/qualify-map-keywords (type entity))
+                 (utils/qualify-map-keywords (type entity))
                  (assoc :db/id (:db/id entity))))))
 
 (defn delete [eid]
@@ -344,7 +344,7 @@
        (map (fn [[attribute value]]
               (let [attribute (if (namespace attribute)
                                 attribute
-                                (util/qualify-keyword attribute type))
+                                (utils/qualify-keyword attribute type))
                     value (if (= value :any) '_ value)]
                 ['?id attribute value])))
        (mapcat (fn [[var attribute value]]

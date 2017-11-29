@@ -4,7 +4,7 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.util :refer [update-if-exists]]
+   [ventas.utils :refer [update-if-exists]]
    [ventas.database.generators :as generators]))
 
 (spec/def :category/name ::entities.i18n/ref)

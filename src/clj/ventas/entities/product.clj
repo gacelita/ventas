@@ -6,7 +6,7 @@
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.util :refer [update-if-exists]]))
+   [ventas.utils :refer [update-if-exists]]))
 
 (spec/def :product/name ::generators/string)
 

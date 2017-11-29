@@ -6,7 +6,7 @@
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [clojure.string :as str]
    [ventas.database.generators :as generators]))
 
@@ -124,7 +124,7 @@
 
   :filter-create
   (fn [this]
-    (util/transform
+    (utils/transform
      this
      [(fn [user]
         (if (:user/password user)

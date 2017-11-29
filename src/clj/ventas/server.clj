@@ -24,7 +24,7 @@
    [ventas.common.utils :as common.utils]
    [ventas.config :as config]
    [ventas.database.entity :as entity]
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [ventas.entities.file :as entities.file]
    [ventas.paths :as paths])
   (:gen-class)
@@ -83,7 +83,7 @@
       (ws-event-handler message state)
       :request
       (let [result (call-ws-request-handler message state)]
-        (if (util/chan? result)
+        (if (utils/chan? result)
           (go-loop []
             (>! ws-channel (<! result))
             (recur))
@@ -219,7 +219,7 @@
 
 ;; Server lifecycle
 (defn stop-server! [stop-fn]
-  (util/print-info "Stopping server")
+  (utils/print-info "Stopping server")
   (when (ifn? stop-fn)
     (try
       (stop-fn)
@@ -228,7 +228,7 @@
         ))))
 
 (defn start-server! [& [port]]
-  (util/print-info "Starting server")
+  (utils/print-info "Starting server")
   (let [port (Integer. (or port (config/get :http-port) 10555))
         ip (or (config/get :http-ip) "0.0.0.0")]
     (info "Starting server on" (str ip ":" port))

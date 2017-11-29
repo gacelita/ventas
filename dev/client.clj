@@ -4,7 +4,7 @@
    [clojure.java.io :as io]
    [figwheel-sidecar.repl-api :as figwheel]
    [figwheel-sidecar.components.css-watcher :as figwheel.css-watcher]
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [clojure.java.shell]
    [me.raynes.conch.low-level :as sh]
    [mount.core :as mount :refer [defstate]]
@@ -24,11 +24,11 @@
          (figwheel.css-watcher/send-css-files figwheel-server sendable-files))))))
 
 (defn figwheel-start []
-  (util/print-info "Starting Figwheel")
+  (utils/print-info "Starting Figwheel")
   (figwheel/start-figwheel!))
 
 (defn figwheel-stop []
-  (util/print-info "Stopping Figwheel")
+  (utils/print-info "Stopping Figwheel")
   (figwheel/stop-figwheel!))
 
 (defstate figwheel :start (figwheel-start) :stop (figwheel-stop))
@@ -38,12 +38,12 @@
 (def sass-process)
 (defn sass-start []
   (future
-   (util/print-info "Starting SASS")
+   (utils/print-info "Starting SASS")
    (alter-var-root #'sass-process (sh/proc "lein" "auto" "sassc" "once"))))
 
 (defn sass-stop []
   (future
-   (util/print-info "Stopping SASS")
+   (utils/print-info "Stopping SASS")
    (sh/destroy sass-process)))
 
 (defstate sass :start (sass-start) :stop (sass-stop))

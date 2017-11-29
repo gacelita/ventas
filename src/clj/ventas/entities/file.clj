@@ -8,7 +8,7 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.paths :as paths]
-   [ventas.util :refer [find-files]]))
+   [ventas.utils :refer [find-files]]))
 
 (spec/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
 

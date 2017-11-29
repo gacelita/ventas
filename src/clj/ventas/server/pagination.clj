@@ -1,7 +1,7 @@
 (ns ventas.server.pagination
   (:require
    [clojure.spec.alpha :as spec]
-   [ventas.util :as util]))
+   [ventas.utils :as utils]))
 
 (defn- limit [coll offset quantity]
   (let [offset (or offset 0)]
@@ -13,7 +13,7 @@
   (spec/keys :req-un [::page ::items-per-page]))
 
 (defn paginate [coll {:keys [items-per-page page] :as pagination}]
-  {:pre [(or (nil? pagination) (util/check ::pagination pagination))]}
+  {:pre [(or (nil? pagination) (utils/check ::pagination pagination))]}
   (if pagination
     (limit coll
            (* items-per-page page)

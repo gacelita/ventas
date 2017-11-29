@@ -11,7 +11,7 @@
    [buddy.hashers :as hashers]
    [mount.core :as mount :refer [defstate]]
    [ventas.config :as config]
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [slingshot.slingshot :refer [throw+ try+]]
    [clojure.spec.alpha :as spec]
    [clojure.spec.test.alpha :as stest]
@@ -24,14 +24,14 @@
 
 (defn start-db! []
   (let [url (config/get [:database :url])]
-    (util/print-info (str "Starting database, URL: " url))
+    (utils/print-info (str "Starting database, URL: " url))
     (try
       (d/connect url)
       (catch ExecutionException e
         (throw (ex-info "Error connecting (database offline?)" {}))))))
 
 (defn stop-db! [db]
-  (util/print-info "Stopping database"))
+  (utils/print-info "Stopping database"))
 
 (defstate db :start (start-db!) :stop (stop-db! db))
 

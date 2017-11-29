@@ -10,7 +10,7 @@
    [ventas.database.entity :as entity]
    [ventas.paths :as paths]
    [ventas.server :as server :refer [ws-request-handler ws-binary-request-handler]]
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [ventas.utils.images :as utils.images]
    [ventas.auth :as auth]
    [ventas.entities.i18n :as entities.i18n]
@@ -56,7 +56,7 @@
   (fn [{{:keys [pagination]} :params} state]
     (let [{items :schema/_type} (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}])
                                          :schema.type/user)]
-      (pagination/paginate (map util/dequalify-keywords items) pagination))))
+      (pagination/paginate (map utils/dequalify-keywords items) pagination))))
 
 (register-endpoint!
   :users.save

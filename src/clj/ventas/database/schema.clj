@@ -7,7 +7,7 @@
    [clojure.edn :as edn]
    [clj-time.core :as time]
    [clj-time.format :as time-format]
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [taoensso.timbre :as timbre :refer (trace debug info warn error)]))
 
 (defonce migrations
@@ -34,7 +34,7 @@
    (atom [{(keyword (str "hash-" (hash initial-schema))) initial-schema}])))
 
 (defn get-migration [kw]
-  (util/find-first
+  (utils/find-first
    (fn [v] (contains? (set (keys v)) kw))
    @migrations))
 

@@ -1,6 +1,6 @@
 (ns ventas.plugin
   (:require
-   [ventas.util :as util]
+   [ventas.utils :as utils]
    [clojure.spec.alpha :as spec]
    [clojure.core.async :refer [<! go go-loop]]
    [ventas.database :as db]
@@ -15,7 +15,7 @@
 (defonce plugins (atom {}))
 
 (defn register! [kw attrs]
-  {:pre [(keyword? kw) (util/check ::plugin-attrs attrs)]}
+  {:pre [(keyword? kw) (utils/check ::plugin-attrs attrs)]}
   (swap! plugins assoc kw attrs))
 
 (defn plugin [kw]

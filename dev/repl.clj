@@ -16,7 +16,7 @@
    'seed 'ventas.database.seed
    'entity 'ventas.database.entity
    'd 'datomic.api
-   'util 'ventas.util
+   'utils 'ventas.utils
    'plugin 'ventas.plugin})
 
 (defn init-aliases []

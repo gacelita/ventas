@@ -3,7 +3,6 @@
   (:require
    [clojure.core :as clj]
    [cprop.core :refer [load-config]]
-   [ventas.util :refer [print-info]]
    [mount.core :as mount :refer [defstate]]))
 
 (defonce ^:private config (atom (load-config)))
