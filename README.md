@@ -41,6 +41,8 @@ No open source ecommerce project satisfies me. I've been working with most of th
 
 
 
+
+
 ### Getting started
 
 At the moment, ventas is unfit for its purpose. However, if you are a developer and just want to see the project in action, read on.
@@ -50,20 +52,20 @@ You need to have  `git` and `leiningen` installed. You also need access to a Dat
 First `clone` the project and `cd` into it:
 
 ```bash
-git clone https://github.com/JoelSanchez/ventas
-cd ventas
+$ git clone https://github.com/JoelSanchez/ventas
+$ cd ventas
 ```
 
 Then, go to `resources` and copy the example configuration file:
 
-```
-cp resources/config.example.edn resources/config.edn
+```bash
+$ cp resources/config.example.edn resources/config.edn
 ```
 
 Now you can start the REPL:
 
-```
-lein repl
+```bash
+$ lein repl
 ```
 
 When the REPL is ready, execute `init`:
@@ -88,6 +90,48 @@ Starting SASS
 Now you can open `localhost:3450` to see the frontend! It's recommended that you enable the `verbose` logging level in the console, to see what's going on.
 
 The backoffice's URL is `localhost:3450/admin`, which currently requires no auth :)
+
+Finally, ClojureScript development is usually done by connecting via nREPL and executing `cljs-repl`:
+
+```bash
+$ lein repl :connect localhost:4001
+Connecting to nREPL at localhost:4001
+REPL-y 0.3.7, nREPL 0.2.13
+Clojure 1.9.0-alpha19
+OpenJDK 64-Bit Server VM 1.8.0_144-b01
+    Docs: (doc function-name-here)
+          (find-doc "part-of-name-here")
+  Source: (source function-name-here)
+ Javadoc: (javadoc java-object-or-class-here)
+    Exit: Control+D or (exit) or (quit)
+ Results: Stored in vars *1, *2, *3, an exception in *e
+
+user=> (cljs-repl)
+Launching ClojureScript REPL for build: app
+Figwheel Controls:
+          (stop-autobuild)                ;; stops Figwheel autobuilder
+          (start-autobuild [id ...])      ;; starts autobuilder focused on optional ids
+          (switch-to-build id ...)        ;; switches autobuilder to different build
+          (reset-autobuild)               ;; stops, cleans, and starts autobuilder
+          (reload-config)                 ;; reloads build config and resets autobuild
+          (build-once [id ...])           ;; builds source one time
+          (clean-builds [id ..])          ;; deletes compiled cljs target files
+          (print-config [id ...])         ;; prints out build configurations
+          (fig-status)                    ;; displays current state of system
+          (figwheel.client/set-autoload false)    ;; will turn autoloading off
+          (figwheel.client/set-repl-pprint false) ;; will turn pretty printing off
+  Switch REPL build focus:
+          :cljs/quit                      ;; allows you to switch REPL to another build
+    Docs: (doc function-name-here)
+    Exit: Control+C or :cljs/quit
+ Results: Stored in vars *1, *2, *3, *e holds last exception object
+Prompt will show when Figwheel connects to your application
+To quit, type: :cljs/quit
+```
+
+
+
+
 
 ### Overview
 
@@ -154,11 +198,11 @@ The backoffice's URL is `localhost:3450/admin`, which currently requires no auth
     :component a-re-frame-component-for-this-route})
   ```
 
-  ​
-
 - Styles are written in SCSS. The watcher is also handled by the server's REPL.
 
 - i18n is done with [tongue](https://github.com/tonsky/tongue)
+
+- Heavy usage of [Semantic UI](http://react.semantic-ui.com/) components.
 
 
 
