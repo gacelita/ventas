@@ -21,29 +21,13 @@
    [ventas.utils :as utils]
    [ventas.entities.file :as entities.file]
    [ventas.paths :as paths]
-   [ventas.server.ws :as server.ws])
+   [ventas.server.ws :as server.ws]
+   [ventas.logging]
+   [clojure.pprint :as pprint])
   (:gen-class)
   (:import [clojure.lang Keyword]))
 
 (cheshire.generate/add-encoder Keyword cheshire.generate/encode-str)
-
-(defn timbre-logger
-  ([data]
-   (timbre-logger nil data))
-  ([opts data]
-   (let [{:keys [no-stacktrace?]} opts
-         {:keys [level ?err msg_ ?ns-str ?file ?line]} data]
-     (str
-      (str/upper-case (name level)) " "
-      "[" (or ?ns-str ?file "?") ":" (or ?line "?") "] - "
-      (force msg_)
-      (when-not no-stacktrace?
-        (when-let [err ?err]
-          (str "\n" (timbre/stacktrace err opts))))))))
-
-(timbre/merge-config!
- {:level :trace
-  :output-fn timbre-logger})
 
 (defn wrap-prone
   "If the debug mode is enabled, wraps a Ring request with the Prone library"
@@ -103,7 +87,7 @@
       (ring.gzip/wrap-gzip)))
 
 (defn stop-server! [stop-fn]
-  (utils/print-info "Stopping server")
+  (info "Stopping server")
   (when (ifn? stop-fn)
     (try
       (stop-fn)
@@ -112,7 +96,7 @@
         ))))
 
 (defn start-server! [& [port]]
-  (utils/print-info "Starting server")
+  (info "Starting server")
   (let [port (Integer. (or port (config/get :http-port) 10555))
         ip (or (config/get :http-ip) "0.0.0.0")]
     (info "Starting server on" (str ip ":" port))

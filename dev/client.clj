@@ -10,6 +10,7 @@
    [mount.core :as mount :refer [defstate]]
    [clojure.tools.namespace.dependency :as namespace.dependency]
    [clojure.tools.namespace.find :as namespace.find]
+   [taoensso.timbre :refer [info]]
    [clojure.tools.namespace.parse :as namespace.parse]))
 
 ;; Figwheel
@@ -24,11 +25,11 @@
          (figwheel.css-watcher/send-css-files figwheel-server sendable-files))))))
 
 (defn figwheel-start []
-  (utils/print-info "Starting Figwheel")
+  (info "Starting Figwheel")
   (figwheel/start-figwheel!))
 
 (defn figwheel-stop []
-  (utils/print-info "Stopping Figwheel")
+  (info "Stopping Figwheel")
   (figwheel/stop-figwheel!))
 
 (defstate figwheel :start (figwheel-start) :stop (figwheel-stop))
@@ -38,12 +39,12 @@
 (def sass-process)
 (defn sass-start []
   (future
-   (utils/print-info "Starting SASS")
+   (info "Starting SASS")
    (alter-var-root #'sass-process (sh/proc "lein" "auto" "sassc" "once"))))
 
 (defn sass-stop []
   (future
-   (utils/print-info "Stopping SASS")
+   (info "Stopping SASS")
    (sh/destroy sass-process)))
 
 (defstate sass :start (sass-start) :stop (sass-stop))

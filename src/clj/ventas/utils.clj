@@ -1,6 +1,5 @@
 (ns ventas.utils
   (:require
-   [io.aviso.ansi :as clansi]
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
    [expound.alpha :as expound]
@@ -39,12 +38,6 @@
 	(into {}
 		(for [[k v] ks]
 			[(qualify-keyword k ns) v])))
-
-(defn print-info [str]
-  (println (clansi/green str)))
-
-(defn print-error [str]
-  (println (clansi/red str)))
 
 (defn find-files*
   "Find files in `path` by `pred`."

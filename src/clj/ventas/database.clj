@@ -17,21 +17,21 @@
    [clojure.spec.test.alpha :as stest]
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
-   [taoensso.timbre :as timbre :refer (trace debug info warn error)]
+   [taoensso.timbre :as timbre :refer [info]]
    [io.rkn.conformity :as conformity])
   (:import [java.io File]
            [java.util.concurrent ExecutionException]))
 
 (defn start-db! []
   (let [url (config/get [:database :url])]
-    (utils/print-info (str "Starting database, URL: " url))
+    (info (str "Starting database, URL: " url))
     (try
       (d/connect url)
       (catch ExecutionException e
         (throw (ex-info "Error connecting (database offline?)" {}))))))
 
 (defn stop-db! [db]
-  (utils/print-info "Stopping database"))
+  (info "Stopping database"))
 
 (defstate db :start (start-db!) :stop (stop-db! db))
 

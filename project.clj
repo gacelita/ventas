@@ -21,14 +21,13 @@
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
 
                  ;; Logging
-                 [org.clojure/tools.logging "0.4.0"]
+                 ;; We use timbre for logging, so we redirect everything to slf4j
+                 ;; and then we redirect slf4j to timbre
+                 [com.fzakaria/slf4j-timbre "0.3.7"]
                  [com.taoensso/timbre       "4.10.0"]
-                 [onelog "0.5.0"]
-                 [org.slf4j/slf4j-log4j12 "1.7.25"]
-                 [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
-                                                    javax.jms/jms
-                                                    com.sun.jmdk/jmxtools
-                                                    com.sun.jmx/jmxri]]
+                 [org.slf4j/log4j-over-slf4j "1.7.14"]
+                 [org.slf4j/jul-to-slf4j "1.7.14"]
+                 [org.slf4j/jcl-over-slf4j "1.7.14"]
 
                  ;; JSON, Transit and Fressian
                  [org.clojure/data.json "0.2.6"]
@@ -50,7 +49,6 @@
                  [ring "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
                  [bk/ring-gzip "0.2.1"]
-                 [ring.middleware.logger "0.5.0" :exclusions [log4j onelog]]
                  [ring/ring-json "0.4.0" :exclusions [cheshire]] ;; see: buddy
 
                  ;; Routing
@@ -84,7 +82,7 @@
                  [me.raynes/conch "0.8.0"]
 
                  ;; Database
-                 [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/log4j-over-slf4j org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
+                 [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.5.1"]
 
                  ;; Text colors
