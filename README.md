@@ -94,7 +94,8 @@ The backoffice's URL is `localhost:3450/admin`, which currently requires no auth
 Finally, ClojureScript development is usually done by connecting via nREPL and executing `cljs-repl`:
 
 ```bash
-$ lein repl :connect localhost:4001
+# the following is an alias for "lein repl :connect localhost:4001"
+$ lein nrepl
 Connecting to nREPL at localhost:4001
 REPL-y 0.3.7, nREPL 0.2.13
 Clojure 1.9.0-alpha19
