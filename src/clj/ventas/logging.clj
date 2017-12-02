@@ -10,27 +10,43 @@
    (timbre-logger nil data))
   ([opts data]
    (let [{:keys [no-stacktrace?]} opts
-         {:keys [level ?err msg_ ?ns-str ?file ?line]} data]
+         {:keys [level ?err msg_ ?ns-str ?file ?line]} data
+         whats (try
+                 (read-string (str "[" (force msg_) "]"))
+                 (catch Exception e
+                   (force msg_)))
+         whats (if (every? identity (map #(or (symbol? %)
+                                              (boolean? %)
+                                              (string? %)
+                                              (keyword? %)) whats))
+                 (apply str (interpose " " whats))
+                 whats)]
      (merge
       {:level (str/upper-case (name level))
        :where (str "[" (or ?ns-str ?file "?") ":" (or ?line "?") "]")
-       :what (read-string (force msg_))}
+       :whats whats}
       (when-not no-stacktrace?
         (when ?err
           {:stacktrace (timbre/stacktrace ?err opts)}))))))
 
 (defn- timbre-appender-fn [{:keys [output_]}]
-  (let [{:keys [level where what]} (force output_)
+  (let [{:keys [level where whats]} (force output_)
         info-line (str level " " where " - ")]
     (print (clansi/green info-line))
-    (-> (with-out-str (pprint/pprint what))
-        (str/replace "\n" (str "\n" (str/join (repeat (count info-line) " "))))
-        (str/trimr)
-        (println))))
+    (if (string? whats)
+      (println whats)
+      (doseq [[idx what] (map-indexed vector whats)]
+        (-> (with-out-str (pprint/pprint what))
+            (str/replace "\n" (str "\n" (str/join (repeat (count info-line) " "))))
+            (str/trimr)
+            (println))
+        (when (not= (dec (count whats)) idx)
+          (print (str/join (repeat (count info-line) " "))))))))
 
 (timbre/merge-config!
  {:level :debug
   :output-fn timbre-logger
+  :ns-blacklist ["datomic.*" "io.netty.*"]
   :appenders {:println {:enabled? false}
               :pprint-appender {:enabled?   true
                                 :async?     false
