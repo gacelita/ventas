@@ -14,26 +14,7 @@ No open source ecommerce project satisfies me. I've been working with most of th
 
 - They tend to be **difficult to extend or modify**. They try to tackle the problem with extension systems, but in the end you need to modify the code of the core to do meaningful changes. This forces you to choose between never updating the software or making an exceptional effort to keep your changes applied. This is why one of the main design decisions for this project is to make it very easy to extend and modify.
 
-- They tend to be **difficult to reason about**. Because they are built upon a fundamentally mutable model, it's impossible to know how did the database get to the current state. In the best case, something bad happens and I don't know why. In the worse case, something bad happens and I don't even notice (until it's too late).
-
-  In the application side of things, mutable objects everywhere doesn't exactly help either. Once I was doing a rename of the ten thousand products of a store. The new names came from a CSV file, and the code was something like this:
-
-  ```php
-  $product = new Product($id);
-  $product->name = $newName;
-  $product->save();
-  ```
-
-  I was running the migration on a few test products first, just in case something went wrong with it. And every time I ran the migration, *the price of some of the products was getting smaller* by a small percent. Further debugging revealed that the products that had a discount were getting their discount applied to the base price every time I ran the code, because the `price` property was actually the base price with the discounts applied, but when saving the products I was making that price the base price (without knowing). So the fix was:
-
-  ```php
-  $product = new Product($id);
-  $product->name = $newName;
-  $product->price = $product->basePrice;
-  $product->save();
-  ```
-
-  Needless to say, it's ridiculous to expect me to know that. I filed a bug and got no response.
+- They tend to be **difficult to reason about**. Because they are built upon a fundamentally mutable model, it's impossible to know how did the database get to the current state. In the best case, something bad happens and I don't know why. In the worse case, something bad happens and I don't even notice (until it's too late). Mutable objects everywhere doesn't exactly help either.
 
 - They tend to have **poor performance out of the box**. Of course everything can be made performant, but I shouldn't need to make the effort. Particularly when "effort" means rewriting SQL queries, or wasting several days trying to find out what's causing my store to take 20 seconds to load.
 
