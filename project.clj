@@ -1,8 +1,13 @@
-(defproject ventas "0.0.2"
+(defproject ventas "0.0.2-SNAPSHOT"
   :description "The Ventas eCommerce platform"
+
   :url "https://github.com/JoelSanchez/ventas"
-  :license {:name "GPL"
-            :url "https://opensource.org/licenses/GPL-2.0"}
+
+  :author {:name "Joel Sánchez"
+           :email "webmaster@kazer.es"}
+
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :repositories {"my.datomic.com"
                  {:url "https://my.datomic.com/repo"}}
