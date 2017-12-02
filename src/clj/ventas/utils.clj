@@ -42,7 +42,8 @@
 (defn find-files*
   "Find files in `path` by `pred`."
   [path pred]
-  (filter pred (-> path io/file file-seq)))
+  (filter #(and (pred %)
+                (not (.isDirectory %))) (-> path io/file file-seq)))
 
 (defn find-files
   "Find files matching given `pattern`."

@@ -16,8 +16,8 @@
 
 (spec/def :schema.type/resource
   (spec/keys :req [:resource/keyword
-                :resource/file]
-          :opt [:resource/name]))
+                   :resource/file]
+             :opt [:resource/name]))
 
 (entity/register-type!
  :resource
