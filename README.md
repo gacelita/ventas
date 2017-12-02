@@ -53,20 +53,25 @@ $ lein repl
 When the REPL is ready, execute `init`:
 
 ```clojure
-repl=> (init)
-:reloading (ventas.common.utils ventas.utils ventas.config ventas.database ventas.database.schema ventas.database.entity ventas.entities.product-variation ventas.database.generators ventas.entities.i18n ventas.entities.brand ventas.plugin ventas.database.seed ventas.entity-test ventas.events repl ventas.entities.image-size ventas.paths ventas.entities.file ventas.server.ws ventas.server ventas.server-test ventas.auth ventas.entities.user ventas.test-tools ventas.database-test ventas.entities.product-taxonomy ventas.server.pagination ventas.utils.images ventas.server.api ventas.entities.configuration ventas.entities.address ventas.entities.product-term client ventas.plugins.featured-categories.core ventas.plugins.slider.core ventas.entities.order-line ventas.entities.order ventas.common.utils-test ventas.entities.resource ventas.entities.category ventas.entities.product ventas.entities.country ventas.entities.tax ventas.entities.state ventas.plugins.blog.core ventas.plugins.featured-products.core user)
-Starting database, URL: datomic:dev://localhost:4334/ventas
-Starting server
-INFO [ventas.server:118] - Starting server on 0.0.0.0:3450
-Starting Figwheel
+user=> (init)
+:reloading (ventas.common.utils ventas.utils ventas.config ventas.database ventas.database.schema ventas.database.entity ventas.entities.product-variation ventas.database.generators ventas.entities.i18n ventas.entities.brand ventas.plugin ventas.database.seed ventas.entity-test ventas.events repl ventas.entities.image-size ventas.paths ventas.entities.file ventas.server.ws ventas.logging ventas.server ventas.server-test ventas.auth ventas.entities.user ventas.test-tools ventas.database-test ventas.entities.product-taxonomy ventas.server.pagination ventas.utils.images ventas.server.api ventas.entities.configuration ventas.entities.address ventas.entities.product-term client ventas.plugins.featured-categories.core ventas.plugins.slider.core ventas.entities.order-line ventas.entities.order ventas.common.utils-test ventas.entities.resource ventas.entities.category ventas.entities.product ventas.entities.country ventas.entities.tax ventas.entities.state ventas.plugins.blog.core ventas.plugins.featured-products.core user)
+INFO [ventas.database:27] - Starting database, URL: datomic:dev://localhost:4334/ventas
+INFO [ventas.server:99] - Starting server
+INFO [ventas.server:102] - Starting server on 0.0.0.0:3450
+INFO [client:28] - Starting Figwheel
 Figwheel: Starting server at http://0.0.0.0:3449
 Figwheel: Watching build - app
-Figwheel: Cleaning build - app
 Compiling "resources/public/files/js/compiled/ventas.js" from ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "custom-lib"]...
-Successfully compiled "resources/public/files/js/compiled/ventas.js" in 19.013 seconds.
+Successfully compiled "resources/public/files/js/compiled/ventas.js" in 8.252 seconds.
 Figwheel: Starting CSS Watcher for paths  ["resources/public/files/css"]
-Starting SASS
+INFO [client:42] - Starting SASS
 :done
+```
+
+Then, migrate and seed the database:
+
+```clojure
+(seed/seed :recreate? true)
 ```
 
 Now you can open `localhost:3450` to see the frontend! It's recommended that you enable the `verbose` logging level in the console, to see what's going on.
