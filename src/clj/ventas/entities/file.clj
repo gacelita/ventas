@@ -42,6 +42,7 @@
   (fn [this]
     (let [file (rand-nth (find-files (str paths/seeds "/files") (re-pattern ".*?")))
           path (str paths/images "/" (filename this))]
+      (io/make-parents path)
       (io/copy file (io/file path))))
 
   :autoresolve? true
