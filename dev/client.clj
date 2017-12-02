@@ -36,18 +36,16 @@
 
 ;; Sass
 
-(def sass-process)
-(defn sass-start []
-  (future
-   (info "Starting SASS")
-   (alter-var-root #'sass-process (sh/proc "lein" "auto" "sassc" "once"))))
+(defstate sass
+  :start
+  (do
+    (info "Starting SASS")
+    (sh/proc "lein" "auto" "sassc" "once"))
+  :stop
+  (do
+    (info "Stopping SASS")
+    (sh/destroy sass)))
 
-(defn sass-stop []
-  (future
-   (info "Stopping SASS")
-   (sh/destroy sass-process)))
-
-(defstate sass :start (sass-start) :stop (sass-stop))
 
 (defn detect-circular-dependencies! []
   (let [project-graph (atom (namespace.dependency/graph))]
