@@ -139,7 +139,7 @@
 
   :repl-options {:init-ns user :port 4001 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
-  :aliases {"config" ["run" "-m" "outpace.config.generate"]}
+  :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]}
 
   :cljsbuild {:builds
               [{:id "app"
