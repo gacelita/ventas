@@ -31,17 +31,17 @@ body.animating.in.dimmable, body.dimmed.dimmable {
     overflow: visible !important;
 }
 
-@import "./components/base";
-@import "./components/category-list";
-@import "./components/cart";
-@import "./components/popup";
-@import "./components/product-list";
-@import "./components/product-filters";
-@import "./components/notificator";
-@import "./components/cookies";
-@import "./components/menu";
-@import "./components/sidebar";
-@import "./components/breadcrumbs";
-@import "./themes/clothing/core";
-@import "./plugins/slider/core";
-@import "./pages/admin";
+@import "./ventas/components/base";
+@import "./ventas/components/category-list";
+@import "./ventas/components/cart";
+@import "./ventas/components/popup";
+@import "./ventas/components/product-list";
+@import "./ventas/components/product-filters";
+@import "./ventas/components/notificator";
+@import "./ventas/components/cookies";
+@import "./ventas/components/menu";
+@import "./ventas/components/sidebar";
+@import "./ventas/components/breadcrumbs";
+@import "./ventas/themes/clothing/core";
+@import "./ventas/plugins/slider/core";
+@import "./ventas/pages/admin";
