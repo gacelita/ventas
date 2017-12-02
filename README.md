@@ -30,11 +30,12 @@ At the moment, ventas is unfit for its purpose. However, if you are a developer 
 
 You need to have  `git` and `leiningen` installed. You also need access to a Datomic database.
 
-First `clone` the project and `cd` into it:
+First `clone` the project, `cd` into it, and install the frontend dependencies:
 
 ```bash
 $ git clone https://github.com/JoelSanchez/ventas
 $ cd ventas
+$ bower install
 ```
 
 Then, go to `resources` and copy the example configuration file:
