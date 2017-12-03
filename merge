@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+git checkout master
+git merge $1
+git checkout $1
