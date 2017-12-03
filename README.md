@@ -139,8 +139,6 @@ To quit, type: :cljs/quit
   => :done
   ```
 
-  ​
-
 - The database is Datomic. A custom database entity system, which relies on core.spec, abstracts the database and allows easy testing and generation of sample data.
 
   ```clojure
