@@ -70,12 +70,14 @@
   (let [states (->> states
                     (map keyword->state)
                     (map #(ns-resolve 'repl %)))
-        _ (apply mount/stop states)
+        _ (when (seq states)
+            (apply mount/stop states))
         result (tn/refresh)]
     (when (or (instance? Exception result)
               (instance? Error result))
       (throw result))
-    (apply mount/start states)
+    (when (seq states)
+      (apply mount/start states))
     (when (= (ns-name *ns*) 'repl)
       (init-aliases))
     (go (>! (events/pub :init) true))
