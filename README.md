@@ -129,10 +129,23 @@ To quit, type: :cljs/quit
 
 - Uses [mount](https://github.com/tolitius/mount) and really likes REPL-driven development. Code reload is done by calling `repl/r `. App initialization is done by calling `repl/init`.
 
+  ```clojure
+  ;; (r) reloads changed namespaces, restarts defstates within them, and optionally
+  ;; restarts given defstates as keywords
+  (r :db)
+  INFO [ventas.database:34] - Stopping database
+  :reloading ()
+  INFO [ventas.database:27] - Starting database, URL: datomic:dev://localhost:4334/ventas
+  => :done
+  ```
+
+  ​
+
 - The database is Datomic. A custom database entity system, which relies on core.spec, abstracts the database and allows easy testing and generation of sample data.
 
   ```clojure
-  (seed/seed :recreate? true) ;; recreates the database and seeds it with random entities
+  ;; recreates the database and seeds it with random entities
+  (seed/seed :recreate? true)
   ```
   Lots of utility functions make exploring the database and getting data from it more interactive and fast.
 
