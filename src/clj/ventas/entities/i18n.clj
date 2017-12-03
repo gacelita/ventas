@@ -15,8 +15,6 @@
   (spec/keys :req [:i18n.culture/keyword
                    :i18n.culture/name]))
 
-(def ^:dynamic *culture* nil)
-
 (entity/register-type!
  :i18n.culture
  {:attributes
@@ -43,7 +41,6 @@
 
   :seed-number 0
   :autoresolve? true})
-
 
 
 (spec/def :i18n.translation/value ::generators/string)
@@ -74,11 +71,9 @@
      (:i18n.translation/value this)])})
 
 (defn translations-generator-for-culture [culture-id]
-  (let [translations (entity/query :i18n.translation
-                                   {:i18n.translation/culture culture-id})]
-    (when (seq translations)
-      (gen/elements
-       (map :db/id translations)))))
+  (->> (entity/generate :i18n.translation)
+       (map #(assoc % :i18n.translation/culture culture-id))
+       (gen/elements)))
 
 (defn translations-generator []
   (let [culture-ids (map :db/id (entity/query :i18n.culture))]
@@ -105,11 +100,14 @@
   #{:i18n.translation}
 
   :before-create
-  (fn [this]
-    (when (->> (:i18n/translations this)
-               (map #(:i18n.translation/culture (entity/find %)))
-               (utils/has-duplicates?))
-      (throw (Error. "You can't add to a :i18n entity more than one translation per culture"))))
+  (fn [{:i18n/keys [translations]}]
+    (let [entities (concat (->> (filter number? translations)
+                                (map entity/find))
+                           (filter map? translations))]
+      (when (->> entities
+                 (map :i18n.translation/culture)
+                 (utils/has-duplicates?))
+        (throw (Error. "You can't add more than one translation per culture to an :i18n entity")))))
 
   :to-json
   (fn [this & [{:keys [culture]}]]
@@ -130,7 +128,7 @@
   :autoresolve? true})
 
 (spec/def ::ref
-  (spec/with-gen ::entity/ref #(entity/ref-generator :i18n)))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :i18n :new? true)))
 
 (defn get-i18n-entity [translations]
   {:schema/type :schema.type/i18n

@@ -6,9 +6,10 @@
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
    [ventas.database.entity :as entity]
+   [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]))
 
-(spec/def :product/name ::generators/string)
+(spec/def :product/name ::entities.i18n/ref)
 
 (spec/def :product/reference ::generators/string)
 
@@ -16,7 +17,7 @@
 
 (spec/def :product/active boolean?)
 
-(spec/def :product/description ::generators/string)
+(spec/def :product/description ::entities.i18n/ref)
 
 (spec/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
 
@@ -102,7 +103,7 @@
     :db/index true}
 
    {:db/ident :product/name
-    :db/valueType :db.type/string
+    :db/valueType :db.type/ref
     :db/index true
     :db/cardinality :db.cardinality/one}
 
@@ -119,7 +120,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :product/description
-    :db/valueType :db.type/string
+    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :product/images

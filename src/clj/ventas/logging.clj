@@ -18,7 +18,8 @@
          whats (if (every? identity (map #(or (symbol? %)
                                               (boolean? %)
                                               (string? %)
-                                              (keyword? %)) whats))
+                                              (keyword? %)
+                                              (number? %)) whats))
                  (apply str (interpose " " whats))
                  whats)]
      (merge

@@ -128,6 +128,7 @@
 (defn find
   "Finds an entity by eid or lookup ref"
   [eid]
+  (debug "Finding" eid)
   (db/touch-eid eid))
 
 (defn transaction->entity
@@ -150,7 +151,7 @@
 (defn create*
   "Creates an entity"
   [attrs]
-  {:pre [(do (println attrs) true) (spec attrs)]}
+  {:pre [(do (debug attrs) (spec attrs))]}
   (before-create attrs)
   (let [tempid (d/tempid :db.part/user)
         pre-entity (prepare-creation-attrs attrs tempid)
@@ -380,8 +381,24 @@
        (db/nice-query {:find '[?id]
                        :where (filters->wheres type filters)})))
 
-(defn ref-generator [type]
-  (gen/elements (map :db/id (query type))))
+(defn generate*
+  "Generates one sample of a given entity type"
+  [type]
+  (let [db-type (db/kw->type type)]
+    (-> (gen/generate (spec/gen db-type))
+        (assoc :schema/type db-type))))
 
-(defn refs-generator [type]
-  (gen/vector (ref-generator type)))
+(defn generate
+  "Generates n samples of a given entity type"
+  [type & [n]]
+  (let [n (or n 1)]
+    (map generate* (repeat n type))))
+
+(defn ref-generator [type & {:keys [new?]}]
+  (gen/elements
+   (if new?
+     (generate type)
+     (map :db/id (query type)))))
+
+(defn refs-generator [type & {:keys [new?]}]
+  (gen/vector (ref-generator type :new? new?)))

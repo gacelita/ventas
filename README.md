@@ -145,9 +145,9 @@ To quit, type: :cljs/quit
   (entity/create :user {:email "test@email"
                         :first-name "Test"
                         :last-name "User"})
-  ;; generates one user
-  (seed/generate-1 :user)
-  ;; updates this user's company
+  ;; generates three users
+  (entity/generate :user 3)
+  ;; updates an user's company
   (entity/update {:id 17592186045920
                   :company "Test"})
   ```
