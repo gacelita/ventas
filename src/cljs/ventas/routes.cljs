@@ -1,11 +1,13 @@
 (ns ventas.routes
+  "Bidi wrapper and route utilities"
   (:require
    [clojure.string :as str]
    [bidi.bidi :as bidi]
    [ventas.utils.logging :refer [error]]
    [accountant.core :as accountant]
    [ventas.page :as page]
-   [reagent.session :as session]))
+   [reagent.session :as session]
+   [re-frame.core :as rf]))
 
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
@@ -101,3 +103,8 @@
     (if (string? name)
       name
       (name route-params))))
+
+(rf/reg-fx
+ :go-to
+ (fn [[route params]]
+   (go-to route params)))

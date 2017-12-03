@@ -20,7 +20,8 @@
    [ventas.utils :as util]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.events :as events]))
 
 (def products
   [{:id 17592186046432
@@ -33,9 +34,9 @@
     :quantity 5}])
 
 (defn line [data]
-  (rf/dispatch [:ventas/entities.sync (:id data)])
+  (rf/dispatch [::events/entities.sync (:id data)])
   (fn [data]
-    (when-let [product @(rf/subscribe [:ventas/db [:entities (:id data)]])]
+    (when-let [product @(rf/subscribe [::events/db [:entities (:id data)]])]
       [base/tableRow
        [base/tableCell
         [:a {:href (routes/path-for :frontend.product :id (:id product))} (:name product)]]

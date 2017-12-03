@@ -1,7 +1,8 @@
 (ns ventas.components.sidebar
   (:require
    [ventas.components.base :as base]
-   [re-frame.core :as rf]))
+   [re-frame.core :as rf]
+   [ventas.events :as events]))
 
 (def state-key ::state)
 
@@ -16,7 +17,7 @@
 (defn sidebar-section [{:keys [name id]} & args]
   (let [id (if-not id (str (gensym)) id)]
     (fn [{:keys [name id]} & args]
-      (let [{:keys [closed]} @(rf/subscribe [:ventas/db [state-key id]])]
+      (let [{:keys [closed]} @(rf/subscribe [::events/db [state-key id]])]
         [:div.sidebar-section {:class (str "sidebar-section--" (if closed "closed" "open"))}
          [:div.sidebar-section__header
           {:on-click #(rf/dispatch [::toggle-filter id])}

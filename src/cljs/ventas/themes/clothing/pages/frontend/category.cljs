@@ -10,26 +10,28 @@
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.utils :as util :refer [value-handler]]
    [ventas.routes :as routes]
-   [ventas.components.infinite-scroll :as scroll]))
+   [ventas.components.infinite-scroll :as scroll]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (def term-counts-key ::term-counts)
 
 (def products-key ::products)
 
 (defn page []
-  (rf/dispatch [:api/products.aggregations
-                {:success #(rf/dispatch [:ventas/db [term-counts-key] %])}])
+  (rf/dispatch [::backend/products.aggregations
+                {:success #(rf/dispatch [::events/db [term-counts-key] %])}])
   (fn []
     [skeleton
      [:div.category-page.ui.container
       [:div.category-page__sidebar
-       (let [data @(rf/subscribe [:ventas/db [term-counts-key]])]
+       (let [data @(rf/subscribe [::events/db [term-counts-key]])]
          (when (seq data)
            [components.product-filters/product-filters
             (merge data
                    {:products-path [products-key]})]))]
       [:div.category-page__content
-       (let [products @(rf/subscribe [:ventas/db [products-key :products]])]
+       (let [products @(rf/subscribe [::events/db [products-key :products]])]
          [products-list products])
        [scroll/infinite-scroll
         (let [more-items-available? true]

@@ -13,15 +13,17 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
    [ventas.common.utils :as common.utils]
-   [ventas.components.notificator :as notificator]))
+   [ventas.components.notificator :as notificator]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (defn- role-options []
-  (map #(update % :value str) @(rf/subscribe [:ventas/db [:reference :user.role]])))
+  (map #(update % :value str) @(rf/subscribe [::events/db [:reference :user.role]])))
 
 (rf/reg-event-fx
  ::submit
  (fn [cofx [_ data]]
-   {:dispatch [:api/users.save {:params data
+   {:dispatch [::backend/users.save {:params data
                                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
@@ -33,12 +35,12 @@
 (defn user-form []
   (let [data (atom {})
         key (atom nil)]
-    (rf/dispatch [:api/entities.find
+    (rf/dispatch [::backend/entities.find
                   (get-in (routes/current) [:route-params :id])
                   {:success (fn [user]
                                  (reset! data user)
                                  (reset! key (hash user)))}])
-    (rf/dispatch [:ventas/reference :user.role])
+    (rf/dispatch [::events/reference :user.role])
     (fn []
       ^{:key @key}
       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}

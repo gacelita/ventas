@@ -9,16 +9,17 @@
    [ventas.components.base :as base]
    [ventas.components.datatable :as datatable]
    [ventas.pages.admin.configuration.image-sizes]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.events :as events]))
 
 (def taxes-key ::taxes)
 
 (defn taxes-datatable [action-column]
-  (rf/dispatch [:ventas/taxes.list [taxes-key]])
+  (rf/dispatch [::events/taxes.list [taxes-key]])
   (fn [action-column]
     (let [id (keyword (gensym "taxes"))]
       [:div
-       [dt/datatable id [:ventas/db [taxes-key]]
+       [dt/datatable id [::events/db [taxes-key]]
         [{::dt/column-key [:id]
           ::dt/column-label "#"
           ::dt/sorting {::dt/enabled? true}}
@@ -39,7 +40,7 @@
          ::dt/table-classes ["ui" "table" "celled"]
          ::dt/empty-tbody-component (fn [] [:p (i18n ::no-taxes)])}]
        [:div.admin-taxes__pagination
-        [datatable/pagination id [:ventas/db [taxes-key]]]]])))
+        [datatable/pagination id [::events/db [taxes-key]]]]])))
 
 (defn page []
   [admin.skeleton/skeleton

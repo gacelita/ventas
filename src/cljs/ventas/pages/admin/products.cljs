@@ -13,7 +13,9 @@
    [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.components.datatable :as datatable]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (def products-key :products)
 
@@ -21,15 +23,15 @@
   [:div
    [base/button {:icon true :on-click #(routes/go-to :admin.products.edit :id (:id row))}
     [base/icon {:name "edit"}]]
-   [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
+   [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove (:id row)])}
     [base/icon {:name "remove"}]]])
 
 (defn products-datatable []
-  (rf/dispatch [:api/products.list {:success #(rf/dispatch [:ventas/db [products-key] %])}])
+  (rf/dispatch [::backend/products.list {:success #(rf/dispatch [::events/db [products-key] %])}])
   (fn []
     (let [id (keyword (gensym "products"))]
       [:div
-       [dt/datatable id [:ventas/db [products-key]]
+       [dt/datatable id [::events/db [products-key]]
         [{::dt/column-key [:id]
           ::dt/column-label "#"
           ::dt/sorting {::dt/enabled? true}}
@@ -50,7 +52,7 @@
          ::dt/table-classes ["ui" "table" "celled"]
          ::dt/empty-tbody-component (fn [] [:p (i18n ::no-products)])}]
        [:div.admin-products__pagination
-        [datatable/pagination id [:ventas/db [products-key]]]]])))
+        [datatable/pagination id [::events/db [products-key]]]]])))
 
 (defn page []
   [admin.skeleton/skeleton

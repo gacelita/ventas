@@ -1,15 +1,17 @@
 (ns ventas.plugins.slider.core
   (:require
-   [ventas.plugins.slider.api :as api]
+   [ventas.plugins.slider.api :as slider.backend]
    [re-frame.core :as rf]
-   [ventas.components.base :as base]))
+   [ventas.components.base :as base]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]))
 
 (rf/reg-event-fx
  ::sliders.get
  (fn [cofx [_ kw]]
-   {:dispatch [::api/sliders.get
+   {:dispatch [::slider.backend/sliders.get
                {:params {:keyword kw}
-                :success #(rf/dispatch [:ventas/db [::sliders kw] %])}]}))
+                :success #(rf/dispatch [::events/db [::sliders kw] %])}]}))
 
 (rf/reg-event-db
  ::next
@@ -28,7 +30,7 @@
     (js/setInterval #(rf/dispatch [::next keyword]) auto-speed))
   (fn [{:keys [slides keyword]}]
     [:div.slider
-     (let [component-state @(rf/subscribe [:ventas/db [::state keyword]])]
+     (let [component-state @(rf/subscribe [::events/db [::state keyword]])]
        [:div.slider__slides {:style {:left (* -1
                                               (-> js/window (.-innerWidth))
                                               (:current-index component-state))}}
@@ -42,5 +44,5 @@
 (defn slider [kw]
   (rf/dispatch [::sliders.get kw])
   (fn [kw]
-    (let [slider-data @(rf/subscribe [:ventas/db [::sliders kw]])]
+    (let [slider-data @(rf/subscribe [::events/db [::sliders kw]])]
       [slider* slider-data])))

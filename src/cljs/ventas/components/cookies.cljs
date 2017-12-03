@@ -1,7 +1,8 @@
 (ns ventas.components.cookies
   (:require
    [re-frame.core :as rf]
-   [ventas.components.base :as base]))
+   [ventas.components.base :as base]
+   [ventas.events :as events]))
 
 (def state-key ::state)
 
@@ -18,7 +19,7 @@
 (defn cookies
   "Cookie warning"
   [text]
-  (let [state @(rf/subscribe [:ventas/db [state-key]])]
+  (let [state @(rf/subscribe [::events/db [state-key]])]
     [:div.cookies {:style (when (= state :closed) {:max-height "0px"})}
      [:p text]
      [base/icon {:name "remove"

@@ -1,4 +1,5 @@
 (ns ventas.local-storage
+  "Slightly modified version of https://github.com/akiroz/re-frame-storage"
   (:require
    [re-frame.core :refer [reg-fx reg-cofx ->interceptor]]
    [alandipert.storage-atom :refer [local-storage]]
@@ -16,13 +17,9 @@
         :list     (spec/coll-of  ::cljs-data :kind list?)
         :vector   (spec/coll-of  ::cljs-data :kind vector?)
         :set      (spec/coll-of  ::cljs-data :kind set?)
-        :map      (spec/map-of   ::cljs-data ::cljs-data)
-        ))
+        :map      (spec/map-of   ::cljs-data ::cljs-data)))
 
-
-;; atom containing local-storage atoms
 (def storage-atoms (atom {}))
-
 
 (defn register-store [store-key]
   (when-not (@storage-atoms store-key)
@@ -32,7 +29,6 @@
 (spec/fdef register-store
         :args (spec/cat :store-key keyword?))
 
-
 (defn ->store [store-key data]
   (reset! (@storage-atoms store-key) data))
 
@@ -40,16 +36,12 @@
         :args (spec/cat :store-key keyword?
                      :data ::cljs-data))
 
-
 (defn <-store [store-key]
   @(@storage-atoms store-key))
 
 (spec/fdef <-store
         :args (spec/cat :store-key keyword?)
         :ret  ::cljs-data)
-
-
-
 
 (defn reg-co-fx! [store-key {:keys [fx cofx]}]
   (register-store store-key)
@@ -69,7 +61,6 @@
 (spec/fdef reg-co-fx!
         :args (spec/cat :store-key keyword?
                      :handlers (spec/keys :req [(or ::fx ::cofx)])))
-
 
 (defn persist-db [store-key db-key]
   (register-store store-key)

@@ -12,15 +12,17 @@
    [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.components.datatable :as datatable]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (defn users-datatable [action-column]
   (let [sub-key :users]
-    (rf/dispatch [:api/users.list {:success #(rf/dispatch [:ventas/db [sub-key] %])}])
+    (rf/dispatch [::backend/users.list {:success #(rf/dispatch [::events/db [sub-key] %])}])
     (fn [action-column]
       (let [id (keyword (gensym "users"))]
         [:div
-         [dt/datatable id [:ventas/db [sub-key]]
+         [dt/datatable id [::events/db [sub-key]]
           [{::dt/column-key [:id]
             ::dt/column-label "#"
             ::dt/sorting {::dt/enabled? true}}
@@ -41,7 +43,7 @@
            ::dt/table-classes ["ui" "table" "celled"]
            ::dt/empty-tbody-component (fn [] [:p "No users yet"])}]
          [:div.admin-users__pagination
-          [datatable/pagination id [:ventas/db [sub-key]]]]]))))
+          [datatable/pagination id [::events/db [sub-key]]]]]))))
 
 (defn page []
   [admin.skeleton/skeleton
@@ -50,7 +52,7 @@
            [:div
             [base/button {:icon true :on-click #(routes/go-to :admin.users.edit :id (:id row))}
              [base/icon {:name "edit"}]]
-            [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
+            [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove (:id row)])}
              [base/icon {:name "remove"}]]])]
      [:div.admin__default-content.admin-users__page
       [users-datatable action-column]

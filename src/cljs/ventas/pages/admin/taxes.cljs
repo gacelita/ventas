@@ -9,16 +9,17 @@
    [ventas.components.base :as base]
    [ventas.components.datatable :as datatable]
    [ventas.pages.admin.taxes.edit]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.events :as events]))
 
 (def taxes-key ::taxes)
 
 (defn taxes-datatable [action-column]
-  (rf/dispatch [:ventas/taxes.list [taxes-key]])
+  (rf/dispatch [::events/taxes.list [taxes-key]])
   (fn [action-column]
     (let [id (keyword (gensym "taxes"))]
       [:div
-       [dt/datatable id [:ventas/db [taxes-key]]
+       [dt/datatable id [::events/db [taxes-key]]
         [{::dt/column-key [:id]
           ::dt/column-label "#"
           ::dt/sorting {::dt/enabled? true}}
@@ -39,7 +40,7 @@
          ::dt/table-classes ["ui" "table" "celled"]
          ::dt/empty-tbody-component (fn [] [:p (i18n ::no-taxes)])}]
        [:div.admin-taxes__pagination
-        [datatable/pagination id [:ventas/db [taxes-key]]]]])))
+        [datatable/pagination id [::events/db [taxes-key]]]]])))
 
 (defn page []
   [admin.skeleton/skeleton
@@ -48,7 +49,7 @@
            [:div
             [base/button {:icon true :on-click #(routes/go-to :admin.taxes.edit :id (:id row))}
              [base/icon {:name "edit"}]]
-            [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
+            [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove (:id row)])}
              [base/icon {:name "remove"}]]])]
      [:div.admin__default-content.admin-taxes__page
       [taxes-datatable action-column]

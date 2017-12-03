@@ -1,13 +1,10 @@
-(ns ventas.api
+(ns ventas.events.backend
+  "Events that wrap websocket requests to the backend.
+   Using the :api-request effect directly is discouraged. Please wrap backend
+   calls by creating events similar to the ones in this namespace."
   (:require
    [re-frame.core :as rf]
-   [ventas.utils.logging :refer [debug]]
-   [ventas.utils.ui :as utils.ui]
-   [ventas.common.utils :as common.utils]
-   [ventas.i18n :refer [i18n]]
-   [ventas.utils.formatting :as formatting]
-   [day8.re-frame.forward-events-fx]
-   [ventas.events :as events]))
+   [ventas.common.utils :as common.utils]))
 
 (rf/reg-event-fx
  ::brands.list
@@ -93,12 +90,12 @@
 (rf/reg-event-fx
  ::users.login
  (fn [cofx [_ options]]
-    {:ws-request (merge {:name :users.login} options)}))
+   {:ws-request (merge {:name :users.login} options)}))
 
 (rf/reg-event-fx
  ::users.register
  (fn [cofx [_ options]]
-    {:ws-request (merge {:name :users.register} options)}))
+   {:ws-request (merge {:name :users.register} options)}))
 
 (rf/reg-event-fx
  ::users.save
@@ -113,15 +110,7 @@
 (rf/reg-event-fx
  ::users.addresses
  (fn [cofx [_ options]]
-   {:forward-events {:register ::users.addresses.listener
-                     :events #{::events/session.start.next}
-                     :dispatch-to [::users.addresses.next options]}}))
-
-(rf/reg-event-fx
- ::users.addresses.next
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :users.addresses} options)
-    :forward-events {:unregister ::users.addresses.listener}}))
+   {:ws-request (merge {:name :users.addresses} options)}))
 
 (rf/reg-event-fx
  ::users.addresses.save

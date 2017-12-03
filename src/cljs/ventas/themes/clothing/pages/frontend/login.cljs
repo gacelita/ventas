@@ -10,7 +10,9 @@
    [ventas.utils :as util :refer [value-handler]]
    [ventas.components.notificator :as notificator]
    [ventas.components.sidebar :as sidebar]
-   [ventas.routes :as routes]))
+   [ventas.routes :as routes]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (defn- login-successful [{:keys [user token]}]
   (rf/dispatch [::notificator/add {:message (i18n ::session-started)}])
@@ -26,7 +28,7 @@
 (rf/reg-event-fx
   ::login
   (fn [cofx [_ {:keys [email password]}]]
-    {:dispatch [:api/users.login
+    {:dispatch [::backend/users.login
                 {:params {:email email
                           :password password}
                  :success login-successful}]}))
@@ -34,7 +36,7 @@
 (rf/reg-event-fx
  ::register
  (fn [cofx [_ {:keys [name email password]}]]
-   {:dispatch [:api/users.register
+   {:dispatch [::backend/users.register
                {:params {:name name
                          :email email
                          :password password}
@@ -78,7 +80,7 @@
        (i18n ::register)]]]))
 
 (defn page []
-  (let [session @(rf/subscribe [:ventas/db [:session]])]
+  (let [session @(rf/subscribe [::events/db [:session]])]
     (if (get-in session [:identity :id])
       (do
         (routes/go-to :frontend.profile)

@@ -5,7 +5,8 @@
    [ventas.routes :as routes]
    [re-frame.core :as rf]
    [ventas.utils :as utils]
-   [ventas.themes.clothing.components.skeleton :as ventas.skeleton]))
+   [ventas.themes.clothing.components.skeleton :as ventas.skeleton]
+   [ventas.events :as events]))
 
 (defn sidebar []
   [sidebar/sidebar
@@ -21,7 +22,7 @@
     [sidebar/link {:href (routes/path-for :frontend.profile.account)}
      (i18n ::my-account)]
 
-    [sidebar/link {:on-click #(rf/dispatch [:ventas/session.stop])}
+    [sidebar/link {:on-click #(rf/dispatch [::events/session.stop])}
      (i18n ::logout)]]])
 
 (defn skeleton [content]

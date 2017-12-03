@@ -1,4 +1,5 @@
 (ns ventas.page
+  "Just the page multimethod"
   (:require
    [reagent.session :as session]
    [ventas.i18n :refer [i18n]]))

@@ -1,4 +1,5 @@
 (ns ventas.utils
+  "Random utilities"
   (:require
    [bidi.bidi :as bidi]
    [reagent.session :as session]
@@ -8,7 +9,8 @@
    [ventas.utils.formatting :as utils.formatting]
    [cljs.spec.alpha :as spec]
    [expound.alpha :as expound]
-   [ventas.api :as api])
+   [ventas.events.backend :as backend]
+   [ventas.events :as events])
   (:require-macros
    [ventas.utils]))
 
@@ -70,7 +72,7 @@
                                 threshold))))))
 
 (defn get-identity []
-  (let [session @(rf/subscribe [:ventas/db [:session]])]
+  (let [session @(rf/subscribe [::events/db [:session]])]
     (when (not (get-in session [:identity :id]))
       (routes/go-to :frontend.login))
     (:identity session)))

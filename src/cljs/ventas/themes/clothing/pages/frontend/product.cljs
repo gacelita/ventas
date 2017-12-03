@@ -8,7 +8,8 @@
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.i18n :refer [i18n]]
-   [ventas.routes :as routes]))
+   [ventas.routes :as routes]
+   [ventas.events :as events]))
 
 (def product-key ::product)
 
@@ -17,7 +18,7 @@
    (reagent/with-let [data (atom {:quantity 1})]
      [base/container
       [:div.product-page
-       (let [product @(rf/subscribe [product-key])]
+       (let [product @(rf/subscribe [::events/db [product-key]])]
          [:div
           [:div.product-page__top
            [:div.product-page__images

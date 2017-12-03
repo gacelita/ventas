@@ -3,12 +3,13 @@
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [re-frame.core :as rf]))
+   [re-frame.core :as rf]
+   [ventas.events :as events]))
 
 (defn page []
   [skeleton
    [:div.login-page
-    (let [session @(rf/subscribe [:ventas/db [:session]])]
+    (let [session @(rf/subscribe [::events/db [:session]])]
       [:div "nothing"])]])
 
 (routes/define-route!

@@ -10,7 +10,9 @@
    [ventas.components.base :as base]
    [reagent.core :as reagent]
    [ventas.components.notificator :as notificator]
-   [ventas.common.utils :as common.utils]))
+   [ventas.common.utils :as common.utils]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (def addresses-key ::addresses)
 
@@ -35,7 +37,7 @@
 (rf/reg-event-fx
  ::save
  (fn [{:keys [db]} [_]]
-   {:dispatch [:api/users.addresses.save
+   {:dispatch [::backend/users.addresses.save
                {:params
                 (->> (forms/get-values form-config)
                      (common.utils/map-keys #(keyword (name %))))
@@ -50,10 +52,10 @@
    (dissoc db edition-key)))
 
 (defn- address-form [address]
-  (rf/dispatch [:api/states.list
+  (rf/dispatch [::backend/states.list
                 {:success #(forms/set-field-property! form-config ::state :options %)}])
 
-  (rf/dispatch [:api/countries.list
+  (rf/dispatch [::backend/countries.list
                 {:success #(forms/set-field-property! form-config ::country :options %)}])
 
   (fn [address]
@@ -114,14 +116,14 @@
 (rf/reg-event-fx
  ::remove
  (fn [cofx [_ eid]]
-   {:dispatch [:api/entities.remove
+   {:dispatch [::backend/entities.remove
                {:params {:id eid}
                 :success #(rf/dispatch [::remove.next eid])}]}))
 
 (rf/reg-event-fx
  ::remove.next
  (fn [cofx [_ eid]]
-   (let [update-call [:ventas/db.update
+   (let [update-call [::events/db.update
                       [addresses-key]
                       (fn [addresses]
                         (->> addresses
@@ -138,7 +140,7 @@
 (rf/reg-event-fx
  ::edit
  (fn [cofx [_ address]]
-   {:dispatch-n [[:ventas/db [edition-key] true]
+   {:dispatch-n [[::events/db [edition-key] true]
                  [::forms/populate form-config (->> address
                                                     (common.utils/map-keys #(utils/ns-kw %))
                                                     (transform-address-for-edition))]]}))
@@ -168,20 +170,20 @@
       (i18n ::remove)]]]])
 
 (defn- content [identity]
-  (rf/dispatch [:api/users.addresses
-                {:success #(rf/dispatch [:ventas/db [addresses-key] %])}])
+  (rf/dispatch [::backend/users.addresses
+                {:success #(rf/dispatch [::events/db [addresses-key] %])}])
   (fn [identity]
     [:div
      [base/header {:as "h3"}
       (i18n ::my-addresses)]
-     (when-let [addresses @(rf/subscribe [:ventas/db [addresses-key]])]
+     (when-let [addresses @(rf/subscribe [::events/db [addresses-key]])]
        [base/grid {:columns 3 :class "smaller-padding"}
         [base/gridRow
          (for [address addresses]
            [base/gridColumn
             [address-view address]])]])
 
-     (if @(rf/subscribe [:ventas/db [edition-key]])
+     (if @(rf/subscribe [::events/db [edition-key]])
        [address-form]
        [base/button {:basic true
                      :color "grey"

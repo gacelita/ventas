@@ -6,7 +6,9 @@
    [re-frame.core :as rf]
    [re-frame-datatable.core :as datatable]
    [ventas.components.base :as base]
-   [ventas.components.datatable :as components.datatable]))
+   [ventas.components.datatable :as components.datatable]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (defn- activity-log []
   [:div
@@ -28,10 +30,10 @@
     [base/icon {:name "edit"}]]])
 
 (defn table []
-  (rf/dispatch [:api/events.list {:success #(rf/dispatch [:ventas/db [events-key] %])}])
+  (rf/dispatch [::backend/events.list {:success #(rf/dispatch [::events/db [events-key] %])}])
   (fn []
     (let [id (keyword (gensym))
-          subscription [:ventas/db [events-key]]]
+          subscription [::events/db [events-key]]]
       [:div
        [datatable/datatable id subscription
         [{::datatable/column-key [:id]

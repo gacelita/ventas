@@ -2,7 +2,8 @@
   (:require
    [ventas.components.base :as base]
    [ventas.components.sidebar :as sidebar]
-   [re-frame.core :as rf]))
+   [re-frame.core :as rf]
+   [ventas.events.backend :as backend]))
 
 (def mock-data
   {:products-path [::products]
@@ -65,7 +66,7 @@
 (rf/reg-event-fx
  ::apply-filters
  (fn [{:keys [db]} [_ products-path]]
-   {:dispatch [:api/products.list
+   {:dispatch [::backend/products.list
                {:params {:filters {:terms (state->api-params (get db filters-key))}
                          :pagination (:pagination (get-in db products-path))}
                 :success #(rf/dispatch [::apply-filters.next products-path %])}]}))

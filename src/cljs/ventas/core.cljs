@@ -1,4 +1,5 @@
 (ns ventas.core
+  "Try to keep this namespace on a strict diet :)"
   (:require
    [reagent.core :as reagent]
    [reagent.session :as session]
@@ -7,7 +8,7 @@
    [accountant.core :as accountant]
    [ventas.utils.logging :refer [debug info]]
    [cljs.core.async :refer [<!]]
-   [ventas.api :as api]
+   [ventas.events.backend :as backend]
    [ventas.ws :as ws]
    [ventas.local-storage :as storage]
    [ventas.devcards.core]
@@ -18,12 +19,16 @@
    [ventas.pages.datadmin]
    [ventas.pages.api]
    [ventas.themes.clothing.core]
-   [ventas.components.base :as base])
+   [ventas.components.base :as base]
+   [ventas.events :as events])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
 (enable-console-print!)
 
+;; Dear re-frame: no one cares about handlers being overwritten
+;; Thank you
+;; (Would love to see this moved to verbose logging upstream some day)
 (rf.loggers/set-loggers!
  {:warn (fn [& args]
           (cond
@@ -38,10 +43,6 @@
  {:fx :local-storage
   :cofx :local-storage})
 
-(rf/reg-fx :go-to
-  (fn [[route params]]
-    (routes/go-to route params)))
-
 (defn loading []
   [base/segment
    [base/dimmer {:active true
@@ -51,8 +52,8 @@
 
 (defn page []
   (info "Rendering...")
-  (rf/dispatch [:ventas/session.start])
-  (let [session @(rf/subscribe [:ventas/db [:session]])]
+  (rf/dispatch [::events/session.start])
+  (let [session @(rf/subscribe [::events/db [:session]])]
     (if-not session
       [loading]
       (let [{:keys [current-page]} (session/get :route)]

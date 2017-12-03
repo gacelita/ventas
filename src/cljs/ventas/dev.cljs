@@ -1,4 +1,5 @@
 (ns ventas.dev
+  "Development-only utilities"
   (:require
    [cljs.test]
    [ventas.core-test]))

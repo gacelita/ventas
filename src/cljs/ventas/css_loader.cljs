@@ -1,6 +1,6 @@
-(ns ventas.css-loader)
-
-;; Based on https://github.com/mhallin/forest/blob/master/src/forest/runtime.cljs
+(ns ventas.css-loader
+  "Based on https://github.com/mhallin/forest/blob/master/src/forest/runtime.cljs
+   Maybe useful in the future for the plugin system")
 
 (defonce known-stylesheets (atom {}))
 

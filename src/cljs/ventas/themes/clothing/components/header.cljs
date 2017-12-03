@@ -5,7 +5,8 @@
    [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
-   [ventas.api :as api]))
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (rf/reg-sub
  :resources/logo
@@ -14,9 +15,9 @@
 (rf/reg-event-fx
  :resources/logo
  (fn [cofx [_]]
-   {:dispatch [:api/resources.get
+   {:dispatch [::backend/resources.get
                {:params {:keyword :logo}
-                :success #(rf/dispatch [:ventas/db [:resources :logo] %])}]}))
+                :success #(rf/dispatch [::events/db [:resources :logo] %])}]}))
 
 (rf/reg-sub
  ::opened
@@ -34,14 +35,14 @@
    (assoc db ::opened false)))
 
 (defn header []
-  (rf/dispatch [:ventas/configuration.get :site.title])
-  (rf/dispatch [:ventas/resources.get :logo])
+  (rf/dispatch [::events/configuration.get :site.title])
+  (rf/dispatch [::events/resources.get :logo])
   (fn []
     [:div.skeleton-header
      [:div.ui.container
       [:div.skeleton-header__logo
-       (let [title @(rf/subscribe [:ventas/db [:configuration :site.title]])
-             logo @(rf/subscribe [:ventas/db [:resources :logo]])]
+       (let [title @(rf/subscribe [::events/db [:configuration :site.title]])
+             logo @(rf/subscribe [::events/db [:resources :logo]])]
          [:a {:title (:value title)
               :href (-> js/window (.-location) (.-origin))}
           [:img {:src "resources/logo"}]])]
@@ -62,5 +63,5 @@
                                  (if @(rf/subscribe [::opened])
                                    "visible"
                                    "unvisible"))}
-          [base/menuItem {:on-click #(rf/dispatch [:ventas/session.stop])}
+          [base/menuItem {:on-click #(rf/dispatch [::events/session.stop])}
            (i18n ::logout)]]]]]]]))

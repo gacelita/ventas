@@ -8,16 +8,17 @@
    [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.components.datatable :as datatable]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.events :as events]))
 
 (def image-sizes-key ::image-sizes)
 
 (defn image-sizes-datatable [action-column]
-  (rf/dispatch [:ventas/image-sizes.list [image-sizes-key]])
+  (rf/dispatch [::events/image-sizes.list [image-sizes-key]])
   (fn [action-column]
     (let [id (keyword (gensym))]
       [:div
-       [dt/datatable id [:ventas/db [image-sizes-key]]
+       [dt/datatable id [::events/db [image-sizes-key]]
         [{::dt/column-key [:id]
           ::dt/column-label "#"
           ::dt/sorting {::dt/enabled? true}}
@@ -42,14 +43,14 @@
          ::dt/table-classes ["ui" "table" "celled"]
          ::dt/empty-tbody-component (fn [] [:p (i18n ::no-image-sizes)])}]
        [:div.admin-image-sizes__pagination
-        [datatable/pagination id [:ventas/db [image-sizes-key]]]]])))
+        [datatable/pagination id [::events/db [image-sizes-key]]]]])))
 
 (defn page []
   [admin.skeleton/skeleton
    (let [action-column
          (fn [_ row]
            [:div
-            [base/button {:icon true :on-click #(rf/dispatch [:ventas/entities.remove (:id row)])}
+            [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove (:id row)])}
              [base/icon {:name "remove"}]]])]
      [:div.admin__default-content.admin-image-sizes__page
       [image-sizes-datatable action-column]

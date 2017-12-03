@@ -5,7 +5,8 @@
    [ventas.utils.validation :as validation]
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [ventas.events :as events]))
 
 (defn- set-field! [db {::keys [state-key validators]} field value]
   (let [{:keys [valid? infractions]} (validation/validate validators field value)]
@@ -35,10 +36,10 @@
           (assoc-in [state-key ::population-hash] (hash data))))))))
 
 (defn get-fields [{::keys [state-key]}]
-  @(rf/subscribe [:ventas/db [state-key ::fields]]))
+  @(rf/subscribe [::events/db [state-key ::fields]]))
 
 (defn get-field [{::keys [state-key]} field]
-  @(rf/subscribe [:ventas/db [state-key ::fields field]]))
+  @(rf/subscribe [::events/db [state-key ::fields field]]))
 
 (defn get-values [config]
   (->> (get-fields config)
@@ -98,7 +99,7 @@
        (every? #(not= false %))))
 
 (defn set-field-property! [{::keys [state-key]} field property value]
-  (rf/dispatch [:ventas/db [state-key ::fields field property] value]))
+  (rf/dispatch [::events/db [state-key ::fields field property] value]))
 
 (defn get-key [{::keys [state-key]}]
-  @(rf/subscribe [:ventas/db [state-key ::population-hash]]))
+  @(rf/subscribe [::events/db [state-key ::population-hash]]))

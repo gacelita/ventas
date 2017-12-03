@@ -2,7 +2,8 @@
   (:require
    [reagent.core :as reagent]
    [re-frame.core :as rf]
-   [ventas.components.base :as base]))
+   [ventas.components.base :as base]
+   [ventas.events :as events]))
 
 (def data-key ::popup)
 
@@ -23,7 +24,7 @@
   "A popup, useful for displaying messages to the user"
   []
   [:div.popup
-   (let [items @(rf/subscribe [:ventas/db [data-key]])]
+   (let [items @(rf/subscribe [::events/db [data-key]])]
      (when-let [data (last items)]
        [base/modal {:basic true :open (:open data) :size "small"}
         [base/header

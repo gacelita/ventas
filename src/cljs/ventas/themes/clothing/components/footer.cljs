@@ -3,7 +3,8 @@
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [ventas.routes :as routes]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.events :as events]))
 
 (defn footer []
   (fn []
@@ -21,9 +22,7 @@
        [:div.footer__column
         [:h4 (i18n ::contact)]
         [:br]
-        (let [email @(rf/subscribe [:ventas/db [:configuration :email]])]
+        (let [email @(rf/subscribe [::events/db [:configuration :email]])]
           [:p (i18n ::email) ":"]
           [:a {:href (str "mailto:" email)}
-           email])]]
-      [:div.footer__instagram
-       [:img {:src "resources/footer-instagram"}]]]]))
+           email])]]]]))

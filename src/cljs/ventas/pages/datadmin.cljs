@@ -14,7 +14,8 @@
    [ventas.components.cart :as cart]
    [ventas.utils :as util]
    [ventas.components.base :as base]
-   [ventas.routes :as routes]))
+   [ventas.routes :as routes]
+   [ventas.events :as events]))
 
 (defn skeleton [contents]
   (info "Rendering...")
@@ -46,7 +47,7 @@
   (fn [cofx [_]]
     {:ws-request {:name :datadmin/datoms
                   :params {}
-                  :success #(rf/dispatch [:ventas/db [:datadmin :datoms] (:datoms %)])}}))
+                  :success #(rf/dispatch [::events/db [:datadmin :datoms] (:datoms %)])}}))
 
 (defn page []
   (rf/dispatch [:datadmin/datoms])

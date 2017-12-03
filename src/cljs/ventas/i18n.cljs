@@ -1,7 +1,9 @@
 (ns ventas.i18n
+  "Tongue wrapper.
+   For the moment this ns contains the translations, future plan is to move them
+   somewhere else"
   (:require
    [tongue.core :as tongue]
-   [ventas.utils.logging :refer [debug]]
    [ventas.utils.goog :as utils.goog]))
 
 (def dicts

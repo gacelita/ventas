@@ -12,13 +12,15 @@
    [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
+   [ventas.events.backend :as backend]
    [ventas.common.utils :as common.utils]
-   [ventas.components.notificator :as notificator]))
+   [ventas.components.notificator :as notificator]
+   [ventas.events :as events]))
 
 (rf/reg-event-fx
  ::submit
  (fn [cofx [_ data]]
-   {:dispatch [:api/taxes.save {:params data
+   {:dispatch [::backend/taxes.save {:params data
                                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
@@ -30,12 +32,12 @@
 (defn form []
   (let [data (atom {})
         key (atom nil)]
-    (rf/dispatch [:api/entities.find
+    (rf/dispatch [::backend/entities.find
                   (get-in (routes/current) [:route-params :id])
                   {:success (fn [entity]
                                  (reset! data entity)
                                  (reset! key (hash entity)))}])
-    (rf/dispatch [:ventas/reference :tax.kind])
+    (rf/dispatch [::events/reference :tax.kind])
     (fn []
       ^{:key @key}
       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}
@@ -53,7 +55,7 @@
          {:fluid true
           :selection true
           :options (map #(update % :value str)
-                        @(rf/subscribe [:ventas/db [:reference :tax.kind]]))
+                        @(rf/subscribe [::events/db [:reference :tax.kind]]))
           :default-value (str (:kind @data))
           :on-change #(swap! data assoc :kind (.-value %2))}]]
        [base/form-button {:type "submit"} (i18n ::submit)]])))

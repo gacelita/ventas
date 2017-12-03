@@ -13,7 +13,9 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.i18n :refer [i18n]]
    [ventas.common.utils :as common.utils]
-   [ventas.components.notificator :as notificator]))
+   [ventas.components.notificator :as notificator]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]))
 
 (def brands-sub-key ::brands)
 
@@ -26,7 +28,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [cofx [_ data]]
-   {:dispatch [:api/products.save {:params data
+   {:dispatch [::backend/products.save {:params data
                                    :success ::submit.next}]}))
 
 (rf/reg-event-fx
@@ -49,7 +51,7 @@
    (assoc-in db [image-modal-key :open] false)))
 
 (defn image-modal []
-  (let [{:keys [open url]} @(rf/subscribe [:ventas/db [image-modal-key]])]
+  (let [{:keys [open url]} @(rf/subscribe [::events/db [image-modal-key]])]
     [base/modal {:basic true
                  :size "small"
                  :open open
@@ -60,9 +62,9 @@
                    :src url}]]]))
 
 (defn image [eid]
-  (rf/dispatch [:ventas/entities.sync eid])
+  (rf/dispatch [::events/entities.sync eid])
   (fn [eid]
-    (let [data @(rf/subscribe [:ventas/db [:entities eid]])]
+    (let [data @(rf/subscribe [::events/db [:entities eid]])]
       [base/image {:src (:url data)
                    :size "small"
                    :on-click #(rf/dispatch [::image-modal.open (:url data)])}])))
@@ -91,23 +93,23 @@
        [:input {:type "file"
                 :ref #(reset! ref %)
                 :on-change (fn [e]
-                             (rf/dispatch [:ventas/upload {:success #(rf/dispatch [::upload.next %])
+                             (rf/dispatch [::events/upload {:success #(rf/dispatch [::upload.next %])
                                                            :file (-> (-> e .-target .-files)
                                                                      (js/Array.from)
                                                                      first)}]))}]])))
 
 (defn product-form []
-  (rf/dispatch [:api/entities.find
+  (rf/dispatch [::backend/entities.find
                 (get-in (routes/current) [:route-params :id])
                 {:success (fn [entity-data]
-                               (rf/dispatch [:ventas/db [form-data-key] entity-data])
-                               (rf/dispatch [:ventas/db [form-hash-key] (hash entity-data)]))}])
-  (rf/dispatch [:api/brands.list {:success #(rf/dispatch [:ventas/db [brands-sub-key] %])}])
-  (rf/dispatch [:api/taxes.list {:success #(rf/dispatch [:ventas/db [taxes-sub-key] %])}])
+                               (rf/dispatch [::events/db [form-data-key] entity-data])
+                               (rf/dispatch [::events/db [form-hash-key] (hash entity-data)]))}])
+  (rf/dispatch [::backend/brands.list {:success #(rf/dispatch [::events/db [brands-sub-key] %])}])
+  (rf/dispatch [::backend/taxes.list {:success #(rf/dispatch [::events/db [taxes-sub-key] %])}])
 
   (fn []
-    (let [form-data @(rf/subscribe [:ventas/db [form-data-key]])
-          form-hash @(rf/subscribe [:ventas/db [form-hash-key]])]
+    (let [form-data @(rf/subscribe [::events/db [form-data-key]])
+          form-hash @(rf/subscribe [::events/db [form-hash-key]])]
       ^{:key form-hash}
       [:div
        [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit form-data]))}
@@ -155,7 +157,7 @@
           {:fluid true
            :selection true
            :options (map (fn [v] {:text (:name v) :value (:id v)})
-                         @(rf/subscribe [:ventas/db [brands-sub-key]]))
+                         @(rf/subscribe [::events/db [brands-sub-key]]))
            :default-value (:brand form-data)
            :on-change #(rf/dispatch [::set-field :brand (.-value %2)])}]]
         [base/form-field
@@ -164,7 +166,7 @@
           {:fluid true
            :selection true
            :options (map (fn [v] {:text (:name v) :value (:id v)})
-                         @(rf/subscribe [:ventas/db [taxes-sub-key]]))
+                         @(rf/subscribe [::events/db [taxes-sub-key]]))
            :default-value (:tax form-data)
            :on-change #(rf/dispatch [::set-field :tax (.-value %2)])}]]
         [base/form-field {:class "admin-products-edit__images"}
