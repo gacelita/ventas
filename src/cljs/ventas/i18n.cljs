@@ -4,11 +4,11 @@
    somewhere else"
   (:require
    [tongue.core :as tongue]
-   [ventas.utils.goog :as utils.goog]))
+   [ventas.utils.goog :as utils.goog]
+   [ventas.common.utils :as common.utils]))
 
-(def dicts
+(def ^:private base-dicts
   {:en_US
-
    {:ventas.page/not-found "404"
     :ventas.pages.admin.configuration.image-sizes/actions "Actions"
     :ventas.pages.admin.configuration.image-sizes/create-image-size "Create image size"
@@ -64,82 +64,6 @@
     :ventas.pages.admin.taxes.edit/submit "Submit"
     :ventas.pages.admin.activity-log/whats-the-activity-log "In the activity log you can see everything that happens in your store. Filter the messages by category to find the information you want."
 
-    :ventas.themes.clothing.components.header/my-cart "My cart"
-    :ventas.themes.clothing.components.header/my-account "My account"
-    :ventas.themes.clothing.components.header/logout "Logout"
-    :ventas.themes.clothing.components.menu/home "Home"
-    :ventas.themes.clothing.components.menu/woman "Woman"
-    :ventas.themes.clothing.components.menu/man "Man"
-    :ventas.themes.clothing.components.skeleton/cookies "Al navegar por nuestra tienda indicas que estás de acuerdo con nuestra política de cookies."
-
-    :ventas.themes.clothing.pages.frontend/page "Home"
-    :ventas.themes.clothing.pages.frontend.category/page "%s"
-    :ventas.themes.clothing.pages.frontend.cart/cart "Cart"
-    :ventas.themes.clothing.pages.frontend.cart/page "Cart"
-    :ventas.themes.clothing.pages.frontend.cart/product "Product"
-    :ventas.themes.clothing.pages.frontend.cart/description "Description"
-    :ventas.themes.clothing.pages.frontend.cart/price "Price"
-    :ventas.themes.clothing.pages.frontend.cart/quantity "Quantity"
-    :ventas.themes.clothing.pages.frontend.cart/total "Total"
-
-    :ventas.themes.clothing.pages.frontend.login/login "Login"
-    :ventas.themes.clothing.pages.frontend.login/register "Register"
-    :ventas.themes.clothing.pages.frontend.login/full-name "Full name"
-    :ventas.themes.clothing.pages.frontend.login/email "Email"
-    :ventas.themes.clothing.pages.frontend.login/password "Password"
-    :ventas.themes.clothing.pages.frontend.login/page "Login"
-    :ventas.themes.clothing.pages.frontend.login/forgot-password "Password forgotten?"
-    :ventas.themes.clothing.pages.frontend.login/user-registered "Your account is ready. Welcome!"
-
-    :ventas.themes.clothing.pages.frontend.profile/welcome "Welcome %s"
-    :ventas.themes.clothing.pages.frontend.profile/personal-data "Personal data"
-    :ventas.themes.clothing.pages.frontend.profile/personal-data-explanation "View and change your personal data"
-    :ventas.themes.clothing.pages.frontend.profile/my-orders-explanation "See all the orders you've ever done"
-    :ventas.themes.clothing.pages.frontend.profile/my-addresses-explanation "Create or change your addresses (work, home...)"
-    :ventas.themes.clothing.pages.frontend.profile/page "My profile"
-
-    :ventas.themes.clothing.pages.frontend.profile/my-addresses "My addresses"
-    :ventas.themes.clothing.pages.frontend.profile/my-orders "My orders"
-    :ventas.themes.clothing.pages.frontend.profile/my-account "My account"
-
-    :ventas.themes.clothing.pages.frontend.profile.skeleton/my-profile "My profile"
-    :ventas.themes.clothing.pages.frontend.profile.skeleton/my-addresses "My addresses"
-    :ventas.themes.clothing.pages.frontend.profile.skeleton/my-orders "My orders"
-    :ventas.themes.clothing.pages.frontend.profile.skeleton/my-account "My account"
-    :ventas.themes.clothing.pages.frontend.profile.skeleton/logout "Logout"
-    :ventas.themes.clothing.pages.frontend.profile.account/length-error "The maximum length is %s"
-    :ventas.themes.clothing.pages.frontend.profile.account/first-name "First name"
-    :ventas.themes.clothing.pages.frontend.profile.account/last-name "Last name"
-    :ventas.themes.clothing.pages.frontend.profile.account/company "Company"
-    :ventas.themes.clothing.pages.frontend.profile.account/email "Email"
-    :ventas.themes.clothing.pages.frontend.profile.account/privacy-policy-text "I've read and I accept the"
-    :ventas.themes.clothing.pages.frontend.profile.account/privacy-policy "privacy policy"
-    :ventas.themes.clothing.pages.frontend.profile.account/page "My account"
-    :ventas.themes.clothing.pages.frontend.profile.account/save "Save"
-    :ventas.themes.clothing.pages.frontend.profile.account/phone "Phone"
-
-    :ventas.themes.clothing.pages.frontend.profile.addresses/address "Address"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/address-second-line "Address (second line)"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/city "City"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/state "State"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/phone "Phone"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/zip-code "ZIP code"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/first-name "First name"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/last-name "Last name"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/save "Save"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/company "Company"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/new-address "New address"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/my-addresses "My addresses"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/edit "Edit"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/remove "Remove"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/page "My addresses"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/address-removed "Address removed!"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/editing-address "Editing an address"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/cancel "Cancel"
-    :ventas.themes.clothing.pages.frontend.profile.addresses/address-saved "Address saved!"
-
-
-
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
     :ventas.utils.formatting/euro " €"
@@ -151,7 +75,19 @@
 
    :tongue/fallback :en_US})
 
-(def ^:private translation-fn (tongue/build-translate dicts))
+(def dicts (atom base-dicts))
+
+(defn- build-translation-fn* []
+  (tongue/build-translate @dicts))
+
+(def ^:private translation-fn (atom (build-translation-fn*)))
+
+(defn- build-translation-fn! []
+  (reset! translation-fn (build-translation-fn*)))
+
+(defn register-translations! [m]
+  (swap! dicts common.utils/deep-merge m)
+  (build-translation-fn!))
 
 (defn i18n [kw & args]
-  (apply utils.goog/format (translation-fn :en_US kw) args))
+  (apply utils.goog/format (@translation-fn :en_US kw) args))
