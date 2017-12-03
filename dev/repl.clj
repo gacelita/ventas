@@ -52,36 +52,34 @@
   (go (>! (events/pub :init) true))
   :done)
 
-(defn r []
-  (let [result (tn/refresh)]
-    (if (instance? Exception result)
-      (throw result)
-      (when (= (str *ns*) "repl")
-        (init-aliases)
-        (go (>! (events/pub :init) true))
-        :done))))
+(defn keyword->state [kw]
+  (get {:figwheel 'client/figwheel
+        :sass 'client/sass
+        :db 'ventas.database/db
+        :server 'ventas.server/server}
+       kw))
+
+(defn r
+  "Reloads changed namespaces, and restarts the defstates within them.
+   Accepts optional keywords representing defstates to restart (regardless of
+   a need for it)
+   Example:
+     (r :figwheel :db)
+   Refer to keyword->state to see what states can be restarted in this way"
+  [& states]
+  (let [states (->> states
+                    (map keyword->state)
+                    (map #(ns-resolve 'repl %)))
+        _ (apply mount/stop states)
+        result (tn/refresh)]
+    (when (or (instance? Exception result)
+              (instance? Error result))
+      (throw result))
+    (apply mount/start states)
+    (when (= (ns-name *ns*) 'repl)
+      (init-aliases))
+    (go (>! (events/pub :init) true))
+    :done))
 
 (defn run-tests []
   (clojure.test/run-all-tests #"ventas.*?\-test"))
-
-(defmacro start-frontend []
-  '(do (mount/start #'client/figwheel #'client/sass)))
-
-(defmacro reset-frontend []
-  '(do (mount/stop #'client/figwheel #'client/sass)
-       (tn/refresh)
-       (start-frontend)
-       (init-aliases)
-       (go (>! (events/pub :init) true))
-       :done))
-
-(defmacro start-backend []
-  '(do (mount/start #'ventas.database/db #'ventas.server/server)))
-
-(defmacro reset-backend []
-  '(do (mount/stop #'ventas.database/db #'ventas.server/server)
-       (tn/refresh)
-       (start-backend)
-       (init-aliases)
-       (go (>! (events/pub :init) true))
-       :done))
