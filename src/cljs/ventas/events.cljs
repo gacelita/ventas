@@ -7,30 +7,34 @@
    [ventas.utils.logging :refer [debug]]
    [ventas.events.backend :as backend]))
 
-#_"
-  Universal subscription and event.
-  Use a more specific subscription or event as needed."
+(defn- normalize-where [where]
+  (if (keyword? where)
+    [where]
+    where))
 
 ;; Universal subscription
 (rf/reg-sub
  ::db
  (fn [db [_ where]]
-   (get-in db where)))
+   (get-in db (normalize-where where))))
 
 ;; Universal event
 ;; Same as with the subscription: use a more specific one if possible
 (rf/reg-event-db
  ::db
  (fn [db [_ where what]]
-   (debug ::db where what)
-   (assoc-in db where what)))
+   (let [where (normalize-where where)]
+     (debug ::db where what)
+     (assoc-in db where what))))
 
 ;; Same as ::db but accepts a function
 (rf/reg-event-db
  ::db.update
  (fn [db [_ where what-fn]]
-   (debug ::db.update where what-fn)
-   (update-in db where what-fn)))
+   {:pre [(ifn? what-fn)]}
+   (let [where (normalize-where where)]
+     (debug ::db.update where what-fn)
+     (update-in db where what-fn))))
 
 (rf/reg-event-fx
  ::configuration.get

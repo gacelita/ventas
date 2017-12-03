@@ -121,11 +121,12 @@
         (>! channel (and json-result fressian-result))))
     channel))
 
-(defn- call [fx-or-fn data]
-  (condp #(%1 %2) fx-or-fn
-    keyword? (rf/dispatch [fx-or-fn data])
-    fn? (fx-or-fn data)
-    (error "Not an effect or function: " fx-or-fn)))
+(defn- call [to-call data]
+  (condp #(%1 %2) to-call
+    keyword? (rf/dispatch [to-call data])
+    vector? (rf/dispatch (conj to-call data))
+    fn? (to-call data)
+    (error "Not an effect or function: " to-call)))
 
 (defn effect-ws-request [{:keys [name params success error]}]
   (send-request!

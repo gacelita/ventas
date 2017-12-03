@@ -95,6 +95,11 @@
   []
   (session/get :route))
 
+(defn params
+  "Returns the current route params"
+  []
+  (:route-params (current)))
+
 (defn route-name
   "Returns the name of a route"
   [kw & [route-params]]
