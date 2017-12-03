@@ -128,7 +128,7 @@
 (defn find
   "Finds an entity by eid or lookup ref"
   [eid]
-  (debug "Finding" eid)
+  {:pre [(or (db/lookup-ref? eid) (number? eid))]}
   (db/touch-eid eid))
 
 (defn transaction->entity
@@ -208,7 +208,7 @@
   ::ref
   (spec/or :eid number?
            :entity is-entity?
-           :lookup-ref vector?))
+           :lookup-ref db/lookup-ref?))
 
 (spec/def
   ::refs

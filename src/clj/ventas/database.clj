@@ -282,3 +282,7 @@
   [id migration]
   {:pre [(keyword? id) (coll? migration)]}
   (conformity/ensure-conforms db {id {:txes [migration]}}))
+
+(defn lookup-ref? [v]
+  (and (sequential? v)
+       (keyword? (first v))))
