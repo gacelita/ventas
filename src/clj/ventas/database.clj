@@ -23,7 +23,7 @@
            [java.util.concurrent ExecutionException]))
 
 (defn start-db! []
-  (let [url (config/get [:database :url])]
+  (let [url (config/get :database :url)]
     (info (str "Starting database, URL: " url))
     (try
       (d/connect url)
@@ -271,7 +271,7 @@
 (defn recreate
   "Recreates the database"
   []
-  (let [url (config/get [:database :url])]
+  (let [url (config/get :database :url)]
     (info "Deleting database " url)
     (d/delete-database url)
     (info "Creating database " url)

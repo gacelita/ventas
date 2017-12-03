@@ -30,8 +30,12 @@
 (defn path->relative-url [path]
   (str/replace path (str public "/") ""))
 
+(defn base-url []
+  (let [{:keys [host port]} (config/get :server)]
+    (str "//" host ":" port "/")))
+
 (defn path->url [path]
-  (str (config/get :base-url) (path->relative-url path)))
+  (str (base-url) (path->relative-url path)))
 
 (defn path->resource [path]
   (str/replace path (str project-resources "/") ""))

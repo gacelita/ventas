@@ -97,7 +97,7 @@
   {:pre [(#{:fressian :json-kw} format)]}
   (let [channel (chan)]
     (go
-     (let [url (str "ws://localhost:3450/ws/" (name format))
+     (let [url (str "ws://" (-> js/document .-location .-host) "/ws/" (name format))
            {:keys [ws-channel] ws-error :error} (<! (chord/ws-ch url {:format format}))]
        (if ws-error
          (do

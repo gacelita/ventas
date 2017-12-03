@@ -144,7 +144,8 @@
 
   :repl-options {:init-ns user :port 4001 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
-  :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]}
+  :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
+            "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
 
   :cljsbuild {:builds
               [{:id "app"
@@ -171,10 +172,9 @@
 
                {:id "min"
                 :source-paths ["src/cljs" "src/cljc" "custom-lib"]
-                :jar true
                 :compiler {:main ventas.core
                            :output-to "resources/public/files/js/compiled/ventas.js"
-                           :output-dir "target"
+                           :output-dir "resources/public/files/js/compiled"
                            :source-map-timestamp true
                            :optimizations :advanced
                            :pretty-print false

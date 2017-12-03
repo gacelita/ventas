@@ -58,7 +58,9 @@
 (defn- handle-spa []
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (io/input-stream (io/resource "public/index.html"))})
+   :body (-> (slurp (io/resource "public/index.html"))
+             (str/replace "{{current-theme}}" "ventas.themes.clothing.core")
+             (str/replace "{{base-url}}" (paths/base-url)))})
 
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler
@@ -95,13 +97,12 @@
         ;; Avoids occasional ConcurrentModificationException, which is a bug in httpkit
         ))))
 
-(defn start-server! [& [port]]
+(defn start-server! []
   (info "Starting server")
-  (let [port (Integer. (or port (config/get :http-port) 10555))
-        ip (or (config/get :http-ip) "0.0.0.0")]
-    (info "Starting server on" (str ip ":" port))
+  (let [{:keys [host port]} (config/get :server)]
+    (info "Starting server on" (str host ":" port))
     (http-kit/run-server http-handler
-                         {:ip ip
+                         {:ip host
                           :port port
                           :join? false})))
 

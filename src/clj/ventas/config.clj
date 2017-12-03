@@ -5,14 +5,18 @@
    [cprop.core :refer [load-config]]
    [mount.core :as mount :refer [defstate]]))
 
-(defonce ^:private config (atom (load-config)))
+(def ^:private defaults
+  {:server {:port 3450
+            :host "localhost"}
+   :debug false
+   :cljs-port 3001})
+
+(defonce ^:private config (atom (merge defaults (load-config))))
 
 (defn set
   [k v]
   {:pre [(keyword? k)]}
   (swap! config assoc k v))
 
-(defn get [k-or-ks]
-  (if (coll? k-or-ks)
-    (get-in @config k-or-ks)
-    (clj/get @config k-or-ks)))
+(defn get [& ks]
+  (get-in @config ks))
