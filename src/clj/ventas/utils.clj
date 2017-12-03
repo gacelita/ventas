@@ -83,3 +83,8 @@
   [input]
   (let [caller-ns (str (:name (:ns &env)))]
     `(~'keyword ~caller-ns ~input)))
+
+(defn bigdec?
+  "Return true if x is a BigDecimal.
+   This function was already in 1.9 alphas but it was removed :("
+  [x] (instance? java.math.BigDecimal x))

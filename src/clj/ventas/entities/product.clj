@@ -7,7 +7,7 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.utils :refer [update-if-exists]]))
+   [ventas.utils :as utils]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -23,7 +23,7 @@
 
 (spec/def :product/price
   (spec/with-gen
-   (spec/and bigdec? pos?)
+   (spec/and utils/bigdec? pos?)
    (fn []
      (gen/fmap #(-> % (str) (BigDecimal.))
                (gen/double* {:NaN? false :min 0 :max 999})))))

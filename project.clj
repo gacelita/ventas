@@ -14,12 +14,11 @@
 
   :dependencies [
                  ;; Clojure
-                 [org.clojure/clojure "1.9.0-alpha19"]
-                 [org.clojure/clojurescript "1.9.854" :scope "provided"]
-                 [org.clojure/core.async "0.3.443"
-                  :exclusions [org.clojure/tools.reader]]
-                 [expound "0.3.3"]
-                 [org.clojure/spec.alpha "0.1.123" :scope "provided"]
+                 [org.clojure/clojure "1.9.0-RC2"]
+                 [org.clojure/clojurescript "1.9.946" :scope "provided"]
+                 [org.clojure/core.async "0.3.465" :exclusions [org.clojure/tools.reader]]
+                 [expound "0.3.4"]
+                 [org.clojure/spec.alpha "0.1.143" :scope "provided"]
                  [com.google.guava/guava "23.0"]
 
                  ;; Namespace tools
@@ -63,7 +62,7 @@
                  [cprop "0.1.11"]
 
                  ;; i18n
-                 [tongue "0.2.2"]
+                 [tongue "0.2.3"]
 
                  ;; Reagent
                  [reagent "0.7.0"]
@@ -104,7 +103,7 @@
                  [com.novemberain/pantomime "2.9.0"]
 
                  ;; DateTime
-                 [clj-time "0.14.0"]
+                 [clj-time "0.14.2"]
 
                  ;; localStorage
                  [alandipert/storage-atom "2.0.1"]
@@ -116,11 +115,11 @@
                  ;; Image processing
                  [fivetonine/collage "0.2.1"]
 
-                 [binaryage/devtools "0.9.7"]
+                 [binaryage/devtools "0.9.8"]
 
                  ; Error reporting for Ring
                  [prone "1.1.4"]
-                 [devcards "0.2.3" :exclusions [cljsjs/react]]]
+                 [devcards "0.2.4" :exclusions [cljsjs/react]]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
