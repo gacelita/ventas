@@ -23,9 +23,7 @@
 
   :fixtures
   (fn []
-    [{:schema/type :schema.type/country
-      :country/name (entities.i18n/get-i18n-entity {:en_US "Spain"
+    [{:country/name (entities.i18n/get-i18n-entity {:en_US "Spain"
                                                     :es_ES "España"})}
-     {:schema/type :schema.type/country
-      :country/name (entities.i18n/get-i18n-entity {:en_US "United States"
+     {:country/name (entities.i18n/get-i18n-entity {:en_US "United States"
                                                     :es_ES "Estados Unidos"})}])})

@@ -39,7 +39,6 @@
   (fn []
     [{:resource/keyword :logo
       :resource/name "Logo"
-      :schema/type :schema.type/resource
       :resource/file (:db/id (first (entity/query :file)))}])
 
   :dependencies

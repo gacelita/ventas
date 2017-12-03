@@ -190,7 +190,8 @@
 (defn fixtures
   [type]
   (when-let [fixtures-fn (:fixtures (type-properties type))]
-    (fixtures-fn)))
+    (->> (fixtures-fn)
+         (map #(assoc % :schema/type (db/kw->type type))))))
 
 (defn autoresolve?
   [type]

@@ -25,8 +25,8 @@
    {:db/ident :configuration/value
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}]
+
   :fixtures
   (fn []
-    [{:schema/type :schema.type/configuration
-      :configuration/keyword :site.title
+    [{:configuration/keyword :site.title
       :configuration/value "Ventas Dev Store"}])})

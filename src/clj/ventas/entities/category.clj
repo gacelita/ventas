@@ -59,15 +59,15 @@
 
   :fixtures
   (fn []
-    [{:schema/type :schema.type/category
-      :category/name (entities.i18n/get-i18n-entity {:en_US "Default"})
+    [{:category/name (entities.i18n/get-i18n-entity {:en_US "Default"})
       :category/keyword :default}
-     {:schema/type :schema.type/category
-      :category/name (entities.i18n/get-i18n-entity {:en_US "Sample category"})
+     {:category/name (entities.i18n/get-i18n-entity {:en_US "Sample category"})
       :category/keyword :sample-category}
-     {:schema/type :schema.type/category
-      :category/name (entities.i18n/get-i18n-entity {:en_US "Winter"})
-      :category/keyword :winter}])
+     {:category/name (entities.i18n/get-i18n-entity {:en_US "Winter"})
+      :category/keyword :winter}
+     {:category/name (entities.i18n/get-i18n-entity {:en_US "Test category"})
+      :category/image (:db/id (first (entity/query :file)))
+      :category/keyword :test-category}])
 
   :dependencies
   #{:file :i18n}

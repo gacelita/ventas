@@ -133,8 +133,7 @@
 
   :fixtures
   (fn []
-    [{:schema/type :schema.type/user
-      :user/first-name "Test"
+    [{:user/first-name "Test"
       :user/last-name "User"
       :user/company "Test Company"
       :user/email "test@test.com"

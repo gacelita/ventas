@@ -24,5 +24,4 @@
 
   :fixtures
   (fn []
-    [{:schema/type :schema.type/state
-      :state/name "Cataluña"}])})
+    [{:state/name "Cataluña"}])})

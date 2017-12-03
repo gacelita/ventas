@@ -2,9 +2,12 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [ventas.database.generators :as generators]))
 
 (spec/def :product.term/name ::entities.i18n/ref)
+
+(spec/def :product.term/keyword ::generators/keyword)
 
 (spec/def  :product.term/taxonomy
   (spec/with-gen ::entity/ref
@@ -12,7 +15,8 @@
 
 (spec/def :schema.type/product.term
   (spec/keys :req [:product.term/name
-                   :product.term/taxonomy]))
+                   :product.term/taxonomy
+                   :product.term/keyword]))
 
 (entity/register-type!
  :product.term
@@ -23,7 +27,19 @@
 
    {:db/ident :product.term/taxonomy
     :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :product.term/keyword
+    :db/valueType :db.type/keyword
+    :db/unique :db.unique/identity
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:product.taxonomy :i18n}})
+  #{:product.taxonomy :i18n}
+
+  :fixtures
+  (fn []
+    [{:product.term/name (entities.i18n/get-i18n-entity {:en_US "Green"
+                                                         :es_ES "Verde"})
+      :product.term/taxonomy [:product.taxonomy/keyword :color]
+      :product.term/keyword :green-color}])})

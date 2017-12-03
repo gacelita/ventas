@@ -23,7 +23,14 @@
     :db/isComponent true}
    {:db/ident :product.taxonomy/keyword
     :db/valueType :db.type/keyword
+    :db/unique :db.unique/identity
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:i18n}})
+  #{:i18n}
+
+  :fixtures
+  (fn []
+    [{:product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Color"
+                                                             :es_ES "Color"})
+      :product.taxonomy/keyword :color}])})

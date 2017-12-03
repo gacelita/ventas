@@ -28,11 +28,9 @@
 
   :fixtures
   (fn []
-    [{:schema/type :schema.type/i18n.culture
-      :i18n.culture/keyword :en_US
+    [{:i18n.culture/keyword :en_US
       :i18n.culture/name "English (US)"}
-     {:schema/type :schema.type/i18n.culture
-      :i18n.culture/keyword :es_ES
+     {:i18n.culture/keyword :es_ES
       :i18n.culture/name "Español (España)"}])
 
   :to-json

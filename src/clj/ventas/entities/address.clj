@@ -92,8 +92,7 @@
 
   :fixtures
   (fn []
-    [{:schema/type :schema.type/address
-      :address/first-name "Test"
+    [{:address/first-name "Test"
       :address/last-name "Address"
       :address/company "Test Address Company"
       :address/address "Test Street, 210"
