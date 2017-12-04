@@ -32,6 +32,9 @@
    :ventas.themes.clothing.pages.frontend.login/forgot-password "Password forgotten?"
    :ventas.themes.clothing.pages.frontend.login/user-registered "Your account is ready. Welcome!"
 
+   :ventas.themes.clothing.pages.frontend.product/page "Product"
+   :ventas.themes.clothing.pages.frontend.product/add-to-cart "Add to cart"
+
    :ventas.themes.clothing.pages.frontend.profile/welcome "Welcome %s"
    :ventas.themes.clothing.pages.frontend.profile/personal-data "Personal data"
    :ventas.themes.clothing.pages.frontend.profile/personal-data-explanation "View and change your personal data"
@@ -77,4 +80,10 @@
    :ventas.themes.clothing.pages.frontend.profile.addresses/address-removed "Address removed!"
    :ventas.themes.clothing.pages.frontend.profile.addresses/editing-address "Editing an address"
    :ventas.themes.clothing.pages.frontend.profile.addresses/cancel "Cancel"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/address-saved "Address saved!"}})
+   :ventas.themes.clothing.pages.frontend.profile.addresses/address-saved "Address saved!"
+
+   :ventas.themes.clothing.components.preheader/support-and-orders "Support and orders:"
+   :ventas.themes.clothing.components.preheader/schedule "Schedule:"
+   :ventas.themes.clothing.components.preheader/schedule-info "Monday to Friday, 9am - 5pm"
+
+   }})

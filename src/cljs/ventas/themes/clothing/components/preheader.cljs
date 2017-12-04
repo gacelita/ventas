@@ -1,12 +1,14 @@
-(ns ventas.themes.clothing.components.preheader)
+(ns ventas.themes.clothing.components.preheader
+  (:require
+   [ventas.i18n :refer [i18n]]))
 
 (defn preheader []
   [:div.preheader
    [:div.ui.container
     [:div.preheader__item
-     [:strong "Att. cliente y pedidos: "]
-     [:a "667 943 180"]]
+     [:strong (i18n ::support-and-orders)]
+     [:a "666 555 444"]]
     [:div.preheader__separator "-"]
     [:div.preheader__item
-     [:strong "Horario:"]
-     [:span "De Lunes a Viernes 09:00 - 13:30 / 16:00 - 19:30"]]]])
+     [:strong (i18n ::schedule)]
+     [:span (i18n ::schedule-info)]]]])
