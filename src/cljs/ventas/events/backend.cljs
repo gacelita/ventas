@@ -46,6 +46,11 @@
    {:ws-request (merge {:name :image-sizes.list} options)}))
 
 (rf/reg-event-fx
+ ::products.get
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :products.get} options)}))
+
+(rf/reg-event-fx
  ::products.list
  (fn [cofx [_ options]]
    {:ws-request (common.utils/deep-merge
