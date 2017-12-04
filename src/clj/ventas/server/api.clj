@@ -33,6 +33,11 @@
        (defmethod server.ws/handle-binary-request kw [request state]
          (f request state))))))
 
+(defn- get-culture [session]
+  (let [user (:user @session)]
+    (or (:user/culture user)
+        (entity/find [:i18n.culture/keyword :en_US]))))
+
 (register-endpoint!
   :entities.remove
   (fn [{:keys [params]} state]
@@ -40,11 +45,11 @@
 
 (register-endpoint!
   :entities.find
-  (fn [{:keys [params]} state]
+  (fn [{:keys [params]} {:keys [session]}]
     (-> (:id params)
         (Long/valueOf)
         (entity/find)
-        (entity/to-json))))
+        (entity/to-json {:culture (get-culture session)}))))
 
 (register-endpoint!
   :reference
@@ -78,11 +83,6 @@
           (swap! session assoc :token token)
           {:user (entity/to-json user)
            :token token})))))
-
-(defn- get-culture [session]
-  (let [user (:user @session)]
-    (or (:user/culture user)
-        (entity/find [:i18n.culture/keyword :en_US]))))
 
 (register-endpoint!
   :states.list
@@ -169,27 +169,19 @@
         (entity/to-json value)
         (throw (Error. (str "Could not find configuration with keyword: " kw)))))))
 
-#_ "
-
-Eventos:
-   - cualquier transacción de la base de datos
-   - cualquier evento introducido de manera artificial
-¿Deberían los eventos ser entidades separadas de las transacciones, con una transacción
- opcionalmente asociada, creados primariamente por una función en la base de datos?
-¿Deberían los eventos ser realmente transacciones?
- De ser así, los eventos artificiales podrían ser las únicas entidades
- Esto es muy probablemente más ligero y seguro"
-
 (register-endpoint!
   :events.list
   (fn [{:keys [pagination params]} state]
     (let [items (map entity/to-json (entity/query :event))])))
 
-
 (register-endpoint!
-  :products/get
-  (fn [{:keys [params]} state]
-    (entity/to-json (entity/find (:id params)))))
+  :products.get
+  (fn [{{:keys [id]} :params} {:keys [session]}]
+    (-> (cond
+          (number? id) id
+          (keyword? id) [:product/keyword id])
+        (entity/find)
+        (entity/to-json {:culture (get-culture session)}))))
 
 (register-endpoint!
   :products.list
