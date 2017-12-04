@@ -185,6 +185,6 @@
 
 (routes/define-route!
  :admin.products.edit
- {:name (i18n ::page)
+ {:name ::page
   :url [:id "/edit"]
   :component page})

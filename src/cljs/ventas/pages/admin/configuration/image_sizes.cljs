@@ -58,6 +58,6 @@
 
 (routes/define-route!
  :admin.configuration.image-sizes
- {:name (i18n ::page)
+ {:name ::page
   :url "image-sizes"
   :component page})

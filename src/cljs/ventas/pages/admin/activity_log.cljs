@@ -69,6 +69,6 @@
 
 (routes/define-route!
  :admin.activity-log
- {:name (i18n ::page)
+ {:name ::page
   :url "activity-log"
   :component page})

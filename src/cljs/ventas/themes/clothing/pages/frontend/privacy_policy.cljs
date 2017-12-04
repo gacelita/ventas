@@ -12,6 +12,6 @@
 
 (routes/define-route!
  :frontend.privacy-policy
- {:name (i18n ::page)
+ {:name ::page
   :url ["privacy-policy"]
   :component page})

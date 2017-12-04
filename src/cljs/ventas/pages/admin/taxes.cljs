@@ -57,6 +57,6 @@
 
 (routes/define-route!
  :admin.taxes
- {:name (i18n ::page)
+ {:name ::page
   :url "taxes"
   :component page})

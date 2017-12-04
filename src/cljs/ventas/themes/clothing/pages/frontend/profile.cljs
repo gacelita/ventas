@@ -34,6 +34,6 @@
 
 (routes/define-route!
  :frontend.profile
- {:name (i18n ::page)
+ {:name ::page
   :url ["profile"]
   :component page})

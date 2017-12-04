@@ -60,6 +60,6 @@
 
 (routes/define-route!
  :admin.users
- {:name (i18n ::page)
+ {:name ::page
   :url "users"
   :component page})

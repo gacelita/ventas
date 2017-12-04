@@ -44,7 +44,7 @@
 
 (routes/define-route!
  :frontend
- {:name (i18n ::page)
+ {:name ::page
   :url ""
   :component page})
 

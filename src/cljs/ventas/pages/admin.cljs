@@ -19,6 +19,6 @@
 
 (routes/define-route!
  :admin
- {:name (i18n ::page)
+ {:name ::page
   :url "admin"
   :component page})

@@ -93,6 +93,6 @@
 
 (routes/define-route!
  :frontend.cart
- {:name (i18n ::page)
+ {:name ::page
   :url ["cart"]
   :component page})

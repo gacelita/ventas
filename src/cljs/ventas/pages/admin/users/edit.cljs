@@ -77,6 +77,6 @@
 
 (routes/define-route!
  :admin.users.edit
- {:name (i18n ::page)
+ {:name ::page
   :url [:id "/edit"]
   :component page})

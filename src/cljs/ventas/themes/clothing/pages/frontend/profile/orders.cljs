@@ -14,6 +14,6 @@
 
 (routes/define-route!
  :frontend.profile.orders
- {:name (i18n ::page)
+ {:name ::page
   :url ["orders"]
   :component page})

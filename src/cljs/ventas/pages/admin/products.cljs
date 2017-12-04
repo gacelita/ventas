@@ -62,6 +62,6 @@
 
 (routes/define-route!
  :admin.products
- {:name (i18n ::page)
+ {:name ::page
   :url "products"
   :component page})

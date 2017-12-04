@@ -12,6 +12,6 @@
 
 (routes/define-route!
  :admin.plugins
- {:name (i18n ::page)
+ {:name ::page
   :url "plugins"
   :component page})

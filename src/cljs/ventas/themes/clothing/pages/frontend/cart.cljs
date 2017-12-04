@@ -64,6 +64,6 @@
 
 (routes/define-route!
  :frontend.login
- {:name (i18n ::page)
+ {:name ::page
   :url ["login"]
   :component page})

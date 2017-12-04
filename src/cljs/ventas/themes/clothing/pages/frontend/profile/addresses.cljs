@@ -196,6 +196,6 @@
 
 (routes/define-route!
  :frontend.profile.addresses
- {:name (i18n ::page)
+ {:name ::page
   :url ["addresses"]
   :component page})

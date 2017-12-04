@@ -80,6 +80,6 @@
 
 (routes/define-route!
  :frontend.profile.account
- {:name (i18n ::page)
+ {:name ::page
   :url ["account"]
   :component page})

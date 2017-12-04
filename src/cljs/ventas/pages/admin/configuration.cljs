@@ -48,6 +48,6 @@
 
 (routes/define-route!
  :admin.configuration
- {:name (i18n ::page)
+ {:name ::page
   :url "configuration"
   :component page})
