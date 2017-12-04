@@ -10,13 +10,21 @@
    [ventas.paths :as paths]
    [ventas.utils :refer [find-files]]))
 
+(defn filename [entity]
+  {:pre [(:db/id entity)]}
+  (str (:db/id entity) "." (name (:file/extension entity))))
+
+(defn copy-file!
+  "Copies a file to the corresponding path of a :file entity"
+  [entity path]
+  (let [new-path (str paths/images "/" (filename entity))]
+    (io/make-parents new-path)
+    (io/copy path (io/file new-path))))
+
 (spec/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
 
 (spec/def :schema.type/file
   (spec/keys :req [:file/extension]))
-
-(defn filename [entity]
-  (str (:db/id entity) "." (name (:file/extension entity))))
 
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
@@ -40,10 +48,8 @@
 
   :after-seed
   (fn [this]
-    (let [file (rand-nth (find-files (str paths/seeds "/files") (re-pattern ".*?")))
-          path (str paths/images "/" (filename this))]
-      (io/make-parents path)
-      (io/copy file (io/file path))))
+    (let [file (rand-nth (find-files (str paths/seeds "/files") (re-pattern ".*?")))]
+      (copy-file! this file)))
 
   :autoresolve? true
 

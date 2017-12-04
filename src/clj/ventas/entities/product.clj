@@ -7,7 +7,10 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.utils.images :as utils.images]
+   [ventas.entities.file :as entities.file]
+   [clojure.java.io :as io]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -159,8 +162,11 @@
     (-> ((entity/default-attr :to-json) this params)
         (assoc :images (->> (entity/query :product.image {:product (:db/id this)})
                             (map entity/to-json)
-                            (map (fn [image]
-                                   ))))))})
+                            (map (fn [{:keys [file position]}]
+                                   (sort-by
+                                    :position
+                                    (assoc file :position position))))
+                            (into [])))))})
 
 
 (spec/def :product.image/position number?)
@@ -199,3 +205,18 @@
     [{:product.image/position 0
       :product.image/file (:db/id (first (entity/query :file)))
       :product.image/product [:product/keyword :test-product]}])})
+
+(defn add-image
+  "Meant for development"
+  [product-eid path]
+  (let [product (entity/find product-eid)
+        file {:file/extension (keyword "file.extension" (utils.images/extension path))
+              :schema/type :schema.type/file}
+        image {:schema/type :schema.type/product.image
+               :product.image/position 0
+               :product.image/file file
+               :product.image/product product-eid}
+        {:product.image/keys [file]} (entity/create* image)]
+    (entities.file/copy-file!
+     (entity/find file)
+     (io/file path))))
