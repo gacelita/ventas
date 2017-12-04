@@ -259,12 +259,12 @@
                            :else value))]))
          (into {}))))
 
-(defn- default-to-json [entity & [options]]
+(defn default-to-json [entity & [options]]
   (-> (autoresolve entity options)
       (dissoc :schema/type)
       (utils/dequalify-keywords)))
 
-(def default-type
+(def ^:private default-type
   {:attributes []
    :to-json default-to-json
    :filter-seed identity
@@ -276,6 +276,9 @@
    :after-seed (fn [_] true)
    :after-create (fn [_] true)
    :after-delete (fn [_] true)})
+
+(defn default-attr [attr-name]
+  (get default-type attr-name))
 
 (defn- get-enum-retractions [entity new-values]
   (let [relevant-attrs (filter #(contains? (set (keys new-values)) (:db/ident %))
