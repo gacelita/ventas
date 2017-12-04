@@ -7,7 +7,9 @@
    [accountant.core :as accountant]
    [ventas.page :as page]
    [reagent.session :as session]
-   [re-frame.core :as rf]))
+   [re-frame.core :as rf]
+   [ventas.i18n :refer [i18n]]
+   [ventas.utils.logging :as log]))
 
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
@@ -105,9 +107,11 @@
   [kw & [route-params]]
   {:pre [(or (nil? route-params) (map? route-params))]}
   (let [{:keys [name]} (find-route kw)]
-    (if (string? name)
-      name
-      (name route-params))))
+    (cond
+      (string? name) name
+      (keyword? name) (apply i18n name route-params)
+      (ifn? name) (name route-params)
+      :else (log/warn "A route returns a name that is not a string, keyword or function" kw name))))
 
 (rf/reg-fx
  :go-to
