@@ -163,9 +163,8 @@
         (assoc :images (->> (entity/query :product.image {:product (:db/id this)})
                             (map entity/to-json)
                             (map (fn [{:keys [file position]}]
-                                   (sort-by
-                                    :position
-                                    (assoc file :position position))))
+                                   (assoc file :position position)))
+                            (sort-by :position)
                             (into [])))))})
 
 
