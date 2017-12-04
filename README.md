@@ -74,7 +74,7 @@ Then, migrate and seed the database:
 (seed/seed :recreate? true)
 ```
 
-Now you can open `localhost:3450` to see the frontend! It's recommended that you enable the `verbose` logging level in the console, to see what's going on.
+Now you can open `localhost:3450` to see the frontend!
 
 The backoffice's URL is `localhost:3450/admin`, which currently requires no auth :)
 
