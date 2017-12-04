@@ -21,7 +21,9 @@
 
 (spec/def :product/keyword ::generators/keyword)
 
-(spec/def :product/condition #{:product.condition/new :product.condition/used :product.condition/refurbished})
+(spec/def :product/condition #{:product.condition/new
+                               :product.condition/used
+                               :product.condition/refurbished})
 
 (spec/def :product/price
   (spec/with-gen
@@ -38,10 +40,6 @@
   (spec/with-gen ::entity/ref
                  #(entity/ref-generator :tax)))
 
-(spec/def :product/images
-  (spec/with-gen ::entity/refs
-                 #(entity/refs-generator :file)))
-
 (spec/def :product/categories
   (spec/with-gen ::entity/refs
                  #(entity/refs-generator :category)))
@@ -50,26 +48,10 @@
   (spec/with-gen ::entity/refs
                  #(entity/refs-generator :product.term)))
 
-
-
-;; product:
-;;    ...
-;; product.variation:
-;;    product-variation.price: some specific price
-;;    product-variation.name: some specific name
-;;    product-variation.product: ref to product
-;;    product-variation.terms: list of refs to terms
-;; product.taxonomy:
-;;    taxonomy.name: "Color"
-;; product.term:
-;;    term.name: "Blue"
-;;    term.taxonomy: ref to attribute
-
 (spec/def ::product-for-generation
   (spec/keys :req [:product/name
                    :product/active
                    :product/price
-                   :product/images
                    :product/keyword]
              :opt [:product/reference
                    :product/ean13
@@ -92,7 +74,6 @@
                     :product/condition
                     :product/brand
                     :product/tax
-                    :product/images
                     :product/categories
                     :product/terms])
    #(spec/gen ::product-for-generation)))
@@ -131,10 +112,6 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product/images
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
-
    {:db/ident :product/tax
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
@@ -167,7 +144,6 @@
     [{:product/name (entities.i18n/get-i18n-entity {:en_US "Test product"})
       :product/active true
       :product/price 15.4M
-      :product/images (take 4 (map :db/id (entity/query :file)))
       :product/reference "REF001"
       :product/ean13 "7501031311309"
       :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
@@ -176,4 +152,50 @@
       :product/tax [:tax/keyword :test-tax]
       :product/categories [[:category/keyword :test-category]]
       :product/terms [[:product.term/keyword :green-color]]
-      :product/keyword :test-product}])})
+      :product/keyword :test-product}])
+
+  :to-json
+  (fn [this params]
+    (-> ((entity/default-attr :to-json) this params)
+        (assoc :images (->> (entity/query :product.image {:product (:db/id this)})
+                            (map entity/to-json)
+                            (map (fn [image]
+                                   ))))))})
+
+
+(spec/def :product.image/position number?)
+
+(spec/def :product.image/file
+  (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
+
+(spec/def :product.image/product
+  (spec/with-gen ::entity/ref #(entity/ref-generator :product)))
+
+(spec/def :schema.type/product.image
+  (spec/keys :req [:product.image/position
+                   :product.image/file
+                   :product.image/product]))
+
+(entity/register-type!
+ :product.image
+ {:attributes
+  [{:db/ident :product.image/position
+    :db/valueType :db.type/long
+    :db/cardinality :db.cardinality/one}
+   {:db/ident :product.image/file
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+   {:db/ident :product.image/product
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}]
+
+  :dependencies
+  #{:file :product}
+
+  :seed-number 0
+
+  :fixtures
+  (fn []
+    [{:product.image/position 0
+      :product.image/file (:db/id (first (entity/query :file)))
+      :product.image/product [:product/keyword :test-product]}])})

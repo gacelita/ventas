@@ -76,4 +76,4 @@
   (fn [this _]
     (-> this
         (assoc :category/image (get-image this))
-        ((:to-json entity/default-type))))})
+        ((entity/default-attr :to-json))))})

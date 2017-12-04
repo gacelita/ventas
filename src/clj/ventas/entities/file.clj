@@ -52,4 +52,4 @@
     (let [path (str paths/images "/" (filename this))]
       (-> this
           (assoc :url (paths/path->url path))
-          ((:to-json entity/default-type)))))})
+          ((entity/default-attr :to-json)))))})
