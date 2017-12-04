@@ -28,14 +28,16 @@
     (-> (:category/image entity)
         (entity/find)
         (entity/to-json))
-    (-> (db/nice-query {:find ['?id]
-                        :in {'?category (:db/id entity)}
-                        :where '[[_ :product/categories ?category]
-                                 [_ :product/images ?id]]})
-        (first)
-        (:id)
-        (entity/find)
-        (entity/to-json))))
+    (when-let [image-eid
+               (-> (db/nice-query {:find ['?id]
+                              :in {'?category (:db/id entity)}
+                              :where '[[_ :product/categories ?category]
+                                       [_ :product/images ?id]]})
+                   (first)
+                   (:id))]
+      (-> image-eid
+          (entity/find)
+          (entity/to-json)))))
 
 (entity/register-type!
  :category
