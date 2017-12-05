@@ -6,9 +6,15 @@
 
 .product-page__images {
     position: relative;
+    display: flex;
+    flex-direction: column;
     img {
         width: 200px;
     }
+}
+
+.product-page__image {
+    margin: 3px 0px;
 }
 
 .product-page__info {

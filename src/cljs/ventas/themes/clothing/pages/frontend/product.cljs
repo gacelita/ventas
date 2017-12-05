@@ -23,8 +23,8 @@
 (defn- images-view [{:keys [product]}]
   [:div.product-page__images
    (for [image (:images product)]
-     [:img {:key (:id image)
-            :src (:url image)}])])
+     [:img.product-page__image {:key (:id image)
+                                :src (str (:url image))}])])
 
 (defn- main-image-view [{:keys [product]}]
   )

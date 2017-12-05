@@ -8,9 +8,12 @@
    [ventas.database.schema :as schema]))
 
 (spec/def ::version string?)
+
 (spec/def ::name string?)
+
 (spec/def ::plugin-attrs
-  (spec/keys :req-un [::version ::name]))
+  (spec/keys :req-un [::version
+                      ::name]))
 
 (defonce plugins (atom {}))
 
