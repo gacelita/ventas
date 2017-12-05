@@ -18,6 +18,9 @@
   {:pre [(ifn? pred) (coll? coll)]}
   (some #(when (pred %) %) coll))
 
+(defn find-index [pred coll]
+  (first (keep-indexed #(when (pred %2) %1) coll)))
+
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))
 
