@@ -10,40 +10,59 @@
    [ventas.utils :as utils]
    [taoensso.timbre :as timbre :refer (trace debug info warn error)]))
 
-(defonce migrations
- (let [initial-schema
-       [{:db/ident :schema/deprecated
-         :db/valueType :db.type/boolean
-         :db/cardinality :db.cardinality/one}
+(defn- initial-migrations []
+  (let [initial-schema
+        [{:db/ident :schema/deprecated
+          :db/valueType :db.type/boolean
+          :db/cardinality :db.cardinality/one}
 
-        {:db/ident :schema/see-instead
-         :db/valueType :db.type/keyword
-         :db/cardinality :db.cardinality/one}
+         {:db/ident :schema/see-instead
+          :db/valueType :db.type/keyword
+          :db/cardinality :db.cardinality/one}
 
-        {:db/ident :schema/type
-         :db/valueType :db.type/ref
-         :db/cardinality :db.cardinality/one}
+         {:db/ident :schema/type
+          :db/valueType :db.type/ref
+          :db/cardinality :db.cardinality/one}
 
-        {:db/ident :ventas/pluginId
-         :db/valueType :db.type/keyword
-         :db/cardinality :db.cardinality/one}
+         {:db/ident :ventas/pluginId
+          :db/valueType :db.type/keyword
+          :db/cardinality :db.cardinality/one}
 
-        {:db/ident :ventas/pluginVersion
-         :db/valueType :db.type/string
-         :db/cardinality :db.cardinality/one}]]
-   (atom [{(keyword (str "hash-" (hash initial-schema))) initial-schema}])))
+         {:db/ident :ventas/pluginVersion
+          :db/valueType :db.type/string
+          :db/cardinality :db.cardinality/one}]]
+    [{(keyword (str "hash-" (hash initial-schema))) initial-schema}]))
+
+(defonce ^:private migrations
+ (atom (initial-migrations)))
+
+(defn reset-migrations! []
+  (reset! migrations (initial-migrations)))
 
 (defn get-migration [kw]
-  (utils/find-first
-   (fn [v] (contains? (set (keys v)) kw))
-   @migrations))
+  (utils/find-first #(= (set (keys %)) #{kw})
+                    @migrations))
+
+(defn- migration-index [kw]
+  (utils/find-index #(= (set (keys %)) #{kw})
+                    @migrations))
 
 (defn register-migration!
-  [entities]
-  {:pre [(coll? entities)]}
-  (let [key (keyword (str "hash-" (hash entities)))]
-    (when-not (get-migration key)
-      (swap! migrations conj {key entities}))))
+  "Takes a list of attributes and an optional migration key.
+   Migrations can be replaced if the same migration key is used, but
+   note that migrations will only run once during the lifetime of a database
+   (hence you'd need to use (seed/seed :recreate? true) or an equivalent).
+   This is why doing so generates a warning."
+  [attributes & [key]]
+  {:pre [(coll? attributes)]}
+  (let [key (or key (keyword (str "hash-" (hash attributes))))
+        pair {key attributes}]
+    (if-let [migration (get-migration key)]
+      (do
+        (when (not= migration pair)
+          (warn "Replacing migration with key" key))
+        (swap! migrations assoc (migration-index key) pair))
+      (swap! migrations conj pair))))
 
 (defn get-migrations []
   @migrations)
@@ -61,24 +80,3 @@
       (doseq [[k v] migration]
         (info "Migration " k)
         (db/ensure-conforms k v)))))
-
-(register-migration!
- [{:db/ident :schema/deprecated
-   :db/valueType :db.type/boolean
-   :db/cardinality :db.cardinality/one}
-
-  {:db/ident :schema/see-instead
-   :db/valueType :db.type/keyword
-   :db/cardinality :db.cardinality/one}
-
-  {:db/ident :schema/type
-   :db/valueType :db.type/ref
-   :db/cardinality :db.cardinality/one}
-
-  {:db/ident :ventas/pluginId
-   :db/valueType :db.type/keyword
-   :db/cardinality :db.cardinality/one}
-
-  {:db/ident :ventas/pluginVersion
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one}])
