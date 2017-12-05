@@ -126,10 +126,13 @@
       (utils/check spec entity))))
 
 (defn find
-  "Finds an entity by eid or lookup ref"
+  "Finds an entity by eid or lookup ref
+   Returns nil if no entity was found"
   [eid]
   {:pre [(or (db/lookup-ref? eid) (number? eid))]}
-  (db/touch-eid eid))
+  (let [result (db/touch-eid eid)]
+    (when (is-entity? result)
+      result)))
 
 (defn transaction->entity
   "Returns an entity from a transaction"
