@@ -39,7 +39,6 @@
     :schema.type/category
     :schema.type/product
     :schema.type/product.variation
-    :schema.type/resource
     :schema.type/user})
 
 (spec/def :image-size/entities

@@ -23,7 +23,6 @@
    [ventas.paths :as paths]
    [ventas.server.ws :as server.ws]
    [ventas.logging]
-   [clojure.pprint :as pprint]
    [ventas.entities.image-size :as entities.image-size])
   (:gen-class)
   (:import [clojure.lang Keyword]))
@@ -42,19 +41,24 @@
     (ring.response/content-type response mime-type)
     response))
 
-(defn- handle-file [path]
-  (let [resource-path (paths/path->resource (str paths/public path))]
+(defn- file-path-by-eid [eid]
+  (when-let [file (entity/find eid)]
+    (entities.file/filepath file)))
+
+(defn- file-path-by-keyword [kw]
+  (when-let [file (entity/find [:file/keyword kw])]
+    (entities.file/filepath file)))
+
+(defn- handle-file [search]
+  (println "Handling file" search)
+  (let [path (cond
+               (utils/->number search) (file-path-by-eid (utils/->number search))
+               (not (str/includes? search "/")) (file-path-by-keyword (keyword search))
+               :else (str paths/public search))
+        resource-path (paths/path->resource path)]
     (if-let [resource-response (ring.response/resource-response resource-path)]
       (add-mime-type resource-response path)
       (compojure.route/not-found ""))))
-
-(defn- handle-resource [resource-kw]
-  (if-let [resource (first (entity/query :resource {:keyword (keyword resource-kw)}))]
-    (let [filename (entities.file/filename (entity/find (:resource/file resource)))
-          resource-path (paths/path->resource (str paths/images "/" filename))]
-      (-> (ring.response/resource-response resource-path)
-          (add-mime-type filename)))
-    (compojure.route/not-found "")))
 
 (defn- handle-spa []
   {:status 200
@@ -68,16 +72,17 @@
    (partial server.ws/handle-messages format)
    {:format format}))
 
-(defn- handle-image-by-size [eid size-kw]
-  (let [image (entity/find eid)
-        size (entity/find [:image-size/keyword size-kw])]
-    (if (entity/is-entity? image)
-      (let [path (entities.image-size/transform image size)]
-        (-> path
-            (paths/path->resource)
-            (ring.response/resource-response)
-            (add-mime-type path)))
-      (compojure.route/not-found ""))))
+(defn- handle-image [eid & {:keys [size]}]
+  (if-let [image (entity/find eid)]
+    (let [path (if size
+                 (let [size (entity/find [:image-size/keyword size])]
+                   (entities.image-size/transform image size))
+                 (entities.file/filepath image))]
+      (-> path
+          (paths/path->resource)
+          (ring.response/resource-response)
+          (add-mime-type path)))
+    (compojure.route/not-found "")))
 
 ;; All routes
 (defroutes routes
@@ -87,10 +92,10 @@
     (handle-websocket :fressian))
   (GET "/files/*" {{path :*} :route-params}
     (handle-file path))
-  (GET "/resources/:resource-kw" [resource-kw]
-    (handle-resource resource-kw))
-  (GET "/images/by-size/:image/:size" [image size]
-    (handle-image-by-size (Long. image) (keyword size)))
+  (GET "/images/:image" [image]
+   (handle-image (utils/->number image)))
+  (GET "/images/:image/resize/:size" [image size]
+    (handle-image (utils/->number image) :size (keyword size)))
   (GET "/*" _
     (handle-spa)))
 

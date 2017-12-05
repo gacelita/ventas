@@ -8,7 +8,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.paths :as paths]
-   [ventas.utils :refer [find-files]]))
+   [ventas.utils :refer [find-files]]
+   [ventas.database.generators :as generators]))
 
 (defn filename [entity]
   {:pre [(:db/id entity)]}
@@ -27,8 +28,11 @@
 (spec/def :file/extension
   (spec/with-gen string? #(spec/gen #{"jpg" "gif" "png"})))
 
+(spec/def :file/keyword ::generators/keyword)
+
 (spec/def :schema.type/file
-  (spec/keys :req [:file/extension]))
+  (spec/keys :req [:file/extension]
+             :opt [:file/keyword]))
 
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
@@ -38,7 +42,11 @@
  {:attributes
   [{:db/ident :file/extension
     :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}]
+    :db/cardinality :db.cardinality/one}
+   {:db/ident :file/keyword
+    :db/valueType :db.type/keyword
+    :db/cardinality :db.cardinality/one
+    :db/unique :db.unique/identity}]
 
   :filter-seed
   (fn [this]
@@ -51,6 +59,10 @@
       (copy-file! this file)))
 
   :autoresolve? true
+
+  :fixtures
+  (fn []
+    [{:file/keyword :logo}])
 
   :to-json
   (fn [this _]

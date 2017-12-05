@@ -72,10 +72,6 @@
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :reference} options)}))
 
-(rf/reg-event-fx
- ::resources.get
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :resources.get} options)}))
 
 (rf/reg-event-fx
  ::taxes.list

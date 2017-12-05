@@ -91,3 +91,9 @@
   "Return true if x is a BigDecimal.
    This function was already in 1.9 alphas but it was removed :("
   [x] (instance? java.math.BigDecimal x))
+
+(defn ->number [v]
+  (try
+    (Long. v)
+    (catch Exception e
+      nil)))

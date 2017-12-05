@@ -59,15 +59,6 @@
                                      options)]))}]}))
 
 (rf/reg-event-fx
- ::resources.get
- (fn [cofx [_ key]]
-   {:dispatch [::backend/resources.get
-               {:params {:keyword key}
-                :success
-                (fn [data]
-                  (rf/dispatch [::db [:resources key] data]))}]}))
-
-(rf/reg-event-fx
  ::entities.sync
  (fn [cofx [_ eid]]
    {:dispatch [::backend/entities.find eid

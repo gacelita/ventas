@@ -7,12 +7,7 @@
 .product-page__images {
     position: relative;
     img {
-        top: 0;
-        left: 0;
-        position: absolute;
-        &:first-child {
-            position: static;
-        }
+        width: 200px;
     }
 }
 

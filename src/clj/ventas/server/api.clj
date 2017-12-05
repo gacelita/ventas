@@ -147,19 +147,6 @@
           (entity/find)
           (entity/to-json)))))
 
-
-
-(register-endpoint!
-  :resources.get
-  (fn [{:keys [params]} state]
-    {:pre [(keyword? (:keyword params))]}
-    (let [kw (:keyword params)]
-      (if-let [resource (first (entity/query :resource {:keyword kw}))]
-        (entity/to-json resource)
-        (throw (Error. (str "Could not find resource with keyword: " kw)))))))
-
-
-
 (register-endpoint!
   :configuration.get
   (fn [{:keys [params]} state]

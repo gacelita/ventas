@@ -16,7 +16,9 @@
 
 (defn- get-product-ref []
   (let [{:keys [id]} (routes/params)]
-    (js/parseInt id 10)))
+    (if (pos? (js/parseInt id 10))
+      (js/parseInt id 10)
+      (keyword id))))
 
 (defn- images-view [{:keys [product]}]
   [:div.product-page__images
