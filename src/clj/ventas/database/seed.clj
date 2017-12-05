@@ -9,16 +9,19 @@
    [clojure.set :as set]
    [ventas.plugin :as plugin]))
 
+(defn- seed-attrs [attrs]
+  (let [attrs (entity/filter-seed attrs)
+        _ (entity/before-seed attrs)
+        entity (entity/create* attrs)]
+    (entity/after-seed entity)))
+
 (defn seed-type
   "Seeds the database with n entities of a type"
   [type n]
   (doseq [fixture (entity/fixtures type)]
-    (entity/create* fixture))
+    (seed-attrs fixture))
   (doseq [attributes (entity/generate (db/kw->type type) n)]
-    (let [seed-entity (entity/filter-seed attributes)
-          _ (entity/before-seed seed-entity)
-          entity (entity/create* seed-entity)]
-      (entity/after-seed entity))))
+    (seed-attrs attributes)))
 
 (defn seed-type-with-deps
   [type n]
