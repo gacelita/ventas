@@ -12,16 +12,17 @@
 
 (defn filename [entity]
   {:pre [(:db/id entity)]}
-  (str (:db/id entity) "." (name (:file/extension entity))))
+  (str (:db/id entity) "." (:file/extension entity)))
+
+(defn filepath [entity]
+  (str paths/images "/" (filename entity)))
 
 (defn copy-file!
   "Copies a file to the corresponding path of a :file entity"
   [entity path]
-  (let [new-path (str paths/images "/" (filename entity))]
+  (let [new-path (filepath entity)]
     (io/make-parents new-path)
     (io/copy path (io/file new-path))))
-
-(spec/def :file/extension #{:file.extension/jpg :file.extension/gif :file.extension/png :file.extension/tiff})
 
 (spec/def :schema.type/file
   (spec/keys :req [:file/extension]))
@@ -33,18 +34,13 @@
  :file
  {:attributes
   [{:db/ident :file/extension
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident :file.extension/png}
-   {:db/ident :file.extension/jpg}
-   {:db/ident :file.extension/gif}
-   {:db/ident :file.extension/tiff}]
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}]
 
   :filter-seed
   (fn [this]
     (-> this
-        (assoc :file/extension :file.extension/jpg)))
+        (assoc :file/extension "jpg")))
 
   :after-seed
   (fn [this]
@@ -55,7 +51,7 @@
 
   :to-json
   (fn [this _]
-    (let [path (str paths/images "/" (filename this))]
+    (let [path (filepath this)]
       (-> this
           (assoc :url (paths/path->url path))
           ((entity/default-attr :to-json)))))})

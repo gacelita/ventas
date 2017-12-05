@@ -8,7 +8,7 @@
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :as utils]
-   [ventas.utils.images :as utils.images]
+   [ventas.utils.files :as utils.files]
    [ventas.entities.file :as entities.file]
    [clojure.java.io :as io]))
 
@@ -209,7 +209,7 @@
   "Meant for development"
   [product-eid path]
   (let [product (entity/find product-eid)
-        file {:file/extension (keyword "file.extension" (utils.images/extension path))
+        file {:file/extension (keyword "file.extension" (utils.files/extension path))
               :schema/type :schema.type/file}
         image {:schema/type :schema.type/product.image
                :product.image/position 0

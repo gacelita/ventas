@@ -293,27 +293,18 @@
     (let [datoms (db/datoms :eavt)]
       {:datoms (map db/datom->map (take 10 datoms))})))
 
-
-
-(defn mime->keyword [mime]
-  (case mime
-    "image/jpeg" :file.extension/jpg
-    "image/png" :file.extension/png
-    "image/gif" :file.extension/gif
-    "image/tiff" :file.extension/tiff
-    false))
-
 (defn save-image [source-path]
   (let [mime (mime/mime-type-of (clojure.java.io/file source-path))
-        entity (entity/create :file {:extension (mime->keyword mime)})
-        target-path (str paths/images "/" (:db/id entity) (mime/extension-for-name mime))]
+        extension (subs (mime/extension-for-name mime) 1)
+        entity (entity/create :file {:extension extension})
+        target-path (str paths/images "/" (:db/id entity) "." extension)]
     (.renameTo
      (clojure.java.io/file source-path)
      (clojure.java.io/file target-path))
     (utils.images/transform-image
      target-path
      paths/transformed-images
-     {:width 150})
+     {:resize {:width 150}})
     entity))
 
 (register-endpoint!

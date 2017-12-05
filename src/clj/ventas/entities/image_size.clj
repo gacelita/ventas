@@ -4,7 +4,13 @@
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]
+   [ventas.utils.images :as utils.images]
+   [ventas.entities.file :as entities.file]
+   [ventas.paths :as paths]))
+
+(spec/def :image-size/keyword ::generators/keyword)
 
 (spec/def :image-size/width
   (spec/with-gen number?
@@ -38,7 +44,8 @@
                 :kind set?))
 
 (spec/def :schema.type/image-size
-  (spec/keys :req [:image-size/width
+  (spec/keys :req [:image-size/keyword
+                   :image-size/width
                    :image-size/height
                    :image-size/algorithm
                    :image-size/quality
@@ -47,7 +54,12 @@
 (entity/register-type!
  :image-size
  {:attributes
-  [{:db/ident :image-size/width
+  [{:db/ident :image-size/keyword
+    :db/valueType :db.type/keyword
+    :db/unique :db.unique/identity
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :image-size/width
     :db/valueType :db.type/long
     :db/cardinality :db.cardinality/one}
 
@@ -70,3 +82,20 @@
    {:db/ident :image-size/entities
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many}]})
+
+(defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]
+  (let [algorithm (name algorithm)]
+    (cond-> {:quality quality
+             :progressive true
+             :resize {:width width
+                      :height height}}
+            (= "resize-only-if-over-maximum" algorithm)
+              (assoc-in [:resize :allow-smaller?] true)
+            (= "crop-and-resize" algorithm)
+              (assoc :crop :square))))
+
+(defn transform [file-entity size-entity]
+  (utils.images/transform-image
+   (entities.file/filepath file-entity)
+   paths/transformed-images
+   (size-entity->configuration size-entity)))
