@@ -209,7 +209,7 @@
   "Meant for development"
   [product-eid path]
   (let [product (entity/find product-eid)
-        file {:file/extension (keyword "file.extension" (utils.files/extension path))
+        file {:file/extension (utils.files/extension path)
               :schema/type :schema.type/file}
         image {:schema/type :schema.type/product.image
                :product.image/position 0

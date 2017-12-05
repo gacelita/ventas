@@ -30,9 +30,10 @@
         (entity/to-json))
     (when-let [image-eid
                (-> (db/nice-query {:find ['?id]
-                              :in {'?category (:db/id entity)}
-                              :where '[[_ :product/categories ?category]
-                                       [_ :product/images ?id]]})
+                                   :in {'?category (:db/id entity)}
+                                   :where '[[?product :product/categories ?category]
+                                            [?image :product.image/product ?product]
+                                            [?image :product.image/file ?id]]})
                    (first)
                    (:id))]
       (-> image-eid
