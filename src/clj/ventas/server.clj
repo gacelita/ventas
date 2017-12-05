@@ -23,7 +23,8 @@
    [ventas.paths :as paths]
    [ventas.server.ws :as server.ws]
    [ventas.logging]
-   [clojure.pprint :as pprint])
+   [clojure.pprint :as pprint]
+   [ventas.entities.image-size :as entities.image-size])
   (:gen-class)
   (:import [clojure.lang Keyword]))
 
@@ -37,7 +38,7 @@
     handler))
 
 (defn- add-mime-type [response path]
-  (if-let [mime-type (ring.mime-type/ext-mime-type path (:mime-types {}))]
+  (if-let [mime-type (ring.mime-type/ext-mime-type path)]
     (ring.response/content-type response mime-type)
     response))
 
@@ -45,7 +46,7 @@
   (let [resource-path (paths/path->resource (str paths/public path))]
     (if-let [resource-response (ring.response/resource-response resource-path)]
       (add-mime-type resource-response path)
-      (compojure.route/not-found nil))))
+      (compojure.route/not-found ""))))
 
 (defn- handle-resource [resource-kw]
   (if-let [resource (first (entity/query :resource {:keyword (keyword resource-kw)}))]
@@ -53,7 +54,7 @@
           resource-path (paths/path->resource (str paths/images "/" filename))]
       (-> (ring.response/resource-response resource-path)
           (add-mime-type filename)))
-    (compojure.route/not-found nil)))
+    (compojure.route/not-found "")))
 
 (defn- handle-spa []
   {:status 200
@@ -67,6 +68,17 @@
    (partial server.ws/handle-messages format)
    {:format format}))
 
+(defn- handle-image-by-size [eid size-kw]
+  (let [image (entity/find eid)
+        size (entity/find [:image-size/keyword size-kw])]
+    (if (entity/is-entity? image)
+      (let [path (entities.image-size/transform image size)]
+        (-> path
+            (paths/path->resource)
+            (ring.response/resource-response)
+            (add-mime-type path)))
+      (compojure.route/not-found ""))))
+
 ;; All routes
 (defroutes routes
   (GET "/ws/json-kw" []
@@ -75,8 +87,10 @@
     (handle-websocket :fressian))
   (GET "/files/*" {{path :*} :route-params}
     (handle-file path))
-  (GET "/resources/*" {{resource-kw :*} :route-params}
+  (GET "/resources/:resource-kw" [resource-kw]
     (handle-resource resource-kw))
+  (GET "/images/by-size/:image/:size" [image size]
+    (handle-image-by-size (Long. image) (keyword size)))
   (GET "/*" _
     (handle-spa)))
 

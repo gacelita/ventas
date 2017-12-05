@@ -15,7 +15,7 @@
   :fixtures
   (fn []
     (->> (db/nice-query {:find ['?id]
-                         :where [['?id :product/images '_]]})
+                         :where '[[_ :product.image/product ?id]]})
          (map (comp entity/find :id))
          (map #(assoc % :product/featured true))
          (map #(dissoc % :db/id))))})

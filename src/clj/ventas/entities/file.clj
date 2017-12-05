@@ -24,6 +24,9 @@
     (io/make-parents new-path)
     (io/copy path (io/file new-path))))
 
+(spec/def :file/extension
+  (spec/with-gen string? #(spec/gen #{"jpg" "gif" "png"})))
+
 (spec/def :schema.type/file
   (spec/keys :req [:file/extension]))
 

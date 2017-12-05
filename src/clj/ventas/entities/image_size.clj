@@ -19,11 +19,12 @@
   (spec/with-gen number?
                  #(gen/choose 100 400)))
 
-(spec/def
-  :image-size/algorithm
+(def algorithms
   #{:image-size.algorithm/resize-only-if-over-maximum
     :image-size.algorithm/always-resize
     :image-size.algorithm/crop-and-resize})
+
+(spec/def :image-size/algorithm algorithms)
 
 (spec/def :image-size/quality
   (spec/with-gen number?
@@ -33,15 +34,16 @@
                     :min 0.0
                     :max 1.0})))
 
-(spec/def
-  :image-size/entities
-  (spec/coll-of #{:schema.type/brand
-                  :schema.type/category
-                  :schema.type/product
-                  :schema.type/product.variation
-                  :schema.type/resource
-                  :schema.type/user}
-                :kind set?))
+(def entities
+  #{:schema.type/brand
+    :schema.type/category
+    :schema.type/product
+    :schema.type/product.variation
+    :schema.type/resource
+    :schema.type/user})
+
+(spec/def :image-size/entities
+  (spec/coll-of entities :kind set?))
 
 (spec/def :schema.type/image-size
   (spec/keys :req [:image-size/keyword
@@ -81,7 +83,16 @@
 
    {:db/ident :image-size/entities
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]})
+    :db/cardinality :db.cardinality/many}]
+
+  :fixtures
+  (fn []
+    [{:image-size/keyword :test-image-size
+      :image-size/width 50
+      :image-size/height 50
+      :image-size/algorithm :image-size.algorithm/crop-and-resize
+      :image-size/quality 1.0
+      :image-size/entities entities}])})
 
 (defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]
   (let [algorithm (name algorithm)]
@@ -94,7 +105,13 @@
             (= "crop-and-resize" algorithm)
               (assoc :crop :square))))
 
-(defn transform [file-entity size-entity]
+(defn transform
+  "Transforms a :file entity representing an image, using the configuration
+   given by an :image-size entity. Saves the resulting image into the corresponding
+   path, and returns given path (just returns the path if nothing has to be done)"
+  [file-entity size-entity]
+  {:pre [(= (entity/type file-entity) :file)
+         (= (entity/type size-entity) :image-size)]}
   (utils.images/transform-image
    (entities.file/filepath file-entity)
    paths/transformed-images
