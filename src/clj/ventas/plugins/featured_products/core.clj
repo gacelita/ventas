@@ -30,5 +30,6 @@
 
 (api/register-endpoint!
   ::featured-products.list
-  (fn [{:keys [params] :as message} state]
-    (map entity/to-json (entity/query :product {:featured true}))))
+  (fn [{:keys [params] :as message} {:keys [session]}]
+    (->> (entity/query :product {:featured true})
+         (map #(entity/to-json % {:culture (api/get-culture session)})))))

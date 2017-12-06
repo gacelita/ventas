@@ -45,15 +45,3 @@
   (do
     (info "Stopping SASS")
     (sh/destroy sass)))
-
-
-(defn detect-circular-dependencies! []
-  (let [project-graph (atom (namespace.dependency/graph))]
-    (->>
-     (namespace.find/find-ns-decls-in-dir (io/file "src") namespace.find/cljs)
-     (map (fn [decl]
-            (let [name (namespace.parse/name-from-ns-decl decl)]
-              (doseq [dep (namespace.parse/deps-from-ns-decl decl)]
-                (swap! project-graph namespace.dependency/depend name dep)))))
-     doall)
-    true))

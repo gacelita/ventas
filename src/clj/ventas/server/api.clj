@@ -33,7 +33,7 @@
        (defmethod server.ws/handle-binary-request kw [request state]
          (f request state))))))
 
-(defn- get-culture [session]
+(defn get-culture [session]
   (let [user (:user @session)]
     (or (:user/culture user)
         (entity/find [:i18n.culture/keyword :en_US]))))
