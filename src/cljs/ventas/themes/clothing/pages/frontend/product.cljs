@@ -23,17 +23,21 @@
 
 
 
-(defn- images-view [{:keys [product]}]
+(defn- images-view []
   (let [state-path [state-key :slider]]
     [:div.product-page__images
      [:div.product-page__up
       [base/icon {:name "chevron up"
                   :on-click #(rf/dispatch [::components.slider/previous state-path])}]]
      [:div.product-page__images-main
+      ^{:key @(rf/subscribe [::events/db (conj state-path :render-index)])}
       [:div.product-page__images-inner {:style {:top @(rf/subscribe [::components.slider/offset state-path])}}
-       (for [image (:images product)]
-         [:img.product-page__image {:key (:id image)
-                                    :src (str "/images/" (:id image) "/resize/product-page-vertical-carousel")}])]]
+       (map-indexed
+        (fn [idx image]
+          [:img.product-page__image
+           {:key idx
+            :src (str "/images/" (:id image) "/resize/product-page-vertical-carousel")}])
+        @(rf/subscribe [::components.slider/slides state-path]))]]
      [:div.product-page__down
       [base/icon {:name "chevron down"
                   :on-click #(rf/dispatch [::components.slider/next state-path])}]]]))
@@ -84,10 +88,13 @@
        (assoc-in [state-key :product] product)
        (assoc-in [state-key :slider]
                  {:slides (map (fn [image]
-                                 {:width (+ 120 6)
-                                  :height (+ 190 6)})
+                                 (merge image
+                                        {:width (+ 120 -6)
+                                         :height (+ 190 -6)}))
                                (:images product))
-                  :orientation :vertical}))))
+                  :orientation :vertical
+                  :render-index 0
+                  :current-index 1}))))
 
 (defn content []
   (let [product-ref (get-product-ref)]
@@ -99,7 +106,7 @@
         [base/container
          [:div.product-page
           [:div.product-page__top
-           [images-view state]
+           [images-view]
            [main-image-view state]
            [info-view state]]
           [description-view state]]]))))
