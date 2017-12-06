@@ -10,6 +10,7 @@
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
    [ventas.entities.file :as entities.file]
+   [ventas.common.utils :as common.utils]
    [clojure.java.io :as io]))
 
 (spec/def :product/name ::entities.i18n/ref)
@@ -29,11 +30,8 @@
                                :product.condition/refurbished})
 
 (spec/def :product/price
-  (spec/with-gen
-   (spec/and utils/bigdec? pos?)
-   (fn []
-     (gen/fmap #(-> % (str) (BigDecimal.))
-               (gen/double* {:NaN? false :min 0 :max 999})))))
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :product.price)))
 
 (spec/def :product/brand
   (spec/with-gen ::entity/ref
@@ -85,9 +83,9 @@
  :product
  {:attributes
   [{:db/ident :product/price
-    :db/valueType :db.type/bigdec
+    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/index true}
+    :db/isComponent true}
 
    {:db/ident :product/name
     :db/valueType :db.type/ref
@@ -140,13 +138,15 @@
     :db/cardinality :db.cardinality/many}]
 
   :dependencies
-  #{:brand :tax :file :category :product.term}
+  #{:brand :tax :file :category :product.term :product.price :currency}
 
   :fixtures
   (fn []
     [{:product/name (entities.i18n/get-i18n-entity {:en_US "Test product"})
       :product/active true
-      :product/price 15.4M
+      :product/price {:schema/type :schema.type/product.price
+                      :product.price/amount 15.4M
+                      :product.price/currency [:currency/keyword :eur]}
       :product/reference "REF001"
       :product/ean13 "7501031311309"
       :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
@@ -160,6 +160,14 @@
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
+        (update :terms (fn [terms]
+                         (->> terms
+                              (group-by :taxonomy)
+                              (common.utils/map-vals
+                               (fn [term]
+                                 (->> term (map #(dissoc % :taxonomy)))))
+                              (map (fn [[taxonomy terms]]
+                                     {:taxonomy taxonomy :terms terms})))))
         (assoc :images (->> (entity/query :product.image {:product (:db/id this)})
                             (map entity/to-json)
                             (map (fn [{:keys [file position]}]
@@ -204,6 +212,33 @@
     [{:product.image/position 0
       :product.image/file (:db/id (first (entity/query :file)))
       :product.image/product [:product/keyword :test-product]}])})
+
+
+(spec/def :product.price/amount ::generators/bigdec)
+
+(spec/def :product.price/currency
+  (spec/with-gen ::entity/ref #(entity/ref-generator :currency)))
+
+(spec/def :schema.type/product.price
+  (spec/keys :req [:product.price/currency
+                   :product.price/amount]))
+
+(entity/register-type!
+ :product.price
+ {:attributes
+  [{:db/ident :product.price/amount
+    :db/valueType :db.type/bigdec
+    :db/cardinality :db.cardinality/one
+    :db/index true}
+   {:db/ident :product.price/currency
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}]
+
+  :dependencies
+  #{:currency}
+
+  :seed-number 0
+  :autoresolve? true})
 
 (defn add-image
   "Meant for development"

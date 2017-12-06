@@ -66,8 +66,7 @@
 (defn seed
   "Seeds the database with sample data"
   [& {:keys [recreate?]}]
-  (when recreate?
-    (schema/migrate :recreate? recreate?))
+  (schema/migrate :recreate? recreate?)
   (info "Migrations done!")
 
   (doseq [type (get-sorted-types)]

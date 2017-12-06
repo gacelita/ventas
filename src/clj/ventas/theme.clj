@@ -1,7 +1,8 @@
 (ns ventas.theme
   (:require
    [ventas.utils :as utils]
-   [clojure.spec.alpha :as spec]))
+   [clojure.spec.alpha :as spec]
+   [ventas.database.schema :as schema]))
 
 (spec/def ::version string?)
 
@@ -35,3 +36,10 @@
   (check! kw)
   (when-let [fixtures-fn (:fixtures (theme kw))]
     (fixtures-fn)))
+
+(defn register-migration!
+  "Registers database attributes for this theme."
+  [theme-kw attrs]
+  {:pre [(check! theme-kw) (coll? attrs)]}
+  (schema/register-migration! attrs))
+

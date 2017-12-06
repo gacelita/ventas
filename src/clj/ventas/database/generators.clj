@@ -3,7 +3,8 @@
   (:require
    [clojure.test.check.generators :as gen]
    [clojure.string :as str]
-   [clojure.spec.alpha :as spec]))
+   [clojure.spec.alpha :as spec]
+   [ventas.utils :as utils]))
 
 (defn string-generator []
   (gen/fmap str/join
@@ -18,3 +19,10 @@
 
 (spec/def ::keyword
   (spec/with-gen keyword? keyword-generator))
+
+(spec/def ::bigdec
+  (spec/with-gen
+   (spec/and utils/bigdec? pos?)
+   (fn []
+     (gen/fmap #(-> % (str) (BigDecimal.))
+               (gen/double* {:NaN? false :min 0 :max 999})))))

@@ -11,7 +11,8 @@
    [ventas.routes :as routes]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.components.slider :as components.slider]))
+   [ventas.components.slider :as components.slider]
+   [ventas.utils.formatting :as formatting]))
 
 (def state-key ::state)
 
@@ -21,7 +22,15 @@
       (js/parseInt id 10)
       (keyword id))))
 
-
+(rf/reg-event-fx
+ ::set-main-image
+ (fn [{:keys [db]} [_ image direction]]
+   (merge {:db (assoc-in db [state-key :main-image] image)}
+          (when direction
+            {:dispatch
+             (if (= direction :up)
+               [::components.slider/previous [state-key :slider]]
+               [::components.slider/next [state-key :slider]])}))))
 
 (defn- images-view []
   (let [state-path [state-key :slider]]
@@ -29,21 +38,27 @@
      [:div.product-page__up
       [base/icon {:name "chevron up"
                   :on-click #(rf/dispatch [::components.slider/previous state-path])}]]
-     [:div.product-page__images-main
+     [:div.product-page__images-wrapper
       ^{:key @(rf/subscribe [::events/db (conj state-path :render-index)])}
       [:div.product-page__images-inner {:style {:top @(rf/subscribe [::components.slider/offset state-path])}}
        (map-indexed
         (fn [idx image]
           [:img.product-page__image
            {:key idx
-            :src (str "/images/" (:id image) "/resize/product-page-vertical-carousel")}])
+            :src (str "/images/" (:id image) "/resize/product-page-vertical-carousel")
+            :on-click #(rf/dispatch [::set-main-image image (case idx
+                                                              1 :up
+                                                              3 :down
+                                                              nil)])}])
         @(rf/subscribe [::components.slider/slides state-path]))]]
      [:div.product-page__down
       [base/icon {:name "chevron down"
                   :on-click #(rf/dispatch [::components.slider/next state-path])}]]]))
 
 (defn- main-image-view [{:keys [product]}]
-  )
+  (let [image @(rf/subscribe [::events/db [state-key :main-image]])]
+    [:img.product-page__main-image
+     {:src (str "/images/" (:id image) "/resize/product-page-main")}]))
 
 (rf/reg-event-db
  ::update-quantity
@@ -56,45 +71,55 @@
    (assoc-in db [state-key :quantity] qty)))
 
 (defn- info-view [{:keys [quantity product]}]
-  (let [{:keys [name price description]} product]
+  (let [{:keys [name price description terms]} product]
     [:div.product-page__info
      [:h1.product-page__name name]
-     [:h2.product-page__price price]
      [:p.product-page__description description]
-     [:div.product-page__quantity
-      [:button {:type "button"
-                :on-click #(rf/dispatch [::update-quantity dec])}
-       [base/icon {:name "minus"}]]
-      [:input {:type "text"
-               :value quantity
-               :on-change (value-handler #(rf/dispatch [::set-quantity %]))}]
-      [:button {:type "button"
-                :on-click #(rf/dispatch [::update-quantity dec])}
-       [base/icon {:name "plus"}]]]
-     [:button {:type "button"
-               :on-click #(rf/dispatch [::cart/add
-                                        {:product product
-                                         :quantity quantity}])}
-      [base/icon {:name "add to cart"}]
-      (i18n ::add-to-cart)]]))
+
+     [:h2.product-page__price
+      (let [{:keys [amount currency]} price]
+        (str (formatting/format-number amount) " " (:symbol currency)))]
+
+     [:div.product-page__terms-section
+      (for [{:keys [taxonomy terms]} terms]
+        [:div.product-page__taxonomy
+         [:h4 (:name taxonomy)]
+         [:div.product-page__terms
+          (for [term terms]
+            [:div.product-page__term
+             [:h3 (:name term)]])]])]
+
+     [:div.product-page__actions
+      [:button.product-page__heart
+       {:type "button"
+        :on-click #(rf/dispatch [::cart/add {:product product
+                                             :quantity quantity}])}
+       [base/icon {:name "empty heart"}]]
+      [:button.product-page__add-to-cart
+       {:type "button"
+        :on-click #(rf/dispatch [::cart/add {:product product
+                                             :quantity quantity}])}
+       [base/icon {:name "add to cart"}]
+       (i18n ::add-to-cart)]]]))
 
 (defn- description-view [{:keys [description]}]
   [:p description])
 
 (rf/reg-event-db
  ::populate
- (fn [db [_ product]]
+ (fn [db [_ {:keys [images] :as product}]]
    (-> db
        (assoc-in [state-key :product] product)
        (assoc-in [state-key :slider]
-                 {:slides (map (fn [image]
-                                 (merge image
-                                        {:width (+ 120 -6)
-                                         :height (+ 190 -6)}))
-                               (:images product))
+                 {:slides (mapv (fn [image]
+                                  (merge image
+                                         {:width (+ 120 -6)
+                                          :height (+ 190 -6)}))
+                                images)
                   :orientation :vertical
-                  :render-index 0
-                  :current-index 1}))))
+                  :render-index (dec (count images))
+                  :current-index 1})
+       (assoc-in [state-key :main-image] (first images)))))
 
 (defn content []
   (let [product-ref (get-product-ref)]

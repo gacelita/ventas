@@ -2,7 +2,8 @@
   (:require
    [ventas.utils :as utils]
    [re-frame.core :as rf]
-   [ventas.routes :as routes]))
+   [ventas.routes :as routes]
+   [ventas.utils.formatting :as formatting]))
 
 (defn products-list [products]
   [:div.product-list
@@ -15,4 +16,4 @@
        [:span.product-list__name
         name]
        [:div.product-list__price
-        [:span (utils/format-price price)]]]])])
+        [:span (formatting/format-number price)]]]])])

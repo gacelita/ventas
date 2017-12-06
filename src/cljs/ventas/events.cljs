@@ -136,10 +136,9 @@
  ::taxes.list.next
  (fn [db [_ db-key data]]
    (->> data
-        (map #(assoc % :quantity (formatting/format-number
-                                  (:amount %)
-                                  (keyword "ventas.utils.formatting"
-                                           (name (:kind %))))))
+        (map #(assoc % :quantity (str (formatting/format-number (:amount %))
+                                      " "
+                                      (i18n (keyword "ventas.utils.formatting" (name (:kind %)))))))
         (assoc-in db db-key))))
 
 (rf/reg-event-fx

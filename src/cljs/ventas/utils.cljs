@@ -44,11 +44,6 @@
   ([sep coll]
    (drop 1 (interleave (repeatedly sep) coll))))
 
-(defn format-price
-  "Really naive method"
-  [price]
-  (utils.formatting/format-number price ::utils.formatting/euro))
-
 (defn check [& args]
   "([spec x] [spec x form])
      Returns true when x is valid for spec. Throws an Error if validation fails."

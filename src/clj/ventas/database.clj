@@ -288,3 +288,8 @@
 (defn lookup-ref? [v]
   (and (sequential? v)
        (keyword? (first v))))
+
+(defn rename-ident! [old new]
+  (transact
+   [{:db/id old
+     :db/ident new}]))

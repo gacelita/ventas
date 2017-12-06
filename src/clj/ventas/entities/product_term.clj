@@ -37,6 +37,8 @@
   :dependencies
   #{:product.taxonomy :i18n}
 
+  :autoresolve? true
+
   :fixtures
   (fn []
     [{:product.term/name (entities.i18n/get-i18n-entity {:en_US "Green"

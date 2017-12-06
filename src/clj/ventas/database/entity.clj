@@ -134,6 +134,12 @@
     (when (is-entity? result)
       result)))
 
+(defn find-json
+  "Same as doing (to-json (find eid) params), which is a very, very common thing to do"
+  [eid params]
+  (-> (find eid)
+      (to-json params)))
+
 (defn transaction->entity
   "Returns an entity from a transaction"
   [tx tempid]

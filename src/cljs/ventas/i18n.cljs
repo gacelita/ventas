@@ -66,7 +66,6 @@
 
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
-    :ventas.utils.formatting/euro " €"
 
     :user.role/administrator "Administrator"
     :user.role/user "User"
