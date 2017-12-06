@@ -4,7 +4,8 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]))
+   [ventas.events.backend :as backend]
+   [ventas.components.slider :as components.slider]))
 
 (rf/reg-event-fx
  ::sliders.get
@@ -13,33 +14,20 @@
                {:params {:keyword kw}
                 :success #(rf/dispatch [::events/db [::sliders kw] %])}]}))
 
-(rf/reg-event-db
- ::next
- (fn [db [_ kw]]
-   (let [{:keys [slides]} (get-in db [::sliders kw])]
-     (update-in db [::state kw :current-index] #(mod (inc %) (count slides))))))
 
-(rf/reg-event-db
- ::previous
- (fn [db [_ kw]]
-   (let [{:keys [slides]} (get-in db [::sliders kw])]
-     (update-in db [::state kw :current-index] #(mod (dec %) (count slides))))))
-
-(defn slider* [{:keys [slides keyword auto auto-speed]}]
-  (when auto
-    (js/setInterval #(rf/dispatch [::next keyword]) auto-speed))
-  (fn [{:keys [slides keyword]}]
-    [:div.slider
-     (let [component-state @(rf/subscribe [::events/db [::state keyword]])]
-       [:div.slider__slides {:style {:left (* -1
-                                              (-> js/window (.-innerWidth))
-                                              (:current-index component-state))}}
+(defn slider* [{:keys [keyword auto auto-speed]}]
+  (let [state-path [::sliders keyword]]
+    (when auto
+      (js/setInterval #(rf/dispatch [::components.slider/next state-path]) auto-speed))
+    (fn [{:keys [slides]}]
+      [:div.slider
+       [:div.slider__slides {:style {:left @(rf/subscribe [::components.slider/offset state-path])}}
         (for [{:keys [file id]} slides]
-          ^{:key id} [:div.slider__slide {:style {:background-image (str "url(" (:url file) ")")}}])])
-     [:button.slider__left {:on-click #(rf/dispatch [::previous keyword])}
-      [base/icon {:name "chevron left"}]]
-     [:button.slider__right {:on-click #(rf/dispatch [::next keyword])}
-      [base/icon {:name "chevron right"}]]]))
+          ^{:key id} [:div.slider__slide {:style {:background-image (str "url(" (:url file) ")")}}])]
+       [:button.slider__left {:on-click #(rf/dispatch [::components.slider/previous state-path])}
+        [base/icon {:name "chevron left"}]]
+       [:button.slider__right {:on-click #(rf/dispatch [::components.slider/next state-path])}
+        [base/icon {:name "chevron right"}]]])))
 
 (defn slider [kw]
   (rf/dispatch [::sliders.get kw])

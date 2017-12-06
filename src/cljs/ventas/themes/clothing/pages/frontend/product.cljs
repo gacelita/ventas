@@ -10,7 +10,8 @@
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]))
+   [ventas.events.backend :as backend]
+   [ventas.components.slider :as components.slider]))
 
 (def state-key ::state)
 
@@ -20,11 +21,22 @@
       (js/parseInt id 10)
       (keyword id))))
 
+
+
 (defn- images-view [{:keys [product]}]
-  [:div.product-page__images
-   (for [image (:images product)]
-     [:img.product-page__image {:key (:id image)
-                                :src (str (:url image))}])])
+  (let [state-path [state-key :slider]]
+    [:div.product-page__images
+     [:div.product-page__up
+      [base/icon {:name "chevron up"
+                  :on-click #(rf/dispatch [::components.slider/previous state-path])}]]
+     [:div.product-page__images-main
+      [:div.product-page__images-inner {:style {:top @(rf/subscribe [::components.slider/offset state-path])}}
+       (for [image (:images product)]
+         [:img.product-page__image {:key (:id image)
+                                    :src (str "/images/" (:id image) "/resize/product-page-vertical-carousel")}])]]
+     [:div.product-page__down
+      [base/icon {:name "chevron down"
+                  :on-click #(rf/dispatch [::components.slider/next state-path])}]]]))
 
 (defn- main-image-view [{:keys [product]}]
   )
@@ -65,11 +77,23 @@
 (defn- description-view [{:keys [description]}]
   [:p description])
 
+(rf/reg-event-db
+ ::populate
+ (fn [db [_ product]]
+   (-> db
+       (assoc-in [state-key :product] product)
+       (assoc-in [state-key :slider]
+                 {:slides (map (fn [image]
+                                 {:width (+ 120 6)
+                                  :height (+ 190 6)})
+                               (:images product))
+                  :orientation :vertical}))))
+
 (defn content []
   (let [product-ref (get-product-ref)]
     (rf/dispatch [::events/db [state-key] {:quantity 1}])
     (rf/dispatch [::backend/products.get {:params {:id product-ref}
-                                          :success [::events/db [state-key :product]]}])
+                                          :success ::populate}])
     (fn []
       (let [state @(rf/subscribe [::events/db state-key])]
         [base/container

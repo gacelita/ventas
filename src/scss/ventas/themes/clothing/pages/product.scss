@@ -5,11 +5,34 @@
 }
 
 .product-page__images {
-    position: relative;
+}
+
+.product-page__images-main {
+    max-height: 180px * 3 + 6 * 3;
+    overflow: hidden;
+}
+
+.product-page__images-inner {
     display: flex;
     flex-direction: column;
-    img {
-        width: 200px;
+    position: relative;
+    transition: top 250ms;
+}
+
+.product-page__up,
+.product-page__down {
+    text-align: center;
+    margin: 7px 0px;
+
+    .icon {
+        width: auto;
+        height: auto;
+        line-height: normal;
+        display: inline-block;
+        border: solid 2px #2c3e50;
+        border-radius: 50%;
+        padding: 7px;
+        color: #2c3e50;
     }
 }
 
