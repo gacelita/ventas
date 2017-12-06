@@ -7,7 +7,8 @@
    [clojure.test.check.generators :as gen]
    [clojure.spec.alpha :as spec]
    [clojure.set :as set]
-   [ventas.plugin :as plugin]))
+   [ventas.plugin :as plugin]
+   [ventas.theme :as theme]))
 
 (defn- seed-attrs [attrs]
   (let [attrs (entity/filter-seed attrs)
@@ -68,10 +69,17 @@
   (when recreate?
     (schema/migrate :recreate? recreate?))
   (info "Migrations done!")
+
   (doseq [type (get-sorted-types)]
     (info "Seeding type " type)
     (seed-type type (entity/seed-number type)))
-  (doseq [plugin-kw (plugin/all-plugins)]
+
+  (doseq [theme-kw (theme/all)]
+    (info "Seeding theme " theme-kw)
+    (doseq [fixture (theme/fixtures theme-kw)]
+      (entity/create* fixture)))
+
+  (doseq [plugin-kw (plugin/all)]
     (info "Seeding plugin " plugin-kw)
     (doseq [fixture (plugin/fixtures plugin-kw)]
       (entity/create* fixture))))

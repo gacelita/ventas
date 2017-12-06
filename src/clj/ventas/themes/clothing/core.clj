@@ -9,9 +9,9 @@
   :name "Clothing"
   :fixtures
   (fn []
-    {:schema/type :schema.type/image-size
-     :image-size/keyword :product-page-vertical-carousel
-     :image-size/width 120
-     :image-size/height 180
-     :image-size/algorithm :image-size.algorithm/crop-and-resize
-     :image-size/entities #{:schema.type/product}})})
+    [{:schema/type :schema.type/image-size
+      :image-size/keyword :product-page-vertical-carousel
+      :image-size/width 120
+      :image-size/height 180
+      :image-size/algorithm :image-size.algorithm/crop-and-resize
+      :image-size/entities #{:schema.type/product}}])})

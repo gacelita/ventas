@@ -1,6 +1,7 @@
 (ns ventas.theme
-  (:require [ventas.utils :as utils]
-            [clojure.spec.alpha :as spec]))
+  (:require
+   [ventas.utils :as utils]
+   [clojure.spec.alpha :as spec]))
 
 (spec/def ::version string?)
 
@@ -19,3 +20,18 @@
 (defn theme [kw]
   {:pre [(keyword? kw)]}
   (get @themes kw))
+
+(defn all []
+  (set (keys @themes)))
+
+(defn check! [kw]
+  {:pre [(keyword? kw)]}
+  (if-not (theme kw)
+    (throw (Exception. (str "The theme " kw " is not registered")))
+    true))
+
+(defn fixtures [kw]
+  {:pre [(keyword? kw)]}
+  (check! kw)
+  (when-let [fixtures-fn (:fixtures (theme kw))]
+    (fixtures-fn)))

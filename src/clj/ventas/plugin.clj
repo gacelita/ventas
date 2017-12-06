@@ -25,21 +25,25 @@
   {:pre [(keyword? kw)]}
   (get @plugins kw))
 
-(defn all-plugins []
+(defn all []
   (set (keys @plugins)))
 
-(defn check-plugin [kw]
+(defn check [kw]
   {:pre [(keyword? kw)]}
   (if-not (plugin kw)
     (throw (Exception. (str "The plugin " kw " is not registered")))
     true))
 
-(defn register-plugin-migration!
+(defn fixtures [plugin-kw]
+  (when-let [fixtures-fn (:fixtures (plugin plugin-kw))]
+    (fixtures-fn)))
+
+(defn register-migration!
   "Registers database attributes for this plugin.
    Do not use this for registering entities: use entity/register-type! instead,
    and specify the entities' attributes there."
   [plugin-kw attrs]
-  {:pre [(check-plugin plugin-kw) (coll? attrs)]}
+  {:pre [(check plugin-kw) (coll? attrs)]}
   (let [{plugin-version :version} (plugin plugin-kw)
         attrs (map (fn [attr]
                      (-> attr
@@ -48,6 +52,3 @@
                    attrs)]
     (schema/register-migration! attrs)))
 
-(defn fixtures [plugin-kw]
-  (when-let [fixtures-fn (:fixtures (plugin plugin-kw))]
-    (fixtures-fn)))

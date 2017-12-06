@@ -50,7 +50,6 @@
     (entities.file/filepath file)))
 
 (defn- handle-file [search]
-  (println "Handling file" search)
   (let [path (cond
                (utils/->number search) (file-path-by-eid (utils/->number search))
                (not (str/includes? search "/")) (file-path-by-keyword (keyword search))

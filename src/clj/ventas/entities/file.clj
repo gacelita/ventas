@@ -26,7 +26,7 @@
     (io/copy path (io/file new-path))))
 
 (spec/def :file/extension
-  (spec/with-gen string? #(spec/gen #{"jpg" "gif" "png"})))
+  (spec/with-gen string? #(spec/gen #{"png"})))
 
 (spec/def :file/keyword ::generators/keyword)
 
@@ -48,21 +48,18 @@
     :db/cardinality :db.cardinality/one
     :db/unique :db.unique/identity}]
 
-  :filter-seed
-  (fn [this]
-    (-> this
-        (assoc :file/extension "jpg")))
-
   :after-seed
-  (fn [this]
-    (let [file (rand-nth (find-files (str paths/seeds "/files") (re-pattern ".*?")))]
+  (fn [{:file/keys [extension] :as this}]
+    (let [file (rand-nth (find-files (str paths/seeds "/files")
+                                     (re-pattern (str ".*?\\." extension))))]
       (copy-file! this file)))
 
   :autoresolve? true
 
   :fixtures
   (fn []
-    [{:file/keyword :logo}])
+    [{:file/keyword :logo
+      :file/extension "png"}])
 
   :to-json
   (fn [this _]

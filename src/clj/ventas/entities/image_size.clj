@@ -48,8 +48,8 @@
                    :image-size/width
                    :image-size/height
                    :image-size/algorithm
-                   :image-size/quality
-                   :image-size/entities]))
+                   :image-size/entities]
+             :opt [:image-size/quality]))
 
 (entity/register-type!
  :image-size
@@ -101,7 +101,7 @@
             (= "resize-only-if-over-maximum" algorithm)
               (assoc-in [:resize :allow-smaller?] true)
             (= "crop-and-resize" algorithm)
-              (assoc :crop :square))))
+              (assoc :crop {:relation (/ width height)}))))
 
 (defn transform
   "Transforms a :file entity representing an image, using the configuration
@@ -110,6 +110,7 @@
   [file-entity size-entity]
   {:pre [(= (entity/type file-entity) :file)
          (= (entity/type size-entity) :image-size)]}
+  (taoensso.timbre/debug file-entity size-entity)
   (utils.images/transform-image
    (entities.file/filepath file-entity)
    paths/transformed-images

@@ -178,10 +178,11 @@
   "Touches an entity by eid"
   [eid]
   {:pre [eid]}
-  (let [result (d/touch (entity eid))]
-    (-> (into {} result)
-        (assoc :db/id (:db/id result))
-        (EntityMaps->eids))))
+  (when-let [entity (entity eid)]
+    (let [result (d/touch entity)]
+      (-> (into {} result)
+          (assoc :db/id (:db/id result))
+          (EntityMaps->eids)))))
 
 (defn schema
   "Gets the current database schema"

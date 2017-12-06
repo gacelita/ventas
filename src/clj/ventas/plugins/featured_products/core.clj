@@ -22,7 +22,7 @@
 
 (spec/def :product/featured boolean?)
 
-(plugin/register-plugin-migration!
+(plugin/register-migration!
  plugin-kw
  [{:db/ident :product/featured
    :db/valueType :db.type/boolean

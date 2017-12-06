@@ -7,29 +7,42 @@
    [clojure.set :as set]))
 
 (defn- path-with-metadata [path options]
-  (str (utils.files/basename path) "-" (:quality options)
-       (if-let [scale (:scale options)] (str "-x" scale) "")
-       (if-let [width (:width options)] (str "-w" width) "")
-       (if-let [height (:height options)] (str "-h" height) "")
-       (if-let [crop (:crop options)]
-         (if (= crop :square)
-           (str "-csquare")
-           (str "-c" (-> crop :offset first) "x" (-> crop :offset second) "x" (-> crop :size first) "x" (-> crop :size second))))
-       (if (:progressive options) "-p" "-b")
-       "." (utils.files/extension path)))
+  (str (utils.files/basename path) "-" (hash options) "." (utils.files/extension path)))
 
-(defn- crop-image [image options]
-  (if (= options :square)
-    (let [w (.getWidth image)
-          h (.getHeight image)
-          min-dimension (min w h)
-          cropped-offset (- (/ (max w h) 2) (/ min-dimension 2))]
-      (recur image {:offset (if (> w h) [cropped-offset 0] [0 cropped-offset]) :size [min-dimension min-dimension]}))
+(defn- adapt-dimensions-to-relation* [width height target-relation]
+  (if (< 1 target-relation)
+    {:width width
+     :height (/ width target-relation)}
+    {:height height
+     :width (* height target-relation)}))
+
+(defn- adapt-dimensions-to-relation [{:keys [width height target-relation]}]
+  (let [source-relation (/ width height)]
+    (if (or (and (<= target-relation 1) (<= source-relation 1))
+            (and (<= 1 target-relation) (<= 1 source-relation)))
+      (adapt-dimensions-to-relation* width height target-relation)
+      (let [{:keys [width height]} (adapt-dimensions-to-relation
+                                    {:width width
+                                     :height height
+                                     :target-relation 1})]
+        (adapt-dimensions-to-relation* width height target-relation)))))
+
+(defn- crop-image [image {:keys [offset size relation] :as options}]
+  (if relation
+    (let [source-width (.getWidth image)
+          source-height (.getHeight image)
+          {:keys [width height]} (adapt-dimensions-to-relation
+                                  {:width source-width
+                                   :height source-height
+                                   :target-relation relation})]
+      (recur image {:offset [(- (/ source-width 2) (/ width 2))
+                             (- (/ source-height 2) (/ height 2))]
+                    :size [width height]}))
     (collage/crop image
-                  (-> options :offset first)
-                  (-> options :offset second)
-                  (-> options :size first)
-                  (-> options :size second))))
+                  (first offset)
+                  (second offset)
+                  (first size)
+                  (second size))))
 
 (defn- resize-image* [image width height]
   (let [width-scale (/ width (.getWidth image))
@@ -59,8 +72,8 @@
                  :quality quality
                  :progressive progressive)))
 
-(defn transform-image [source-path target-dir & [{:keys [quality] :as options}]]
-  (let [options (merge {:quality 1} options)
+(defn transform-image [source-path target-dir & [options]]
+  (let [options (merge-with #(if (nil? %1) %2 %1) {:quality 1} options)
         target-dir (or target-dir (utils.files/get-tmp-dir))
         target-path (str target-dir "/" (path-with-metadata source-path options))]
     (when (and (:scale options) (or (get-in options [:resize :width])
