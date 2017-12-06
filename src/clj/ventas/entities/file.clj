@@ -62,8 +62,8 @@
       :file/extension "png"}])
 
   :to-json
-  (fn [this _]
+  (fn [this params]
     (let [path (filepath this)]
       (-> this
           (assoc :url (paths/path->url path))
-          ((entity/default-attr :to-json)))))})
+          ((entity/default-attr :to-json) params))))})

@@ -76,7 +76,6 @@
   #{:file :i18n}
 
   :to-json
-  (fn [this _]
-    (-> this
-        (assoc :category/image (get-image this))
-        ((entity/default-attr :to-json))))})
+  (fn [this params]
+    (-> ((entity/default-attr :to-json) this params)
+        (assoc :image (get-image this))))})
