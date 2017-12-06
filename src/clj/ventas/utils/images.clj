@@ -9,34 +9,55 @@
 (defn- path-with-metadata [path options]
   (str (utils.files/basename path) "-" (hash options) "." (utils.files/extension path)))
 
-(defn- adapt-dimensions-to-relation* [width height target-relation]
-  (if (< 1 target-relation)
-    {:width width
-     :height (/ width target-relation)}
-    {:height height
-     :width (* height target-relation)}))
+(defn- portrait? [relation]
+  (< relation 1))
+
+(defn- landscape? [relation]
+  (<= 1 relation))
+
+(defn- scale-dimensions* [scale {:keys [width height]}]
+  {:width (* 1.0 scale width)
+   :height (* 1.0 scale height)})
+
+(defn- scale-dimensions [source target]
+  "Ensures that the target width and height are not higher than their source counterparts"
+  (->> target
+       (scale-dimensions* (min 1 (/ (:width source) (:width target))))
+       (scale-dimensions* (min 1 (/ (:height source) (:height target))))))
+
+(defn- adapt-dimensions-to-relation* [{:keys [width height] :as source} target-relation]
+  (scale-dimensions
+   source
+   (if (landscape? target-relation)
+     {:width (* height target-relation)
+      :height height}
+     {:width width
+      :height (/ width target-relation)})))
 
 (defn- adapt-dimensions-to-relation [{:keys [width height target-relation]}]
+  "Returns a new width and height that matches the given target relation, using the maximum
+   available space within the given width and height"
   (let [source-relation (/ width height)]
-    (if (or (and (<= target-relation 1) (<= source-relation 1))
-            (and (<= 1 target-relation) (<= 1 source-relation)))
-      (adapt-dimensions-to-relation* width height target-relation)
+    (if (or (and (landscape? target-relation) (landscape? source-relation))
+            (and (portrait? target-relation) (portrait? source-relation)))
+      (adapt-dimensions-to-relation* {:width width :height height} target-relation)
       (let [{:keys [width height]} (adapt-dimensions-to-relation
                                     {:width width
                                      :height height
                                      :target-relation 1})]
-        (adapt-dimensions-to-relation* width height target-relation)))))
+        (adapt-dimensions-to-relation* {:width width :height height} target-relation)))))
 
 (defn- crop-image [image {:keys [offset size relation] :as options}]
   (if relation
-    (let [source-width (.getWidth image)
+    (let [relation (* 1.0 relation)
+          source-width (.getWidth image)
           source-height (.getHeight image)
           {:keys [width height]} (adapt-dimensions-to-relation
                                   {:width source-width
                                    :height source-height
                                    :target-relation relation})]
-      (recur image {:offset [(- (/ source-width 2) (/ width 2))
-                             (- (/ source-height 2) (/ height 2))]
+      (recur image {:offset [(- (/ source-width 2.0) (/ width 2.0))
+                             (- (/ source-height 2.0) (/ height 2.0))]
                     :size [width height]}))
     (collage/crop image
                   (first offset)
