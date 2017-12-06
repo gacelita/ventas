@@ -11,7 +11,7 @@
    :ventas.themes.clothing.components.menu/home "Home"
    :ventas.themes.clothing.components.menu/woman "Woman"
    :ventas.themes.clothing.components.menu/man "Man"
-   :ventas.themes.clothing.components.skeleton/cookies "Al navegar por nuestra tienda indicas que estás de acuerdo con nuestra política de cookies."
+   :ventas.themes.clothing.components.skeleton/cookies "We use cookies on this site to enhance your user experience."
 
    :ventas.themes.clothing.pages.frontend/page "Home"
    :ventas.themes.clothing.pages.frontend.category/page "%s"
