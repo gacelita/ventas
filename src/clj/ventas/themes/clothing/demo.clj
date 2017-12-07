@@ -7,71 +7,69 @@
   (map #(assoc % :schema/type :schema.type/product.term)
        [{:product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark green"
                                                             :es_ES "Verde oscuro"})
-         :product.term/keyword :dark-green
+         :product.term/keyword :color-dark-green
          :product.term/color "#584838"
-         :product.term/taxonomy [:product.taxonomy/keyword :color-dark-green]}
+         :product.term/taxonomy [:product.taxonomy/keyword :color]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark red"
                                                             :es_ES "Rojo oscuro"})
-         :product.term/keyword :dark-red
+         :product.term/keyword :color-dark-red
          :product.term/color "#5f3239"
-         :product.term/taxonomy [:product.taxonomy/keyword :color-dark-red]}
+         :product.term/taxonomy [:product.taxonomy/keyword :color]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Black"
                                                             :es_ES "Negro"})
-         :product.term/keyword :black
+         :product.term/keyword :color-black
          :product.term/color "#252525"
-         :product.term/taxonomy [:product.taxonomy/keyword :color-black]}
+         :product.term/taxonomy [:product.taxonomy/keyword :color]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark blue"
                                                             :es_ES "Azul oscuro"})
-         :product.term/keyword :dark-blue
+         :product.term/keyword :color-dark-blue
          :product.term/color "#262b3f"
-         :product.term/taxonomy [:product.taxonomy/keyword :color-dark-blue]}
+         :product.term/taxonomy [:product.taxonomy/keyword :color]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "XS"
                                                             :es_ES "XS"})
-         :product.term/keyword :x-small
-         :product.term/taxonomy [:product.taxonomy/keyword :size-x-small]}
+         :product.term/keyword :size-x-small
+         :product.term/taxonomy [:product.taxonomy/keyword :size]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "S"
                                                             :es_ES "S"})
-         :product.term/keyword :small
-         :product.term/taxonomy [:product.taxonomy/keyword :size-small]}
+         :product.term/keyword :size-small
+         :product.term/taxonomy [:product.taxonomy/keyword :size]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "M"
                                                             :es_ES "M"})
-         :product.term/keyword :medium
-         :product.term/taxonomy [:product.taxonomy/keyword :size-medium]}
+         :product.term/keyword :size-medium
+         :product.term/taxonomy [:product.taxonomy/keyword :size]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "L"
                                                             :es_ES "L"})
-         :product.term/keyword :large
-         :product.term/taxonomy [:product.taxonomy/keyword :size-large]}
+         :product.term/keyword :size-large
+         :product.term/taxonomy [:product.taxonomy/keyword :size]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "XL"
                                                             :es_ES "XL"})
-         :product.term/keyword :x-large
-         :product.term/taxonomy [:product.taxonomy/keyword :size-x-large]}
+         :product.term/keyword :size-x-large
+         :product.term/taxonomy [:product.taxonomy/keyword :size]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "XXL"
                                                             :es_ES "XXL"})
-         :product.term/keyword :xx-large
-         :product.term/taxonomy [:product.taxonomy/keyword :size-xx-large]}
+         :product.term/keyword :size-xx-large
+         :product.term/taxonomy [:product.taxonomy/keyword :size]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "3XL"
                                                             :es_ES "3XL"})
-         :product.term/keyword :3x-large
-         :product.term/taxonomy [:product.taxonomy/keyword :size-3x-large]}]))
+         :product.term/keyword :size-3x-large
+         :product.term/taxonomy [:product.taxonomy/keyword :size]}]))
 
 (defn brands []
   (map #(assoc % :schema/type :schema.type/brand)
        [{:brand/name (entities.i18n/get-i18n-entity {:en_US "Test brand"})
          :brand/keyword :test-brand
          :brand/description (entities.i18n/get-i18n-entity {:en_US "This is the description of the test brand"})
-         :brand/logo {:schema/type :schema.type/file
-                      :file/keyword :test-brand-logo
-                      :file/extension "png"}}]))
+         :brand/logo [:file/keyword :test-brand-logo]}]))
 
 (defn categories []
   (map #(assoc % :schema/type :schema.type/category)
@@ -90,6 +88,8 @@
        [{:file/keyword :logo
          :file/extension "png"}
         {:file/keyword :test-product-image
+         :file/extension "png"}
+        {:file/keyword :test-brand-logo
          :file/extension "png"}]))
 
 (defn taxes []
@@ -125,7 +125,7 @@
        [{:product.variation/parent [:product/keyword :test-product]
          :product.variation/terms [[:product.term/keyword :color-dark-green]
                                    [:product.term/keyword :size-large]]
-         :product.name (entities.i18n/get-i18n-entity {:en_US "Test product (dark green and large variation)"})}]))
+         :product/name (entities.i18n/get-i18n-entity {:en_US "Test product (dark green and large variation)"})}]))
 
 (defn product-images []
   (map #(assoc % :schema/type :schema.type/product.image)
@@ -159,12 +159,12 @@
 
 (defn demo-data []
   (concat (product-terms)
+          (files)
           (brands)
           (categories)
-          (files)
           (taxes)
-          (product-variations)
           (products)
+          (product-variations)
           (product-images)
           (users)
           (addresses)))

@@ -13,17 +13,22 @@
 
 (defn filename [entity]
   {:pre [(:db/id entity)]}
-  (str (:db/id entity) "." (:file/extension entity)))
+  (str (if-let [kw (:file/keyword entity)]
+         (name kw)
+         (:db/id entity))
+       "." (:file/extension entity)))
 
 (defn filepath [entity]
   (str paths/images "/" (filename entity)))
 
 (defn copy-file!
-  "Copies a file to the corresponding path of a :file entity"
+  "Copies a file to the corresponding path of a :file entity.
+   Does not overwrite the existing file, if any."
   [entity path]
-  (let [new-path (filepath entity)]
+  (let [new-path (io/file (filepath entity))]
     (io/make-parents new-path)
-    (io/copy path (io/file new-path))))
+    (when-not (.exists new-path)
+      (io/copy path new-path))))
 
 (spec/def :file/extension
   (spec/with-gen string? #(spec/gen #{"png"})))
@@ -58,7 +63,5 @@
 
   :to-json
   (fn [this params]
-    (let [path (filepath this)]
-      (-> this
-          (assoc :url (paths/path->url path))
-          ((entity/default-attr :to-json) params))))})
+    (-> ((entity/default-attr :to-json) this params)
+        (assoc :url (paths/path->url (filepath this)))))})
