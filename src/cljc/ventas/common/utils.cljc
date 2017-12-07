@@ -20,6 +20,27 @@
               [k (f v)]))
        (into {})))
 
+(defn filter-vals
+  [pred m]
+  (->> m
+       (filter (fn [[k v]] (pred v)))
+       (into {})))
+
+(defn filter-empty-vals [m]
+  (filter-vals (fn [v]
+                 (not (nil? v)))
+               m))
+
+(defn find-first
+  "Finds the first value from coll that satisfies pred.
+  Returns nil if it doesn't find such a value."
+  [pred coll]
+  {:pre [(ifn? pred) (coll? coll)]}
+  (some #(when (pred %) %) coll))
+
+(defn find-index [pred coll]
+  (first (keep-indexed #(when (pred %2) %1) coll)))
+
 (defn deep-merge
   "Like merge, but merges maps recursively.
    See: https://dev.clojure.org/jira/browse/CLJ-1468"

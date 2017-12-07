@@ -5,25 +5,8 @@
    [expound.alpha :as expound])
   (:import [java.io File]))
 
-(defn filter-vals
-  [pred m]
-  (into {} (filter (fn [[k v]] (pred v))
-                   m)))
-
-(defn find-first
-  "Finds the first value from coll that satisfies pred.
-  Returns nil if it doesn't find such a value."
-  [pred coll]
-  {:pre [(ifn? pred) (coll? coll)]}
-  (some #(when (pred %) %) coll))
-
-(defn find-index [pred coll]
-  (first (keep-indexed #(when (pred %2) %1) coll)))
-
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))
-
-(defn filter-empty-vals [m] (filter-vals (fn [v] (not (nil? v))) m))
 
 (defn dequalify-keywords [m]
   (into {}

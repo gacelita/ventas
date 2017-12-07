@@ -10,7 +10,8 @@
    [taoensso.timbre :as timbre :refer [trace debug info warn error]]
    [ventas.database :as db]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.common.utils :as common.utils]))
 
 (defn entity? [entity]
   (when (map? entity)
@@ -174,7 +175,7 @@
    (create :user {:name `Joel` :email `test@test.com`})"
   [type attributes]
   (let [entity
-        (-> (utils/qualify-map-keywords (utils/filter-empty-vals attributes) type)
+        (-> (utils/qualify-map-keywords (common.utils/filter-empty-vals attributes) type)
             (assoc :schema/type (db/kw->type type)))]
     (create* entity)))
 

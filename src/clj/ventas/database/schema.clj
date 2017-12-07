@@ -8,7 +8,8 @@
    [clj-time.core :as time]
    [clj-time.format :as time-format]
    [ventas.utils :as utils]
-   [taoensso.timbre :as timbre :refer (trace debug info warn error)]))
+   [taoensso.timbre :as timbre :refer (trace debug info warn error)]
+   [ventas.common.utils :as common.utils]))
 
 (defn- initial-migrations []
   (let [initial-schema
@@ -40,12 +41,14 @@
   (reset! migrations (initial-migrations)))
 
 (defn get-migration [kw]
-  (utils/find-first #(= (set (keys %)) #{kw})
-                    @migrations))
+  (common.utils/find-first
+   #(= (set (keys %)) #{kw})
+   @migrations))
 
 (defn- migration-index [kw]
-  (utils/find-index #(= (set (keys %)) #{kw})
-                    @migrations))
+  (common.utils/find-index
+   #(= (set (keys %)) #{kw})
+   @migrations))
 
 (defn register-migration!
   "Takes a list of attributes and an optional migration key.
