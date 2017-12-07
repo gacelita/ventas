@@ -49,6 +49,10 @@
   (spec/with-gen ::entity/refs
                  #(entity/refs-generator :product.term)))
 
+(spec/def :product/parent
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :product)))
+
 (spec/def ::product-for-generation
   (spec/keys :req [:product/name
                    :product/active
@@ -61,14 +65,13 @@
                    :product/brand
                    :product/tax
                    :product/categories
-                   :product/terms]))
+                   :product/terms
+                   :product/parent]))
 
 (spec/def :schema.type/product
   (spec/with-gen
    (spec/keys :req [:product/name
-                    :product/active
-                    :product/price
-                    :product/keyword]
+                    :product/price]
               :opt [:product/reference
                     :product/ean13
                     :product/description
@@ -76,7 +79,10 @@
                     :product/brand
                     :product/tax
                     :product/categories
-                    :product/terms])
+                    :product/terms
+                    :product/parent
+                    :product/keyword
+                    :product/active])
    #(spec/gen ::product-for-generation)))
 
 (entity/register-type!
@@ -135,7 +141,11 @@
 
    {:db/ident :product/terms
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident :product/parent
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}]
 
   :dependencies
   #{:brand :tax :file :category :product.term :product.price :currency}
@@ -216,6 +226,34 @@
 
   :seed-number 0
   :autoresolve? true})
+
+
+(spec/def :product.variation/parent
+  (spec/with-gen ::entity/ref #(entity/ref-generator :product)))
+
+(spec/def :product.variation/terms
+  (spec/with-gen ::entity/refs #(entity/refs-generator :product.term)))
+
+(spec/def :schema.type/product.variation
+  (spec/keys :req [:product.variation/parent
+                   :product.variation/terms]))
+
+(entity/register-type!
+ :product.variation
+ {:attributes
+  [{:db/ident :product.variation/parent
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one}
+   {:db/ident :product.variation/terms
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many}]
+
+  :dependencies
+  #{:product :product.term}
+
+  :seed-number 0
+  :autoresolve? true})
+
 
 (defn add-image
   "Meant for development"

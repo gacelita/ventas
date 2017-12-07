@@ -10,27 +10,28 @@
 #_"
   Orders have:
   - An user
-  - A list of products with their variations and quantities
   - A status
   - Billing and shipping addresses
+  - A list of products with their quantities (order lines)
   - A shipping method (maybe with comments)
   - A payment method
 "
 
 (spec/def :order/user
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :user)))))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :user)))
 
-(spec/def :order/status #{:order.status/unpaid
-                       :order.status/paid
-                       :order.status/acknowledged
-                       :order.status/ready
-                       :order.status/shipped})
+(spec/def :order/status
+  #{:order.status/unpaid
+    :order.status/paid
+    :order.status/acknowledged
+    :order.status/ready
+    :order.status/shipped})
 
 (spec/def :order/shipping-address
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :address)))))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :address)))
 
 (spec/def :order/billing-address
-  (spec/with-gen integer? #(gen/elements (map :db/id (entity/query :address)))))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :address)))
 
 (spec/def :order/shipping-method ::generators/keyword)
 (spec/def :order/shipping-comments ::generators/string)

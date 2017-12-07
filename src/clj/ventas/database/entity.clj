@@ -7,7 +7,6 @@
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [datomic.api :as d]
-   [slingshot.slingshot :refer [throw+ try+]]
    [taoensso.timbre :as timbre :refer [trace debug info warn error]]
    [ventas.database :as db]
    [ventas.database.schema :as schema]

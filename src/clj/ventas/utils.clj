@@ -2,8 +2,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
-   [expound.alpha :as expound]
-   [slingshot.slingshot :refer [throw+]])
+   [expound.alpha :as expound])
   (:import [java.io File]))
 
 (defn filter-vals

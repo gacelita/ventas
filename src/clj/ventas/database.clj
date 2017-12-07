@@ -12,7 +12,7 @@
    [mount.core :as mount :refer [defstate]]
    [ventas.config :as config]
    [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+ try+]]
+   [slingshot.slingshot :refer [throw+]]
    [clojure.spec.alpha :as spec]
    [clojure.spec.test.alpha :as stest]
    [clojure.test.check.generators :as gen]

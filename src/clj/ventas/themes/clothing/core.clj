@@ -45,7 +45,12 @@
       {:schema/type :schema.type/product.taxonomy
        :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Color"
                                                               :es_ES "Color"})
-       :product.taxonomy/keyword :color}]
+       :product.taxonomy/keyword :color}
+
+      {:schema/type :schema.type/product.taxonomy
+       :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Size"
+                                                              :es_ES "Talla"})
+       :product.taxonomy/keyword :size}]
 
      (demo/demo-data)))})
 
