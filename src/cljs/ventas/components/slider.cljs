@@ -16,6 +16,11 @@
 
 (def transition-duration-ms 250)
 
+(defn- get-dimension [v]
+  (if (= v ::viewport)
+    (-> js/window .-innerWidth)
+    v))
+
 (rf/reg-sub
  ::offset
  (fn [db [_ state-path]]
@@ -23,8 +28,8 @@
      (* -1 (reduce (fn [sum idx]
                      (let [slide (get slides idx)]
                        (+ sum (if (= orientation :vertical)
-                                (:height slide)
-                                (:width slide)))))
+                                (get-dimension (:height slide))
+                                (get-dimension (:width slide))))))
                    0
                    (range current-index))))))
 

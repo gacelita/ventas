@@ -118,6 +118,44 @@
                          [:product.term/keyword :size-large]
                          [:product.term/keyword :size-medium]
                          [:product.term/keyword :size-small]]
+         :product/keyword :test-product}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (woman category)"})
+         :product/active true
+         :product/price {:schema/type :schema.type/product.price
+                         :product.price/amount 15.4M
+                         :product.price/currency [:currency/keyword :eur]}
+         :product/reference "REF001"
+         :product/ean13 "7501031311309"
+         :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
+         :product/condition :product.condition/new
+         :product/brand [:brand/keyword :test-brand]
+         :product/tax [:tax/keyword :test-tax]
+         :product/categories [[:category/keyword :woman]]
+         :product/terms [[:product.term/keyword :color-dark-green]
+                         [:product.term/keyword :color-dark-red]
+                         [:product.term/keyword :size-large]
+                         [:product.term/keyword :size-medium]
+                         [:product.term/keyword :size-small]]
+         :product/keyword :test-product}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (children category)"})
+         :product/active true
+         :product/price {:schema/type :schema.type/product.price
+                         :product.price/amount 15.4M
+                         :product.price/currency [:currency/keyword :eur]}
+         :product/reference "REF001"
+         :product/ean13 "7501031311309"
+         :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
+         :product/condition :product.condition/new
+         :product/brand [:brand/keyword :test-brand]
+         :product/tax [:tax/keyword :test-tax]
+         :product/categories [[:category/keyword :children]]
+         :product/terms [[:product.term/keyword :color-dark-green]
+                         [:product.term/keyword :color-dark-red]
+                         [:product.term/keyword :size-large]
+                         [:product.term/keyword :size-medium]
+                         [:product.term/keyword :size-small]]
          :product/keyword :test-product}]))
 
 (defn product-variations []

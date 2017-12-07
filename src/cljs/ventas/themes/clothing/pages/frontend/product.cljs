@@ -135,7 +135,6 @@
 
        [:div.product-page__actions
         (let [favorites (set @(rf/subscribe [::events/db :users.favorites]))]
-          (js/console.log "favorites" favorites)
           [:button.product-page__heart
            {:type "button"
             :class (when (contains? favorites (:id product))
