@@ -11,18 +11,19 @@
     [:div.footer
      [:div.ui.container
       [:div.footer__columns
+
        [:div.footer__column
-        [:p (i18n ::footer-text)]]
+        [:p (i18n ::footer-text)]
+        [:p (i18n ::footer-subtext)]]
+
        [:div.footer__column
         [:h4 (i18n ::links)]
         [:ul
          [:li
           [:a {:href (routes/path-for :frontend.privacy-policy)}
            (i18n ::privacy-policy)]]]]
+
        [:div.footer__column
         [:h4 (i18n ::contact)]
-        [:br]
-        (let [email @(rf/subscribe [::events/db [:configuration :email]])]
-          [:p (i18n ::email) ":"]
-          [:a {:href (str "mailto:" email)}
-           email])]]]]))
+        [:p "Phone number: 000 000 000"]
+        [:p "Email: my-store@coldmail.com"]]]]]))

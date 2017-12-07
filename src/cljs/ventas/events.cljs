@@ -90,7 +90,7 @@
                                 (rf/dispatch [::session.start.next %])
                                 (rf/dispatch [::session.start.error]))
                     :error ::session.start.error}]}
-       {:dispatch-n [::session.start.error]}))))
+       {:dispatch [::session.start.error]}))))
 
 (rf/reg-event-fx
  ::session.start.next

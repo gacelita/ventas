@@ -110,7 +110,9 @@
 (defn- info-view [_]
   (rf/dispatch [::events/users.favorites.list])
   (fn [{:keys [quantity product]}]
-    (let [{:keys [name price description terms]} product]
+    (let [{:keys [name price description terms]} product
+          active-terms @(rf/subscribe [::events/db [state-key :terms]])
+          active-term-ids (set (vals active-terms))]
       [:div.product-page__info
        [:h1.product-page__name name]
        [:p.product-page__description description]
@@ -120,18 +122,17 @@
           (str (formatting/format-number amount) " " (:symbol currency)))]
 
        [:div.product-page__terms-section
-        (let [active-terms @(rf/subscribe [::events/db [state-key :terms]])
-              active-term-ids (set (vals active-terms))]
-          (for [{:keys [taxonomy terms]} terms]
-            [:div.product-page__taxonomy
-             [:h4 (str (:name taxonomy) ": "
-                       (when-let [selected-term (common.utils/find-first
-                                                 #(= (:id %) (get active-terms (:id taxonomy)))
-                                                 terms)]
-                         (:name selected-term)))]
-             [:div.product-page__terms
-              (for [term terms]
-                [term-view taxonomy term (contains? active-term-ids (:id term))])]]))]
+        (for [{:keys [taxonomy terms]} terms]
+          [:div.product-page__taxonomy
+           [:h4 (str (:name taxonomy) ": "
+                     (when-let [selected-term (common.utils/find-first
+                                               #(= (:id %) (get active-terms (:id taxonomy)))
+                                               terms)]
+                       (:name selected-term)))]
+           [:div.product-page__terms
+            (for [term terms]
+              [term-view taxonomy term (contains? active-term-ids (:id term))])]])]
+
        [:div.product-page__actions
         (let [favorites (set @(rf/subscribe [::events/db :users.favorites]))]
           (js/console.log "favorites" favorites)
@@ -144,7 +145,7 @@
         [:button.product-page__add-to-cart
          {:type "button"
           :on-click #(rf/dispatch [::cart/add {:product product
-                                               :quantity quantity}])}
+                                               :terms active-term-ids}])}
          [base/icon {:name "add to cart"}]
          (i18n ::add-to-cart)]]])))
 

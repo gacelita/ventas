@@ -24,8 +24,9 @@
     [preheader]
     [header]
     [menu/menu]
-    [base/container
+    [base/container {:class "breadcrumbs-wrapper"}
      [ventas.breadcrumbs/breadcrumbs]]
     [base/divider]
-    contents
+    [:div.page-wrapper
+     contents]
     [footer]]])

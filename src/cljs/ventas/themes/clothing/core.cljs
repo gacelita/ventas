@@ -12,6 +12,11 @@
    :ventas.themes.clothing.components.menu/home "Home"
    :ventas.themes.clothing.components.menu/woman "Woman"
    :ventas.themes.clothing.components.menu/man "Man"
+   :ventas.themes.clothing.components.footer/footer-text "This is the example Ventas theme."
+   :ventas.themes.clothing.components.footer/footer-subtext "Here you can add custom text."
+   :ventas.themes.clothing.components.footer/links "Links"
+   :ventas.themes.clothing.components.footer/privacy-policy "Privacy policy"
+   :ventas.themes.clothing.components.footer/contact "Contact information"
    :ventas.themes.clothing.components.skeleton/cookies "We use cookies on this site to enhance your user experience."
 
    :ventas.themes.clothing.pages.frontend/page "Home"

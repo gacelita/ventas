@@ -28,16 +28,20 @@
   (fn []
     [:div.skeleton-header
      [:div.ui.container
+
       [:div.skeleton-header__logo
        (let [title @(rf/subscribe [::events/db [:configuration :site.title]])]
          [:a {:title (:value title)
               :href (-> js/window (.-location) (.-origin))}
           [:img {:src "files/logo"}]])]
+
       [:div.skeleton-header__right
        [:div.skeleton-header__buttons
+
         [:button {:on-click #(routes/go-to :frontend.cart)}
          [base/icon {:name "add to cart"}]
          (i18n ::my-cart)]
+
         [:button {:on-click #(routes/go-to :frontend.login)
                   :on-blur #(rf/dispatch [::close])}
          [base/icon {:name "user"}]

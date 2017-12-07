@@ -92,7 +92,7 @@
          [register]]]])))
 
 (routes/define-route!
- :frontend.cart
+ :frontend.login
  {:name ::page
   :url ["cart"]
   :component page})

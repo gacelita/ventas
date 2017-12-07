@@ -49,10 +49,8 @@
 (register-endpoint!
   :entities.find
   (fn [{:keys [params]} {:keys [session]}]
-    (-> (:id params)
-        (Long/valueOf)
-        (entity/find)
-        (entity/to-json {:culture (get-culture session)}))))
+    (let [eid (Long. (:id params))]
+      (entity/find-json eid {:culture (get-culture session)}))))
 
 (register-endpoint!
   :reference
@@ -151,9 +149,8 @@
 (register-endpoint!
   :users.favorites.list
   (fn [{:keys [params]} {:keys [session]}]
-    (let [{:user/keys [favorites]} (get-user session)]
-      (->> favorites
-           (map #(entity/find-json % {:culture (get-culture session)}))))))
+    (let [user (get-user session)]
+      (:user/favorites user))))
 
 (defn- toggle-favorite [session product-id f]
   (when-let [user (get-user session)]

@@ -38,8 +38,17 @@
 ;; Add item to the cart
 (rf/reg-event-fx
  ::add
- (fn [{:keys [db local-storage]} [_ item]]
-   {:db (assoc-in db [:cart :items (:id item)] item)}))
+ (fn [{:keys [db local-storage]} [_ {:keys [product terms]}]]
+   (js/console.log "add to cart" product terms)
+   {:db (update-in db
+                   [:cart :items (:id product)]
+                   (fn [item]
+                     (if (and (= (:product item) product)
+                                (= (:terms item) terms))
+                       (update item :quantity inc)
+                       {:product product
+                        :terms terms
+                        :quantity 1})))}))
 
 ;; Remove item from the cart
 (rf/reg-event-fx

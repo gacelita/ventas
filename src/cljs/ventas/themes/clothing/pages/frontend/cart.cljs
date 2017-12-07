@@ -23,16 +23,6 @@
    [ventas.i18n :refer [i18n]]
    [ventas.events :as events]))
 
-(def products
-  [{:id 17592186046432
-    :quantity 2}
-   {:id 17592186046428
-    :quantity 3}
-   {:id 17592186046424
-    :quantity 1}
-   {:id 17592186046160
-    :quantity 5}])
-
 (defn line [data]
   (rf/dispatch [::events/entities.sync (:id data)])
   (fn [data]
@@ -50,20 +40,10 @@
    [base/container
     [:div.cart-page
      [:h2 (i18n ::cart)]
-     [base/table {:celled true :striped true}
-      [base/tableHeader
-       [base/tableRow
-        [base/tableHeaderCell (i18n ::product)]
-        [base/tableHeaderCell (i18n ::description)]
-        [base/tableHeaderCell (i18n ::price)]
-        [base/tableHeaderCell (i18n ::quantity)]
-        [base/tableHeaderCell (i18n ::total)]]]
-      [base/tableBody
-       (map-indexed (fn [idx data] [line data])
-                    products)]]]]])
+     ]]])
 
 (routes/define-route!
- :frontend.login
+ :frontend.cart
  {:name ::page
   :url ["login"]
   :component page})
