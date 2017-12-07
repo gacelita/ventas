@@ -47,12 +47,5 @@
 
   :autoresolve? true
 
-  :fixtures
-  (fn []
-    [{:tax/name (entities.i18n/get-i18n-entity {:en_US "Test tax"})
-      :tax/amount 21.0
-      :tax/kind :tax.kind/percentage
-      :tax/keyword :test-tax}])
-
   :dependencies
   #{:i18n}})

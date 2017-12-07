@@ -13,7 +13,7 @@
 (spec/def :brand/keyword ::generators/keyword)
 
 (spec/def :brand/logo
-  (spec/with-gen integer? #(entity/ref-generator :file)))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
 
 (spec/def :schema.type/brand
   (spec/keys :req [:brand/name
@@ -44,11 +44,4 @@
   :autoresolve? true
 
   :dependencies
-  #{:file :i18n}
-
-  :fixtures
-  (fn []
-    [{:brand/name (entities.i18n/get-i18n-entity {:en_US "Test brand"})
-      :brand/keyword :test-brand
-      :brand/description (entities.i18n/get-i18n-entity {:en_US "This is the description of the test brand"})
-      :brand/logo (:db/id (first (entity/query :file)))}])})
+  #{:file :i18n}})

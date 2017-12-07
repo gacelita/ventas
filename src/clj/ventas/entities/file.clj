@@ -56,11 +56,6 @@
 
   :autoresolve? true
 
-  :fixtures
-  (fn []
-    [{:file/keyword :logo
-      :file/extension "png"}])
-
   :to-json
   (fn [this params]
     (let [path (filepath this)]

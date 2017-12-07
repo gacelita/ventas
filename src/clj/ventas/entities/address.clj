@@ -88,17 +88,4 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:country :state :user :i18n}
-
-  :fixtures
-  (fn []
-    [{:address/first-name "Test"
-      :address/last-name "Address"
-      :address/company "Test Address Company"
-      :address/address "Test Street, 210"
-      :address/address-second-line "5º A"
-      :address/zip "67943"
-      :address/city "Test City"
-      :address/country (-> (entity/query :country) first :db/id)
-      :address/state (-> (entity/query :state) first :db/id)
-      :address/user [:user/email "test@test.com"]}])})
+  #{:country :state :user :i18n}})

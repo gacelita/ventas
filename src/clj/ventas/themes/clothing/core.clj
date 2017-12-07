@@ -1,10 +1,16 @@
 (ns ventas.themes.clothing.core
+  "This theme is being developed at the same time as the platform itself.
+   For now it's meant for development and demo purposes, in the future it will be
+   included as one of the stock themes.
+   Includes demo data to ease development (although ventas is perfectly fine generating
+   entities for you, they tend to be not `real world enough` for development)"
   (:require
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.theme :as theme]
    [clojure.spec.alpha :as spec]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [ventas.themes.clothing.demo :as demo]))
 
 (theme/register!
  :clothing
@@ -12,54 +18,39 @@
   :name "Clothing"
   :fixtures
   (fn []
-    [{:schema/type :schema.type/image-size
-      :image-size/keyword :product-page-vertical-carousel
-      :image-size/width 120
-      :image-size/height 180
-      :image-size/algorithm :image-size.algorithm/crop-and-resize
-      :image-size/entities #{:schema.type/product}}
+    (concat
+     [;; Themes should declare the image sizes they will use as fixtures.
+      {:schema/type :schema.type/image-size
+       :image-size/keyword :product-page-vertical-carousel
+       :image-size/width 120
+       :image-size/height 180
+       :image-size/algorithm :image-size.algorithm/crop-and-resize
+       :image-size/entities #{:schema.type/product}}
 
-     {:schema/type :schema.type/image-size
-      :image-size/keyword :product-page-main
-      :image-size/width 460
-      :image-size/height 650
-      :image-size/algorithm :image-size.algorithm/crop-and-resize
-      :image-size/entities #{:schema.type/product}}
+      {:schema/type :schema.type/image-size
+       :image-size/keyword :product-page-main
+       :image-size/width 460
+       :image-size/height 650
+       :image-size/algorithm :image-size.algorithm/crop-and-resize
+       :image-size/entities #{:schema.type/product}}
 
-     {:schema/type :schema.type/image-size
-      :image-size/keyword :product-page-main-zoom
-      :image-size/width (* 460 4)
-      :image-size/height (* 650 4)
-      :image-size/algorithm :image-size.algorithm/crop-and-resize
-      :image-size/entities #{:schema.type/product}}
+      {:schema/type :schema.type/image-size
+       :image-size/keyword :product-page-main-zoom
+       :image-size/width (* 460 4)
+       :image-size/height (* 650 4)
+       :image-size/algorithm :image-size.algorithm/crop-and-resize
+       :image-size/entities #{:schema.type/product}}
 
-     {:schema/type :schema.type/product.term
-      :product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark green"
-                                                         :es_ES "Verde oscuro"})
-      :product.term/keyword :dark-green
-      :product.term/color "#584838"
-      :product.term/taxonomy [:product.taxonomy/keyword :color]}
+      ;; Themes can also include taxonomies (in this case, the color of the clothes)
+      {:schema/type :schema.type/product.taxonomy
+       :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Color"
+                                                              :es_ES "Color"})
+       :product.taxonomy/keyword :color}]
 
-     {:schema/type :schema.type/product.term
-      :product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark red"
-                                                         :es_ES "Rojo oscuro"})
-      :product.term/keyword :dark-red
-      :product.term/color "#5f3239"
-      :product.term/taxonomy [:product.taxonomy/keyword :color]}
+     (demo/demo-data)))})
 
-     {:schema/type :schema.type/product.term
-      :product.term/name (entities.i18n/get-i18n-entity {:en_US "Black"
-                                                         :es_ES "Negro"})
-      :product.term/keyword :black
-      :product.term/color "#252525"
-      :product.term/taxonomy [:product.taxonomy/keyword :color]}
-
-     {:schema/type :schema.type/product.term
-      :product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark blue"
-                                                         :es_ES "Azul oscuro"})
-      :product.term/keyword :dark-blue
-      :product.term/color "#262b3f"
-      :product.term/taxonomy [:product.taxonomy/keyword :color]}])})
+;; Extends the default terms with colors, which is something that
+;; other themes may not care about (think of a seafood store)
 
 (spec/def :product.term/color ::generators/string)
 

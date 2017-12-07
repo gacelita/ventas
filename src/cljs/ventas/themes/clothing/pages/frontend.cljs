@@ -37,9 +37,9 @@
     [plugins.slider/slider :sample-slider]
     [base/container
      [category-list]
-     [theme.heading/heading "Sugerencias de la semana"]
+     [theme.heading/heading (i18n ::suggestions-of-the-week)]
      [plugins.featured-products/featured-products]
-     [theme.heading/heading "Novedades para ti"]
+     [theme.heading/heading (i18n ::recently-added)]
      [plugins.featured-categories/featured-categories]]]])
 
 (routes/define-route!

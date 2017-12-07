@@ -24,4 +24,6 @@
 
   :fixtures
   (fn []
-    [{:state/name "Cataluña"}])})
+    [{:state/name "Madrid"}
+     {:state/name "Barcelona"}
+     {:state/name "León"}])})

@@ -92,10 +92,10 @@
       :slider.slider/auto-speed 4000
       :slider.slider/slides [{:schema/type :schema.type/slider.slide
                               :slider.slide/name (entities.i18n/get-i18n-entity {:en_US "First slide"})
-                              :slider.slide/file (first (entity/query :file))}
+                              :slider.slide/file (gen/generate (entity/ref-generator :file))}
                              {:schema/type :schema.type/slider.slide
                               :slider.slide/name (entities.i18n/get-i18n-entity {:en_US "Second slide"})
-                              :slider.slide/file (second (entity/query :file))}]}])})
+                              :slider.slide/file (gen/generate (entity/ref-generator :file))}]}])})
 
 (api/register-endpoint!
   ::sliders.get

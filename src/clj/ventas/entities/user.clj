@@ -129,15 +129,4 @@
      [(fn [user]
         (if (:user/password user)
           (update user :user/password hashers/derive)
-          user))]))
-
-  :fixtures
-  (fn []
-    [{:user/first-name "Test"
-      :user/last-name "User"
-      :user/company "Test Company"
-      :user/email "test@test.com"
-      :user/status :user.status/active
-      :user/password "test"
-      :user/phone "+34 654 543 431"
-      :user/culture [:i18n.culture/keyword :en_US]}])})
+          user))]))})

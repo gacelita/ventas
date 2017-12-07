@@ -411,7 +411,10 @@
   (gen/elements
    (if new?
      (generate type)
-     (map :db/id (query type)))))
+     (let [entities (query type)]
+       (if (seq entities)
+         (map :db/id entities)
+         (generate type))))))
 
 (defn refs-generator [type & {:keys [new?]}]
   (gen/vector (ref-generator type :new? new?)))

@@ -140,23 +140,6 @@
   :dependencies
   #{:brand :tax :file :category :product.term :product.price :currency}
 
-  :fixtures
-  (fn []
-    [{:product/name (entities.i18n/get-i18n-entity {:en_US "Test product"})
-      :product/active true
-      :product/price {:schema/type :schema.type/product.price
-                      :product.price/amount 15.4M
-                      :product.price/currency [:currency/keyword :eur]}
-      :product/reference "REF001"
-      :product/ean13 "7501031311309"
-      :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
-      :product/condition :product.condition/new
-      :product/brand [:brand/keyword :test-brand]
-      :product/tax [:tax/keyword :test-tax]
-      :product/categories [[:category/keyword :test-category]]
-      :product/terms [[:product.term/keyword :green-color]]
-      :product/keyword :test-product}])
-
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
@@ -205,13 +188,7 @@
   :dependencies
   #{:file :product}
 
-  :seed-number 0
-
-  :fixtures
-  (fn []
-    [{:product.image/position 0
-      :product.image/file (:db/id (first (entity/query :file)))
-      :product.image/product [:product/keyword :test-product]}])})
+  :seed-number 0})
 
 
 (spec/def :product.price/amount ::generators/bigdec)

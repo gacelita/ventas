@@ -10,10 +10,10 @@
 (spec/def :category/name ::entities.i18n/ref)
 
 (spec/def :category/parent
-  (spec/with-gen integer? #(entity/ref-generator :category)))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :category)))
 
 (spec/def :category/image
-  (spec/with-gen integer? #(entity/ref-generator :file)))
+  (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
 
 (spec/def :category/keyword ::generators/keyword)
 
@@ -62,15 +62,9 @@
 
   :fixtures
   (fn []
-    [{:category/name (entities.i18n/get-i18n-entity {:en_US "Default"})
-      :category/keyword :default}
-     {:category/name (entities.i18n/get-i18n-entity {:en_US "Sample category"})
-      :category/keyword :sample-category}
-     {:category/name (entities.i18n/get-i18n-entity {:en_US "Winter"})
-      :category/keyword :winter}
-     {:category/name (entities.i18n/get-i18n-entity {:en_US "Test category"})
-      :category/image (:db/id (first (entity/query :file)))
-      :category/keyword :test-category}])
+    [{:category/name (entities.i18n/get-i18n-entity {:en_US "Default"
+                                                     :es_ES "Predeterminada"})
+      :category/keyword :default}])
 
   :dependencies
   #{:file :i18n}

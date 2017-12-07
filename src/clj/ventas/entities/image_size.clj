@@ -81,16 +81,7 @@
 
    {:db/ident :image-size/entities
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]
-
-  :fixtures
-  (fn []
-    [{:image-size/keyword :test-image-size
-      :image-size/width 50
-      :image-size/height 50
-      :image-size/algorithm :image-size.algorithm/crop-and-resize
-      :image-size/quality 1.0
-      :image-size/entities entities}])})
+    :db/cardinality :db.cardinality/many}]})
 
 (defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]
   (let [algorithm (name algorithm)]

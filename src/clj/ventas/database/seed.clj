@@ -10,7 +10,9 @@
    [ventas.plugin :as plugin]
    [ventas.theme :as theme]))
 
-(defn- seed-attrs [attrs]
+(defn- create*
+  "Wraps create* with the seed lifecycle functions"
+  [attrs]
   (let [attrs (entity/filter-seed attrs)
         _ (entity/before-seed attrs)
         entity (entity/create* attrs)]
@@ -20,9 +22,9 @@
   "Seeds the database with n entities of a type"
   [type n]
   (doseq [fixture (entity/fixtures type)]
-    (seed-attrs fixture))
+    (create* fixture))
   (doseq [attributes (entity/generate (db/kw->type type) n)]
-    (seed-attrs attributes)))
+    (create* attributes)))
 
 (defn seed-type-with-deps
   [type n]
@@ -64,21 +66,25 @@
     (get-sorted-types* [] types)))
 
 (defn seed
-  "Seeds the database with sample data"
-  [& {:keys [recreate?]}]
+  "Migrates the database and transacts the fixtures.
+   Options:
+     recreate? - removes the db and creates a new one
+     generate? - seeds the database with randomly generated entities"
+  [& {:keys [recreate? generate?]}]
+
   (schema/migrate :recreate? recreate?)
   (info "Migrations done!")
 
   (doseq [type (get-sorted-types)]
     (info "Seeding type " type)
-    (seed-type type (entity/seed-number type)))
+    (seed-type type (if generate? (entity/seed-number type) 0)))
 
   (doseq [theme-kw (theme/all)]
-    (info "Seeding theme " theme-kw)
+    (info "Installing theme " theme-kw)
     (doseq [fixture (theme/fixtures theme-kw)]
-      (entity/create* fixture)))
+      (create* fixture)))
 
   (doseq [plugin-kw (plugin/all)]
-    (info "Seeding plugin " plugin-kw)
+    (info "Installing plugin " plugin-kw)
     (doseq [fixture (plugin/fixtures plugin-kw)]
-      (entity/create* fixture))))
+      (create* fixture))))

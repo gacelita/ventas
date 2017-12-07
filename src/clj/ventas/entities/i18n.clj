@@ -108,7 +108,8 @@
         (throw (Error. "You can't add more than one translation per culture to an :i18n entity")))))
 
   :to-json
-  (fn [this & [{:keys [culture]}]]
+  (fn [this {:keys [culture]}]
+    (taoensso.timbre/debug "Culture?" culture)
     (if-not culture
       (->> (:i18n/translations this)
            (map (comp entity/to-json entity/find))
@@ -119,7 +120,7 @@
                   [?this-eid :i18n/translations ?term-translation]
                   [?term-translation :i18n.translation/value ?translated]
                   [?term-translation :i18n.translation/culture ?culture]]
-                [(:db/id this) culture])
+                [(:db/id this) (:db/id culture)])
           (first)
           (first))))
 

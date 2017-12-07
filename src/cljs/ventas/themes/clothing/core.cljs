@@ -1,4 +1,5 @@
 (ns ventas.themes.clothing.core
+  "See the docstring in the server version of this file"
   (:require
    [ventas.themes.clothing.pages.frontend]
    [ventas.i18n :as i18n]))
@@ -14,6 +15,8 @@
    :ventas.themes.clothing.components.skeleton/cookies "We use cookies on this site to enhance your user experience."
 
    :ventas.themes.clothing.pages.frontend/page "Home"
+   :ventas.themes.clothing.pages.frontend/suggestions-of-the-week "Suggestions of the week"
+   :ventas.themes.clothing.pages.frontend/recently-added "Recently added"
    :ventas.themes.clothing.pages.frontend.category/page "%s"
    :ventas.themes.clothing.pages.frontend.cart/cart "Cart"
    :ventas.themes.clothing.pages.frontend.cart/page "Cart"
