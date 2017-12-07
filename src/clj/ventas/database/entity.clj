@@ -394,6 +394,11 @@
        (db/nice-query {:find '[?id]
                        :where (filters->wheres type filters)})))
 
+(defn query-one
+  "(first (query))"
+  [type & [filters]]
+  (first (query type filters)))
+
 (defn generate*
   "Generates one sample of a given entity type"
   [type]

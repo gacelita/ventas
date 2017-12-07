@@ -29,6 +29,6 @@
 
 (api/register-endpoint!
  :blog.list
- (fn [{:keys [params] :as message} state]
-   (map entity/to-json
+ (fn [{:keys [params] :as message} {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
         (entity/query :blog.post))))

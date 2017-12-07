@@ -23,11 +23,9 @@
              :opt [:category/image
                    :category/parent]))
 
-(defn get-image [entity]
+(defn get-image [entity params]
   (if (:category/image entity)
-    (-> (:category/image entity)
-        (entity/find)
-        (entity/to-json))
+    (entity/find-json (:category/image entity) params)
     (when-let [image-eid
                (-> (db/nice-query {:find ['?id]
                                    :in {'?category (:db/id entity)}
@@ -36,9 +34,7 @@
                                             [?image :product.image/file ?id]]})
                    (first)
                    (:id))]
-      (-> image-eid
-          (entity/find)
-          (entity/to-json)))))
+      (entity/find-json image-eid params))))
 
 (entity/register-type!
  :category
@@ -72,4 +68,4 @@
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
-        (assoc :image (get-image this))))})
+        (assoc :image (get-image this params))))})

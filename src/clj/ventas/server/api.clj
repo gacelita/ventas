@@ -36,7 +36,7 @@
 (defn get-culture [session]
   (let [user (:user @session)]
     (or (:user/culture user)
-        (entity/find [:i18n.culture/keyword :en_US]))))
+        [:i18n.culture/keyword :en_US])))
 
 (register-endpoint!
   :entities.remove
@@ -70,7 +70,7 @@
 
 (register-endpoint!
   :users.login
-  (fn [{:keys [params] :as message} {:keys [session] :as state}]
+  (fn [{:keys [params] :as message} {:keys [session]}]
     (let [{:keys [email password]} params]
       (when-not (and email password)
         (throw (Exception. "Email and password are required")))
@@ -139,27 +139,27 @@
 
 (register-endpoint!
   :users.draft-order
-  (fn [{:keys [params]} state]
+  (fn [{:keys [params]} {:keys [session]}]
     (let [user {}]
       (-> (entity/query :order {:status :order.status/draft
                                 :user (:id user)})
           (first)
-          (entity/find)
-          (entity/to-json)))))
+          (entity/find-json {:culture (get-culture session)})))))
 
 (register-endpoint!
   :configuration.get
-  (fn [{:keys [params]} state]
+  (fn [{:keys [params]} {:keys [session]}]
     {:pre [(keyword? (:keyword params))]}
     (let [kw (:keyword params)]
       (if-let [value (first (entity/query :configuration {:keyword kw}))]
-        (entity/to-json value)
+        (entity/to-json value {:culture (get-culture session)})
         (throw (Error. (str "Could not find configuration with keyword: " kw)))))))
 
 (register-endpoint!
   :events.list
-  (fn [{:keys [pagination params]} state]
-    (let [items (map entity/to-json (entity/query :event))])))
+  (fn [{:keys [pagination params]} {:keys [session]}]
+    (let [items (map #(entity/to-json % {:culture (get-culture session)})
+                     (entity/query :event))])))
 
 (register-endpoint!
   :products.get
@@ -167,12 +167,11 @@
     (-> (cond
           (number? id) id
           (keyword? id) [:product/keyword id])
-        (entity/find)
-        (entity/to-json {:culture (get-culture session)}))))
+        (entity/find-json {:culture (get-culture session)}))))
 
 (register-endpoint!
   :products.list
-  (fn [{{:keys [pagination filters]} :params} state]
+  (fn [{{:keys [pagination filters]} :params} {:keys [session]}]
     (let [{:keys [terms price]} filters]
       (assert (or (nil? terms) (set? terms)))
 
@@ -183,7 +182,7 @@
                       (concat wheres [['?id :product/price '?price]
                                       [[<= min '?price max]]]))
                     wheres))
-            items (map #(-> % :id entity/find entity/to-json)
+            items (map #(entity/find-json (:id %) {:culture (get-culture session)})
                        (db/nice-query {:find '[?id]
                                        :where wheres}))]
         (pagination/paginate items pagination)))))
@@ -241,30 +240,34 @@
 
 (register-endpoint!
   :categories.list
-  (fn [{{:keys [pagination]} :params} state]
-    (let [items (map entity/to-json (entity/query :category))]
+  (fn [{{:keys [pagination]} :params} {:keys [session]}]
+    (let [items (map #(entity/to-json % {:culture (get-culture session)})
+                     (entity/query :category))]
       (pagination/paginate items pagination))))
 
 
 
 (register-endpoint!
   :brands.list
-  (fn [{{:keys [pagination]} :params} state]
-    (let [items (map entity/to-json (entity/query :brand))]
+  (fn [{{:keys [pagination]} :params} {:keys [session]}]
+    (let [items (map #(entity/to-json % {:culture (get-culture session)})
+                     (entity/query :brand))]
       (pagination/paginate items pagination))))
 
 
 
 (register-endpoint!
   :taxes.list
-  (fn [{{:keys [pagination]} :params} state]
-    (let [items (map entity/to-json (entity/query :tax))]
+  (fn [{{:keys [pagination]} :params} {:keys [session]}]
+    (let [items (map #(entity/to-json % {:culture (get-culture session)})
+                     (entity/query :tax))]
       (pagination/paginate items pagination))))
 
 (register-endpoint!
   :image-sizes.list
-  (fn [{{:keys [pagination]} :params} state]
-    (let [items (map entity/to-json (entity/query :image-size))]
+  (fn [{{:keys [pagination]} :params} {:keys [session]}]
+    (let [items (map #(entity/to-json % {:culture (get-culture session)})
+                     (entity/query :image-size))]
       (pagination/paginate items pagination))))
 
 (register-endpoint!

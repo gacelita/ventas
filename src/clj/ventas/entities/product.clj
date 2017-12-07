@@ -152,7 +152,7 @@
                               (map (fn [[taxonomy terms]]
                                      {:taxonomy taxonomy :terms terms})))))
         (assoc :images (->> (entity/query :product.image {:product (:db/id this)})
-                            (map entity/to-json)
+                            (map #(entity/to-json % params))
                             (map (fn [{:keys [file position]}]
                                    (assoc file :position position)))
                             (sort-by :position)
