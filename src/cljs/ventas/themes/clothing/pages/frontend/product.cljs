@@ -33,11 +33,13 @@
                [::components.slider/next [state-key :slider]])}))))
 
 (defn- images-view []
-  (let [state-path [state-key :slider]]
+  (let [state-path [state-key :slider]
+        {:keys [slides visible-slides]} @(rf/subscribe [::events/db state-path])]
     [:div.product-page__images
-     [:div.product-page__up
-      [base/icon {:name "chevron up"
-                  :on-click #(rf/dispatch [::components.slider/previous state-path])}]]
+     (when (<= visible-slides (count slides))
+       [:div.product-page__up
+        [base/icon {:name "chevron up"
+                    :on-click #(rf/dispatch [::components.slider/previous state-path])}]])
      [:div.product-page__images-wrapper
       ^{:key @(rf/subscribe [::events/db (conj state-path :render-index)])}
       [:div.product-page__images-inner {:style {:top @(rf/subscribe [::components.slider/offset state-path])}}
@@ -48,12 +50,13 @@
             :src (str "/images/" (:id image) "/resize/product-page-vertical-carousel")
             :on-click #(rf/dispatch [::set-main-image image (case idx
                                                               1 :up
-                                                              3 :down
+                                                              visible-slides :down
                                                               nil)])}])
         @(rf/subscribe [::components.slider/slides state-path]))]]
-     [:div.product-page__down
-      [base/icon {:name "chevron down"
-                  :on-click #(rf/dispatch [::components.slider/next state-path])}]]]))
+     (when (<= visible-slides (count slides))
+       [:div.product-page__down
+        [base/icon {:name "chevron down"
+                    :on-click #(rf/dispatch [::components.slider/next state-path])}]])]))
 
 (defn- main-image-view [{:keys [product]}]
   (let [image @(rf/subscribe [::events/db [state-key :main-image]])]
@@ -69,6 +72,17 @@
  ::set-quantity
  (fn [db [_ qty]]
    (assoc-in db [state-key :quantity] qty)))
+
+(defmulti term-view (fn [{:keys [keyword]} _] keyword))
+
+(defmethod term-view :color [_ {:keys [color name]}]
+  [:div.product-page__term {:class "product-page__term--color"
+                            :style {:background-color color}
+                            :title name}])
+
+(defmethod term-view :default [_ {:keys [name]}]
+  [:div.product-page__term
+   [:h3 name]])
 
 (defn- info-view [{:keys [quantity product]}]
   (let [{:keys [name price description terms]} product]
@@ -86,8 +100,7 @@
          [:h4 (:name taxonomy)]
          [:div.product-page__terms
           (for [term terms]
-            [:div.product-page__term
-             [:h3 (:name term)]])]])]
+            [term-view taxonomy term])]])]
 
      [:div.product-page__actions
       [:button.product-page__heart
@@ -111,14 +124,18 @@
    (-> db
        (assoc-in [state-key :product] product)
        (assoc-in [state-key :slider]
-                 {:slides (mapv (fn [image]
-                                  (merge image
-                                         {:width (+ 120 -6)
-                                          :height (+ 190 -6)}))
-                                images)
-                  :orientation :vertical
-                  :render-index (dec (count images))
-                  :current-index 1})
+                 (let [visible-slides 3]
+                   {:slides (mapv (fn [image]
+                                    (merge image
+                                           {:width (+ 120 -6)
+                                            :height (+ 190 -6)}))
+                                  images)
+                    :orientation :vertical
+                    :render-index (dec (count images))
+                    :current-index (if (<= visible-slides (count images))
+                                     1
+                                     0)
+                    :visible-slides visible-slides}))
        (assoc-in [state-key :main-image] (first images)))))
 
 (defn content []

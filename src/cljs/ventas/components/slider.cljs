@@ -11,7 +11,8 @@
   for getting and setting data in the db.
   Users of this ns are expected to fill that state in this way:
   {:slides [{:width 0 :height 0} ...]
-   :orientation #{:vertical :horizontal}"
+   :orientation #{:vertical :horizontal}
+   :visible-slides 3"
 
 (def transition-duration-ms 250)
 
@@ -30,11 +31,13 @@
 (rf/reg-sub
  ::slides
  (fn [db [_ state-path]]
-   (let [{:keys [render-index slides]} (get-in db state-path)]
+   (let [{:keys [render-index slides visible-slides]} (get-in db state-path)]
      (when (and render-index slides)
        (->> (cycle slides)
             (drop render-index)
-            (take (+ 2 (count slides))))))))
+            (take (if (<= visible-slides (count slides))
+                    (+ 2 (count slides))
+                    (count slides))))))))
 
 (def update-stage (atom nil))
 
