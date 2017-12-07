@@ -12,7 +12,7 @@
    [ventas.database.schema :as schema]
    [ventas.utils :as utils]))
 
-(defn is-entity? [entity]
+(defn entity? [entity]
   (when (map? entity)
     (contains? (set (keys entity)) :schema/type)))
 
@@ -57,7 +57,7 @@
 (defn type
   "Returns the type of an entity"
   [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (keyword (name (:schema/type entity))))
 
 (defn type-properties
@@ -77,43 +77,43 @@
 (defn to-json
   "Transforms an entity into a stripped map, suitable for sending to the outside"
   [entity & [options]]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :to-json entity options))
 
 (defn filter-seed [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :filter-seed entity))
 
 (defn filter-create [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :filter-create entity))
 
 (defn filter-update [entity data]
-  {:pre [(is-entity? entity) (map? data)]}
+  {:pre [(entity? entity) (map? data)]}
   (call-type-fn :filter-update entity data))
 
 (defn before-seed [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :before-seed entity))
 
 (defn before-create [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :before-create entity))
 
 (defn before-delete [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :before-delete entity))
 
 (defn after-seed [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :after-seed entity))
 
 (defn after-create [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :after-create entity))
 
 (defn after-delete [entity]
-  {:pre [(is-entity? entity)]}
+  {:pre [(entity? entity)]}
   (call-type-fn :after-delete entity))
 
 (defn spec
@@ -130,7 +130,7 @@
   [eid]
   {:pre [(or (db/lookup-ref? eid) (number? eid))]}
   (let [result (db/touch-eid eid)]
-    (when (is-entity? result)
+    (when (entity? result)
       result)))
 
 (defn find-json
@@ -149,8 +149,8 @@
   (into {}
         (map (fn [[k v]]
                [k (cond
-                    (is-entity? v) (prepare-creation-attrs v)
-                    (and (coll? v) (is-entity? (first v))) (map prepare-creation-attrs v)
+                    (entity? v) (prepare-creation-attrs v)
+                    (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
                     :else v)])
              (-> pre-entity
                  (assoc :db/id (or initial-tempid (d/tempid :db.part/user)))
@@ -216,7 +216,7 @@
 (spec/def
   ::ref
   (spec/or :eid number?
-           :entity is-entity?
+           :entity entity?
            :lookup-ref db/lookup-ref?))
 
 (spec/def

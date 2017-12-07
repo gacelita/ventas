@@ -11,6 +11,6 @@
   (let [user (-> (buddy.jwt/unsign token (config/get :auth-secret))
                  :user-id
                  (entity/find))]
-    (if (entity/is-entity? user)
+    (if (entity/entity? user)
       user
       nil)))
