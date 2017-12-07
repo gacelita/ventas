@@ -1,7 +1,7 @@
 (ns ventas.ws
   "Requests and responses, abstracted over websocket communication"
   (:require
-   [ventas.utils.logging :refer [trace debug info warn error]]
+   [ventas.utils.logging :as log]
    [cljs.core.async :refer [<! >! close! chan]]
    [chord.client :as chord]
    [chord.format.fressian]
@@ -24,11 +24,11 @@
 (defn send-request!
   "Sends a request and calls the callback with the response"
   [{:keys [params callback] request-name :name} & {:keys [binary? realtime?]}]
-  (debug ::send-request!
-         {:name request-name
-          :params params
-          :binary? binary?
-          :realtime? realtime?})
+  (log/debug ::send-request!
+             {:name request-name
+              :params params
+              :binary? binary?
+              :realtime? realtime?})
   (let [request-channel (chan)
         request-id (str (gensym (str "request-" (name request-name) "-")))
         output-channel (if binary? (output-binary-channel) (output-json-channel))]
@@ -64,7 +64,7 @@
   (init))
 
 (defmethod ws-event-dispatch :default [event]
-  (debug "Unhandled event: " event))
+  (log/debug "Unhandled event: " event))
 
 (defn receive-messages! [websocket-channel format]
   "Receives messages from the server and calls an appropiate dispatcher"
@@ -73,11 +73,11 @@
           {:keys [type] :as message} (if (= format :json-kw)
                                        (common.utils/process-input-message message)
                                        message)]
-      (debug ::receive-messages! message)
+      (log/debug ::receive-messages! message)
       (case type
         :event (ws-event-dispatch message)
         :response (ws-response-dispatch message)
-        (warn "Unhandled websocket message" message))
+        (log/warn "Unhandled websocket message" message))
       (if (seq message)
         (recur)
         (init)))))
@@ -101,7 +101,7 @@
            {:keys [ws-channel] ws-error :error} (<! (chord/ws-ch url {:format format}))]
        (if ws-error
          (do
-           (error "Error connecting to the " format " websocket: " ws-error)
+           (log/error "Error connecting to the " format " websocket: " ws-error)
            (>! channel false))
          (do
            (swap! output-channels assoc format (doto (chan)
@@ -115,7 +115,7 @@
   []
   (let [channel (chan)]
     (go
-      (info "Starting websockets")
+      (log/info "Starting websockets")
       (let [json-result (<! (start-websocket :json-kw))
             fressian-result (<! (start-websocket :fressian))]
         (>! channel (and json-result fressian-result))))
@@ -126,18 +126,19 @@
     keyword? (rf/dispatch [to-call data])
     vector? (rf/dispatch (conj to-call data))
     fn? (to-call data)
-    (error "Not an effect or function: " to-call)))
+    (log/error "Not an effect or function: " to-call)))
 
 (defn effect-ws-request [{:keys [name params success error]}]
   (send-request!
    {:name name
     :params params
     :callback
-    (fn [{data :data request-succeeded? :success}]
+    (fn [{data :data request-succeeded? :success :as response}]
       (cond
         (not request-succeeded?)
           (do
             (rf/dispatch [::notificator/add {:message data :theme "warning"}])
+            (log/error "Request failed!" response)
             (when error
               (call error data)))
         success
