@@ -142,6 +142,7 @@
          :user/status :user.status/active
          :user/password "test"
          :user/phone "+34 654 543 431"
+         :user/favorites [[:product/keyword :test-product]]
          :user/culture [:i18n.culture/keyword :en_US]}]))
 
 (defn addresses []

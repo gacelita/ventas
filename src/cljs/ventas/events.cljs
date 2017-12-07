@@ -90,7 +90,7 @@
                                 (rf/dispatch [::session.start.next %])
                                 (rf/dispatch [::session.start.error]))
                     :error ::session.start.error}]}
-       {:dispatch [::session.start.error]}))))
+       {:dispatch-n [::session.start.error]}))))
 
 (rf/reg-event-fx
  ::session.start.next
@@ -121,6 +121,12 @@
  (fn [cofx [_ options]]
    {:dispatch [::backend/users.addresses options]
     :forward-events {:unregister ::users.addresses.listener}}))
+
+(rf/reg-event-fx
+ ::users.favorites.list
+ (fn [cofx [_ db-key]]
+   {:dispatch [::backend/users.favorites.list
+               {:success [::db :users.favorites]}]}))
 
 (rf/reg-event-fx
  ::image-sizes.list

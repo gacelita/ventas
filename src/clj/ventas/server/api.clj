@@ -33,8 +33,11 @@
        (defmethod server.ws/handle-binary-request kw [request state]
          (f request state))))))
 
+(defn get-user [session]
+  (:user @session))
+
 (defn get-culture [session]
-  (let [user (:user @session)]
+  (let [user (get-user session)]
     (or (:user/culture user)
         [:i18n.culture/keyword :en_US])))
 
@@ -104,14 +107,14 @@
 (register-endpoint!
   :users.addresses
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [user (:user @session)]
+    (let [user (get-user session)]
       (->> (entity/query :address {:user (:db/id user)})
            (map #(entity/to-json % {:culture (get-culture session)}))))))
 
 (register-endpoint!
   :users.addresses.save
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [user (:user @session)
+    (let [user (get-user session)
           address (entity/find (:id params))]
       (when-not (= (:db/id user) (:address/user address))
         (throw (Exception. "Unauthorized")))
@@ -140,11 +143,32 @@
 (register-endpoint!
   :users.draft-order
   (fn [{:keys [params]} {:keys [session]}]
-    (let [user {}]
-      (-> (entity/query :order {:status :order.status/draft
-                                :user (:id user)})
-          (first)
+    (let [user (get-user session)]
+      (-> (entity/query-one :order {:status :order.status/draft
+                                    :user (:id user)})
           (entity/find-json {:culture (get-culture session)})))))
+
+(register-endpoint!
+  :users.favorites.list
+  (fn [{:keys [params]} {:keys [session]}]
+    (let [{:user/keys [favorites]} (get-user session)]
+      (->> favorites
+           (map #(entity/find-json % {:culture (get-culture session)}))))))
+
+(defn- toggle-favorite [session product-id f]
+  (when-let [user (get-user session)]
+    (entity/update* {:db/id (:db/id user)
+                     :user/favorites (f (set (:user/favorites user)) product-id)})))
+
+(register-endpoint!
+  :users.favorites.add
+  (fn [{{:keys [id]} :params} {:keys [session]}]
+    (toggle-favorite session id conj)))
+
+(register-endpoint!
+  :users.favorites.remove
+  (fn [{{:keys [id]} :params} {:keys [session]}]
+    (toggle-favorite session id disj)))
 
 (register-endpoint!
   :configuration.get

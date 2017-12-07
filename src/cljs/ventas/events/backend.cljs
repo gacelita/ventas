@@ -119,6 +119,21 @@
    {:ws-request (merge {:name :users.addresses.save} options)}))
 
 (rf/reg-event-fx
+ ::users.favorites.list
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :users.favorites.list} options)}))
+
+(rf/reg-event-fx
+ ::users.favorites.add
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :users.favorites.add} options)}))
+
+(rf/reg-event-fx
+ ::users.favorites.remove
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :users.favorites.add} options)}))
+
+(rf/reg-event-fx
  ::states.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :states.list} options)}))

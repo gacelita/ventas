@@ -80,6 +80,18 @@
    {:pre [taxonomy-id term-id]}
    (assoc-in db [state-key :terms taxonomy-id] term-id)))
 
+(rf/reg-event-fx
+ ::toggle-favorite
+ (fn [{:keys [db]} [_]]
+   (let [{:keys [id]} (get-in db [state-key :product])
+         favorites (set (get db :users.favorites))]
+     {:dispatch (if (contains? favorites id)
+                  [::backend/users.favorites.remove {:params {:id id}}]
+                  [::backend/users.favorites.add {:params {:id id}}])
+      :db (update db :users.favorites #(if (contains? favorites id)
+                                         (disj (set %) id)
+                                         (conj (set %) id)))})))
+
 (defmulti term-view (fn [{:keys [keyword]} _] keyword))
 
 (defmethod term-view :color [taxonomy {:keys [color name] :as term} active?]
@@ -95,42 +107,46 @@
                             :on-click #(rf/dispatch [::select-term taxonomy term])}
    [:h3 name]])
 
-(defn- info-view [{:keys [quantity product]}]
-  (let [{:keys [name price description terms]} product]
-    [:div.product-page__info
-     [:h1.product-page__name name]
-     [:p.product-page__description description]
+(defn- info-view [_]
+  (rf/dispatch [::events/users.favorites.list])
+  (fn [{:keys [quantity product]}]
+    (let [{:keys [name price description terms]} product]
+      [:div.product-page__info
+       [:h1.product-page__name name]
+       [:p.product-page__description description]
 
-     [:h2.product-page__price
-      (let [{:keys [amount currency]} price]
-        (str (formatting/format-number amount) " " (:symbol currency)))]
+       [:h2.product-page__price
+        (let [{:keys [amount currency]} price]
+          (str (formatting/format-number amount) " " (:symbol currency)))]
 
-     [:div.product-page__terms-section
-      (let [active-terms @(rf/subscribe [::events/db [state-key :terms]])
-            active-term-ids (set (vals active-terms))]
-        (for [{:keys [taxonomy terms]} terms]
-          [:div.product-page__taxonomy
-           [:h4 (str (:name taxonomy) ": "
-                     (when-let [selected-term (common.utils/find-first
-                                               #(= (:id %) (get active-terms (:id taxonomy)))
-                                               terms)]
-                       (:name selected-term)))]
-           [:div.product-page__terms
-            (for [term terms]
-              [term-view taxonomy term (contains? active-term-ids (:id term))])]]))]
-
-     [:div.product-page__actions
-      [:button.product-page__heart
-       {:type "button"
-        :on-click #(rf/dispatch [::cart/add {:product product
-                                             :quantity quantity}])}
-       [base/icon {:name "empty heart"}]]
-      [:button.product-page__add-to-cart
-       {:type "button"
-        :on-click #(rf/dispatch [::cart/add {:product product
-                                             :quantity quantity}])}
-       [base/icon {:name "add to cart"}]
-       (i18n ::add-to-cart)]]]))
+       [:div.product-page__terms-section
+        (let [active-terms @(rf/subscribe [::events/db [state-key :terms]])
+              active-term-ids (set (vals active-terms))]
+          (for [{:keys [taxonomy terms]} terms]
+            [:div.product-page__taxonomy
+             [:h4 (str (:name taxonomy) ": "
+                       (when-let [selected-term (common.utils/find-first
+                                                 #(= (:id %) (get active-terms (:id taxonomy)))
+                                                 terms)]
+                         (:name selected-term)))]
+             [:div.product-page__terms
+              (for [term terms]
+                [term-view taxonomy term (contains? active-term-ids (:id term))])]]))]
+       [:div.product-page__actions
+        (let [favorites (set @(rf/subscribe [::events/db :users.favorites]))]
+          (js/console.log "favorites" favorites)
+          [:button.product-page__heart
+           {:type "button"
+            :class (when (contains? favorites (:id product))
+                     "product-page__heart--active")
+            :on-click #(rf/dispatch [::toggle-favorite])}
+           [base/icon {:name "empty heart"}]])
+        [:button.product-page__add-to-cart
+         {:type "button"
+          :on-click #(rf/dispatch [::cart/add {:product product
+                                               :quantity quantity}])}
+         [base/icon {:name "add to cart"}]
+         (i18n ::add-to-cart)]]])))
 
 (defn- description-view [{{:keys [details]} :product}]
   (when-not (empty? details)

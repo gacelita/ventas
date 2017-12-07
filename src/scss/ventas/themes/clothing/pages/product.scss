@@ -91,7 +91,7 @@
     background: white;
     margin-right: 10px;
 
-    &:hover {
+    &:hover, &.product-page__heart--active {
         .icon:before {
             content: "\f004" !important;
         }

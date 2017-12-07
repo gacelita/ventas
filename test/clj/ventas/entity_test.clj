@@ -4,10 +4,10 @@
    [ventas.database.entity :as sut]
    [ventas.database.seed :as seed]))
 
-(deftest is-entity?
-  (is (= (sut/is-entity? {:schema/type :any-kw}) true))
-  (is (= (sut/is-entity? {}) false))
-  (is (= (sut/is-entity? {:type :any-kw}) false)))
+(deftest entity?
+  (is (= (sut/entity? {:schema/type :any-kw}) true))
+  (is (= (sut/entity? {}) false))
+  (is (= (sut/entity? {:type :any-kw}) false)))
 
 (def test-user-attrs
   {:name "Test user"

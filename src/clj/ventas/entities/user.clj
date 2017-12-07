@@ -37,8 +37,6 @@
 
 (spec/def :user/roles roles)
 
-
-
 (def cultures
   #{:user.culture/en_US
     :user.culture/es_ES})
@@ -46,22 +44,26 @@
 (spec/def :user/culture
   (spec/with-gen ::entity/ref #(entity/ref-generator :i18n.culture)))
 
+(spec/def :user/favorites
+  (spec/with-gen ::entity/refs #(entity/refs-generator :product.variation)))
+
 (spec/def :user/email
   (spec/with-gen
    (spec/and string? #(str/includes? % "@"))
    #(gen'/string-from-regex #"[a-z0-9]{3,6}@[a-z0-9]{3,6}\.(com|es|org)")))
 
 (spec/def :schema.type/user
-  (spec/keys :req [:user/first-name
+  (spec/keys :opt [:user/description
+                   :user/roles
+                   :user/password
+                   :user/favorites
+                   :user/first-name
                    :user/last-name
                    :user/company
                    :user/email
                    :user/phone
                    :user/status
-                   :user/culture]
-             :opt [:user/description
-                   :user/roles
-                   :user/password]))
+                   :user/culture]))
 
 (entity/register-type!
  :user
@@ -116,6 +118,10 @@
      :db/cardinality :db.cardinality/one}
 
     {:db/ident :user/roles
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many}
+
+    {:db/ident :user/favorites
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/many}]
 
