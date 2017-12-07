@@ -12,7 +12,8 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.components.slider :as components.slider]
-   [ventas.utils.formatting :as formatting]))
+   [ventas.utils.formatting :as formatting]
+   [ventas.common.utils :as common.utils]))
 
 (def state-key ::state)
 
@@ -73,15 +74,25 @@
  (fn [db [_ qty]]
    (assoc-in db [state-key :quantity] qty)))
 
+(rf/reg-event-db
+ ::select-term
+ (fn [db [_ {taxonomy-id :id} {term-id :id}]]
+   {:pre [taxonomy-id term-id]}
+   (assoc-in db [state-key :terms taxonomy-id] term-id)))
+
 (defmulti term-view (fn [{:keys [keyword]} _] keyword))
 
-(defmethod term-view :color [_ {:keys [color name]}]
-  [:div.product-page__term {:class "product-page__term--color"
+(defmethod term-view :color [taxonomy {:keys [color name] :as term} active?]
+  [:div.product-page__term {:class (str "product-page__term--color "
+                                        (when active?
+                                          "product-page__term--active"))
                             :style {:background-color color}
-                            :title name}])
+                            :title name
+                            :on-click #(rf/dispatch [::select-term taxonomy term])}])
 
-(defmethod term-view :default [_ {:keys [name]}]
-  [:div.product-page__term
+(defmethod term-view :default [taxonomy {:keys [name] :as term} active?]
+  [:div.product-page__term {:class (when active? "product-page__term--active")
+                            :on-click #(rf/dispatch [::select-term taxonomy term])}
    [:h3 name]])
 
 (defn- info-view [{:keys [quantity product]}]
@@ -95,12 +106,18 @@
         (str (formatting/format-number amount) " " (:symbol currency)))]
 
      [:div.product-page__terms-section
-      (for [{:keys [taxonomy terms]} terms]
-        [:div.product-page__taxonomy
-         [:h4 (:name taxonomy)]
-         [:div.product-page__terms
-          (for [term terms]
-            [term-view taxonomy term])]])]
+      (let [active-terms @(rf/subscribe [::events/db [state-key :terms]])
+            active-term-ids (set (vals active-terms))]
+        (for [{:keys [taxonomy terms]} terms]
+          [:div.product-page__taxonomy
+           [:h4 (str (:name taxonomy) ": "
+                     (when-let [selected-term (common.utils/find-first
+                                               #(= (:id %) (get active-terms (:id taxonomy)))
+                                               terms)]
+                       (:name selected-term)))]
+           [:div.product-page__terms
+            (for [term terms]
+              [term-view taxonomy term (contains? active-term-ids (:id term))])]]))]
 
      [:div.product-page__actions
       [:button.product-page__heart
@@ -115,8 +132,13 @@
        [base/icon {:name "add to cart"}]
        (i18n ::add-to-cart)]]]))
 
-(defn- description-view [{:keys [description]}]
-  [:p description])
+(defn- description-view [{{:keys [details]} :product}]
+  (when-not (empty? details)
+    [:div.product-page__details
+     [base/container
+      [:h2 (i18n ::product-details)]
+      [:div.product-page__details-inner
+       [:p details]]]]))
 
 (rf/reg-event-db
  ::populate
@@ -145,12 +167,13 @@
                                           :success ::populate}])
     (fn []
       (let [state @(rf/subscribe [::events/db state-key])]
-        [base/container
-         [:div.product-page
+        [:div.product-page
+         [base/container
           [:div.product-page__top
            [images-view]
            [main-image-view state]
-           [info-view state]]
+           [info-view state]]]
+         [:div.product-page__bottom
           [description-view state]]]))))
 
 (defn page []
