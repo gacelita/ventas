@@ -68,7 +68,7 @@ INFO [client:42] - Starting SASS
 :done
 ```
 
-Then, migrate and seed the database:
+Then, create the database, apply the schema and create the fixtures:
 
 ```clojure
 (seed/seed :recreate? true)
@@ -142,8 +142,8 @@ To quit, type: :cljs/quit
 - The database is Datomic. A custom database entity system, which relies on core.spec, abstracts the database and allows easy testing and generation of sample data.
 
   ```clojure
-  ;; recreates the database and seeds it with random entities
-  (seed/seed :recreate? true)
+  ;; recreates the database, applies the schema, creates the fixtures and seeds the database with randomly generated entities
+  (seed/seed :recreate? true :generate? true)
   ```
   Lots of utility functions make exploring the database and getting data from it more interactive and fast.
 
