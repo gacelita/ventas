@@ -25,7 +25,8 @@
     :order.status/paid
     :order.status/acknowledged
     :order.status/ready
-    :order.status/shipped})
+    :order.status/shipped
+    :order.status/draft})
 
 (spec/def :order/shipping-address
   (spec/with-gen ::entity/ref #(entity/ref-generator :address)))
@@ -41,13 +42,13 @@
 
 (spec/def :schema.type/order
   (spec/keys :req [:order/user
-                   :order/status
+                   :order/status]
+             :opt [:order/shipping-comments
+                   :order/payment-reference
                    :order/shipping-address
                    :order/billing-address
                    :order/shipping-method
-                   :order/payment-method]
-             :opt [:order/shipping-comments
-                   :order/payment-reference]))
+                   :order/payment-method]))
 
 (entity/register-type!
  :order
@@ -92,4 +93,10 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:address :user}})
+  #{:address :user}
+
+  :to-json
+  (fn [this params]
+    (-> ((entity/default-attr :to-json) this params)
+        (assoc :order-lines (->> (entity/query :order-line {:order (:db/id this)})
+                                 (map #(entity/to-json (dissoc % :order-line/order) params))))))})

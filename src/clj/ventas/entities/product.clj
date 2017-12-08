@@ -269,3 +269,18 @@
     (entities.file/copy-file!
      (entity/find file)
      (io/file path))))
+
+(defn variate
+  "Tries to find a variation for `product` with the given `terms`.
+   If a variation exists, merges the variation's values with the product ones."
+  [product terms]
+  {:pre [(entity/entity? product) (coll? terms)]}
+  (let [terms (set terms)
+        variation (entity/query-one :product.variation {:terms terms})]
+    (if variation
+      (let [attrs (->> variation
+                       (filter (fn [[k v]]
+                                 (= (namespace k) "product")))
+                       (into {}))]
+        (merge product attrs))
+      product)))

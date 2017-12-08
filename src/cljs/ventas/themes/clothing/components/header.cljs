@@ -23,6 +23,12 @@
  (fn [db [_]]
    (assoc db ::opened false)))
 
+(rf/reg-event-fx
+ ::logout
+ (fn [_ _]
+   {:dispatch-n [[::toggle]
+                 [::events/session.stop]]}))
+
 (defn header []
   (rf/dispatch [::events/configuration.get :site.title])
   (fn []
@@ -54,5 +60,5 @@
                                  (if @(rf/subscribe [::opened])
                                    "visible"
                                    "unvisible"))}
-          [base/menuItem {:on-click #(rf/dispatch [::events/session.stop])}
+          [base/menuItem {:on-click #(rf/dispatch [::logout])}
            (i18n ::logout)]]]]]]]))

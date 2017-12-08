@@ -11,6 +11,7 @@
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :brands.list} options)}))
 
+
 (rf/reg-event-fx
  ::categories.list
  (fn [cofx [_ options]]
@@ -18,10 +19,12 @@
                  {:name :categories.list
                   :params {:pagination {:page 0 :items-per-page 5}}} options)}))
 
+
 (rf/reg-event-fx
  ::configuration.get
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :configuration.get} options)}))
+
 
 (rf/reg-event-fx
  ::entities.remove
@@ -35,15 +38,18 @@
                         :params {:id id}}
                        options)}))
 
+
 (rf/reg-event-fx
  ::events.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :events.list} options)}))
 
+
 (rf/reg-event-fx
  ::image-sizes.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :image-sizes.list} options)}))
+
 
 (rf/reg-event-fx
  ::products.get
@@ -67,6 +73,7 @@
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :products.aggregations} options)}))
 
+
 (rf/reg-event-fx
  ::reference
  (fn [cofx [_ options]]
@@ -82,6 +89,12 @@
  ::taxes.save
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :taxes.save} options)}))
+
+
+(rf/reg-event-fx
+ ::users.cart
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :users.cart} options)}))
 
 (rf/reg-event-fx
  ::users.list
@@ -132,6 +145,7 @@
  ::users.favorites.remove
  (fn [cofx [_ options]]
     {:ws-request (merge {:name :users.favorites.add} options)}))
+
 
 (rf/reg-event-fx
  ::states.list

@@ -14,7 +14,8 @@
    [ventas.auth :as auth]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.server.pagination :as pagination]
-   [ventas.server.ws :as server.ws]))
+   [ventas.server.ws :as server.ws]
+   [ventas.entities.product :as entities.product]))
 
 (defn register-endpoint!
   ([kw f]
@@ -139,12 +140,12 @@
          :token token}))))
 
 (register-endpoint!
-  :users.draft-order
+  :users.cart
   (fn [{:keys [params]} {:keys [session]}]
     (let [user (get-user session)]
-      (-> (entity/query-one :order {:status :order.status/draft
-                                    :user (:id user)})
-          (entity/find-json {:culture (get-culture session)})))))
+      (when-let [cart (entity/query-one :order {:status :order.status/draft
+                                                :user (:db/id user)})]
+        (entity/to-json cart {:culture (get-culture session)})))))
 
 (register-endpoint!
   :users.favorites.list
@@ -184,11 +185,13 @@
 
 (register-endpoint!
   :products.get
-  (fn [{{:keys [id]} :params} {:keys [session]}]
+  (fn [{{:keys [id terms]} :params} {:keys [session]}]
     (-> (cond
           (number? id) id
           (keyword? id) [:product/keyword id])
-        (entity/find-json {:culture (get-culture session)}))))
+        (entity/find)
+        (entities.product/variate terms)
+        (entity/to-json {:culture (get-culture session)}))))
 
 (register-endpoint!
   :products.list

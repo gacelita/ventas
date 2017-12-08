@@ -8,7 +8,8 @@
    (for [{:keys [id keyword name image]} categories]
      [:div.category-list__category {:key id
                                     :on-click #(routes/go-to :frontend.category :keyword keyword)}
-      (when image
-        [:img.category-list__image {:src (:url image)}])
+      (if image
+        [:img.category-list__image {:src (:url image)}]
+        [:div.category-list__image-placeholder])
       [:div.category-list__content
        [:h3.category-list__name name]]])])

@@ -17,12 +17,6 @@
 
 (def state-key ::state)
 
-(defn- get-product-ref []
-  (let [{:keys [id]} (routes/params)]
-    (if (pos? (js/parseInt id 10))
-      (js/parseInt id 10)
-      (keyword id))))
-
 (rf/reg-event-fx
  ::set-main-image
  (fn [{:keys [db]} [_ image direction]]
@@ -74,11 +68,26 @@
  (fn [db [_ qty]]
    (assoc-in db [state-key :quantity] qty)))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::select-term
- (fn [db [_ {taxonomy-id :id} {term-id :id}]]
+ (fn [{:keys [db]} [_ {taxonomy-id :id} {term-id :id}]]
    {:pre [taxonomy-id term-id]}
-   (assoc-in db [state-key :terms taxonomy-id] term-id)))
+   {:db (assoc-in db [state-key :terms taxonomy-id] term-id)
+    :dispatch [::fetch]}))
+
+(defn- get-product-ref []
+  (let [{:keys [id]} (routes/params)]
+    (if (pos? (js/parseInt id 10))
+      (js/parseInt id 10)
+      (keyword id))))
+
+(rf/reg-event-fx
+ ::fetch
+ (fn [{:keys [db]} [_]]
+   (let [terms (set (vals (get-in db [state-key :terms])))]
+     {:dispatch [::backend/products.get {:params {:id (get-product-ref)
+                                                  :terms terms}
+                                         :success ::populate}]})))
 
 (rf/reg-event-fx
  ::toggle-favorite
@@ -177,20 +186,18 @@
        (assoc-in [state-key :main-image] (first images)))))
 
 (defn content []
-  (let [product-ref (get-product-ref)]
-    (rf/dispatch [::events/db [state-key] {:quantity 1}])
-    (rf/dispatch [::backend/products.get {:params {:id product-ref}
-                                          :success ::populate}])
-    (fn []
-      (let [state @(rf/subscribe [::events/db state-key])]
-        [:div.product-page
-         [base/container
-          [:div.product-page__top
-           [images-view]
-           [main-image-view state]
-           [info-view state]]]
-         [:div.product-page__bottom
-          [description-view state]]]))))
+  (rf/dispatch [::events/db [state-key] {:quantity 1}])
+  (rf/dispatch [::fetch])
+  (fn []
+    (let [state @(rf/subscribe [::events/db state-key])]
+      [:div.product-page
+       [base/container
+        [:div.product-page__top
+         [images-view]
+         [main-image-view state]
+         [info-view state]]]
+       [:div.product-page__bottom
+        [description-view state]]])))
 
 (defn page []
   [skeleton
