@@ -49,6 +49,10 @@
   (spec/with-gen ::entity/refs
                  #(entity/refs-generator :product.term)))
 
+(spec/def :product/variation-terms
+  (spec/with-gen ::entity/refs
+                 #(entity/refs-generator :product.term)))
+
 (spec/def :product/parent
   (spec/with-gen ::entity/ref
                  #(entity/ref-generator :product)))
@@ -66,6 +70,7 @@
                    :product/tax
                    :product/categories
                    :product/terms
+                   :product/variation-terms
                    :product/parent]))
 
 (spec/def :schema.type/product
@@ -80,10 +85,17 @@
                     :product/tax
                     :product/categories
                     :product/terms
+                    :product/variation-terms
                     :product/parent
                     :product/keyword
                     :product/active])
    #(spec/gen ::product-for-generation)))
+
+(defn- terms-to-json [terms]
+  (->> terms
+       (common.utils/group-by-keyword :taxonomy)
+       (map (fn [[taxonomy terms]]
+              {:taxonomy taxonomy :terms terms}))))
 
 (entity/register-type!
  :product
@@ -143,6 +155,10 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident :product/variation-terms
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
    {:db/ident :product/parent
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
@@ -153,14 +169,8 @@
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
-        (update :terms (fn [terms]
-                         (->> terms
-                              (group-by :taxonomy)
-                              (common.utils/map-vals
-                               (fn [term]
-                                 (->> term (map #(dissoc % :taxonomy)))))
-                              (map (fn [[taxonomy terms]]
-                                     {:taxonomy taxonomy :terms terms})))))
+        (update :terms terms-to-json)
+        (update :variation-terms terms-to-json)
         (assoc :images (->> (entity/query :product.image {:product (:db/id this)})
                             (map #(entity/to-json % params))
                             (map (fn [{:keys [file position]}]
@@ -238,6 +248,14 @@
   (spec/keys :req [:product.variation/parent
                    :product.variation/terms]))
 
+(defn- variation-to-json* [all-terms selected-terms params]
+  (let [selected-terms (->> selected-terms
+                            (map #(entity/find-json % params))
+                            (common.utils/group-by-keyword :taxonomy))]
+    (map (fn [{:keys [taxonomy] :as item}]
+           (assoc item :selected (first (get selected-terms taxonomy))))
+         all-terms)))
+
 (entity/register-type!
  :product.variation
  {:attributes
@@ -246,13 +264,31 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident :product.variation/terms
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]
+    :db/cardinality :db.cardinality/many}
+   {:db/ident :product.variation/default?
+    :db/valueType :db.type/boolean
+    :db/cardinality :db.cardinality/one}]
 
   :dependencies
   #{:product :product.term}
 
   :seed-number 0
-  :autoresolve? true})
+  :autoresolve? true
+
+  :to-json
+  (fn [this params]
+    (let [product (entity/find (:product.variation/parent this))
+          attrs (->> this
+                     (filter (fn [[k v]]
+                               (= (namespace k) "product")))
+                     (into {}))
+          product-json (entity/to-json (merge product attrs))]
+      (-> product-json
+          (assoc :variation (variation-to-json* (:variation-terms product-json)
+                                                (:product.variation/terms this)
+                                                params))
+          (dissoc :variation-terms)
+          (assoc :id (:db/id this)))))})
 
 
 (defn add-image

@@ -49,6 +49,16 @@
     (apply merge-with deep-merge maps)
     (last maps)))
 
+(defn group-by-keyword
+  "Same as group-by but dissocs the keyword used for grouping the items."
+  [kw coll]
+  {:pre [(keyword? kw)]}
+  (->> coll
+       (group-by kw)
+       (map-vals
+        (fn [term]
+          (->> term (map #(dissoc % kw)))))))
+
 (defn read-keyword [str]
   (keyword (str/replace str #"\:" "")))
 

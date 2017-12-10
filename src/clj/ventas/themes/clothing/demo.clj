@@ -113,11 +113,11 @@
          :product/brand [:brand/keyword :test-brand]
          :product/tax [:tax/keyword :test-tax]
          :product/categories [[:category/keyword :man]]
-         :product/terms [[:product.term/keyword :color-dark-green]
-                         [:product.term/keyword :color-dark-red]
-                         [:product.term/keyword :size-large]
-                         [:product.term/keyword :size-medium]
-                         [:product.term/keyword :size-small]]
+         :product/variation-terms [[:product.term/keyword :color-dark-green]
+                                   [:product.term/keyword :color-dark-red]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-small]]
          :product/keyword :test-product}
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (woman category)"})
@@ -132,12 +132,12 @@
          :product/brand [:brand/keyword :test-brand]
          :product/tax [:tax/keyword :test-tax]
          :product/categories [[:category/keyword :woman]]
-         :product/terms [[:product.term/keyword :color-dark-green]
-                         [:product.term/keyword :color-dark-red]
-                         [:product.term/keyword :size-large]
-                         [:product.term/keyword :size-medium]
-                         [:product.term/keyword :size-small]]
-         :product/keyword :test-product}
+         :product/variation-terms [[:product.term/keyword :color-dark-green]
+                                   [:product.term/keyword :color-dark-red]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-small]]
+         :product/keyword :test-product-2}
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (children category)"})
          :product/active true
@@ -151,18 +151,19 @@
          :product/brand [:brand/keyword :test-brand]
          :product/tax [:tax/keyword :test-tax]
          :product/categories [[:category/keyword :children]]
-         :product/terms [[:product.term/keyword :color-dark-green]
-                         [:product.term/keyword :color-dark-red]
-                         [:product.term/keyword :size-large]
-                         [:product.term/keyword :size-medium]
-                         [:product.term/keyword :size-small]]
-         :product/keyword :test-product}]))
+         :product/variation-terms [[:product.term/keyword :color-dark-green]
+                                   [:product.term/keyword :color-dark-red]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-small]]
+         :product/keyword :test-product-3}]))
 
 (defn product-variations []
   (map #(assoc % :schema/type :schema.type/product.variation)
        [{:product.variation/parent [:product/keyword :test-product]
          :product.variation/terms [[:product.term/keyword :color-dark-green]
                                    [:product.term/keyword :size-large]]
+         :product.variation/default? true
          :product/name (entities.i18n/get-i18n-entity {:en_US "Test product (dark green and large variation)"})}]))
 
 (defn product-images []
