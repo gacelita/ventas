@@ -103,9 +103,9 @@
   (map #(assoc % :schema/type :schema.type/product)
        [{:product/name (entities.i18n/get-i18n-entity {:en_US "Test product"})
          :product/active true
-         :product/price {:schema/type :schema.type/product.price
-                         :product.price/amount 15.4M
-                         :product.price/currency [:currency/keyword :eur]}
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 15.4M
+                         :amount/currency [:currency/keyword :eur]}
          :product/reference "REF001"
          :product/ean13 "7501031311309"
          :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
@@ -122,9 +122,9 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (woman category)"})
          :product/active true
-         :product/price {:schema/type :schema.type/product.price
-                         :product.price/amount 15.4M
-                         :product.price/currency [:currency/keyword :eur]}
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 15.4M
+                         :amount/currency [:currency/keyword :eur]}
          :product/reference "REF001"
          :product/ean13 "7501031311309"
          :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
@@ -141,9 +141,9 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (children category)"})
          :product/active true
-         :product/price {:schema/type :schema.type/product.price
-                         :product.price/amount 15.4M
-                         :product.price/currency [:currency/keyword :eur]}
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 15.4M
+                         :amount/currency [:currency/keyword :eur]}
          :product/reference "REF001"
          :product/ean13 "7501031311309"
          :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})

@@ -31,7 +31,7 @@
 
 (spec/def :product/price
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :product.price)))
+                 #(entity/ref-generator :amount)))
 
 (spec/def :product/brand
   (spec/with-gen ::entity/ref
@@ -164,7 +164,7 @@
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:brand :tax :file :category :product.term :product.price :currency}
+  #{:brand :tax :file :category :product.term :amount}
 
   :to-json
   (fn [this params]
@@ -209,34 +209,6 @@
   #{:file :product}
 
   :seed-number 0})
-
-
-(spec/def :product.price/amount ::generators/bigdec)
-
-(spec/def :product.price/currency
-  (spec/with-gen ::entity/ref #(entity/ref-generator :currency)))
-
-(spec/def :schema.type/product.price
-  (spec/keys :req [:product.price/currency
-                   :product.price/amount]))
-
-(entity/register-type!
- :product.price
- {:attributes
-  [{:db/ident :product.price/amount
-    :db/valueType :db.type/bigdec
-    :db/cardinality :db.cardinality/one
-    :db/index true}
-   {:db/ident :product.price/currency
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
-
-  :dependencies
-  #{:currency}
-
-  :seed-number 0
-  :autoresolve? true})
-
 
 (spec/def :product.variation/parent
   (spec/with-gen ::entity/ref #(entity/ref-generator :product)))
