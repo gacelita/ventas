@@ -189,8 +189,7 @@
     (-> (cond
           (number? id) id
           (keyword? id) [:product/keyword id])
-        (entity/find)
-        (entities.product/variate terms)
+        (entities.product/find-variation terms)
         (entity/to-json {:culture (get-culture session)}))))
 
 (register-endpoint!

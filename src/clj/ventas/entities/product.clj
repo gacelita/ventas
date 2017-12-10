@@ -253,7 +253,10 @@
                             (map #(entity/find-json % params))
                             (common.utils/group-by-keyword :taxonomy))]
     (map (fn [{:keys [taxonomy] :as item}]
-           (assoc item :selected (first (get selected-terms taxonomy))))
+           (assoc item :selected (->> selected-terms
+                                      (common.utils/find-first (fn [[k v]] (= (:id k) (:id taxonomy))))
+                                      (second)
+                                      (first))))
          all-terms)))
 
 (entity/register-type!
@@ -282,7 +285,7 @@
                      (filter (fn [[k v]]
                                (= (namespace k) "product")))
                      (into {}))
-          product-json (entity/to-json (merge product attrs))]
+          product-json (entity/to-json (merge product attrs) params)]
       (-> product-json
           (assoc :variation (variation-to-json* (:variation-terms product-json)
                                                 (:product.variation/terms this)
@@ -306,17 +309,17 @@
      (entity/find file)
      (io/file path))))
 
-(defn variate
-  "Tries to find a variation for `product` with the given `terms`.
-   If a variation exists, merges the variation's values with the product ones."
-  [product terms]
-  {:pre [(entity/entity? product) (coll? terms)]}
-  (let [terms (set terms)
-        variation (entity/query-one :product.variation {:terms terms})]
-    (if variation
-      (let [attrs (->> variation
-                       (filter (fn [[k v]]
-                                 (= (namespace k) "product")))
-                       (into {}))]
-        (merge product attrs))
-      product)))
+(defn find-variation
+  "Tries to find a variation for the product with the given `eid`, with the given `terms`.
+   If no terms are given, the default variation is returned.
+   If the terms given do not have a corresponding variation, it will be created."
+  [ref & [terms]]
+  {:pre [(utils/check ::entity/ref ref)]}
+  (let [terms (set terms)]
+    (if (empty? terms)
+      (entity/query-one :product.variation {:default? true
+                                            :parent ref})
+      (if-let [variation (entity/query-one :product.variation {:terms terms})]
+        variation
+        (entity/create :product.variation {:parent ref
+                                           :terms terms})))))
