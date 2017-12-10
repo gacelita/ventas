@@ -7,3 +7,30 @@
         }
     }
 }
+
+.cart-page__content {
+    display: flex;
+    flex-direction: row;
+}
+
+.cart-page__sidebar {
+    width: 300px;
+    border: solid 1px #ccc;
+}
+
+.cart-page__sidebar-heading {
+    text-align: center;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 10px;
+    border-bottom: solid 1px #ccc;
+}
+
+.cart-page__lines {
+    flex: 1;
+}
+
+.cart-page__line {
+    border: solid 1px #eeeeee;
+}

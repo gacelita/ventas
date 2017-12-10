@@ -92,9 +92,24 @@
 
 
 (rf/reg-event-fx
- ::users.cart
+ ::users.cart.get
  (fn [cofx [_ options]]
-    {:ws-request (merge {:name :users.cart} options)}))
+    {:ws-request (merge {:name :users.cart.get} options)}))
+
+(rf/reg-event-fx
+ ::users.cart.add
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.cart.add} options)}))
+
+(rf/reg-event-fx
+ ::users.cart.remove
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.cart.remove} options)}))
+
+(rf/reg-event-fx
+ ::users.cart.set-quantity
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.cart.set-quantity} options)}))
 
 (rf/reg-event-fx
  ::users.list

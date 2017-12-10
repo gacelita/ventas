@@ -22,7 +22,9 @@
    :ventas.themes.clothing.pages.frontend/page "Home"
    :ventas.themes.clothing.pages.frontend/suggestions-of-the-week "Suggestions of the week"
    :ventas.themes.clothing.pages.frontend/recently-added "Recently added"
+
    :ventas.themes.clothing.pages.frontend.category/page "%s"
+
    :ventas.themes.clothing.pages.frontend.cart/cart "Cart"
    :ventas.themes.clothing.pages.frontend.cart/page "Cart"
    :ventas.themes.clothing.pages.frontend.cart/product "Product"
@@ -30,6 +32,12 @@
    :ventas.themes.clothing.pages.frontend.cart/price "Price"
    :ventas.themes.clothing.pages.frontend.cart/quantity "Quantity"
    :ventas.themes.clothing.pages.frontend.cart/total "Total"
+   :ventas.themes.clothing.pages.frontend.cart/add-voucher "Add voucher"
+   :ventas.themes.clothing.pages.frontend.cart/add "Add"
+   :ventas.themes.clothing.pages.frontend.cart/subtotal "Subtotal"
+   :ventas.themes.clothing.pages.frontend.cart/shipping "Shipping"
+   :ventas.themes.clothing.pages.frontend.cart/payment "Payment"
+   :ventas.themes.clothing.pages.frontend.cart/checkout "Checkout"
 
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"

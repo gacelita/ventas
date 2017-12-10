@@ -7,21 +7,20 @@
    [bidi.bidi :as bidi]
    [ventas.components.base :as base]
    [ventas.routes :refer [routes]]
-   [ventas.utils.ui :refer [with-handler]]))
+   [ventas.utils.ui :refer [with-handler]]
+   [ventas.common.utils :as common.utils]
+   [ventas.events.backend :as backend]))
 
-;; Main state subscription
 (rf/reg-sub
  ::main
  (fn [db _] (-> db :cart)))
 
-;; Count of card items
 (rf/reg-sub
  ::item-count
  (fn [_]
    (rf/subscribe [::main]))
  (fn [state]))
 
-;; Items
 (rf/reg-sub
  ::items
  (fn [_]
@@ -29,26 +28,34 @@
  (fn [state]
    (-> state :items)))
 
-;; Put the cart state in the app-db
-(rf/reg-event-fx
+(rf/reg-event-db
  ::cart
- (fn [{:keys [db local-storage]} [_]]
-   {:db (assoc db :cart (get local-storage :cart))}))
+ (fn [db [_ cart]]
+   (assoc db :cart cart)))
 
-;; Add item to the cart
+(rf/reg-event-fx
+ ::get
+ (fn [db [_]]
+   {:dispatch [::backend/users.cart.get {:success ::cart}]}))
+
 (rf/reg-event-fx
  ::add
- (fn [{:keys [db local-storage]} [_ {:keys [product terms]}]]
-   (js/console.log "add to cart" product terms)
-   {:db (update-in db
-                   [:cart :items (:id product)]
-                   (fn [item]
-                     (if (and (= (:product item) product)
-                                (= (:terms item) terms))
-                       (update item :quantity inc)
-                       {:product product
-                        :terms terms
-                        :quantity 1})))}))
+ (fn [db [_ eid]]
+   {:dispatch [::backend/users.cart.add {:success ::cart
+                                         :params {:id eid}}]}))
+
+(rf/reg-event-fx
+ ::remove
+ (fn [db [_ eid]]
+   {:dispatch [::backend/users.cart.remove {:success ::cart
+                                            :params {:id eid}}]}))
+
+(rf/reg-event-fx
+ ::set-quantity
+ (fn [db [_ eid quantity]]
+   {:dispatch [::backend/users.cart.set-quantity {:success ::cart
+                                                  :params {:id eid
+                                                           :quantity quantity}}]}))
 
 ;; Remove item from the cart
 (rf/reg-event-fx
