@@ -32,9 +32,9 @@
          [:div.content {:title data}]
          [:div.popup__counter
           (str (count items) "/" (count items))]]
-        [base/modalContent
+        [base/modal-content
          [:p (:message data)]]
-        [base/modalActions
+        [base/modal-actions
          [base/button {:color "green"
                        :inverted true
                        :on-click #(rf/dispatch [::close])}

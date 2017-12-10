@@ -164,6 +164,9 @@
          :product.variation/terms [[:product.term/keyword :color-dark-green]
                                    [:product.term/keyword :size-large]]
          :product.variation/default? true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 19M
+                         :amount/currency [:currency/keyword :eur]}
          :product/name (entities.i18n/get-i18n-entity {:en_US "Test product (dark green and large variation)"})}]))
 
 (defn product-images []
@@ -197,12 +200,29 @@
          :address/state (-> (entity/query :state) first :db/id)
          :address/user [:user/email "test@test.com"]}]))
 
+(defn discounts []
+  (map #(assoc % :schema/type :schema.type/discount)
+       [{:discount/name (entities.i18n/get-i18n-entity {:en_US "Test discount"})
+         :discount/code "TEST"
+         :discount/active? true
+         :discount/max-uses-per-customer 2
+         :discount/max-uses 3
+         :discount/action {:schema/type :schema.type/discount.action
+                           :discount.action/free-shipping? true
+                           :discount.action/amount.tax-included? false
+                           :discount.action/amount.kind :discount.action.amount.kind/percentage
+                           :discount.action/amount {:schema/type :schema.type/amount
+                                                    :amount/value 15M
+                                                    :amount/keyword :amount-1
+                                                    :amount/currency [:currency/keyword :eur]}}}]))
+
 (defn demo-data []
   (concat (product-terms)
           (files)
           (brands)
           (categories)
           (taxes)
+          (discounts)
           (products)
           (product-variations)
           (product-images)

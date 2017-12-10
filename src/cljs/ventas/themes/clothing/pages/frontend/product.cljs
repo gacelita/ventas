@@ -158,8 +158,8 @@
        [:p.product-page__description description]
 
        [:h2.product-page__price
-        (let [{:keys [amount currency]} price]
-          (str (formatting/format-number amount) " " (:symbol currency)))]
+        (let [{:keys [value currency]} price]
+          (str (formatting/format-number value) " " (:symbol currency)))]
 
        [:div.product-page__terms-section
         (for [{:keys [taxonomy terms selected]} variation]

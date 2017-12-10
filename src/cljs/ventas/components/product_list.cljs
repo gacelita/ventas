@@ -16,6 +16,6 @@
        [:span.product-list__name
         name]
        [:div.product-list__price
-        [:span (str (formatting/format-number (:amount price))
+        [:span (str (formatting/format-number (:value price))
                     " "
                     (get-in price [:currency :symbol]))]]]])])

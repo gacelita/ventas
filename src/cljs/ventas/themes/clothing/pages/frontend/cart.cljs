@@ -38,7 +38,7 @@
    (rf/subscribe [::cart/main]))
  (fn [{:keys [lines]}]
    (reduce +
-           (map #(get-in % [:product-variation :price :amount])
+           (map #(get-in % [:product-variation :price :value])
                 lines))))
 
 (rf/reg-sub
@@ -100,11 +100,11 @@
     [:div.cart-page__name
      [:h4 (:name product-variation)]]
     [:div.cart-page__price
-     [:h4 (str (utils.formatting/format-number (get-in product-variation [:price :amount]))
+     [:h4 (str (utils.formatting/format-number (get-in product-variation [:price :value]))
                " " (get-in product-variation [:price :currency :symbol]))]]
     [:div.cart-page__price
      [:h4 (str (i18n ::total) ": "
-               (utils.formatting/format-number (get-in product-variation [:price :amount]))
+               (utils.formatting/format-number (get-in product-variation [:price :value]))
                " " (get-in product-variation [:price :currency :symbol]))]]
     [:table.cart-page__terms
      [:tbody

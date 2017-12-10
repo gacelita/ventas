@@ -56,7 +56,7 @@
                  :size "small"
                  :open open
                  :on-close #(rf/dispatch [::image-modal.close])}
-     [base/modalContent {:image true}
+     [base/modal-content {:image true}
       [base/image {:wrapped true
                    :size "large"
                    :src url}]]]))
@@ -171,7 +171,7 @@
            :on-change #(rf/dispatch [::set-field :tax (.-value %2)])}]]
         [base/form-field {:class "admin-products-edit__images"}
          [:label (i18n ::images)]
-         [base/imageGroup
+         [base/image-group
           (for [eid (:images form-data)]
             ^{:key eid} [image eid])
           [image-placeholder]]]
