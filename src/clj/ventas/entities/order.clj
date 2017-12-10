@@ -128,7 +128,11 @@
 
    {:db/ident :order.line/quantity
     :db/valueType :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order.line/discount
+    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:order :product :product.variation}})
+  #{:order :product :product.variation :discount}})

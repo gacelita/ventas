@@ -16,7 +16,8 @@
    [ventas.entities.user :as entities.user]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
-   [ventas.entities.product :as entities.product]))
+   [ventas.entities.product :as entities.product]
+   [clojure.string :as str]))
 
 (defn register-endpoint!
   ([kw f]
@@ -185,6 +186,17 @@
                                       :product-variation id
                                       :quantity quantity}))
         (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
+
+(register-endpoint!
+  :users.cart.add-discount
+  (fn [{{:keys [code]} :params} {:keys [session]}]
+    {:pre [(string? code) (not (str/blank? code))]}
+    (when-let [user (get-user session)]
+      (if-let [discount (entity/query-one :discount {:code code})]
+        (let [cart (entities.user/get-cart user)]
+          (entity/update* (assoc cart :discount (:db/id discount)))
+          (entity/find-json (:db/id cart) {:culture (get-culture session)}))
+        (throw (Exception. "No discount found with the given code"))))))
 
 (register-endpoint!
   :users.favorites.list
