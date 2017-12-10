@@ -16,9 +16,9 @@
 (defn breadcrumb-view [current-page route-params]
   [base/breadcrumb {:class "breadcrumbs"}
    (util/interpose-fn
-    (fn [] [base/breadcrumbDivider {:key (gensym)}])
+    (fn [] [base/breadcrumb-divider {:key (gensym)}])
     (for [breadcrumb (breadcrumb-data current-page route-params)]
-      [base/breadcrumbSection
+      [base/breadcrumb-section
        {:key (:route breadcrumb)
         :class "breadcrumbs__breadcrumb"
         :href (:url breadcrumb)}

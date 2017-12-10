@@ -94,5 +94,5 @@
 (routes/define-route!
  :frontend.login
  {:name ::page
-  :url ["cart"]
+  :url ["login"]
   :component page})

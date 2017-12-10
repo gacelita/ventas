@@ -1,12 +1,4 @@
 
-.cart-page {
-    table {
-        width: 100%;
-        td {
-            text-align: left;
-        }
-    }
-}
 
 .cart-page__content {
     display: flex;
@@ -16,6 +8,10 @@
 .cart-page__sidebar {
     width: 300px;
     border: solid 1px #ccc;
+}
+
+.cart-page__sidebar-content {
+    padding: 15px;
 }
 
 .cart-page__sidebar-heading {
@@ -29,8 +25,95 @@
 
 .cart-page__lines {
     flex: 1;
+    margin-right: 25px;
 }
 
 .cart-page__line {
-    border: solid 1px #eeeeee;
+    border: solid 1px #ccc;
+    display: flex;
+    padding: 15px;
+}
+
+.cart-page__line-thumbnail {
+
+}
+
+.cart-page__line-content {
+    flex: 1;
+    padding: 0px 15px;
+}
+
+.cart-page__discount {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+
+    p {
+        font-weight: 400;
+        font-size: 1.1rem;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .field {
+        display: inline-block;
+        flex: 1;
+        .ui.input {
+            width: 100%;
+        }
+    }
+
+    .ui.button {
+        margin: 0;
+    }
+}
+
+.cart-page__totals {
+    width: 100%;
+    margin-bottom: 15px;
+
+    tr {
+        td {
+            padding: 3px 0px;
+
+            &:last-child {
+                text-align: right;
+            }
+        }
+    }
+}
+
+.cart-page__checkout {
+    width: 100%;
+}
+
+.cart-page__name, .cart-page__price {
+    margin-bottom: 5px;
+}
+
+.cart-page__price {
+    margin-bottom: 15px;
+}
+
+.cart-page__terms {
+    width: 200px;
+    min-height: 71px;
+
+    tr {
+
+        td {
+            padding: 6px 10px;
+            padding-left: 0px;
+
+            &:last-child {
+                text-align: right;
+            }
+
+        }
+    }
+}
+
+.cart-page__actions {
+    margin-top: 15px;
 }
