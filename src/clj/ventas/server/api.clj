@@ -13,6 +13,7 @@
    [ventas.utils.images :as utils.images]
    [ventas.auth :as auth]
    [ventas.entities.i18n :as entities.i18n]
+   [ventas.entities.user :as entities.user]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
    [ventas.entities.product :as entities.product]))
@@ -140,12 +141,50 @@
          :token token}))))
 
 (register-endpoint!
-  :users.cart
+  :users.cart.get
   (fn [{:keys [params]} {:keys [session]}]
-    (let [user (get-user session)]
-      (when-let [cart (entity/query-one :order {:status :order.status/draft
-                                                :user (:db/id user)})]
+    (when-let [user (get-user session)]
+      (let [cart (entities.user/get-cart user)]
         (entity/to-json cart {:culture (get-culture session)})))))
+
+(register-endpoint!
+  :users.cart.add
+  (fn [{{:keys [id]} :params} {:keys [session]}]
+    {:pre [id]}
+    (when-let [user (get-user session)]
+      (let [cart (entities.user/get-cart user)]
+        (if-let [line (entity/query-one :order.line {:order (:db/id cart)
+                                                     :product-variation id})]
+          (entity/update* (update line :order.line/quantity inc))
+          (entity/create :order.line {:order (:db/id cart)
+                                      :product-variation id
+                                      :quantity 1}))
+        (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
+
+(register-endpoint!
+  :users.cart.remove
+  (fn [{{:keys [id]} :params} {:keys [session]}]
+    {:pre [id]}
+    (when-let [user (get-user session)]
+      (let [cart (entities.user/get-cart user)]
+        (when-let [line (entity/query-one :order.line {:order (:db/id cart)
+                                                       :product-variation id})]
+          (entity/delete (:db/id line)))
+        (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
+
+(register-endpoint!
+  :users.cart.set-quantity
+  (fn [{{:keys [id quantity]} :params} {:keys [session]}]
+    {:pre [id (< 0 quantity Integer/MAX_VALUE)]}
+    (when-let [user (get-user session)]
+      (let [cart (entities.user/get-cart user)]
+        (if-let [line (entity/query-one :order.line {:order (:db/id cart)
+                                                     :product-variation id})]
+          (entity/update* (assoc line :quantity quantity))
+          (entity/create :order.line {:order (:db/id cart)
+                                      :product-variation id
+                                      :quantity quantity}))
+        (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
 
 (register-endpoint!
   :users.favorites.list

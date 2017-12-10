@@ -136,3 +136,13 @@
         (if (:user/password user)
           (update user :user/password hashers/derive)
           user))]))})
+
+(defn get-cart
+  "Gets the user's cart if it exists, creates it otherwise"
+  [{:db/keys [id]}]
+  {:pre [id]}
+  (if-let [cart (entity/query-one :order {:status :order.status/draft
+                                          :user id})]
+    cart
+    (entity/create :order {:status :order.status/draft
+                           :user id})))
