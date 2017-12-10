@@ -148,12 +148,12 @@
 (defn- address-view [address]
   [:div
    [base/card
-    [base/cardContent
+    [base/card-content
      [:p (:first-name address) " " (:last-name address)]
      [:p (:address address) " " (:address-second-line address)]
      [:p (:zip address) " " (:city address) " " (:name (:state address))]
      [:p (:name (:country address))]]
-    [base/cardContent {:extra true}
+    [base/card-content {:extra true}
 
      [base/button {:icon true
                    :basic true
@@ -178,9 +178,9 @@
       (i18n ::my-addresses)]
      (when-let [addresses @(rf/subscribe [::events/db [addresses-key]])]
        [base/grid {:columns 3 :class "smaller-padding"}
-        [base/gridRow
+        [base/grid-row
          (for [address addresses]
-           [base/gridColumn
+           [base/grid-column
             [address-view address]])]])
 
      (if @(rf/subscribe [::events/db [edition-key]])

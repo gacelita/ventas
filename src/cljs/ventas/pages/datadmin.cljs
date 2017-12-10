@@ -56,62 +56,62 @@
       [:div
         [:h2 "Datadmin"]
         [base/table {:celled true}
-          [base/tableHeader
-           [base/tableRow
-            [base/tableHeaderCell "Entity"]
-            [base/tableHeaderCell "Attribute"]
-            [base/tableHeaderCell "Value"]
-            [base/tableHeaderCell "Transaction"]]]
-          [base/tableBody
+          [base/table-header
+           [base/table-row
+            [base/table-header-cell "Entity"]
+            [base/table-header-cell "Attribute"]
+            [base/table-header-cell "Value"]
+            [base/table-header-cell "Transaction"]]]
+          [base/table-body
            (for [datom @(rf/subscribe [:datadmin/datoms])]
-             [base/tableRow
-              [base/tableCell (:e datom)]
-              [base/tableCell (:a datom)]
-              [base/tableCell (:v datom)]
-              [base/tableCell [:a {:on-click #()} (:tx datom)] ]])]
-           [base/tableFooter
-            [base/tableRow
-             [base/tableHeaderCell {:colSpan "4"}
+             [base/table-row
+              [base/table-cell (:e datom)]
+              [base/table-cell (:a datom)]
+              [base/table-cell (:v datom)]
+              [base/table-cell [:a {:on-click #()} (:tx datom)] ]])]
+           [base/table-footer
+            [base/table-row
+             [base/table-header-cell {:colSpan "4"}
               [base/menu {:floated "right" :pagination true}
-               [base/menuItem {:as "a" :icon true}
+               [base/menu-item {:as "a" :icon true}
                 [base/icon {:name "left chevron"}]]
-               [base/menuItem {:as "a"} "1"]
-               [base/menuItem {:as "a"} "2"]
-               [base/menuItem {:as "a"} "3"]
-               [base/menuItem {:as "a"} "4"]
-               [base/menuItem {:as "a" :icon true}
+               [base/menu-item {:as "a"} "1"]
+               [base/menu-item {:as "a"} "2"]
+               [base/menu-item {:as "a"} "3"]
+               [base/menu-item {:as "a"} "4"]
+               [base/menu-item {:as "a" :icon true}
                 [base/icon {:name "right chevron"}]]
                ]]]]]
         [:h3 "Filters"]
 
         [base/table {:celled true}
-          [base/tableHeader
-            [base/tableRow
-              [base/tableHeaderCell "Field"]
-              [base/tableHeaderCell "Value"]]]
-          [base/tableBody
+          [base/table-header
+            [base/table-row
+              [base/table-header-cell "Field"]
+              [base/table-header-cell "Value"]]]
+          [base/table-body
             (for [filter @(rf/subscribe [:datadmin/filters])]
-              [base/tableRow
-                [base/tableCell
+              [base/table-row
+                [base/table-cell
                   [base/select {:placeholder "Field"
                              :options (clj->js [{:value :e :text "Entity"}
                                                 {:value :a :text "Attribute"}
                                                 {:value :v :text "Value"}
                                                 {:value :t :text "Transaction"}
                                                 ])}]]
-                [base/tableCell
+                [base/table-cell
                   [base/input {:placeholder "Value"
                              :type :text}]
                   [base/button "Delete"]]])
-             [base/tableRow
-              [base/tableCell
+             [base/table-row
+              [base/table-cell
                 [base/select {:placeholder "Field"
                             :options (clj->js [{:value :e :text "Entity"}
                                                {:value :a :text "Attribute"}
                                                {:value :v :text "Value"}
                                                {:value :t :text "Transaction"}
                                               ])}]]
-              [base/tableCell
+              [base/table-cell
                 [base/input {:placeholder "Value"
                            :type :text}]
                 [base/button "Add" {:on-click #(rf/dispatch [:datadmin.filters/add ])}]]]]]

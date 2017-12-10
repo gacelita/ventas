@@ -60,5 +60,5 @@
                                  (if @(rf/subscribe [::opened])
                                    "visible"
                                    "unvisible"))}
-          [base/menuItem {:on-click #(rf/dispatch [::logout])}
+          [base/menu-item {:on-click #(rf/dispatch [::logout])}
            (i18n ::logout)]]]]]]]))
