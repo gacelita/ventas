@@ -23,7 +23,8 @@
    [ventas.paths :as paths]
    [ventas.server.ws :as server.ws]
    [ventas.logging]
-   [ventas.entities.image-size :as entities.image-size])
+   [ventas.entities.image-size :as entities.image-size]
+   [ventas.plugin :as plugin])
   (:gen-class)
   (:import [clojure.lang Keyword]))
 
@@ -95,6 +96,8 @@
    (handle-image (utils/->number image)))
   (GET "/images/:image/resize/:size" [image size]
     (handle-image (utils/->number image) :size (keyword size)))
+  (GET "/plugins/:plugin/*" {{path :* plugin :plugin} :route-params}
+    (plugin/handle-request (keyword plugin) path))
   (GET "/*" _
     (handle-spa)))
 

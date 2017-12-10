@@ -52,3 +52,9 @@
                    attrs)]
     (schema/register-migration! attrs)))
 
+(defn handle-request
+  "Processes HTTP requests directed to the plugins"
+  [plugin-kw path]
+  {:pre [(check! plugin-kw)]}
+  (let [plugin (plugin plugin-kw)]
+    ((:http-handler plugin) path)))

@@ -35,10 +35,15 @@
   (spec/with-gen ::entity/ref #(entity/ref-generator :address)))
 
 (spec/def :order/shipping-method ::generators/keyword)
+
 (spec/def :order/shipping-comments ::generators/string)
 
 (spec/def :order/payment-method ::generators/keyword)
+
 (spec/def :order/payment-reference ::generators/string)
+
+(spec/def :order/payment-amount
+  (spec/with-gen ::entity/ref #(entity/ref-generator :amount)))
 
 (spec/def :schema.type/order
   (spec/keys :req [:order/user
@@ -90,10 +95,14 @@
 
    {:db/ident :order/payment-reference
     :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :order/payment-amount
+    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:address :user}
+  #{:address :user :amount}
 
   :to-json
   (fn [this params]
