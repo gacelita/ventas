@@ -11,7 +11,7 @@
      [:a.product-list__product {:key id
                                 :href (routes/path-for :frontend.product :id id)}
       (when (seq images)
-        [:img {:src (:url (first images))}])
+        [:img {:src (str "/images/" (:id (first images)) "/resize/product-listing")}])
       [:div.product-list__content
        [:span.product-list__name
         name]
