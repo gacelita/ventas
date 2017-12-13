@@ -11,16 +11,14 @@
     overflow: hidden;
     padding: 0px 15px;
     cursor: pointer;
+    transition: all 200ms;
 
     img {
         width: 100%;
-        transition: all 200ms;
     }
 
     &:hover {
-        img {
-            transform: scale(1.04, 1.04);
-        }
+        transform: scale(1.03, 1.03);
     }
 }
 

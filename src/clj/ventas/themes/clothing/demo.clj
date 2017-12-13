@@ -81,12 +81,33 @@
          :category/keyword :woman}
         {:category/name (entities.i18n/get-i18n-entity {:en_US "Children"
                                                         :es_ES "Niños"})
-         :category/keyword :children}]))
+         :category/keyword :children}
+        {:category/name (entities.i18n/get-i18n-entity {:en_US "Children"
+                                                        :es_ES "Niños"})
+         :category/keyword :children}
+        {:category/name (entities.i18n/get-i18n-entity {:en_US "Dresses"
+                                                        :es_ES "Vestidos"})
+         :category/keyword :dresses}
+        {:category/name (entities.i18n/get-i18n-entity {:en_US "Jackets"
+                                                        :es_ES "Chaquetas"})
+         :category/keyword :jackets}
+        {:category/name (entities.i18n/get-i18n-entity {:en_US "Trousers"
+                                                        :es_ES "Pantalones"})
+         :category/keyword :trousers}
+        {:category/name (entities.i18n/get-i18n-entity {:en_US "Shirts"
+                                                        :es_ES "Camisetas"})
+         :category/keyword :shirts}
+        {:category/name (entities.i18n/get-i18n-entity {:en_US "Shoes"
+                                                        :es_ES "Zapatos"})
+         :category/keyword :shoes}
+        {:category/name (entities.i18n/get-i18n-entity {:en_US "Sweaters"
+                                                        :es_ES "Sudaderas"})
+         :category/keyword :sweaters}]))
 
 (defn files []
   (map #(assoc % :schema/type :schema.type/file)
        [{:file/keyword :logo
-         :file/extension "png"}
+         :file/extension "jpg"}
         {:file/keyword :test-product-image
          :file/extension "png"}
         {:file/keyword :test-brand-logo
@@ -120,43 +141,133 @@
                                    [:product.term/keyword :size-small]]
          :product/keyword :test-product}
 
-        {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (woman category)"})
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Dress one"})
          :product/active true
          :product/price {:schema/type :schema.type/amount
-                         :amount/value 15.4M
+                         :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/reference "REF001"
-         :product/ean13 "7501031311309"
-         :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
-         :product/condition :product.condition/new
-         :product/brand [:brand/keyword :test-brand]
-         :product/tax [:tax/keyword :test-tax]
-         :product/categories [[:category/keyword :woman]]
-         :product/variation-terms [[:product.term/keyword :color-dark-green]
-                                   [:product.term/keyword :color-dark-red]
-                                   [:product.term/keyword :size-large]
-                                   [:product.term/keyword :size-medium]
-                                   [:product.term/keyword :size-small]]
-         :product/keyword :test-product-2}
+         :product/categories [[:category/keyword :dresses]]
+         :product/keyword :dress-1}
 
-        {:product/name (entities.i18n/get-i18n-entity {:en_US "Test product (children category)"})
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Dress two"})
          :product/active true
          :product/price {:schema/type :schema.type/amount
-                         :amount/value 15.4M
+                         :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/reference "REF001"
-         :product/ean13 "7501031311309"
-         :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
-         :product/condition :product.condition/new
-         :product/brand [:brand/keyword :test-brand]
-         :product/tax [:tax/keyword :test-tax]
-         :product/categories [[:category/keyword :children]]
-         :product/variation-terms [[:product.term/keyword :color-dark-green]
-                                   [:product.term/keyword :color-dark-red]
-                                   [:product.term/keyword :size-large]
-                                   [:product.term/keyword :size-medium]
-                                   [:product.term/keyword :size-small]]
-         :product/keyword :test-product-3}]))
+         :product/categories [[:category/keyword :dresses]]
+         :product/keyword :dress-2}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket one"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :jackets]]
+         :product/keyword :jacket-1}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket two"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :jackets]]
+         :product/keyword :jacket-2}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket three"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :jackets]]
+         :product/keyword :jacket-3}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket four"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :jackets]]
+         :product/keyword :jacket-4}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket five"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :jackets]]
+         :product/keyword :jacket-5}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Jeans one"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :trousers]]
+         :product/keyword :jeans-1}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Shirt one"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :shirts]]
+         :product/keyword :shirt-1}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Shirt two"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :shirts]]
+         :product/keyword :shirt-2}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Shirt three"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :shirts]]
+         :product/keyword :shirt-3}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Shoes one"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :shoes]]
+         :product/keyword :shoes-1}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Shoes two"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :shoes]]
+         :product/keyword :shoes-2}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Sweater one"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :sweaters]]
+         :product/keyword :sweater-1}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Sweater two"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :sweaters]]
+         :product/keyword :sweater-2}
+
+        {:product/name (entities.i18n/get-i18n-entity {:en_US "Sweater three"})
+         :product/active true
+         :product/price {:schema/type :schema.type/amount
+                         :amount/value 10M
+                         :amount/currency [:currency/keyword :eur]}
+         :product/categories [[:category/keyword :sweaters]]
+         :product/keyword :sweater-3}]))
 
 (defn product-variations []
   (map #(assoc % :schema/type :schema.type/product.variation)
@@ -172,8 +283,246 @@
 (defn product-images []
   (map #(assoc % :schema/type :schema.type/product.image)
        [{:product.image/position 0
-         :product.image/file [:file/keyword :test-product-image]
-         :product.image/product [:product/keyword :test-product]}]))
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :dress-1-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :dress-1]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :dress-1-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :dress-1]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :dress-2-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :dress-2]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :dress-2-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :dress-2]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-1-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-1]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-1-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-1]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-2-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-2]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-2-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-2]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-2-3
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-2]}
+        {:product.image/position 3
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-2-4
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-2]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-3-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-3]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-3-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-3]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-4-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-4]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-4-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-4]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-4-3
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-4]}
+        {:product.image/position 3
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-4-4
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-4]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-5-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-5]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-5-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jacket-5]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jeans-1-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jeans-1]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jeans-1-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :jeans-1]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-1-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-1]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-1-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-1]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-1-3
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-1]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-2-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-2]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-2-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-2]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-2-3
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-2]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-3-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-3]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shirt-3-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shirt-3]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-1-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-1]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-1-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-1]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-1-3
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-1]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-2-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-2]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-2-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-2]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-2-3
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-2]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-2-4
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-2]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :shoes-2-5
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :shoes-2]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-1-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-1]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-1-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-1]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-1-3
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-1]}
+        {:product.image/position 3
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-1-4
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-1]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-2-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-2]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-2-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-2]}
+        {:product.image/position 2
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :jacket-3-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-2]}
+
+        {:product.image/position 0
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-3-1
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-3]}
+        {:product.image/position 1
+         :product.image/file {:schema/type :schema.type/file
+                              :file/keyword :sweater-3-2
+                              :file/extension "jpg"}
+         :product.image/product [:product/keyword :sweater-3]}
+        ]))
 
 (defn users []
   (map #(assoc % :schema/type :schema.type/user)

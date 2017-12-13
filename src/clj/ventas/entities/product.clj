@@ -281,17 +281,24 @@
      (entity/find file)
      (io/file path))))
 
+(defn- find-variation* [ref terms]
+  (if-let [variation (entity/query-one :product.variation {:parent ref
+                                                           :terms terms})]
+    variation
+    (entity/create :product.variation {:parent ref
+                                       :terms terms})))
+
 (defn find-variation
   "Tries to find a variation for the product with the given `eid`, with the given `terms`.
    If no terms are given, the default variation is returned.
-   If the terms given do not have a corresponding variation, it will be created."
+   If the terms given do not have a corresponding variation, it will be created.
+   This function not returning an entity is considered a bug."
   [ref & [terms]]
   {:pre [(utils/check ::entity/ref ref)]}
   (let [terms (set terms)]
     (if (empty? terms)
-      (entity/query-one :product.variation {:default? true
-                                            :parent ref})
-      (if-let [variation (entity/query-one :product.variation {:terms terms})]
-        variation
-        (entity/create :product.variation {:parent ref
-                                           :terms terms})))))
+      (if-let [default (entity/query-one :product.variation {:default? true
+                                                             :parent ref})]
+        default
+        (find-variation* ref terms))
+      (find-variation* ref terms))))
