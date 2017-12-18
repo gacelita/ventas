@@ -26,6 +26,7 @@
   (let [url (config/get :database :url)]
     (info (str "Starting database, URL: " url))
     (try
+      (d/create-database url)
       (d/connect url)
       (catch ExecutionException e
         (throw (ex-info "Error connecting (database offline?)" {}))))))
