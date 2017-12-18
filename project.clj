@@ -86,7 +86,7 @@
                  [me.raynes/conch "0.8.0"]
 
                  ;; Database
-                 [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
+                 [com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.5.1"]
 
                  ;; Text colors
@@ -139,7 +139,7 @@
 
   :uberjar-name "ventas.jar"
 
-  :main ventas.server
+  :main ventas.core
 
   :repl-options {:init-ns user :port 4001 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 

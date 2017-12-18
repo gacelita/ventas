@@ -2,8 +2,7 @@
   (:refer-clojure :exclude [get set])
   (:require
    [clojure.core :as clj]
-   [cprop.core :refer [load-config]]
-   [mount.core :as mount :refer [defstate]]))
+   [cprop.core :refer [load-config]]))
 
 (def ^:private defaults
   {:server {:port 3450
