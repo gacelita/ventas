@@ -28,7 +28,7 @@ No open source ecommerce project satisfies me. I've been working with most of th
 
 At the moment, ventas is unfit for its purpose. However, if you are a developer and just want to see the project in action, read on.
 
-You need to have  `git` and `leiningen` installed. You also need access to a Datomic database.
+You need to have  `git`, `sassc` and `leiningen` installed. You also need access to a Datomic database.
 
 First `clone` the project, `cd` into it, and install the frontend dependencies:
 
