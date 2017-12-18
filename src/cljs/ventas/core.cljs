@@ -81,7 +81,7 @@
       (accountant/dispatch-current!)
       (reagent/render [page] (app-element)))))
 
-(defn start []
+(defn ^:export start []
   (info "Starting...")
   (init))
 
