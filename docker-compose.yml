@@ -1,0 +1,6 @@
+version: '2'
+services:
+  ventas:
+    image: ventas
+    ports:
+        - 3450:6082
