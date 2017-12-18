@@ -93,11 +93,18 @@
      (>! websocket-channel message)
      (recur))))
 
+(defn- websocket-url [format]
+  (str (if (= "https:" (-> js/document .-location .-protocol))
+         "wss://"
+         "ws://")
+       (-> js/document .-location .-host)
+       "/ws/" (name format)))
+
 (defn- start-websocket [format]
   {:pre [(#{:fressian :json-kw} format)]}
   (let [channel (chan)]
     (go
-     (let [url (str "ws://" (-> js/document .-location .-host) "/ws/" (name format))
+     (let [url (websocket-url format)
            {:keys [ws-channel] ws-error :error} (<! (chord/ws-ch url {:format format}))]
        (if ws-error
          (do
