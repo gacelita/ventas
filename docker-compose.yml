@@ -1,6 +1,16 @@
 version: '2'
 services:
+
+  datomic:
+    image: datomic
+    ports:
+      - 4334
+
   ventas:
     image: ventas
     ports:
-        - 3450:6082
+        - ${LOCAL_PORT}:${SERVER__PORT}
+    depends_on:
+      - datomic
+    env_file:
+        - .env

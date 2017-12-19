@@ -12,11 +12,14 @@
 figwheel_server.log
 pom.xml
 pom.xml.asc
-
 /*.iml
 /.idea
-/profiles.clj
 /*.sublime-*
+
+/profiles.clj
+/datomic/config/transactor.properties
+/datomic/.credentials
+.env
 
 /resources/public/files/js/compiled/**
 /resources/public/files/css
