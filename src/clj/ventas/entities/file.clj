@@ -8,7 +8,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.paths :as paths]
-   [ventas.utils :refer [find-files]]
+   [ventas.utils :as utils]
+   [ventas.utils.jar :as utils.jar]
    [ventas.database.generators :as generators]))
 
 (defn filename [entity]
@@ -42,6 +43,14 @@
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
 
+(defn- get-seed-files [extension]
+  (let [pattern (str ".*?\\." extension)
+        files (utils/find-files (str paths/seeds "seeds/files") (re-pattern pattern))]
+    (if (seq files)
+      files
+      (filter #(re-matches (re-pattern (str (paths/path->resource paths/seeds) "/files/" pattern)) %)
+              (utils.jar/list-resources)))))
+
 (entity/register-type!
  :file
  {:attributes
@@ -55,9 +64,9 @@
 
   :after-seed
   (fn [{:file/keys [extension] :as this}]
-    (let [file (rand-nth (find-files (str paths/seeds "/files")
-                                     (re-pattern (str ".*?\\." extension))))]
-      (copy-file! this file)))
+    (let [seed-files (get-seed-files extension)]
+      (when (seq seed-files)
+        (copy-file! this (rand-nth seed-files)))))
 
   :autoresolve? true
 
