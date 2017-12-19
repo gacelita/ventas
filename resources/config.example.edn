@@ -1,6 +1,8 @@
 {:database {:url "datomic:dev://localhost:4334/ventas"}
  :server {:port 3450
           :host "localhost"}
+ :nrepl {:port 4001
+         :host "localhost"}
  :debug true
  :cljs-port 3001
  :auth-secret "CHANGEME"}

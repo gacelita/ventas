@@ -2,9 +2,11 @@
   (:gen-class)
   (:require
    [clojure.core.async :refer [go >!]]
+   [clojure.tools.nrepl.server :as nrepl]
    [mount.core :as mount]
    [ventas.events :as events]
    [ventas.database]
+   [ventas.logging]
    [ventas.server]
    [ventas.server.api]
    [ventas.entities.address]
@@ -30,9 +32,14 @@
    [ventas.plugins.featured-categories.core]
    [ventas.plugins.featured-products.core]
    [ventas.plugins.slider.core]
-   [ventas.themes.clothing.core]))
+   [ventas.themes.clothing.core]
+   [ventas.config :as config]
+   [taoensso.timbre :as timbre]))
 
 (defn -main [& args]
+  (let [{:keys [host port]} (config/get :nrepl)]
+    (timbre/info (str "Starting nREPL server on " host ":" port))
+    (nrepl/start-server :port port :bind host))
   (mount/start)
   (go (>! (events/pub :init) true)))
 

@@ -20,6 +20,7 @@
                  [expound "0.3.4"]
                  [org.clojure/spec.alpha "0.1.143" :scope "provided"]
                  [com.google.guava/guava "23.0"]
+                 [org.clojure/tools.nrepl "0.2.13"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
@@ -197,7 +198,6 @@
   :profiles {:dev {:dependencies [[figwheel "0.5.14"]
                                   [figwheel-sidecar "0.5.14"]
                                   [com.cemerick/piggieback "0.2.2"]
-                                  [org.clojure/tools.nrepl "0.2.13"]
                                   [com.cemerick/pomegranate "1.0.0"]
                                   [org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.8"]]
