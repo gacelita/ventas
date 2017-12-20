@@ -54,7 +54,7 @@
   (let [path (cond
                (utils/->number search) (file-path-by-eid (utils/->number search))
                (not (str/includes? search "/")) (file-path-by-keyword (keyword search))
-               :else (str paths/public search))
+               :else (str (paths/resolve paths/public) search))
         resource-path (paths/path->resource path)]
     (if-let [resource-response (ring.response/resource-response resource-path)]
       (add-mime-type resource-response path)
@@ -79,8 +79,7 @@
                    (entities.image-size/transform image size))
                  (entities.file/filepath image))]
       (-> path
-          (paths/path->resource)
-          (ring.response/resource-response)
+          (ring.response/file-response)
           (add-mime-type path)))
     (compojure.route/not-found "")))
 

@@ -361,13 +361,13 @@
   (let [mime (mime/mime-type-of (clojure.java.io/file source-path))
         extension (subs (mime/extension-for-name mime) 1)
         entity (entity/create :file {:extension extension})
-        target-path (str paths/images "/" (:db/id entity) "." extension)]
+        target-path (str (paths/resolve paths/storage) "/" (:db/id entity) "." extension)]
     (.renameTo
      (clojure.java.io/file source-path)
      (clojure.java.io/file target-path))
     (utils.images/transform-image
      target-path
-     paths/transformed-images
+     (paths/resolve paths/resized-images)
      {:resize {:width 150}})
     entity))
 
@@ -377,7 +377,7 @@
   (fn [{:keys [params]} state]
     (let [{:keys [bytes is-first is-last file-id]} params
           file-id (if is-first (gensym "temp-file") file-id)
-          path (str paths/project-resources "/" file-id)]
+          path (str (paths/resolve paths/project-resources) "/" file-id)]
       (with-open [r (byte-streams/to-input-stream bytes)
                   w (clojure.java.io/output-stream (clojure.java.io/file path) :append (not is-first))]
         (clojure.java.io/copy r w))

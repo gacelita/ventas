@@ -20,7 +20,7 @@
        "." (:file/extension entity)))
 
 (defn filepath [entity]
-  (str paths/images "/" (filename entity)))
+  (str (paths/resolve paths/storage) "/" (filename entity)))
 
 (defn copy-file!
   "Copies a file to the corresponding path of a :file entity.
@@ -45,10 +45,10 @@
 
 (defn- get-seed-files [extension]
   (let [pattern (str ".*?\\." extension)
-        files (utils/find-files (str paths/seeds "seeds/files") (re-pattern pattern))]
+        files (utils/find-files (str (paths/resolve paths/seeds) "seeds/files") (re-pattern pattern))]
     (if (seq files)
       files
-      (filter #(re-matches (re-pattern (str (paths/path->resource paths/seeds) "/files/" pattern)) %)
+      (filter #(re-matches (re-pattern (str (paths/path->resource (paths/resolve paths/seeds)) "/files/" pattern)) %)
               (utils.jar/list-resources)))))
 
 (entity/register-type!

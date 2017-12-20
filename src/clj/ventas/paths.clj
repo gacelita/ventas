@@ -1,31 +1,55 @@
 (ns ventas.paths
+  (:refer-clojure :exclude [resolve])
   (:require
    [clojure.string :as str]
-   [ventas.config :as config]))
+   [ventas.config :as config]
+   [clojure.java.io :as io]))
 
 (def project-resources
   "A path for project-wide resources, like the configuration"
-  "resources")
+  ::project-resources)
 
 (def public
   "Files accessible via HTTP"
-  (str project-resources "/public"))
+  ::public)
 
 (def public-files
   "Non-HTML public files. This is a necessary because of routing limitations."
-  (str public "/files"))
+  ::public-files)
 
-(def images
-  "Public images"
-  (str public-files "/img"))
+(def storage
+  "Regular file storage. This is where :file entities live."
+  ::images)
 
-(def transformed-images
-  "Redimensioned or otherwise altered images"
-  (str images "/transformed"))
+(def resized-images
+  "Resized images"
+  ::resized)
 
 (def seeds
   "Where the files for seeding live"
   (str project-resources "/seeds"))
+
+(def ^:private paths
+  {project-resources "resources"
+   public [project-resources "/public"]
+   public-files [public "/files"]
+   storage "storage"
+   resized-images [storage "/resized-images"]})
+
+(defn- resolve-path [v]
+  (let [path (get paths v)]
+    (if (string? path)
+      path
+      (apply str (map resolve-path path)))))
+
+(defn resolve
+  "Resolves a path, makes sure it exists and returns it"
+  [kw]
+  (let [path (resolve-path kw)]
+    (io/make-parents path)
+    path))
+
+
 
 (defn path->relative-url [path]
   (str/replace path (str public "/") ""))

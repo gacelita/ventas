@@ -104,5 +104,5 @@
   (taoensso.timbre/debug file-entity size-entity)
   (utils.images/transform-image
    (entities.file/filepath file-entity)
-   paths/transformed-images
+   (paths/resolve paths/resized-images)
    (size-entity->configuration size-entity)))
