@@ -6,6 +6,8 @@ For now, the project is a WIP. Although the foundation is good, there aren't man
 
 For any questions I'm always available at my email (which you can find in `project.clj`). You can also open an issue.
 
+[Demo](https://ventas.kazer.es) (may not be the latest code, may not be online, may explode in your face)
+
 
 
 ### Motivation
