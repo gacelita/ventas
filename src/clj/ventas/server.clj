@@ -54,18 +54,16 @@
   (let [path (cond
                (utils/->number search) (file-path-by-eid (utils/->number search))
                (not (str/includes? search "/")) (file-path-by-keyword (keyword search))
-               :else (str (paths/resolve paths/public) search))
-        resource-path (paths/path->resource path)]
-    (if-let [resource-response (ring.response/resource-response resource-path)]
-      (add-mime-type resource-response path)
+               :else (str (paths/resolve paths/public) search))]
+    (if-let [response (ring.response/file-response path)]
+      (add-mime-type response path)
       (compojure.route/not-found ""))))
 
 (defn- handle-spa []
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body (-> (slurp (io/resource "public/index.html"))
-             (str/replace "{{current-theme}}" "ventas.themes.clothing.core")
-             (str/replace "{{base-url}}" (paths/base-url)))})
+             (str/replace "{{current-theme}}" "ventas.themes.clothing.core"))})
 
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler

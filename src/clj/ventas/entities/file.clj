@@ -12,15 +12,20 @@
    [ventas.utils.jar :as utils.jar]
    [ventas.database.generators :as generators]))
 
-(defn filename [entity]
+(defn identifier [entity]
   {:pre [(:db/id entity)]}
-  (str (if-let [kw (:file/keyword entity)]
-         (name kw)
-         (:db/id entity))
-       "." (:file/extension entity)))
+  (if-let [kw (:file/keyword entity)]
+    (name kw)
+    (:db/id entity)))
+
+(defn filename [entity]
+  (str (identifier entity) "." (:file/extension entity)))
 
 (defn filepath [entity]
   (str (paths/resolve paths/storage) "/" (filename entity)))
+
+(defn url [entity]
+  (str "/files/" (identifier entity)))
 
 (defn copy-file!
   "Copies a file to the corresponding path of a :file entity.
@@ -73,4 +78,4 @@
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
-        (assoc :url (paths/path->url (filepath this)))))})
+        (assoc :url (url this))))})

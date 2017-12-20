@@ -101,7 +101,6 @@
   [file-entity size-entity]
   {:pre [(= (entity/type file-entity) :file)
          (= (entity/type size-entity) :image-size)]}
-  (taoensso.timbre/debug file-entity size-entity)
   (utils.images/transform-image
    (entities.file/filepath file-entity)
    (paths/resolve paths/resized-images)

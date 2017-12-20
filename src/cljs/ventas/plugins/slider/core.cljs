@@ -58,6 +58,5 @@
   (rf/dispatch [::sliders.get kw])
   (fn [kw]
     (let [slider-data @(rf/subscribe [::events/db [state-key kw]])]
-      (js/console.log "slider data" slider-data)
       (when (:keyword slider-data)
         [slider* slider-data]))))
