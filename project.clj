@@ -35,6 +35,7 @@
                  [org.slf4j/jcl-over-slf4j "1.7.14"]
 
                  ;; JSON, Transit and Fressian
+                 [jarohen/chord "0.8.1"]
                  [org.clojure/data.json "0.2.6"]
                  [cheshire "5.8.0"]
                  [com.cognitect/transit-clj "0.8.300"]
