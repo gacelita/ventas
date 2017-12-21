@@ -74,3 +74,33 @@
 .cart__hover-no-items {
     padding: 10px;
 }
+
+.cart-notification {
+    h3 {
+        font-weight: normal;
+    }
+}
+
+.cart-notification__image {
+    width: 35%;
+    margin-right: 15px;
+
+    img {
+        width: 100%;
+    }
+}
+
+.cart-notification__inner {
+    display: flex;
+    flex-direction: row;
+}
+
+.cart-notification__info {
+    flex: 1;
+
+    h4 {
+        font-weight: normal;
+        margin: 0px;
+        margin-bottom: 0.5rem;
+    }
+}

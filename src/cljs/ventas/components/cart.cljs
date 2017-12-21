@@ -9,7 +9,10 @@
    [ventas.routes :refer [routes]]
    [ventas.utils.ui :refer [with-handler]]
    [ventas.common.utils :as common.utils]
-   [ventas.events.backend :as backend]))
+   [ventas.components.notificator :as notificator]
+   [ventas.events.backend :as backend]
+   [ventas.utils.formatting :as formatting]
+   [ventas.i18n :refer [i18n]]))
 
 (rf/reg-sub
  ::main
@@ -41,8 +44,33 @@
 (rf/reg-event-fx
  ::add
  (fn [db [_ eid]]
-   {:dispatch [::backend/users.cart.add {:success ::cart
+   {:dispatch [::backend/users.cart.add {:success ::add.next
                                          :params {:id eid}}]}))
+
+(defn- notification-view [{:keys [id quantity product-variation] :as line}]
+  (let [{:keys [images name price variation]} product-variation]
+    [:div
+     [:h3 (i18n ::product-added)]
+     [:div.cart-notification__inner
+      [:div.cart-notification__image
+       [:img {:src (str "/images/" (:id (first images)) "/resize/product-listing")}]]
+      [:div.cart-notification__info
+       [:h4 (:name product-variation)]
+       (let [{:keys [value currency]} price]
+         [:h4 (str (formatting/format-number value) " " (:symbol currency))])
+       [:table
+        [:tbody
+         (for [{:keys [taxonomy selected]} variation]
+           [:tr
+            [:td (:name taxonomy)]
+            [:td (:name selected)]])]]]]]))
+
+(rf/reg-event-fx
+ ::add.next
+ (fn [db [_ cart]]
+   {:dispatch-n [[::cart cart]
+                 [::notificator/add {:theme "cart-notification"
+                                     :component [notification-view (last (:lines cart))]}]]}))
 
 (rf/reg-event-fx
  ::remove
