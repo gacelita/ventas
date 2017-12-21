@@ -55,6 +55,13 @@
        :image-size/algorithm :image-size.algorithm/crop-and-resize
        :image-size/entities #{:schema.type/product}}
 
+      {:schema/type :schema.type/image-size
+       :image-size/keyword :category-listing
+       :image-size/width 270
+       :image-size/height 350
+       :image-size/algorithm :image-size.algorithm/crop-and-resize
+       :image-size/entities #{:schema.type/product}}
+
       ;; Themes can also include taxonomies (in this case, the color of the clothes)
       {:schema/type :schema.type/product.taxonomy
        :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Color"
