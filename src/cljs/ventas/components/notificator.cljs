@@ -13,7 +13,7 @@
    (let [sym (gensym)
          notification (assoc notification :sym sym)]
      (go
-      (<! (timeout 4000))
+      (<! (timeout (or (:timeout notification) 4000)))
       (rf/dispatch [::remove sym]))
      (if (seq (:notifications db))
        (update db :notifications #(conj % notification))
@@ -28,9 +28,12 @@
   []
   [:div.notificator
    (let [notifications @(rf/subscribe [::events/db [:notifications]])]
-     (for [{:keys [theme message icon sym]} notifications]
+     (for [{:keys [theme message icon sym component]} notifications]
        [:div.notificator__item {:key (gensym) :class theme}
-        [base/icon {:class "bu close"
-                    :name icon
-                    :on-click #(rf/dispatch [::remove sym])}]
-        [:p.bu.message message]]))])
+        (if component
+          component
+          [:div
+           [base/icon {:class "bu close"
+                       :name icon
+                       :on-click #(rf/dispatch [::remove sym])}]
+           [:p.bu.message message]])]))])
