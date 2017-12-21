@@ -9,7 +9,9 @@
 
 (def ^:private base-dicts
   {:en_US
-   {:ventas.page/not-found "404"
+   {:ventas.components.cart/product-added "Product added!"
+    
+    :ventas.page/not-found "404"
     :ventas.pages.admin.configuration.image-sizes/actions "Actions"
     :ventas.pages.admin.configuration.image-sizes/create-image-size "Create image size"
     :ventas.pages.admin.configuration.image-sizes/width "Width"

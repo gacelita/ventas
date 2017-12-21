@@ -8,6 +8,7 @@
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.page :refer [pages]]
    [ventas.routes :as routes]
+   [ventas.components.base :as base]
    [ventas.components.notificator]
    [ventas.components.popup]
    [ventas.components.product-list :refer [products-list]]
@@ -23,55 +24,55 @@
       [ventas.components.notificator/notificator]
       [ventas.components.popup/popup]
       [:div.ventas.wrapper
-        [sa/Container {:class "bu main"}
-          [sa/Divider]
+        [base/container {:class "bu main"}
+          [base/divider]
           ^{:key current-page} contents]]]))
 
 (defn page []
   [skeleton
    [:div
     [:h2 "API tool"]
-    [sa/Table {:celled true}
-     [sa/TableHeader
-      [sa/TableRow
-       [sa/TableHeaderCell "Entity"]
-       [sa/TableHeaderCell "Attribute"]
-       [sa/TableHeaderCell "Value"]
-       [sa/TableHeaderCell "Transaction"]]]
-     [sa/TableBody]
-     [sa/TableFooter
-      [sa/TableRow
-       [sa/TableHeaderCell {:colSpan "4"}
-        [sa/Menu {:floated "right" :pagination true}
-         [sa/MenuItem {:as "a" :icon true}
-          [sa/Icon {:name "left chevron"}]]
-         [sa/MenuItem {:as "a"} "1"]
-         [sa/MenuItem {:as "a"} "2"]
-         [sa/MenuItem {:as "a"} "3"]
-         [sa/MenuItem {:as "a"} "4"]
-         [sa/MenuItem {:as "a" :icon true}
-          [sa/Icon {:name "right chevron"}]]
+    [base/table {:celled true}
+     [base/table-header
+      [base/table-row
+       [base/table-header-cell "Entity"]
+       [base/table-header-cell "Attribute"]
+       [base/table-header-cell "Value"]
+       [base/table-header-cell "Transaction"]]]
+     [base/table-body]
+     [base/table-footer
+      [base/table-row
+       [base/table-header-cell {:colSpan "4"}
+        [base/menu {:floated "right" :pagination true}
+         [base/menu-item {:as "a" :icon true}
+          [base/icon {:name "left chevron"}]]
+         [base/menu-item {:as "a"} "1"]
+         [base/menu-item {:as "a"} "2"]
+         [base/menu-item {:as "a"} "3"]
+         [base/menu-item {:as "a"} "4"]
+         [base/menu-item {:as "a" :icon true}
+          [base/icon {:name "right chevron"}]]
          ]]]]]
     [:h3 "Filters"]
 
-    [sa/Table {:celled true}
-     [sa/TableHeader
-      [sa/TableRow
-       [sa/TableHeaderCell "Field"]
-       [sa/TableHeaderCell "Value"]]]
-     [sa/TableBody
-      [sa/TableRow
-       [sa/TableCell
-        [sa/Select {:placeholder "Field"
+    [base/table {:celled true}
+     [base/table-header
+      [base/table-row
+       [base/table-header-cell "Field"]
+       [base/table-header-cell "Value"]]]
+     [base/table-body
+      [base/table-row
+       [base/table-cell
+        [base/select {:placeholder "Field"
                     :options (clj->js [{:value :e :text "Entity"}
                                        {:value :a :text "Attribute"}
                                        {:value :v :text "Value"}
                                        {:value :t :text "Transaction"}
                                        ])}]]
-       [sa/TableCell
-        [sa/Input {:placeholder "Value"
+       [base/table-cell
+        [base/input {:placeholder "Value"
                    :type :text}]
-        [sa/Button "Add"]]]]]
+        [base/button "Add"]]]]]
 
     ]])
 
