@@ -13,6 +13,11 @@
 
 
 (rf/reg-event-fx
+ ::categories.get
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :categories.get} options)}))
+
+(rf/reg-event-fx
  ::categories.list
  (fn [cofx [_ options]]
    {:ws-request (common.utils/deep-merge

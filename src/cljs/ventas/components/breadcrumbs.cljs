@@ -15,14 +15,15 @@
 
 (defn breadcrumb-view [current-page route-params]
   [base/breadcrumb {:class "breadcrumbs"}
-   (util/interpose-fn
-    (fn [] [base/breadcrumb-divider {:key (gensym)}])
-    (for [breadcrumb (breadcrumb-data current-page route-params)]
-      [base/breadcrumb-section
-       {:key (:route breadcrumb)
-        :class "breadcrumbs__breadcrumb"
-        :href (:url breadcrumb)}
-       (:name breadcrumb)]))])
+   (doall
+    (util/interpose-fn
+     (fn [] [base/breadcrumb-divider {:key (gensym)}])
+     (for [{:keys [name url route]} (breadcrumb-data current-page route-params)]
+       [base/breadcrumb-section
+        {:key route
+         :class "breadcrumbs__breadcrumb"
+         :href url}
+        name])))])
 
 (defn breadcrumbs []
   (let [current-page (:current-page (session/get :route))

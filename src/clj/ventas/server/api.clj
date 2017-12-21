@@ -310,7 +310,14 @@
           (group-by :taxonomy (term-counts)))
      :prices (prices)}))
 
-
+(register-endpoint!
+  :categories.get
+  (fn [{{:keys [id]} :params} {:keys [session]}]
+    (-> (cond
+          (number? id) id
+          (keyword? id) [:category/keyword id])
+        (entity/find)
+        (entity/to-json {:culture (get-culture session)}))))
 
 (register-endpoint!
   :categories.list

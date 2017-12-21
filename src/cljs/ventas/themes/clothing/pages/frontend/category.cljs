@@ -18,29 +18,60 @@
 
 (def products-key ::products)
 
-(defn page []
+(def state-key ::state)
+
+(defn- get-ref []
+  (let [{:keys [id]} (routes/params)]
+    (if (pos? (js/parseInt id 10))
+      (js/parseInt id 10)
+      (keyword id))))
+
+(rf/reg-event-db
+ ::populate
+ (fn [db [_ category]]
+   (assoc-in db [state-key :category] category)))
+
+(rf/reg-event-fx
+ ::fetch
+ (fn [{:keys [db]} [_ ref]]
+   {:dispatch [::backend/categories.get {:params {:id ref}
+                                         :success ::populate}]}))
+
+(defn content [{:keys [ref]}]
+  (rf/dispatch [::fetch ref])
   (rf/dispatch [::backend/products.aggregations
                 {:success #(rf/dispatch [::events/db [term-counts-key] %])}])
-  (fn []
-    [skeleton
-     [:div.category-page.ui.container
-      [:div.category-page__sidebar
-       (let [data @(rf/subscribe [::events/db [term-counts-key]])]
-         (when (seq data)
-           [components.product-filters/product-filters
-            (merge data
-                   {:products-path [products-key]})]))]
-      [:div.category-page__content
-       (let [products @(rf/subscribe [::events/db [products-key :products]])]
-         [products-list products])
-       [scroll/infinite-scroll
-        (let [more-items-available? true]
-          {:can-show-more? more-items-available?
-           :load-fn #(rf/dispatch [::components.product-filters/apply-filters [products-key]])})]]]]))
+  (fn [{:keys [ref]}]
+    [:div.category-page.ui.container
+     [:div.category-page__sidebar
+      (let [data @(rf/subscribe [::events/db [term-counts-key]])]
+        (when (seq data)
+          [components.product-filters/product-filters
+           (merge data
+                  {:products-path [products-key]})]))]
+     [:div.category-page__content
+      (let [products @(rf/subscribe [::events/db [products-key :products]])]
+        [products-list products])
+      [scroll/infinite-scroll
+       (let [more-items-available? true]
+         {:can-show-more? more-items-available?
+          :load-fn #(rf/dispatch [::components.product-filters/apply-filters [products-key]])})]]]))
+
+(defn- page []
+  [skeleton
+   [content
+    (let [ref (get-ref)]
+      {:key (hash ref)
+       :ref ref})]])
+
+(rf/reg-sub
+ ::title
+ (fn [db _]
+   (let [{:keys [category]} (get db state-key)]
+     (:name category))))
 
 (routes/define-route!
  :frontend.category
- {:name (fn [params]
-          (apply i18n ::page (vals params)))
-  :url ["category/" :keyword]
+ {:name [::title]
+  :url ["category/" :id]
   :component page})

@@ -8,6 +8,7 @@
    [ventas.page :as page]
    [reagent.session :as session]
    [re-frame.core :as rf]
+   [reagent.ratom :as ratom]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.logging :as log]))
 
@@ -110,7 +111,8 @@
     (cond
       (string? name) name
       (keyword? name) (apply i18n name route-params)
-      (ifn? name) (name route-params)
+      (fn? name) (name route-params)
+      (vector? name) @(rf/subscribe name)
       :else (log/warn "A route returns a name that is not a string, keyword or function" kw name))))
 
 (rf/reg-fx
