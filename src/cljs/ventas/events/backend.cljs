@@ -84,6 +84,10 @@
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :enums.get} options)}))
 
+(rf/reg-event-fx
+  ::i18n.cultures.list
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :i18n.cultures.list} options)}))
 
 (rf/reg-event-fx
  ::taxes.list

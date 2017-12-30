@@ -35,7 +35,8 @@
 (def roles
   #{:user.role/administrator})
 
-(spec/def :user/roles roles)
+(spec/def :user/roles
+  (spec/coll-of roles :kind set?))
 
 (def cultures
   #{:user.culture/en_US
@@ -127,6 +128,12 @@
 
    (map #(hash-map :db/ident %) statuses)
    (map #(hash-map :db/ident %) roles))
+
+  :to-json
+  (fn [this params]
+    (-> ((entity/default-attr :to-json) this params)
+        (dissoc :password)
+        (dissoc :favorites)))
 
   :filter-create
   (fn [this]

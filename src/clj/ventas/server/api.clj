@@ -61,6 +61,15 @@
     (db/enum-values (name (:type params)))))
 
 (register-endpoint!
+  :i18n.cultures.list
+  (fn [{:keys [params]} _]
+    (->> (entity/query :i18n.culture)
+         (map (fn [{:i18n.culture/keys [keyword name] :db/keys [id]}]
+                {:keyword keyword
+                 :name name
+                 :id id})))))
+
+(register-endpoint!
   :users.list
   (fn [{{:keys [pagination]} :params} {:keys [session]}]
     (->> (entity/query :user)
@@ -68,8 +77,12 @@
 
 (register-endpoint!
   :users.save
-  (fn [message state]
-    (entity/upsert :user (:params message))))
+  (fn [{:keys [params]} state]
+    (entity/upsert :user
+                   (-> params
+                       (update :culture (fn [v]
+                                          (when v
+                                            [:i18n.culture/keyword v])))))))
 
 (register-endpoint!
   :users.login

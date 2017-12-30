@@ -13,13 +13,29 @@
 
 (def state-key ::users)
 
+(rf/reg-event-fx
+  ::remove
+  (fn [cofx [_ id]]
+    {:dispatch [::backend/entities.remove
+                {:params {:id id}
+                 :success [::remove.next id]}]}))
+
+(rf/reg-event-db
+  ::remove.next
+  (fn [db [_ id]]
+    (update-in db
+               [state-key :users]
+               (fn [users]
+                 (remove #(= (:id %) id)
+                         users)))))
+
 (defn- action-column [_ {:keys [id]}]
   [:div
    [base/button {:icon true
                  :on-click #(routes/go-to :admin.users.edit :id id)}
     [base/icon {:name "edit"}]]
    [base/button {:icon true
-                 :on-click #(rf/dispatch [::events/entities.remove id])}
+                 :on-click #(rf/dispatch [::remove id])}
     [base/icon {:name "remove"}]]])
 
 (defn- users-datatable []

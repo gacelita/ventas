@@ -79,6 +79,21 @@
    (update db :entities #(dissoc eid))))
 
 (rf/reg-event-fx
+  ::i18n.cultures.list
+  (fn [_ _]
+    {:dispatch [::backend/i18n.cultures.list
+                {:success ::i18n.cultures.list.next}]}))
+
+(rf/reg-event-db
+  ::i18n.cultures.list.next
+  (fn [db [_ cultures]]
+    (->> cultures
+         (map (fn [culture]
+                {:text (:name culture)
+                 :value (:keyword culture)}))
+         (assoc db :cultures))))
+
+(rf/reg-event-fx
  ::session.start
  [(rf/inject-cofx :local-storage)]
  (fn [{:keys [db local-storage]} [_]]

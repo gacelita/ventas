@@ -36,7 +36,18 @@
 (def dimmer sa/Dimmer)
 (def dimmer-dimmable sa/DimmerDimmable)
 (def divider sa/Divider)
-(def dropdown sa/Dropdown)
+
+(defn dropdown [options]
+  [sa/Dropdown
+   (-> options
+       (update :default-value (fn [v]
+                                (if (coll? v)
+                                  (map str v)
+                                  (str v))))
+       (update :options (fn [options]
+                          (map #(update % :value str)
+                               options))))])
+
 (def dropdown-divider sa/DropdownDivider)
 (def dropdown-header sa/DropdownHeader)
 (def dropdown-item sa/DropdownItem)

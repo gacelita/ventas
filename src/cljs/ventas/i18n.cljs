@@ -66,7 +66,7 @@
     :ventas.pages.admin.taxes.edit/submit "Submit"
 
     :ventas.pages.admin.users/no-items "No items to show"
-    :ventas.pages.admin.users/new-user "Crear usuario"
+    :ventas.pages.admin.users/new-user "Create"
     :ventas.pages.admin.users/name "Name"
     :ventas.pages.admin.users/email "Email"
     :ventas.pages.admin.users/actions "Actions"
@@ -89,6 +89,12 @@
 
     :user.role/administrator "Administrator"
     :user.role/user "User"
+
+    :user.status/inactive "Inactive"
+    :user.status/pending "Pending"
+    :user.status/active "Active"
+    :user.status/cancelled "Cancelled"
+
     :tax.kind/amount "Amount"
     :tax.kind/percentage "Percentage"}
 

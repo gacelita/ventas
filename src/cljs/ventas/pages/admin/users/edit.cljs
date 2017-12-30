@@ -17,14 +17,12 @@
    [ventas.events.backend :as backend]
    [ventas.events :as events]))
 
-(defn- reference-options [ref]
-  (map #(update % :value str)
-       @(rf/subscribe [::events/db [:enums ref]])))
+(def state-key ::state)
 
 (rf/reg-event-fx
  ::submit
- (fn [cofx [_ data]]
-   {:dispatch [::backend/users.save {:params data
+ (fn [{:keys [db]} [_ data]]
+   {:dispatch [::backend/users.save {:params (get-in db [state-key :user])
                                      :success ::submit.next}]}))
 
 (rf/reg-event-fx
@@ -33,8 +31,6 @@
    {:dispatch [::notificator/add {:message (i18n ::user-saved-notification)
                                   :theme "success"}]
     :go-to [:admin.users]}))
-
-(def state-key ::state)
 
 (rf/reg-event-db
   ::set-field
@@ -46,10 +42,11 @@
                 (get-in (routes/current) [:route-params :id])
                 {:success [::events/db [state-key :user]]}])
   (rf/dispatch [::events/enums.get :user.role])
+  (rf/dispatch [::events/enums.get :user.status])
+  (rf/dispatch [::events/i18n.cultures.list])
   (fn []
     (let [{:keys [user]} @(rf/subscribe [::events/db state-key])
           {:keys [first-name email description roles id last-name phone company status culture]} user]
-      (js/console.log "user" user)
 
       [base/form {:key id
                   :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
@@ -81,7 +78,7 @@
        [base/form-field
         [:label (i18n ::culture)]
         [base/dropdown
-         {:options (reference-options :i18n.culture)
+         {:options @(rf/subscribe [::events/db :cultures])
           :default-value culture
           :selection true
           :on-change #(rf/dispatch [::set-field :culture (.-value %2)])}]]
@@ -90,16 +87,15 @@
         [:label (i18n ::roles)]
         [base/dropdown
          {:multiple true
-          :fluid true
           :selection true
-          :options (reference-options :user.role)
-          :default-value (map str roles)
+          :options @(rf/subscribe [::events/db [:enums :user.role]])
+          :default-value roles
           :on-change #(rf/dispatch [::set-field :roles (set (.-value %2))])}]]
 
        [base/form-field
         [:label (i18n ::status)]
         [base/dropdown
-         {:options (reference-options :user.status)
+         {:options @(rf/subscribe [::events/db [:enums :user.status]])
           :selection true
           :default-value status
           :on-change #(rf/dispatch [::set-field :status (.-value %2)])}]]
