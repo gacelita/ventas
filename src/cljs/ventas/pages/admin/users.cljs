@@ -1,13 +1,8 @@
 (ns ventas.pages.admin.users
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [bidi.bidi :as bidi]
    [re-frame-datatable.core :as dt]
-   [re-frame-datatable.views :as dt.views]
-   [ventas.page :refer [pages]]
-   [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
@@ -16,47 +11,47 @@
    [ventas.events.backend :as backend]
    [ventas.events :as events]))
 
-(defn users-datatable [action-column]
-  (let [sub-key :users]
-    (rf/dispatch [::backend/users.list {:success #(rf/dispatch [::events/db [sub-key] %])}])
-    (fn [action-column]
-      (let [id (keyword (gensym "users"))]
-        [:div
-         [dt/datatable id [::events/db [sub-key]]
-          [{::dt/column-key [:id]
-            ::dt/column-label "#"
-            ::dt/sorting {::dt/enabled? true}}
+(def state-key ::users)
 
-           {::dt/column-key [:name]
-            ::dt/column-label "Name"}
+(defn- action-column [_ {:keys [id]}]
+  [:div
+   [base/button {:icon true
+                 :on-click #(routes/go-to :admin.users.edit :id id)}
+    [base/icon {:name "edit"}]]
+   [base/button {:icon true
+                 :on-click #(rf/dispatch [::events/entities.remove id])}
+    [base/icon {:name "remove"}]]])
 
-           {::dt/column-key [:email]
-            ::dt/column-label "Email"
-            ::dt/sorting {::dt/enabled? true}}
+(defn- users-datatable []
+  (rf/dispatch [::backend/users.list
+                {:success #(rf/dispatch [::events/db [state-key :users] %])}])
+  (fn []
+    [:div.admin-users__table
+     [dt/datatable state-key [::events/db [state-key :users]]
+      [{::dt/column-key [:first-name]
+        ::dt/column-label (i18n ::name)}
 
-           {::dt/column-key [:actions]
-            ::dt/column-label "Actions"
-            ::dt/render-fn action-column}]
+       {::dt/column-key [:email]
+        ::dt/column-label (i18n ::email)
+        ::dt/sorting {::dt/enabled? true}}
 
-          {::dt/pagination {::dt/enabled? true
-                            ::dt/per-page 3}
-           ::dt/table-classes ["ui" "table" "celled"]
-           ::dt/empty-tbody-component (fn [] [:p "No users yet"])}]
-         [:div.admin-users__pagination
-          [datatable/pagination id [::events/db [sub-key]]]]]))))
+       {::dt/column-key [:actions]
+        ::dt/column-label (i18n ::actions)
+        ::dt/render-fn action-column}]
 
-(defn page []
+      {::dt/pagination {::dt/enabled? true
+                        ::dt/per-page 3}
+       ::dt/table-classes ["ui" "table" "celled"]
+       ::dt/empty-tbody-component (fn [] [:p (i18n ::no-items)])}]
+     [:div.admin-users__pagination
+      [datatable/pagination state-key [::events/db [state-key :users]]]]]))
+
+(defn- page []
   [admin.skeleton/skeleton
-   (let [action-column
-         (fn [_ row]
-           [:div
-            [base/button {:icon true :on-click #(routes/go-to :admin.users.edit :id (:id row))}
-             [base/icon {:name "edit"}]]
-            [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove (:id row)])}
-             [base/icon {:name "remove"}]]])]
-     [:div.admin__default-content.admin-users__page
-      [users-datatable action-column]
-      [base/button {:onClick #(routes/go-to :admin.users.edit :id 0)} "Crear usuario"]])])
+   [:div.admin__default-content.admin-users__page
+    [users-datatable action-column]
+    [base/button {:on-click #(routes/go-to :admin.users.edit :id 0)}
+     (i18n ::new-user)]]])
 
 (routes/define-route!
  :admin.users

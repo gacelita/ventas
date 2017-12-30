@@ -17,58 +17,94 @@
    [ventas.events.backend :as backend]
    [ventas.events :as events]))
 
-(defn- role-options []
-  (map #(update % :value str) @(rf/subscribe [::events/db [:reference :user.role]])))
+(defn- reference-options [ref]
+  (map #(update % :value str)
+       @(rf/subscribe [::events/db [:reference ref]])))
 
 (rf/reg-event-fx
  ::submit
  (fn [cofx [_ data]]
    {:dispatch [::backend/users.save {:params data
-                                :success ::submit.next}]}))
+                                     :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next
  (fn [cofx [_ data]]
-   {:dispatch [::notificator/add {:message (i18n ::user-saved-notification) :theme "success"}]
+   {:dispatch [::notificator/add {:message (i18n ::user-saved-notification)
+                                  :theme "success"}]
     :go-to [:admin.users]}))
 
+(def state-key ::state)
+
+(rf/reg-event-db
+  ::set-field
+  (fn [db [_ k v]]
+    (assoc-in db [state-key :user k] v)))
+
 (defn user-form []
-  (let [data (atom {})
-        key (atom nil)]
-    (rf/dispatch [::backend/entities.find
-                  (get-in (routes/current) [:route-params :id])
-                  {:success (fn [user]
-                                 (reset! data user)
-                                 (reset! key (hash user)))}])
-    (rf/dispatch [::events/reference :user.role])
-    (fn []
-      ^{:key @key}
-      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}
-       [base/form-group {:widths "equal"}
-        [base/form-input
-         {:label "Nombre"
-          :default-value (:name @data)
-          :on-change #(swap! data assoc :name (-> % .-target .-value))}]
-        [base/form-input
-         {:label "Email"
-          :default-value (:email @data)
-          :on-change #(swap! data assoc :email (-> % .-target .-value))}]]
-       [base/form-group {:widths "equal"}
-        [base/form-textarea
-         {:label "Sobre mí"
-          :default-value (:description @data)
-          :on-change #(swap! data assoc :description (-> % .-target .-value))}]]
-       [base/form-group {:widths "equal"}
-        [base/form-field
-         [:label "Roles"]
-         [base/dropdown
-          {:multiple true
-           :fluid true
-           :selection true
-           :options (role-options)
-           :default-value (map str (:roles @data))
-           :on-change #(swap! data assoc :roles (set (.-value %2)))}]]]
-       [base/form-button {:type "submit"} "Enviar"]])))
+  (rf/dispatch [::backend/entities.find
+                (get-in (routes/current) [:route-params :id])
+                {:success [::events/db [state-key :user]]}])
+  (rf/dispatch [::events/reference :user.role])
+  (fn []
+    (let [{:keys [user]} @(rf/subscribe [::events/db state-key])
+          {:keys [first-name email description roles id last-name phone company status culture]} user]
+      (js/console.log "user" user)
+
+      [base/form {:key id
+                  :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+       [base/form-input
+        {:label (i18n ::first-name)
+         :default-value first-name
+         :on-change #(rf/dispatch [::set-field :first-name (-> % .-target .-value)])}]
+
+       [base/form-input
+        {:label (i18n ::last-name)
+         :default-value last-name
+         :on-change #(rf/dispatch [::set-field :last-name (-> % .-target .-value)])}]
+
+       [base/form-input
+        {:label (i18n ::email)
+         :default-value email
+         :on-change #(rf/dispatch [::set-field :email (-> % .-target .-value)])}]
+
+       [base/form-input
+        {:label (i18n ::phone)
+         :default-value phone
+         :on-change #(rf/dispatch [::set-field :phone (-> % .-target .-value)])}]
+
+       [base/form-input
+        {:label (i18n ::company)
+         :default-value company
+         :on-change #(rf/dispatch [::set-field :company (-> % .-target .-value)])}]
+
+       [base/form-field
+        [:label (i18n ::culture)]
+        [base/dropdown
+         {:options (reference-options :i18n.culture)
+          :default-value culture
+          :selection true
+          :on-change #(rf/dispatch [::set-field :culture (.-value %2)])}]]
+
+       [base/form-field
+        [:label (i18n ::roles)]
+        [base/dropdown
+         {:multiple true
+          :fluid true
+          :selection true
+          :options (reference-options :user.role)
+          :default-value (map str roles)
+          :on-change #(rf/dispatch [::set-field :roles (set (.-value %2))])}]]
+
+       [base/form-field
+        [:label (i18n ::status)]
+        [base/dropdown
+         {:options (reference-options :user.status)
+          :selection true
+          :default-value status
+          :on-change #(rf/dispatch [::set-field :status (.-value %2)])}]]
+
+       [base/form-button {:type "submit"} (i18n ::submit)]])))
 
 (defn page []
   [admin.skeleton/skeleton

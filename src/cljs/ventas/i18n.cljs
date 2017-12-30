@@ -64,6 +64,24 @@
     :ventas.pages.admin.taxes.edit/name "Name"
     :ventas.pages.admin.taxes.edit/kind "Type"
     :ventas.pages.admin.taxes.edit/submit "Submit"
+
+    :ventas.pages.admin.users/no-items "No items to show"
+    :ventas.pages.admin.users/new-user "Crear usuario"
+    :ventas.pages.admin.users/name "Name"
+    :ventas.pages.admin.users/email "Email"
+    :ventas.pages.admin.users/actions "Actions"
+
+    :ventas.pages.admin.users.edit/first-name "First name" 
+    :ventas.pages.admin.users.edit/last-name "Last name"
+    :ventas.pages.admin.users.edit/company "Company"
+    :ventas.pages.admin.users.edit/phone "Phone"
+    :ventas.pages.admin.users.edit/email "Email"
+    :ventas.pages.admin.users.edit/roles "Roles"
+    :ventas.pages.admin.users.edit/submit "Submit"
+    :ventas.pages.admin.users.edit/culture "Culture"
+    :ventas.pages.admin.users.edit/status "Status"
+
+
     :ventas.pages.admin.activity-log/whats-the-activity-log "In the activity log you can see everything that happens in your store. Filter the messages by category to find the information you want."
 
     :ventas.utils.formatting/percentage "%"

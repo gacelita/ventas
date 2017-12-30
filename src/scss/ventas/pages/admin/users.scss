@@ -4,4 +4,10 @@
     text-align: center;
 }
 
+.admin-users__table {
+    td:last-child {
+        width: 110px;
+    }
+}
+
 @import "./users/edit";

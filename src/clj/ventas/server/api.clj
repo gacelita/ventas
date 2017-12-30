@@ -62,10 +62,9 @@
 
 (register-endpoint!
   :users.list
-  (fn [{{:keys [pagination]} :params} state]
-    (let [{items :schema/_type} (db/pull (quote [{:schema/_type [:user/name :db/id :user/email]}])
-                                         :schema.type/user)]
-      (pagination/paginate (map utils/dequalify-keywords items) pagination))))
+  (fn [{{:keys [pagination]} :params} {:keys [session]}]
+    (->> (entity/query :user)
+         (map #(entity/to-json % {:culture (get-culture session)})))))
 
 (register-endpoint!
   :users.save
