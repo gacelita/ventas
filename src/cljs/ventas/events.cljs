@@ -46,13 +46,13 @@
                   (rf/dispatch [::db [:configuration key] data]))}]}))
 
 (rf/reg-event-fx
- ::reference
+ ::enums.get
  (fn [cofx [_ type]]
-   {:dispatch [::backend/reference
+   {:dispatch [::backend/enums.get
                {:params {:type type}
                 :success
                 (fn [options]
-                  (rf/dispatch [::db [:reference type]
+                  (rf/dispatch [::db [:enums type]
                                 (map (fn [option]
                                        {:text (i18n (keyword option))
                                         :value option})

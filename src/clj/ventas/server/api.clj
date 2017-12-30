@@ -56,7 +56,7 @@
       (entity/find-json eid {:culture (get-culture session)}))))
 
 (register-endpoint!
-  :reference
+  :enums.get
   (fn [{:keys [params]} _]
     (db/enum-values (name (:type params)))))
 

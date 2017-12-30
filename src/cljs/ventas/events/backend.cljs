@@ -80,9 +80,9 @@
 
 
 (rf/reg-event-fx
- ::reference
+ ::enums.get
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :reference} options)}))
+   {:ws-request (merge {:name :enums.get} options)}))
 
 
 (rf/reg-event-fx

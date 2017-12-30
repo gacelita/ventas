@@ -37,7 +37,7 @@
                   {:success (fn [entity]
                                  (reset! data entity)
                                  (reset! key (hash entity)))}])
-    (rf/dispatch [::events/reference :tax.kind])
+    (rf/dispatch [::events/enums.get :tax.kind])
     (fn []
       ^{:key @key}
       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}
@@ -55,7 +55,7 @@
          {:fluid true
           :selection true
           :options (map #(update % :value str)
-                        @(rf/subscribe [::events/db [:reference :tax.kind]]))
+                        @(rf/subscribe [::events/db [:enums :tax.kind]]))
           :default-value (str (:kind @data))
           :on-change #(swap! data assoc :kind (.-value %2))}]]
        [base/form-button {:type "submit"} (i18n ::submit)]])))

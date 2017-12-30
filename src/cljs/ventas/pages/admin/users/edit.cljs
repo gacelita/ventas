@@ -19,7 +19,7 @@
 
 (defn- reference-options [ref]
   (map #(update % :value str)
-       @(rf/subscribe [::events/db [:reference ref]])))
+       @(rf/subscribe [::events/db [:enums ref]])))
 
 (rf/reg-event-fx
  ::submit
@@ -45,7 +45,7 @@
   (rf/dispatch [::backend/entities.find
                 (get-in (routes/current) [:route-params :id])
                 {:success [::events/db [state-key :user]]}])
-  (rf/dispatch [::events/reference :user.role])
+  (rf/dispatch [::events/enums.get :user.role])
   (fn []
     (let [{:keys [user]} @(rf/subscribe [::events/db state-key])
           {:keys [first-name email description roles id last-name phone company status culture]} user]
