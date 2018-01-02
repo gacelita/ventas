@@ -71,7 +71,9 @@
 
 (register-endpoint!
   :users.list
-  (fn [{{:keys [pagination]} :params} {:keys [session]}]
+  {:middlewares [pagination/wrap-sort
+                 pagination/wrap-paginate]}
+  (fn [_ {:keys [session]}]
     (->> (entity/query :user)
          (map #(entity/to-json % {:culture (get-culture session)})))))
 

@@ -42,22 +42,39 @@
   [base/button {:on-click #(routes/go-to :admin.users.edit :id 0)}
    (i18n ::new-user)])
 
+(rf/reg-event-fx
+  ::fetch
+  (fn [{:keys [db]} [_ {:keys [state-path]}]]
+    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+      {:dispatch [::backend/users.list
+                  {:success ::fetch.next
+                   :params {:pagination {:page page
+                                         :items-per-page items-per-page}
+                            :sorting {:direction sort-direction
+                                      :field sort-column}}}]})))
+
+(rf/reg-event-db
+  ::fetch.next
+  (fn [db [_ {:keys [items total]}]]
+    (-> db
+        (assoc-in [state-key :users] items)
+        (assoc-in [state-key :table :total] total))))
+
 (defn- content []
-  (rf/dispatch [::backend/users.list
-                {:success #(rf/dispatch [::events/db [state-key :users] %])}])
-  (fn []
-    [:div.admin-users__table
-     [table/table
-      {:state-path [state-key :table]
-       :data-path [state-key :users]
-       :columns [{:id :first-name
-                  :label (i18n ::name)}
-                 {:id :email
-                  :label (i18n ::email)}
-                 {:id :actions
-                  :label (i18n ::actions)
-                  :component action-column}]
-       :footer footer}]]))
+  [:div.admin-users__table
+   [table/table
+    {:init-state {:sort-column :id}
+     :state-path [state-key :table]
+     :data-path [state-key :users]
+     :fetch-fx ::fetch
+     :columns [{:id :first-name
+                :label (i18n ::name)}
+               {:id :email
+                :label (i18n ::email)}
+               {:id :actions
+                :label (i18n ::actions)
+                :component action-column}]
+     :footer footer}]])
 
 (defn- page []
   [admin.skeleton/skeleton
