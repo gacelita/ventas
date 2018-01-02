@@ -80,8 +80,10 @@
         (for [row @(rf/subscribe [::events/db data-path])]
           [base/table-row
            {:key (hash row)}
-           (for [{:keys [id component]} columns]
-             [base/table-cell {:key id}
+           (for [{:keys [id component width]} columns]
+             [base/table-cell {:key id
+                               :style (when width
+                                        {:width width})}
               (if component
                 [component row]
                 (id row))])])]

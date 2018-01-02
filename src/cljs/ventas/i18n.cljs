@@ -59,10 +59,12 @@
     :ventas.pages.admin.skeleton/products "Products"
     :ventas.pages.admin.skeleton/users "Users"
     :ventas.pages.admin.skeleton/taxes "Taxes"
+
     :ventas.pages.admin.taxes/name "Name"
-    :ventas.pages.admin.taxes/quantity "Quantity"
+    :ventas.pages.admin.taxes/amount "Amount"
     :ventas.pages.admin.taxes/actions "Actions"
-    :ventas.pages.admin.taxes/create-tax "Create tax"
+    :ventas.pages.admin.taxes/create "Create tax"
+
     :ventas.pages.admin.taxes.edit/amount "Amount"
     :ventas.pages.admin.taxes.edit/name "Name"
     :ventas.pages.admin.taxes.edit/kind "Type"

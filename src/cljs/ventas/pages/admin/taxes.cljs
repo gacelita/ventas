@@ -7,53 +7,83 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
-   [ventas.components.datatable :as datatable]
    [ventas.pages.admin.taxes.edit]
+   [ventas.utils.formatting :as formatting]
    [ventas.i18n :refer [i18n]]
+   [ventas.events.backend :as backend]
+   [ventas.components.table :as table]
    [ventas.events :as events]))
 
-(def taxes-key ::taxes)
+(def state-key ::state)
 
-(defn taxes-datatable [action-column]
-  (rf/dispatch [::events/taxes.list [taxes-key]])
-  (fn [action-column]
-    (let [id (keyword (gensym "taxes"))]
-      [:div
-       [dt/datatable id [::events/db [taxes-key]]
-        [{::dt/column-key [:id]
-          ::dt/column-label "#"
-          ::dt/sorting {::dt/enabled? true}}
+(rf/reg-event-fx
+  ::remove
+  (fn [cofx [_ id]]
+    {:dispatch [::backend/entities.remove
+                {:params {:id id}
+                 :success [::remove.next id]}]}))
 
-         {::dt/column-key [:name]
-          ::dt/column-label (i18n ::name)}
+(rf/reg-event-db
+  ::remove.next
+  (fn [db [_ id]]
+    (update-in db
+               [state-key :taxes]
+               (fn [items]
+                 (remove #(= (:id %) id)
+                         items)))))
 
-         {::dt/column-key [:quantity]
-          ::dt/column-label (i18n ::quantity)
-          ::dt/sorting {::dt/enabled? true}}
+(defn- action-column [{:keys [id]}]
+  [:div
+   [base/button {:icon true
+                 :on-click #(routes/go-to :admin.taxes.edit :id id)}
+    [base/icon {:name "edit"}]]
+   [base/button {:icon true
+                 :on-click #(rf/dispatch [::remove id])}
+    [base/icon {:name "remove"}]]])
 
-         {::dt/column-key [:actions]
-          ::dt/column-label (i18n ::actions)
-          ::dt/render-fn action-column}]
+(defn- footer []
+  [base/button {:on-click #(routes/go-to :admin.taxes.edit :id 0)}
+   (i18n ::create)])
 
-        {::dt/pagination {::dt/enabled? true
-                          ::dt/per-page 3}
-         ::dt/table-classes ["ui" "table" "celled"]
-         ::dt/empty-tbody-component (fn [] [:p (i18n ::no-taxes)])}]
-       [:div.admin-taxes__pagination
-        [datatable/pagination id [::events/db [taxes-key]]]]])))
+(rf/reg-event-fx
+  ::fetch
+  (fn [{:keys [db]} [_ {:keys [state-path]}]]
+    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+      {:dispatch [::backend/taxes.list
+                  {:success ::fetch.next
+                   :params {:pagination {:page page
+                                         :items-per-page items-per-page}
+                            :sorting {:direction sort-direction
+                                      :field sort-column}}}]})))
 
-(defn page []
+(rf/reg-event-db
+  ::fetch.next
+  (fn [db [_ {:keys [items total]}]]
+    (-> db
+        (assoc-in [state-key :taxes] items)
+        (assoc-in [state-key :table :total] total))))
+
+(defn- content []
+  [:div.admin-taxes__table
+   [table/table
+    {:init-state {:sort-column :id}
+     :state-path [state-key :table]
+     :data-path [state-key :taxes]
+     :fetch-fx ::fetch
+     :columns [{:id :name
+                :label (i18n ::name)}
+               {:id :amount
+                :label (i18n ::amount)}
+               {:id :actions
+                :label (i18n ::actions)
+                :component action-column
+                :width 110}]
+     :footer footer}]])
+
+(defn- page []
   [admin.skeleton/skeleton
-   (let [action-column
-         (fn [_ row]
-           [:div
-            [base/button {:icon true :on-click #(routes/go-to :admin.taxes.edit :id (:id row))}
-             [base/icon {:name "edit"}]]
-            [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove (:id row)])}
-             [base/icon {:name "remove"}]]])]
-     [:div.admin__default-content.admin-taxes__page
-      [taxes-datatable action-column]
-      [base/button {:onClick #(routes/go-to :admin.taxes.edit :id 0)} (i18n ::create-tax)]])])
+   [:div.admin__default-content.admin-taxes__page
+    [content action-column]]])
 
 (routes/define-route!
  :admin.taxes
