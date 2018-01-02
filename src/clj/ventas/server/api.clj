@@ -257,7 +257,9 @@
 
 (register-endpoint!
   :products.list
-  (fn [{{:keys [pagination filters]} :params} {:keys [session]}]
+  {:middlewares [pagination/wrap-paginate
+                 pagination/wrap-sort]}
+  (fn [{{:keys [filters]} :params} {:keys [session]}]
     (let [{:keys [terms price]} filters]
       (assert (or (nil? terms) (set? terms)))
 
@@ -267,11 +269,10 @@
                     (let [{:keys [min max] :or {min '?price max '?price}} price]
                       (concat wheres [['?id :product/price '?price]
                                       [[<= min '?price max]]]))
-                    wheres))
-            items (map #(entity/find-json (:id %) {:culture (get-culture session)})
-                       (db/nice-query {:find '[?id]
-                                       :where wheres}))]
-        (pagination/paginate items pagination)))))
+                    wheres))]
+        (map #(entity/find-json (:id %) {:culture (get-culture session)})
+             (db/nice-query {:find '[?id]
+                             :where wheres}))))))
 
 (register-endpoint!
   :products.save

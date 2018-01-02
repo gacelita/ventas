@@ -4,4 +4,10 @@
     text-align: center;
 }
 
+.admin-products__table {
+    td:last-child {
+        width: 110px;
+    }
+}
+
 @import "./products/edit";

@@ -6,7 +6,7 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
-   [ventas.components.datatable :as datatable]
+   [ventas.components.table :as table]
    [ventas.i18n :refer [i18n]]
    [ventas.events.backend :as backend]
    [ventas.events :as events]))
@@ -29,7 +29,7 @@
                  (remove #(= (:id %) id)
                          users)))))
 
-(defn- action-column [_ {:keys [id]}]
+(defn- action-column [{:keys [id]}]
   [:div
    [base/button {:icon true
                  :on-click #(routes/go-to :admin.users.edit :id id)}
@@ -38,36 +38,31 @@
                  :on-click #(rf/dispatch [::remove id])}
     [base/icon {:name "remove"}]]])
 
-(defn- users-datatable []
+(defn- footer []
+  [base/button {:on-click #(routes/go-to :admin.users.edit :id 0)}
+   (i18n ::new-user)])
+
+(defn- content []
   (rf/dispatch [::backend/users.list
                 {:success #(rf/dispatch [::events/db [state-key :users] %])}])
   (fn []
     [:div.admin-users__table
-     [dt/datatable state-key [::events/db [state-key :users]]
-      [{::dt/column-key [:first-name]
-        ::dt/column-label (i18n ::name)}
-
-       {::dt/column-key [:email]
-        ::dt/column-label (i18n ::email)
-        ::dt/sorting {::dt/enabled? true}}
-
-       {::dt/column-key [:actions]
-        ::dt/column-label (i18n ::actions)
-        ::dt/render-fn action-column}]
-
-      {::dt/pagination {::dt/enabled? true
-                        ::dt/per-page 3}
-       ::dt/table-classes ["ui" "table" "celled"]
-       ::dt/empty-tbody-component (fn [] [:p (i18n ::no-items)])}]
-     [:div.admin-users__pagination
-      [datatable/pagination state-key [::events/db [state-key :users]]]]]))
+     [table/table
+      {:state-path [state-key :table]
+       :data-path [state-key :users]
+       :columns [{:id :first-name
+                  :label (i18n ::name)}
+                 {:id :email
+                  :label (i18n ::email)}
+                 {:id :actions
+                  :label (i18n ::actions)
+                  :component action-column}]
+       :footer footer}]]))
 
 (defn- page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-users__page
-    [users-datatable action-column]
-    [base/button {:on-click #(routes/go-to :admin.users.edit :id 0)}
-     (i18n ::new-user)]]])
+    [content action-column]]])
 
 (routes/define-route!
  :admin.users

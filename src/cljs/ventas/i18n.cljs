@@ -20,7 +20,7 @@
 
     :ventas.pages.admin.products/create-product "Create product"
     :ventas.pages.admin.products/name "Name"
-    :ventas.pages.admin.products/email "Email"
+    :ventas.pages.admin.products/price "Price"
     :ventas.pages.admin.products/actions "Actions"
     :ventas.pages.admin.products/no-products "No products yet"
 

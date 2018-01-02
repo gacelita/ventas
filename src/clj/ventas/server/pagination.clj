@@ -15,12 +15,16 @@
 (defn paginate [coll {:keys [items-per-page page] :as pagination}]
   {:pre [(or (nil? pagination) (utils/check ::pagination pagination))]}
   (if pagination
-    (limit coll
-           (* items-per-page page)
-           items-per-page)
+    {:total (count coll)
+     :items (limit coll
+                   (* items-per-page page)
+                   items-per-page)}
     coll))
 
 (defn wrap-paginate [previous]
   (let [pagination (get-in previous [:request :params :pagination])]
     (-> previous
         (update :response #(paginate % pagination)))))
+
+(defn wrap-sort [previous]
+  (let [config (get-in previous [])]))
