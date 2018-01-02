@@ -7,54 +7,88 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.components.base :as base]
-   [ventas.components.datatable :as datatable]
+   [ventas.events.backend :as backend]
+   [ventas.components.table :as table]
    [ventas.i18n :refer [i18n]]
    [ventas.events :as events]))
 
-(def image-sizes-key ::image-sizes)
+(def state-key ::state)
 
-(defn image-sizes-datatable [action-column]
-  (rf/dispatch [::events/image-sizes.list [image-sizes-key]])
-  (fn [action-column]
-    (let [id (keyword (gensym))]
-      [:div
-       [dt/datatable id [::events/db [image-sizes-key]]
-        [{::dt/column-key [:id]
-          ::dt/column-label "#"
-          ::dt/sorting {::dt/enabled? true}}
+(rf/reg-event-fx
+  ::remove
+  (fn [cofx [_ id]]
+    {:dispatch [::backend/entities.remove
+                {:params {:id id}
+                 :success [::remove.next id]}]}))
 
-         {::dt/column-key [:width]
-          ::dt/column-label (i18n ::width)}
+(rf/reg-event-db
+  ::remove.next
+  (fn [db [_ id]]
+    (update-in db
+               [state-key :image-sizes]
+               (fn [items]
+                 (remove #(= (:id %) id)
+                         items)))))
 
-         {::dt/column-key [:height]
-          ::dt/column-label (i18n ::height)
-          ::dt/sorting {::dt/enabled? true}}
+(defn- action-column [{:keys [id]}]
+  [:div
+   [base/button {:icon true
+                 :on-click #(routes/go-to :admin.image-sizes.edit :id id)}
+    [base/icon {:name "edit"}]]
+   [base/button {:icon true
+                 :on-click #(rf/dispatch [::remove id])}
+    [base/icon {:name "remove"}]]])
 
-         {::dt/column-key [:algorithm]
-          ::dt/column-label (i18n ::algorithm)
-          ::dt/sorting {::dt/enabled? true}}
+(defn- algorithm-column [{:keys [algorithm]}]
+  [:span
+   (i18n algorithm)])
 
-         {::dt/column-key [:actions]
-          ::dt/column-label (i18n ::actions)
-          ::dt/render-fn action-column}]
+(defn- footer []
+  [base/button {:on-click #(routes/go-to :admin.image-sizes.edit :id 0)}
+   (i18n ::create)])
 
-        {::dt/pagination {::dt/enabled? true
-                          ::dt/per-page 3}
-         ::dt/table-classes ["ui" "table" "celled"]
-         ::dt/empty-tbody-component (fn [] [:p (i18n ::no-image-sizes)])}]
-       [:div.admin-image-sizes__pagination
-        [datatable/pagination id [::events/db [image-sizes-key]]]]])))
+(rf/reg-event-fx
+  ::fetch
+  (fn [{:keys [db]} [_ {:keys [state-path]}]]
+    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+      {:dispatch [::backend/image-sizes.list
+                  {:success ::fetch.next
+                   :params {:pagination {:page page
+                                         :items-per-page items-per-page}
+                            :sorting {:direction sort-direction
+                                      :field sort-column}}}]})))
 
-(defn page []
+(rf/reg-event-db
+  ::fetch.next
+  (fn [db [_ {:keys [items total]}]]
+    (-> db
+        (assoc-in [state-key :image-sizes] items)
+        (assoc-in [state-key :table :total] total))))
+
+(defn- content []
+  [:div.admin-image-sizes__table
+   [table/table
+    {:init-state {:sort-column :id}
+     :state-path [state-key :table]
+     :data-path [state-key :image-sizes]
+     :fetch-fx ::fetch
+     :columns [{:id :width
+                :label (i18n ::width)}
+               {:id :height
+                :label (i18n ::height)}
+               {:id :algorithm
+                :label (i18n ::algorithm)
+                :component algorithm-column}
+               {:id :actions
+                :label (i18n ::actions)
+                :component action-column
+                :width 110}]
+     :footer footer}]])
+
+(defn- page []
   [admin.skeleton/skeleton
-   (let [action-column
-         (fn [_ row]
-           [:div
-            [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove (:id row)])}
-             [base/icon {:name "remove"}]]])]
-     [:div.admin__default-content.admin-image-sizes__page
-      [image-sizes-datatable action-column]
-      [base/button (i18n ::create-image-size)]])])
+   [:div.admin__default-content.admin-image-sizes__page
+    [content action-column]]])
 
 (routes/define-route!
  :admin.configuration.image-sizes

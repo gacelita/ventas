@@ -372,10 +372,11 @@
 
 (register-endpoint!
   :image-sizes.list
-  (fn [{{:keys [pagination]} :params} {:keys [session]}]
-    (let [items (map #(entity/to-json % {:culture (get-culture session)})
-                     (entity/query :image-size))]
-      (pagination/paginate items pagination))))
+  {:middlewares [pagination/wrap-sort
+                 pagination/wrap-paginate]}
+  (fn [_ {:keys [session]}]
+    (map #(entity/to-json % {:culture (get-culture session)})
+         (entity/query :image-size))))
 
 (register-endpoint!
   :taxes.save

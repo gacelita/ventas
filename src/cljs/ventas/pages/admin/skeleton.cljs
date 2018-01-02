@@ -12,7 +12,7 @@
    {:route :admin.plugins :label ::plugins}
    {:route :admin.taxes :label ::taxes}
    {:route :admin.activity-log :label ::activity-log}
-   {:route :admin.configuration
+   {:route :admin.configuration.image-sizes
     :label ::configuration
     :children configuration-items}])
 

@@ -13,7 +13,7 @@
     
     :ventas.page/not-found "404"
     :ventas.pages.admin.configuration.image-sizes/actions "Actions"
-    :ventas.pages.admin.configuration.image-sizes/create-image-size "Create image size"
+    :ventas.pages.admin.configuration.image-sizes/create "Create image size"
     :ventas.pages.admin.configuration.image-sizes/width "Width"
     :ventas.pages.admin.configuration.image-sizes/height "Height"
     :ventas.pages.admin.configuration.image-sizes/algorithm "Algorithm"
@@ -91,6 +91,10 @@
 
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
+
+    :image-size.algorithm/always-resize "Always resize"
+    :image-size.algorithm/crop-and-resize "Crop and resize"
+    :image-size.algorithm/resize-only-if-over-maximum "Resize only if over maximum"
 
     :user.role/administrator "Administrator"
     :user.role/user "User"
