@@ -26,5 +26,19 @@
     (-> previous
         (update :response #(paginate % pagination)))))
 
+(defn- sort* [coll {:keys [field direction]}]
+  (let [sorter (if (sequential? field)
+                 #(get-in % field)
+                 field)
+        sorted (sort-by sorter coll)]
+    (if (= direction :asc)
+      sorted
+      (reverse sorted))))
+
 (defn wrap-sort [previous]
-  (let [config (get-in previous [])]))
+  (let [config (get-in previous [:request :params :sorting])]
+    (if (or (not (sequential? (:response previous)))
+            (not config))
+      previous
+      (-> previous
+          (update :response #(sort* % config))))))

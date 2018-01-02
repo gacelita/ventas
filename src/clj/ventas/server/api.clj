@@ -257,8 +257,8 @@
 
 (register-endpoint!
   :products.list
-  {:middlewares [pagination/wrap-paginate
-                 pagination/wrap-sort]}
+  {:middlewares [pagination/wrap-sort
+                 pagination/wrap-paginate]}
   (fn [{{:keys [filters]} :params} {:keys [session]}]
     (let [{:keys [terms price]} filters]
       (assert (or (nil? terms) (set? terms)))
