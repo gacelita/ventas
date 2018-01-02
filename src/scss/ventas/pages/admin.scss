@@ -5,7 +5,7 @@
 
 .admin__sidebar {
     min-height: 100vh;
-    min-width: 250px;
+    min-width: 160px;
     background-color: #212121;
     padding-top: 10px;
 
@@ -19,20 +19,57 @@
 
         li {
             display: block;
-            font-size: 1.1rem;
+            font-size: 1.0rem;
+            position: relative;
 
             a {
                 display: block;
                 color: #d4d4d4;
-                padding: 6px 25px;
+                padding: 8px 25px 8px 15px;
+            }
+
+            ul {
+                position: absolute;
+                display: none;
+                top: 0;
+                left: 100%;
+                width: auto;
+                background-color: #696969;
+
+                &:before {
+                    display: block;
+                    content: " ";
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    left: -8px;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 7px 8px 7px 0;
+                    border-color: transparent #696969 transparent transparent;
+                    margin: auto;
+                }
+
+                li {
+                    white-space: nowrap;
+
+                    &:hover {
+                        background-color: inherit;
+
+                        a {
+                            color: #eaeaea;
+                        }
+                    }
+                }
             }
 
             &:hover {
                 background-color: rgba(255, 255, 255, 0.1);
-            }
 
-            li {
-                padding-left: 20px;
+                ul {
+                    display: block;
+                }
             }
         }
     }
