@@ -33,6 +33,9 @@
 
     :ventas.pages.admin/nothing-here "(Empty page)"
 
+    :ventas.pages.admin.plugins/name "Name"
+    :ventas.pages.admin.plugins/version "Version"
+
     :ventas.pages.admin.products/page "Products"
     :ventas.pages.admin.products.edit/active "Active"
     :ventas.pages.admin.products.edit/brand "Brand"

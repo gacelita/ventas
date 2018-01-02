@@ -69,6 +69,11 @@
                   :params {:pagination {:page 0 :items-per-page 5}}} options)}))
 
 (rf/reg-event-fx
+  ::plugins.list
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :plugins.list} options)}))
+
+(rf/reg-event-fx
  ::products.save
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :products.save} options)}))

@@ -17,6 +17,7 @@
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
    [ventas.entities.product :as entities.product]
+   [ventas.plugin :as plugin]
    [clojure.string :as str]))
 
 (defn register-endpoint!
@@ -324,6 +325,16 @@
             (assoc k :terms (map #(dissoc % :taxonomy) v)))
           (group-by :taxonomy (term-counts)))
      :prices (prices)}))
+
+(register-endpoint!
+  :plugins.list
+  {:middlewares [pagination/wrap-sort
+                 pagination/wrap-paginate]}
+  (fn [message _]
+    (->> (plugin/all)
+         (map plugin/plugin)
+         (map (fn [plugin]
+                (select-keys plugin #{:version :name}))))))
 
 (register-endpoint!
   :categories.get
