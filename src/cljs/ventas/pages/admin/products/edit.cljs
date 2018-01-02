@@ -72,7 +72,10 @@
 (rf/reg-event-db
  ::set-field
  (fn [db [_ field value]]
-   (assoc db form-data-key field value)))
+   (let [field (if-not (sequential? field)
+                 [field]
+                 field)]
+     (assoc-in db (concat [form-data-key] field) value))))
 
 (rf/reg-event-db
  ::update-field
@@ -125,8 +128,9 @@
            :on-change #(rf/dispatch [::set-field :active (-> % .-target .-value)])}]]
         [base/form-input
          {:label (i18n ::price)
-          :default-value (:price form-data)
-          :on-change #(rf/dispatch [::set-field :price (-> % .-target .-value)])}]
+          :default-value (get-in form-data [:price :value])
+          :on-change #(rf/dispatch [::set-field [:price :value]
+                                    (js/parseInt (-> % .-target .-value))])}]
         [base/form-input
          {:label (i18n ::reference)
           :default-value (:reference form-data)
@@ -149,7 +153,7 @@
            :options (map (fn [v] {:text v :value v})
                          (:tags form-data))
            :selection true
-           :default-value (:tags form-data)
+           :default-value (or (:tags form-data) #{})
            :on-change #(rf/dispatch [::set-field :tags (set (.-value %2))])}]]
         [base/form-field
          [:label (i18n ::brand)]
