@@ -86,8 +86,10 @@
     :ventas.pages.admin.users.edit/culture "Culture"
     :ventas.pages.admin.users.edit/status "Status"
 
-
     :ventas.pages.admin.activity-log/whats-the-activity-log "In the activity log you can see everything that happens in your store. Filter the messages by category to find the information you want."
+    :ventas.pages.admin.activity-log/entity-id "ID"
+    :ventas.pages.admin.activity-log/entity-type "Entity type"
+    :ventas.pages.admin.activity-log/type "Event type"
 
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
@@ -103,6 +105,10 @@
     :user.status/pending "Pending"
     :user.status/active "Active"
     :user.status/cancelled "Cancelled"
+
+    :entity.create "Creation"
+    :entity.delete "Deletion"
+    :entity.update "Update"
 
     :tax.kind/amount "Amount"
     :tax.kind/percentage "Percentage"}

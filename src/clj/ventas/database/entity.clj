@@ -164,7 +164,9 @@
   (before-create attrs)
   (let [tempid (d/tempid :db.part/user)
         pre-entity (prepare-creation-attrs attrs tempid)
-        tx (db/transact [pre-entity])
+        tx (db/transact [pre-entity
+                         {:db/id (d/tempid :db.part/tx)
+                          :event/kind :entity.create}])
         entity (transaction->entity tx tempid)]
     (after-create entity)
     entity))
@@ -313,7 +315,10 @@
   [{:db/keys [id] :as attrs}]
   (let [entity (find id)]
     (filter-update entity attrs)
-    (db/transact (concat [attrs] (get-enum-retractions entity attrs)))
+    (db/transact (concat [attrs]
+                         (get-enum-retractions entity attrs)
+                         {:db/id (d/tempid :db.part/tx)
+                          :event/kind :entity.update}))
     (find id)))
 
 (defn update
@@ -333,6 +338,9 @@
   (let [entity (find eid)]
     (before-delete entity)
     (db/retract-entity eid)
+    (db/transact [[:db.fn/retractEntity eid]
+                  {:db/id (d/tempid :db.part/tx)
+                   :event/kind :entity.delete}])
     (after-delete entity)))
 
 (defn upsert

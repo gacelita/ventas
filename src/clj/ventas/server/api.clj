@@ -245,9 +245,13 @@
 
 (register-endpoint!
   :events.list
-  (fn [{:keys [pagination params]} {:keys [session]}]
-    (let [items (map #(entity/to-json % {:culture (get-culture session)})
-                     (entity/query :event))])))
+  {:middlewares [pagination/wrap-sort
+                 pagination/wrap-paginate]}
+  (fn [_ _]
+    (->> (db/transaction-log)
+         (take-last 10)
+         (db/explain-txs)
+         (filter :entity-id))))
 
 (register-endpoint!
   :products.get

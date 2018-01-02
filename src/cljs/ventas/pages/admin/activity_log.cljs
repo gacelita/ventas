@@ -1,71 +1,68 @@
 (ns ventas.pages.admin.activity-log
   (:require
-   [ventas.routes :as routes]
-   [ventas.i18n :refer [i18n]]
-   [ventas.pages.admin.skeleton :as admin.skeleton]
-   [re-frame.core :as rf]
-   [re-frame-datatable.core :as datatable]
-   [ventas.components.base :as base]
-   [ventas.components.datatable :as components.datatable]
-   [ventas.events.backend :as backend]
-   [ventas.events :as events]))
+    [ventas.routes :as routes]
+    [ventas.i18n :refer [i18n]]
+    [ventas.pages.admin.skeleton :as admin.skeleton]
+    [re-frame.core :as rf]
+    [re-frame-datatable.core :as datatable]
+    [ventas.components.base :as base]
+    [ventas.components.datatable :as components.datatable]
+    [ventas.events.backend :as backend]
+    [ventas.events :as events]
+    [ventas.components.table :as table]
+    [clojure.string :as str]))
 
-(defn- activity-log []
-  [:div
-   [:p.admin__default-content
-    (i18n ::whats-the-activity-log)]
-   [:div.activity-log
-    ]])
-
-;; Categoría de evento
-;; Resumen
-;; Fecha
-;; Acciones
-
-(def events-key ::events)
+(def state-key ::state)
 
 (defn- action-column [_ row]
   [:div
    [base/button {:icon true}
     [base/icon {:name "edit"}]]])
 
-(defn table []
-  (rf/dispatch [::backend/events.list {:success #(rf/dispatch [::events/db [events-key] %])}])
-  (fn []
-    (let [id (keyword (gensym))
-          subscription [::events/db [events-key]]]
-      [:div
-       [datatable/datatable id subscription
-        [{::datatable/column-key [:id]
-          ::datatable/column-label "#"
-          ::datatable/sorting {::datatable/enabled? true}}
+(rf/reg-event-fx
+  ::fetch
+  (fn [{:keys [db]} [_ {:keys [state-path]}]]
+    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+      {:dispatch [::backend/events.list
+                  {:success ::fetch.next
+                   :params {:pagination {:page page
+                                         :items-per-page items-per-page}
+                            :sorting {:direction sort-direction
+                                      :field sort-column}}}]})))
 
-         {::datatable/column-key [:category]
-          ::datatable/column-label (i18n ::category)
-          ::datatable/sorting {::datatable/enabled? true}}
+(rf/reg-event-db
+  ::fetch.next
+  (fn [db [_ {:keys [items total]}]]
+    (-> db
+        (assoc-in [state-key :events] items)
+        (assoc-in [state-key :table :total] total))))
 
-         {::datatable/column-key [:abstract]
-          ::datatable/column-label (i18n ::abstract)
-          ::datatable/sorting {::datatable/enabled? true}}
+(defn- type-column [{:keys [type]}]
+  [:span (i18n type)])
 
-         {::datatable/column-key [:date]
-          ::datatable/column-label (i18n ::date)
-          ::datatable/sorting {::datatable/enabled? true}}
+(defn- entity-type-column [{:keys [entity-type]}]
+  [:span (str/capitalize (name entity-type))])
 
-         {::datatable/column-key [:actions]
-          ::datatable/column-label (i18n ::actions)
-          ::datatable/render-fn action-column}]
-
-        {::datatable/pagination {::datatable/enabled? true
-                                 ::datatable/per-page 3}
-         ::datatable/table-classes ["ui" "table" "celled"]
-         ::datatable/empty-tbody-component (fn [] [:p (i18n ::no-products)])}]
-       [:div.admin-products__pagination
-        [components.datatable/pagination id subscription]]])))
+(defn- content []
+  [:div.admin-events__table
+   [table/table
+    {:init-state {:sort-column :id}
+     :state-path [state-key :table]
+     :data-path [state-key :events]
+     :fetch-fx ::fetch
+     :columns [{:id :entity-id
+                :label (i18n ::entity-id)}
+               {:id :entity-type
+                :label (i18n ::entity-type)
+                :component entity-type-column}
+               {:id :type
+                :label (i18n ::type)
+                :component type-column}]}]])
 
 (defn- page []
   [admin.skeleton/skeleton
-   [table]])
+   [:div.admin__default-content.admin-events__page
+    [content]]])
 
 (routes/define-route!
  :admin.activity-log

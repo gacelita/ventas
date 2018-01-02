@@ -294,3 +294,20 @@
   (transact
    [{:db/id old
      :db/ident new}]))
+
+(defn explain-tx [tx]
+  (let [{:keys [t data]} (transaction->map tx)
+        type-datom (->> data
+                        (filter #(= (:a %) :schema/type))
+                        first)]
+    {:t t
+     :entity-id (:e type-datom)
+     :entity-type (when type-datom
+                    (keyword (name (:v type-datom))))
+     :type (->> data
+                (filter #(= (:a %) :event/kind))
+                first
+                :v)}))
+
+(defn explain-txs [txs]
+  (map explain-tx txs))
