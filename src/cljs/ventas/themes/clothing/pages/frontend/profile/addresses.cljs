@@ -116,7 +116,7 @@
 (rf/reg-event-fx
  ::remove
  (fn [cofx [_ eid]]
-   {:dispatch [::backend/entities.remove
+   {:dispatch [::backend/users.addresses.remove
                {:params {:id eid}
                 :success #(rf/dispatch [::remove.next eid])}]}))
 

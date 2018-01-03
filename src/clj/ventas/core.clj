@@ -9,6 +9,7 @@
    [ventas.logging]
    [ventas.server]
    [ventas.server.api]
+   [ventas.server.api.admin]
    [ventas.entities.address]
    [ventas.entities.amount]
    [ventas.entities.brand]

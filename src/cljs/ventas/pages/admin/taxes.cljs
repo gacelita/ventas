@@ -19,7 +19,7 @@
 (rf/reg-event-fx
   ::remove
   (fn [cofx [_ id]]
-    {:dispatch [::backend/entities.remove
+    {:dispatch [::backend/admin.entities.remove
                 {:params {:id id}
                  :success [::remove.next id]}]}))
 
@@ -49,7 +49,7 @@
   ::fetch
   (fn [{:keys [db]} [_ {:keys [state-path]}]]
     (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
-      {:dispatch [::backend/taxes.list
+      {:dispatch [::backend/admin.taxes.list
                   {:success ::fetch.next
                    :params {:pagination {:page page
                                          :items-per-page items-per-page}

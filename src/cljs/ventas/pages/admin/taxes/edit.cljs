@@ -20,8 +20,9 @@
 (rf/reg-event-fx
  ::submit
  (fn [cofx [_ data]]
-   {:dispatch [::backend/taxes.save {:params data
-                                :success ::submit.next}]}))
+   {:dispatch [::backend/admin.taxes.save
+               {:params data
+                :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next

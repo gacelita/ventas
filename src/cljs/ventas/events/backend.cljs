@@ -7,12 +7,6 @@
    [ventas.common.utils :as common.utils]))
 
 (rf/reg-event-fx
- ::brands.list
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :brands.list} options)}))
-
-
-(rf/reg-event-fx
  ::categories.get
  (fn [cofx [_ options]]
     {:ws-request (merge {:name :categories.get} options)}))
@@ -32,28 +26,11 @@
 
 
 (rf/reg-event-fx
- ::entities.remove
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :entities.remove} options)}))
-
-(rf/reg-event-fx
  ::entities.find
  (fn [cofx [_ id options]]
    {:ws-request (merge {:name :entities.find
                         :params {:id id}}
                        options)}))
-
-
-(rf/reg-event-fx
- ::events.list
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :events.list} options)}))
-
-
-(rf/reg-event-fx
- ::image-sizes.list
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :image-sizes.list} options)}))
 
 
 (rf/reg-event-fx
@@ -67,16 +44,6 @@
    {:ws-request (common.utils/deep-merge
                  {:name :products.list
                   :params {:pagination {:page 0 :items-per-page 5}}} options)}))
-
-(rf/reg-event-fx
-  ::plugins.list
-  (fn [cofx [_ options]]
-    {:ws-request (merge {:name :plugins.list} options)}))
-
-(rf/reg-event-fx
- ::products.save
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :products.save} options)}))
 
 (rf/reg-event-fx
  ::products.aggregations
@@ -93,16 +60,6 @@
   ::i18n.cultures.list
   (fn [cofx [_ options]]
     {:ws-request (merge {:name :i18n.cultures.list} options)}))
-
-(rf/reg-event-fx
- ::taxes.list
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :taxes.list} options)}))
-
-(rf/reg-event-fx
- ::taxes.save
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :taxes.save} options)}))
 
 
 (rf/reg-event-fx
@@ -141,11 +98,6 @@
    {:ws-request (merge {:name :users.register} options)}))
 
 (rf/reg-event-fx
- ::users.save
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :users.save} options)}))
-
-(rf/reg-event-fx
  ::users.session
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :users.session} options)}))
@@ -159,6 +111,11 @@
  ::users.addresses.save
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :users.addresses.save} options)}))
+
+(rf/reg-event-fx
+  ::users.addresses.remove
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :users.addresses.remove} options)}))
 
 (rf/reg-event-fx
  ::users.favorites.list
@@ -180,3 +137,50 @@
  ::states.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :states.list} options)}))
+
+
+
+(rf/reg-event-fx
+  ::admin.brands.list
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.brands.list} options)}))
+
+(rf/reg-event-fx
+  ::admin.entities.remove
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.entities.remove} options)}))
+
+(rf/reg-event-fx
+  ::admin.users.save
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.users.save} options)}))
+
+(rf/reg-event-fx
+  ::admin.events.list
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.events.list} options)}))
+
+(rf/reg-event-fx
+  ::admin.image-sizes.list
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.image-sizes.list} options)}))
+
+(rf/reg-event-fx
+  ::admin.plugins.list
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.plugins.list} options)}))
+
+(rf/reg-event-fx
+  ::admin.products.save
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.products.save} options)}))
+
+(rf/reg-event-fx
+  ::admin.taxes.list
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.taxes.list} options)}))
+
+(rf/reg-event-fx
+  ::admin.taxes.save
+  (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.taxes.save} options)}))

@@ -23,7 +23,7 @@
   [:div
    [base/button {:icon true :on-click #(routes/go-to :admin.products.edit :id id)}
     [base/icon {:name "edit"}]]
-   [base/button {:icon true :on-click #(rf/dispatch [::events/entities.remove id])}
+   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove id])}
     [base/icon {:name "remove"}]]])
 
 (defn- footer []

@@ -68,14 +68,14 @@
                            (rf/dispatch [::db [:entities eid] entity-data]))}]}))
 
 (rf/reg-event-fx
- ::entities.remove
+ ::admin.entities.remove
  (fn [cofx [_ eid]]
-   {:dispatch [::backend/entities.remove
+   {:dispatch [::backend/admin.entities.remove
                {:params {:id eid}
-                :success #(rf/dispatch [::entities.remove.next eid])}]}))
+                :success #(rf/dispatch [::admin.entities.remove.next eid])}]}))
 
 (rf/reg-event-db
- ::entities.remove.next
+ ::admin.entities.remove.next
  (fn [db [_ eid]]
    (update db :entities #(dissoc eid))))
 
@@ -147,15 +147,17 @@
 (rf/reg-event-fx
  ::image-sizes.list
  (fn [cofx [_ db-key]]
-   {:dispatch [::backend/image-sizes.list {:success #(rf/dispatch [::db db-key %])}]}))
+   {:dispatch [::backend/image-sizes.list
+               {:success #(rf/dispatch [::db db-key %])}]}))
 
 (rf/reg-event-fx
- ::taxes.list
+ ::admin.taxes.list
  (fn [cofx [_ db-key]]
-   {:dispatch [::backend/taxes.list {:success #(rf/dispatch [::taxes.list.next db-key %])}]}))
+   {:dispatch [::backend/admin.taxes.list
+               {:success #(rf/dispatch [::admin.taxes.list.next db-key %])}]}))
 
 (rf/reg-event-db
- ::taxes.list.next
+ ::admin.taxes.list.next
  (fn [db [_ db-key data]]
    (->> data
         (map #(assoc % :quantity (str (formatting/format-number (:value %))
@@ -164,11 +166,11 @@
         (assoc-in db db-key))))
 
 (rf/reg-event-fx
- ::upload
+ ::admin.upload
  (fn [cofx [_ {:keys [success file]}]]
    (let [fr (js/FileReader.)]
      (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request
-                                        {:name :upload
+                                        {:name :admin.upload
                                          :upload-key :bytes
                                          :upload-data (-> fr .-result)
                                          :success success}]))

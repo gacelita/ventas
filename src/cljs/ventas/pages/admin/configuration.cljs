@@ -15,7 +15,7 @@
 (def taxes-key ::taxes)
 
 (defn taxes-datatable [action-column]
-  (rf/dispatch [::events/taxes.list [taxes-key]])
+  (rf/dispatch [::events/admin.taxes.list [taxes-key]])
   (fn [action-column]
     (let [id (keyword (gensym "taxes"))]
       [:div

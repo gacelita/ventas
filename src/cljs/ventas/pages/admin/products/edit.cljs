@@ -64,10 +64,10 @@
 (defn image [eid]
   (rf/dispatch [::events/entities.sync eid])
   (fn [eid]
-    (let [data @(rf/subscribe [::events/db [:entities eid]])]
-      [base/image {:src (:url data)
+    (let [{:keys [id url]} @(rf/subscribe [::events/db [:entities eid]])]
+      [base/image {:src (str "/images/" id "/resize/admin-products-edit")
                    :size "small"
-                   :on-click #(rf/dispatch [::image-modal.open (:url data)])}])))
+                   :on-click #(rf/dispatch [::image-modal.open url])}])))
 
 (rf/reg-event-db
  ::set-field
@@ -96,10 +96,11 @@
        [:input {:type "file"
                 :ref #(reset! ref %)
                 :on-change (fn [e]
-                             (rf/dispatch [::events/upload {:success #(rf/dispatch [::upload.next %])
-                                                           :file (-> (-> e .-target .-files)
-                                                                     (js/Array.from)
-                                                                     first)}]))}]])))
+                             (rf/dispatch [::events/admin.upload
+                                           {:success #(rf/dispatch [::upload.next %])
+                                            :file (-> (-> e .-target .-files)
+                                                      js/Array.from
+                                                      first)}]))}]])))
 
 (defn product-form []
   (rf/dispatch [::backend/entities.find
@@ -108,7 +109,7 @@
                                (rf/dispatch [::events/db [form-data-key] entity-data])
                                (rf/dispatch [::events/db [form-hash-key] (hash entity-data)]))}])
   (rf/dispatch [::backend/brands.list {:success #(rf/dispatch [::events/db [brands-sub-key] %])}])
-  (rf/dispatch [::backend/taxes.list {:success #(rf/dispatch [::events/db [taxes-sub-key] %])}])
+  (rf/dispatch [::backend/admin.taxes.list {:success #(rf/dispatch [::events/db [taxes-sub-key] %])}])
 
   (fn []
     (let [form-data @(rf/subscribe [::events/db [form-data-key]])
@@ -162,7 +163,7 @@
            :selection true
            :options (map (fn [v] {:text (:name v) :value (:id v)})
                          @(rf/subscribe [::events/db [brands-sub-key]]))
-           :default-value (:brand form-data)
+           :default-value (get-in form-data [:brand :id])
            :on-change #(rf/dispatch [::set-field :brand (.-value %2)])}]]
         [base/form-field
          [:label (i18n ::tax)]
@@ -171,7 +172,7 @@
            :selection true
            :options (map (fn [v] {:text (:name v) :value (:id v)})
                          @(rf/subscribe [::events/db [taxes-sub-key]]))
-           :default-value (:tax form-data)
+           :default-value (get-in form-data [:tax :id])
            :on-change #(rf/dispatch [::set-field :tax (.-value %2)])}]]
         [base/form-field {:class "admin-products-edit__images"}
          [:label (i18n ::images)]

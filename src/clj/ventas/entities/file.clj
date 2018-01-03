@@ -1,16 +1,17 @@
 (ns ventas.entities.file
   (:require
-   [clojure.java.io :as io]
-   [clojure.spec.alpha :as spec]
-   [clojure.test.check.generators :as gen]
-   [com.gfredericks.test.chuck.generators :as gen']
-   [ventas.config :as config]
-   [ventas.database :as db]
-   [ventas.database.entity :as entity]
-   [ventas.paths :as paths]
-   [ventas.utils :as utils]
-   [ventas.utils.jar :as utils.jar]
-   [ventas.database.generators :as generators]))
+    [clojure.java.io :as io]
+    [clojure.spec.alpha :as spec]
+    [clojure.test.check.generators :as gen]
+    [com.gfredericks.test.chuck.generators :as gen']
+    [ventas.config :as config]
+    [ventas.database :as db]
+    [ventas.database.entity :as entity]
+    [ventas.paths :as paths]
+    [ventas.utils :as utils]
+    [ventas.utils.jar :as utils.jar]
+    [ventas.database.generators :as generators]
+    [pantomime.mime :as mime]))
 
 (defn identifier [entity]
   {:pre [(:db/id entity)]}
@@ -35,6 +36,18 @@
     (io/make-parents new-path)
     (when-not (.exists new-path)
       (io/copy path new-path))))
+
+(defn create-from-file!
+  "Creates a :file entity from an existing file"
+  [source-path]
+  (let [mime (mime/mime-type-of (clojure.java.io/file source-path))
+        extension (subs (mime/extension-for-name mime) 1)
+        entity (entity/create :file {:extension extension})
+        target-path (str (paths/resolve paths/storage) "/" (:db/id entity) "." extension)]
+    (.renameTo
+      (clojure.java.io/file source-path)
+      (clojure.java.io/file target-path))
+    entity))
 
 (spec/def :file/extension
   (spec/with-gen string? #(spec/gen #{"png"})))

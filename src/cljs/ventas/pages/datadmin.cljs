@@ -45,7 +45,7 @@
 
 (rf/reg-event-fx :datadmin/datoms
   (fn [cofx [_]]
-    {:ws-request {:name :datadmin/datoms
+    {:ws-request {:name :admin.datadmin.datoms
                   :params {}
                   :success #(rf/dispatch [::events/db [:datadmin :datoms] (:datoms %)])}}))
 
