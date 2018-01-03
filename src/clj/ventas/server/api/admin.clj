@@ -1,12 +1,9 @@
 (ns ventas.server.api.admin
   (:require
-    [byte-streams :as byte-streams]
     [ventas.server.api :as api]
     [ventas.database.entity :as entity]
     [ventas.server.pagination :as pagination]
     [ventas.database :as db]
-    [ventas.paths :as paths]
-    [ventas.entities.file :as entities.file]
     [ventas.plugin :as plugin]))
 
 (defn- admin-check! [session]
@@ -106,22 +103,6 @@
   (fn [message state]
     (let [datoms (db/datoms :eavt)]
       {:datoms (map db/datom->map (take 10 datoms))})))
-
-(register-admin-endpoint!
-  :admin.upload
-  {:binary? true}
-  (fn [{:keys [params]} state]
-    (let [{:keys [bytes is-first is-last file-id]} params
-          file-id (if is-first (gensym "temp-file") file-id)
-          path (str (paths/resolve paths/storage) "/" file-id)]
-      (with-open [r (byte-streams/to-input-stream bytes)
-                  w (-> (clojure.java.io/file path)
-                        (clojure.java.io/output-stream :append (not is-first)))]
-        (clojure.java.io/copy r w))
-      (cond
-        is-last (entities.file/create-from-file! path)
-        is-first file-id
-        :default true))))
 
 (register-admin-endpoint!
   :admin.plugins.list

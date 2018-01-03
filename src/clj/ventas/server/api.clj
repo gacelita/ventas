@@ -1,6 +1,7 @@
 (ns ventas.server.api
   (:require
    [buddy.hashers :as hashers]
+   [byte-streams :as bytes]
    [clojure.string :as str]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
@@ -8,7 +9,9 @@
    [ventas.entities.user :as entities.user]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
-   [ventas.entities.product :as entities.product]))
+   [ventas.entities.product :as entities.product]
+   [ventas.paths :as paths]
+   [ventas.entities.file :as entities.file]))
 
 (defn register-endpoint!
   ([kw f]
@@ -308,3 +311,19 @@
   :users.favorites.remove
   (fn [{{:keys [id]} :params} {:keys [session]}]
     (toggle-favorite session id disj)))
+
+(register-endpoint!
+  :upload
+  {:binary? true}
+  (fn [{:keys [params]} state]
+    (let [{:keys [bytes is-first is-last file-id]} params
+          file-id (if is-first (gensym "temp-file") file-id)
+          path (str (paths/resolve paths/storage) "/" file-id)]
+      (with-open [r (bytes/to-input-stream bytes)
+                  w (-> (clojure.java.io/file path)
+                        (clojure.java.io/output-stream :append (not is-first)))]
+        (clojure.java.io/copy r w))
+      (cond
+        is-last (entities.file/create-from-file! path)
+        is-first file-id
+        :default true))))

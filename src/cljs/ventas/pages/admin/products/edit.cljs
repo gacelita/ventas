@@ -96,7 +96,7 @@
        [:input {:type "file"
                 :ref #(reset! ref %)
                 :on-change (fn [e]
-                             (rf/dispatch [::events/admin.upload
+                             (rf/dispatch [::events/upload
                                            {:success #(rf/dispatch [::upload.next %])
                                             :file (-> (-> e .-target .-files)
                                                       js/Array.from
@@ -110,7 +110,7 @@
                 {:success (fn [entity-data]
                                (rf/dispatch [::events/db [form-data-key] entity-data])
                                (rf/dispatch [::events/db [form-hash-key] (hash entity-data)]))}])
-  (rf/dispatch [::backend/brands.list {:success #(rf/dispatch [::events/db [brands-sub-key] %])}])
+  (rf/dispatch [::backend/admin.brands.list {:success #(rf/dispatch [::events/db [brands-sub-key] %])}])
   (rf/dispatch [::backend/admin.taxes.list {:success #(rf/dispatch [::events/db [taxes-sub-key] %])}])
 
   (fn []

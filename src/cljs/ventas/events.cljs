@@ -193,11 +193,11 @@
         (assoc-in db db-key))))
 
 (rf/reg-event-fx
- ::admin.upload
+ ::upload
  (fn [cofx [_ {:keys [success file]}]]
    (let [fr (js/FileReader.)]
      (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request
-                                        {:name :admin.upload
+                                        {:name :upload
                                          :upload-key :bytes
                                          :upload-data (-> fr .-result)
                                          :success success}]))
