@@ -105,10 +105,10 @@
 (defmethod handle-messages :fressian [_ {channel :ws-channel :as request}]
   (let [client-id (uuid/v4)]
     (go-loop []
-      (when-let [{:keys [id] :as message} (<! channel)]
+      (when-let [{{:keys [id] :as message} :message} (<! channel)]
         (debug "Received binary message" message)
         (let [response (handle-binary-request
-                        (:message message)
+                        message
                         {:client-id client-id
                          :channel channel
                          :request request})]
