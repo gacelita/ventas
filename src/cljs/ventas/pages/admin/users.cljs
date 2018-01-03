@@ -60,6 +60,10 @@
         (assoc-in [state-key :users] items)
         (assoc-in [state-key :table :total] total))))
 
+(defn- first-name-column [{:keys [first-name id]}]
+  [:a {:href (routes/path-for :admin.users.edit :id id)}
+   first-name])
+
 (defn- content []
   [:div.admin-users__table
    [table/table
@@ -68,7 +72,8 @@
      :data-path [state-key :users]
      :fetch-fx ::fetch
      :columns [{:id :first-name
-                :label (i18n ::name)}
+                :label (i18n ::name)
+                :component first-name-column}
                {:id :email
                 :label (i18n ::email)}
                {:id :actions

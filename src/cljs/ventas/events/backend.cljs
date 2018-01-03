@@ -166,6 +166,11 @@
     {:ws-request (merge {:name :admin.image-sizes.list} options)}))
 
 (rf/reg-event-fx
+ ::admin.image-sizes.entities.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.image-sizes.entities.list} options)}))
+
+(rf/reg-event-fx
   ::admin.plugins.list
   (fn [cofx [_ options]]
     {:ws-request (merge {:name :admin.plugins.list} options)}))

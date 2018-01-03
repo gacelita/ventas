@@ -12,11 +12,23 @@
    {:ventas.components.cart/product-added "Product added!"
     
     :ventas.page/not-found "404"
+
     :ventas.pages.admin.configuration.image-sizes/actions "Actions"
     :ventas.pages.admin.configuration.image-sizes/create "Create image size"
     :ventas.pages.admin.configuration.image-sizes/width "Width"
     :ventas.pages.admin.configuration.image-sizes/height "Height"
     :ventas.pages.admin.configuration.image-sizes/algorithm "Algorithm"
+    :ventas.pages.admin.configuration.image-sizes/keyword "ID"
+
+    :ventas.pages.admin.configuration.image-sizes.edit/algorithm "Algorithm"
+    :ventas.pages.admin.configuration.image-sizes.edit/name "Name"
+    :ventas.pages.admin.configuration.image-sizes.edit/keyword "Keyword"
+    :ventas.pages.admin.configuration.image-sizes.edit/width "Width"
+    :ventas.pages.admin.configuration.image-sizes.edit/height "Height"
+    :ventas.pages.admin.configuration.image-sizes.edit/entities "Entities"
+    :ventas.pages.admin.configuration.image-sizes.edit/amount "Amount"
+    :ventas.pages.admin.configuration.image-sizes.edit/submit "Submit"
+    :ventas.pages.admin.configuration.image-sizes.edit/saved-notification "Saved!"
 
     :ventas.pages.admin.products/create-product "Create product"
     :ventas.pages.admin.products/name "Name"
@@ -29,7 +41,7 @@
     :ventas.pages.admin.users/page "Users"
 
     :ventas.pages.admin.users.edit/page "Edit user"
-    :ventas.pages.admin.users.edit/user-saved-notification "Usuario guardado"
+    :ventas.pages.admin.users.edit/user-saved-notification "User saved"
 
     :ventas.pages.admin/nothing-here "(Empty page)"
 
@@ -45,7 +57,7 @@
     :ventas.pages.admin.products.edit/name "Name"
     :ventas.pages.admin.products.edit/page "Edit product"
     :ventas.pages.admin.products.edit/price "Price"
-    :ventas.pages.admin.products.edit/product-saved-notification "Producto guardado"
+    :ventas.pages.admin.products.edit/product-saved-notification "Product saved"
     :ventas.pages.admin.products.edit/reference "Reference"
     :ventas.pages.admin.products.edit/send "Send"
     :ventas.pages.admin.products.edit/tags "Tags"
@@ -114,6 +126,11 @@
     :entity.create "Creation"
     :entity.delete "Deletion"
     :entity.update "Update"
+
+    :schema.type/category "Category"
+    :schema.type/user "User"
+    :schema.type/product "Product"
+    :schema.type/brand "Brand"
 
     :tax.kind/amount "Amount"
     :tax.kind/percentage "Percentage"}

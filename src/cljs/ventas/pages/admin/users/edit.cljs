@@ -39,7 +39,9 @@
 
 (defn user-form []
   (rf/dispatch [::backend/entities.find
-                (get-in (routes/current) [:route-params :id])
+                (-> (routes/current)
+                    (get-in [:route-params :id])
+                    (js/parseInt))
                 {:success [::events/db [state-key :user]]}])
   (rf/dispatch [::events/enums.get :user.role])
   (rf/dispatch [::events/enums.get :user.status])
@@ -50,55 +52,68 @@
 
       [base/form {:key id
                   :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
-       [base/form-input
-        {:label (i18n ::first-name)
-         :default-value first-name
-         :on-change #(rf/dispatch [::set-field :first-name (-> % .-target .-value)])}]
 
-       [base/form-input
-        {:label (i18n ::last-name)
-         :default-value last-name
-         :on-change #(rf/dispatch [::set-field :last-name (-> % .-target .-value)])}]
+       [base/segment {:color "orange"
+                      :title "User"}
+        [base/form-input
+         {:label (i18n ::first-name)
+          :default-value first-name
+          :on-change #(rf/dispatch [::set-field :first-name (-> % .-target .-value)])}]
 
-       [base/form-input
-        {:label (i18n ::email)
-         :default-value email
-         :on-change #(rf/dispatch [::set-field :email (-> % .-target .-value)])}]
+        [base/form-input
+         {:label (i18n ::last-name)
+          :default-value last-name
+          :on-change #(rf/dispatch [::set-field :last-name (-> % .-target .-value)])}]
 
-       [base/form-input
-        {:label (i18n ::phone)
-         :default-value phone
-         :on-change #(rf/dispatch [::set-field :phone (-> % .-target .-value)])}]
+        [base/form-input
+         {:label (i18n ::email)
+          :default-value email
+          :on-change #(rf/dispatch [::set-field :email (-> % .-target .-value)])}]
 
-       [base/form-input
-        {:label (i18n ::company)
-         :default-value company
-         :on-change #(rf/dispatch [::set-field :company (-> % .-target .-value)])}]
+        [base/form-field
+         [:label (i18n ::status)]
+         [base/dropdown
+          {:options @(rf/subscribe [::events/db [:enums :user.status]])
+           :selection true
+           :default-value status
+           :on-change #(rf/dispatch [::set-field :status (.-value %2)])}]]]
 
-       [base/form-field
-        [:label (i18n ::culture)]
-        [base/dropdown
-         {:options @(rf/subscribe [::events/db :cultures])
-          :default-value culture
-          :selection true
-          :on-change #(rf/dispatch [::set-field :culture (.-value %2)])}]]
+       [base/divider {:hidden true}]
 
-       [base/form-field
-        [:label (i18n ::roles)]
-        [base/dropdown
-         {:multiple true
-          :selection true
-          :options @(rf/subscribe [::events/db [:enums :user.role]])
-          :default-value roles
-          :on-change #(rf/dispatch [::set-field :roles (set (.-value %2))])}]]
+       [base/segment {:color "orange"
+                      :title "Contact information"}
+        [base/form-input
+         {:label (i18n ::phone)
+          :default-value phone
+          :on-change #(rf/dispatch [::set-field :phone (-> % .-target .-value)])}]
 
-       [base/form-field
-        [:label (i18n ::status)]
-        [base/dropdown
-         {:options @(rf/subscribe [::events/db [:enums :user.status]])
-          :selection true
-          :default-value status
-          :on-change #(rf/dispatch [::set-field :status (.-value %2)])}]]
+        [base/form-input
+         {:label (i18n ::company)
+          :default-value company
+          :on-change #(rf/dispatch [::set-field :company (-> % .-target .-value)])}]]
+
+       [base/divider {:hidden true}]
+
+       [base/segment {:color "orange"
+                      :title "Configuration"}
+        [base/form-field
+         [:label (i18n ::culture)]
+         [base/dropdown
+          {:options @(rf/subscribe [::events/db :cultures])
+           :default-value culture
+           :selection true
+           :on-change #(rf/dispatch [::set-field :culture (.-value %2)])}]]
+
+        [base/form-field
+         [:label (i18n ::roles)]
+         [base/dropdown
+          {:multiple true
+           :selection true
+           :options @(rf/subscribe [::events/db [:enums :user.role]])
+           :default-value roles
+           :on-change #(rf/dispatch [::set-field :roles (set (.-value %2))])}]]]
+
+       [base/divider {:hidden true}]
 
        [base/form-button {:type "submit"} (i18n ::submit)]])))
 

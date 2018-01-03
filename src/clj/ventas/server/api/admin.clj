@@ -1,10 +1,11 @@
 (ns ventas.server.api.admin
   (:require
-    [ventas.server.api :as api]
-    [ventas.database.entity :as entity]
-    [ventas.server.pagination :as pagination]
-    [ventas.database :as db]
-    [ventas.plugin :as plugin]))
+   [ventas.server.api :as api]
+   [ventas.database.entity :as entity]
+   [ventas.server.pagination :as pagination]
+   [ventas.database :as db]
+   [ventas.plugin :as plugin]
+   [ventas.entities.image-size :as entities.image-size]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -74,6 +75,11 @@
   (fn [_ {:keys [session]}]
     (map #(entity/to-json % {:culture (api/get-culture session)})
          (entity/query :image-size))))
+
+(register-admin-endpoint!
+ :admin.image-sizes.entities.list
+ (fn [_ _]
+   entities.image-size/entities))
 
 (register-admin-endpoint!
   :admin.entities.find

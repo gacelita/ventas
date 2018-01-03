@@ -34,7 +34,9 @@
   (let [data (atom {})
         key (atom nil)]
     (rf/dispatch [::backend/entities.find
-                  (get-in (routes/current) [:route-params :id])
+                  (-> (routes/current)
+                      (get-in [:route-params :id])
+                      (js/parseInt))
                   {:success (fn [entity]
                                  (reset! data entity)
                                  (reset! key (hash entity)))}])
@@ -42,23 +44,29 @@
     (fn []
       ^{:key @key}
       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit @data]))}
-       [base/form-input
-        {:label (i18n ::name)
-         :default-value (:name @data)
-         :on-change #(swap! data assoc :name (-> % .-target .-value))}]
-       [base/form-input
-        {:label (i18n ::amount)
-         :default-value (:amount @data)
-         :on-change #(swap! data assoc :amount (js/parseFloat (-> % .-target .-value)))}]
-       [base/form-field
-        [:label (i18n ::kind)]
-        [base/dropdown
-         {:fluid true
-          :selection true
-          :options (map #(update % :value str)
-                        @(rf/subscribe [::events/db [:enums :tax.kind]]))
-          :default-value (str (:kind @data))
-          :on-change #(swap! data assoc :kind (.-value %2))}]]
+
+       [base/segment {:color "orange"
+                      :title "Tax"}
+        [base/form-input
+         {:label (i18n ::name)
+          :default-value (:name @data)
+          :on-change #(swap! data assoc :name (-> % .-target .-value))}]
+        [base/form-input
+         {:label (i18n ::amount)
+          :default-value (:amount @data)
+          :on-change #(swap! data assoc :amount (js/parseFloat (-> % .-target .-value)))}]
+        [base/form-field
+         [:label (i18n ::kind)]
+         [base/dropdown
+          {:fluid true
+           :selection true
+           :options (map #(update % :value str)
+                         @(rf/subscribe [::events/db [:enums :tax.kind]]))
+           :default-value (str (:kind @data))
+           :on-change #(swap! data assoc :kind (.-value %2))}]]]
+
+       [base/divider {:hidden true}]
+
        [base/form-button {:type "submit"} (i18n ::submit)]])))
 
 (defn page []

@@ -203,6 +203,8 @@
              ^{:key eid} [image eid])
            [image-placeholder]]]]
 
+        [base/divider {:hidden true}]
+
         [base/form-button {:type "submit"} (i18n ::send)]]
 
        [image-modal]])))

@@ -63,6 +63,10 @@
         (assoc-in [state-key :taxes] items)
         (assoc-in [state-key :table :total] total))))
 
+(defn- name-column [{:keys [name id]}]
+  [:a {:href (routes/path-for :admin.taxes.edit :id id)}
+   name])
+
 (defn- content []
   [:div.admin-taxes__table
    [table/table
@@ -71,7 +75,8 @@
      :data-path [state-key :taxes]
      :fetch-fx ::fetch
      :columns [{:id :name
-                :label (i18n ::name)}
+                :label (i18n ::name)
+                :component name-column}
                {:id :amount
                 :label (i18n ::amount)}
                {:id :actions

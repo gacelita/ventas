@@ -10,6 +10,7 @@
    [ventas.events.backend :as backend]
    [ventas.components.table :as table]
    [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.configuration.image-sizes.edit]
    [ventas.events :as events]))
 
 (def state-key ::state)
@@ -33,7 +34,7 @@
 (defn- action-column [{:keys [id]}]
   [:div
    [base/button {:icon true
-                 :on-click #(routes/go-to :admin.image-sizes.edit :id id)}
+                 :on-click #(routes/go-to :admin.configuration.image-sizes.edit :id id)}
     [base/icon {:name "edit"}]]
    [base/button {:icon true
                  :on-click #(rf/dispatch [::remove id])}
@@ -44,14 +45,14 @@
    (i18n algorithm)])
 
 (defn- footer []
-  [base/button {:on-click #(routes/go-to :admin.image-sizes.edit :id 0)}
+  [base/button {:on-click #(routes/go-to :admin.configuration.image-sizes.edit :id 0)}
    (i18n ::create)])
 
 (rf/reg-event-fx
   ::fetch
   (fn [{:keys [db]} [_ {:keys [state-path]}]]
     (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
-      {:dispatch [::backend/image-sizes.list
+      {:dispatch [::backend/admin.image-sizes.list
                   {:success ::fetch.next
                    :params {:pagination {:page page
                                          :items-per-page items-per-page}
@@ -65,6 +66,10 @@
         (assoc-in [state-key :image-sizes] items)
         (assoc-in [state-key :table :total] total))))
 
+(defn- keyword-column [{:keys [keyword id]}]
+  [:a {:href (routes/path-for :admin.configuration.image-sizes.edit :id id)}
+   keyword])
+
 (defn- content []
   [:div.admin-image-sizes__table
    [table/table
@@ -72,7 +77,10 @@
      :state-path [state-key :table]
      :data-path [state-key :image-sizes]
      :fetch-fx ::fetch
-     :columns [{:id :width
+     :columns [{:id :keyword
+                :label (i18n ::keyword)
+                :component keyword-column}
+               {:id :width
                 :label (i18n ::width)}
                {:id :height
                 :label (i18n ::height)}

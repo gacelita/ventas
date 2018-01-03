@@ -1,11 +1,13 @@
 (ns ventas.pages.admin.skeleton
   (:require
-    [ventas.routes :as routes]
-    [ventas.events :as events]
-    [ventas.i18n :refer [i18n]]
-    [re-frame.core :as rf]
-    [ventas.components.base :as base]
-    [ventas.utils.ui :as utils.ui]))
+   [ventas.routes :as routes]
+   [ventas.events :as events]
+   [ventas.i18n :refer [i18n]]
+   [re-frame.core :as rf]
+   [ventas.components.base :as base]
+   [ventas.utils.ui :as utils.ui]
+   [ventas.components.notificator :as ventas.notificator]
+   [ventas.components.popup :as ventas.popup]))
 
 (def configuration-items
   [{:route :admin.configuration.image-sizes :label ::image-sizes}])
@@ -66,13 +68,16 @@
      [base/form-button {:type "submit"} (i18n ::login)]]]])
 
 (defn skeleton [content]
-  (let [session @(rf/subscribe [::events/db [:session]])]
-    (if-not (contains? (set (get-in session [:identity :roles])) :user.role/administrator)
-      [login]
-      [:div.admin__skeleton
-       [:div.admin__sidebar
-        [:a {:href (routes/path-for :admin)}
-         [:h3 (i18n ::administration)]]
-        [menu]]
-       [:div.admin__content
-        content]])))
+  [:div.root
+   [ventas.notificator/notificator]
+   [ventas.popup/popup]
+   (let [session @(rf/subscribe [::events/db [:session]])]
+     (if-not (contains? (set (get-in session [:identity :roles])) :user.role/administrator)
+       [login]
+       [:div.admin__skeleton
+        [:div.admin__sidebar
+         [:a {:href (routes/path-for :admin)}
+          [:h3 (i18n ::administration)]]
+         [menu]]
+        [:div.admin__content
+         content]]))])
