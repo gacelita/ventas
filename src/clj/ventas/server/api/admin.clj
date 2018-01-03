@@ -81,7 +81,8 @@
 (register-admin-endpoint!
   :admin.entities.find
   (fn [{{:keys [id]} :params} _]
-    (entity/find (Long. id))))
+    {:pre [(number? id)]}
+    (entity/find id)))
 
 (register-admin-endpoint!
   :admin.events.list

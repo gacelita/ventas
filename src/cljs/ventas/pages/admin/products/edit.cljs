@@ -104,7 +104,9 @@
 
 (defn product-form []
   (rf/dispatch [::backend/entities.find
-                (get-in (routes/current) [:route-params :id])
+                (-> (routes/current)
+                    (get-in [:route-params :id])
+                    (js/parseInt))
                 {:success (fn [entity-data]
                                (rf/dispatch [::events/db [form-data-key] entity-data])
                                (rf/dispatch [::events/db [form-hash-key] (hash entity-data)]))}])

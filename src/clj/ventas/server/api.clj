@@ -63,9 +63,9 @@
 
 (register-endpoint!
   :entities.find
-  (fn [{:keys [params]} {:keys [session]}]
-    (let [eid (Long. (:id params))]
-      (entity/find-json eid {:culture (get-culture session)}))))
+  (fn [{{:keys [id]} :params} {:keys [session]}]
+    {:pre [(number? id)]}
+    (entity/find-json id {:culture (get-culture session)})))
 
 (register-endpoint!
   :enums.get
