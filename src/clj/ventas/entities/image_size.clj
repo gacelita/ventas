@@ -81,7 +81,16 @@
 
    {:db/ident :image-size/entities
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]})
+    :db/cardinality :db.cardinality/many}]
+
+  :fixtures
+  (fn []
+    [{:schema/type :schema.type/image-size
+      :image-size/keyword :admin-products-edit
+      :image-size/width 150
+      :image-size/height 150
+      :image-size/algorithm :image-size.algorithm/crop-and-resize
+      :image-size/entities #{:schema.type/product}}])})
 
 (defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]
   (let [algorithm (name algorithm)]
