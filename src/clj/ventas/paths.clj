@@ -18,7 +18,7 @@
 
 (def storage
   "Regular file storage. This is where :file entities live."
-  ::images)
+  ::storage)
 
 (def resized-images
   "Resized images"
