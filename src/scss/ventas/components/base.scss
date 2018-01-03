@@ -12,3 +12,23 @@ body .ui.header {
         padding: 0px 0.8rem 1.6rem 0.8rem;
     }
 }
+
+.segment-title {
+    position: absolute;
+    bottom: 100%;
+    color: white;
+    padding: 4px 39px 4px 15px;
+    border-top-left-radius: .28571429rem;
+    border-top-right-radius: .28571429rem;
+    left: -1px;
+    font-size: 1.1rem;
+}
+
+.ui.segment.segment--with-title {
+    border-top-left-radius: 0px;
+    margin-top: calc(1rem + 27px);
+
+    &:first-child {
+        margin-top: 27px;
+    }
+}

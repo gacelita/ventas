@@ -119,70 +119,92 @@
       ^{:key form-hash}
       [:div
        [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit form-data]))}
-        [base/form-input
-         {:label (i18n ::name)
-          :default-value (:name form-data)
-          :on-change #(rf/dispatch [::set-field :name (-> % .-target .-value)])}]
-        [base/form-field
-         [:label (i18n ::active)]
-         [base/checkbox
-          {:toggle true
-           :checked (:active form-data)
-           :on-change #(rf/dispatch [::set-field :active (-> % .-target .-value)])}]]
-        [base/form-input
-         {:label (i18n ::price)
-          :default-value (get-in form-data [:price :value])
-          :on-change #(rf/dispatch [::set-field [:price :value]
-                                    (js/parseInt (-> % .-target .-value))])}]
-        [base/form-input
-         {:label (i18n ::reference)
-          :default-value (:reference form-data)
-          :on-change #(rf/dispatch [::set-field :reference (-> % .-target .-value)])}]
-        [base/form-input
-         {:label (i18n ::ean13)
-          :default-value (:ean13 form-data)
-          :on-change #(rf/dispatch [::set-field :ean13 (-> % .-target .-value)])}]
-        [base/form-textarea
-         {:label (i18n ::description)
-          :default-value (:description form-data)
-          :on-change #(rf/dispatch [::set-field :description (-> % .-target .-value)])}]
-        [base/form-field
-         [:label (i18n ::tags)]
-         [base/dropdown
-          {:allowAdditions true
-           :multiple true
-           :fluid true
-           :search true
-           :options (map (fn [v] {:text v :value v})
-                         (:tags form-data))
-           :selection true
-           :default-value (or (:tags form-data) #{})
-           :on-change #(rf/dispatch [::set-field :tags (set (.-value %2))])}]]
-        [base/form-field
-         [:label (i18n ::brand)]
-         [base/dropdown
-          {:fluid true
-           :selection true
-           :options (map (fn [v] {:text (:name v) :value (:id v)})
-                         @(rf/subscribe [::events/db [brands-sub-key]]))
-           :default-value (get-in form-data [:brand :id])
-           :on-change #(rf/dispatch [::set-field :brand (.-value %2)])}]]
-        [base/form-field
-         [:label (i18n ::tax)]
-         [base/dropdown
-          {:fluid true
-           :selection true
-           :options (map (fn [v] {:text (:name v) :value (:id v)})
-                         @(rf/subscribe [::events/db [taxes-sub-key]]))
-           :default-value (get-in form-data [:tax :id])
-           :on-change #(rf/dispatch [::set-field :tax (.-value %2)])}]]
-        [base/form-field {:class "admin-products-edit__images"}
-         [:label (i18n ::images)]
-         [base/image-group
-          (for [eid (:images form-data)]
-            ^{:key eid} [image eid])
-          [image-placeholder]]]
+
+        [base/segment {:color "orange"
+                       :title "Product"}
+         [base/form-input
+          {:label (i18n ::name)
+           :default-value (:name form-data)
+           :on-change #(rf/dispatch [::set-field :name (-> % .-target .-value)])}]
+         [base/form-field
+          [:label (i18n ::active)]
+          [base/checkbox
+           {:toggle true
+            :checked (:active form-data)
+            :on-change #(rf/dispatch [::set-field :active (-> % .-target .-value)])}]]
+         [base/form-input
+          {:label (i18n ::reference)
+           :default-value (:reference form-data)
+           :on-change #(rf/dispatch [::set-field :reference (-> % .-target .-value)])}]
+         [base/form-input
+          {:label (i18n ::ean13)
+           :default-value (:ean13 form-data)
+           :on-change #(rf/dispatch [::set-field :ean13 (-> % .-target .-value)])}]]
+
+        [base/divider {:hidden true}]
+
+        [base/segment {:color "orange"
+                       :title "Price"}
+         [base/form-input
+          {:label (i18n ::price)
+           :default-value (get-in form-data [:price :value])
+           :on-change #(rf/dispatch [::set-field [:price :value]
+                                     (js/parseInt (-> % .-target .-value))])}]
+
+         [base/form-field
+          [:label (i18n ::tax)]
+          [base/dropdown
+           {:fluid true
+            :selection true
+            :options (map (fn [v] {:text (:name v) :value (:id v)})
+                          @(rf/subscribe [::events/db [taxes-sub-key]]))
+            :default-value (get-in form-data [:tax :id])
+            :on-change #(rf/dispatch [::set-field :tax (.-value %2)])}]]]
+
+        [base/divider {:hidden true}]
+
+        [base/segment {:title "Description"
+                       :color "orange"}
+         [base/form-textarea
+          {:label (i18n ::description)
+           :default-value (:description form-data)
+           :on-change #(rf/dispatch [::set-field :description (-> % .-target .-value)])}]
+
+         [base/form-field
+          [:label (i18n ::tags)]
+          [base/dropdown
+           {:allowAdditions true
+            :multiple true
+            :fluid true
+            :search true
+            :options (map (fn [v] {:text v :value v})
+                          (:tags form-data))
+            :selection true
+            :default-value (or (:tags form-data) #{})
+            :on-change #(rf/dispatch [::set-field :tags (set (.-value %2))])}]]
+
+         [base/form-field
+          [:label (i18n ::brand)]
+          [base/dropdown
+           {:fluid true
+            :selection true
+            :options (map (fn [v] {:text (:name v) :value (:id v)})
+                          @(rf/subscribe [::events/db [brands-sub-key]]))
+            :default-value (get-in form-data [:brand :id])
+            :on-change #(rf/dispatch [::set-field :brand (.-value %2)])}]]]
+
+        [base/divider {:hidden true}]
+
+        [base/segment {:color "orange"
+                       :title "Images"}
+         [base/form-field {:class "admin-products-edit__images"}
+          [base/image-group
+           (for [eid (:images form-data)]
+             ^{:key eid} [image eid])
+           [image-placeholder]]]]
+
         [base/form-button {:type "submit"} (i18n ::send)]]
+
        [image-modal]])))
 
 (defn page []

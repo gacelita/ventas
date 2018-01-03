@@ -133,7 +133,32 @@
 (def search-category sa/SearchCategory)
 (def search-result sa/SearchResult)
 (def search-results sa/SearchResults)
-(def segment sa/Segment)
+
+(defn- semantic->css-color [color]
+  (get {"red" "#DB2828"
+        "orange" "#F2711C"
+        "yellow" "#FBBD08"
+        "olive" "#B5CC18"
+        "green" "#21BA45"
+        "teal" "#00B5AD"
+        "blue" "#2185D0"
+        "violet" "#6435C9"
+        "purple" "#A333C8"
+        "pink" "#E03997"
+        "grey" "#767676"
+        "black" "#1B1C1D"}
+       color))
+
+(defn segment [{:keys [title color] :as opts} & children]
+  [sa/Segment (if-not title
+                  opts
+                  (update opts :class #(str % "segment--with-title")))
+   (if-not title
+     children
+     (concat [[:div.segment-title {:style {:background-color (semantic->css-color color)}}
+               title]]
+             children))])
+
 (def segment-group sa/SegmentGroup)
 (def select sa/Select)
 (def sidebar sa/Sidebar)
