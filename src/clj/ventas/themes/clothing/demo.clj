@@ -107,7 +107,7 @@
 (defn files []
   (map #(assoc % :schema/type :schema.type/file)
        [{:file/keyword :logo
-         :file/extension "jpg"}
+         :file/extension "png"}
         {:file/keyword :test-product-image
          :file/extension "png"}
         {:file/keyword :test-brand-logo
@@ -533,6 +533,7 @@
          :user/status :user.status/active
          :user/password "test"
          :user/phone "+34 654 543 431"
+         :user/roles #{:user.role/administrator}
          :user/favorites [[:product/keyword :test-product]]
          :user/culture [:i18n.culture/keyword :en_US]}]))
 

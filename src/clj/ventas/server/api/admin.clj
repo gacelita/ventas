@@ -53,6 +53,14 @@
                             (update :amount float)))))
 
 (register-admin-endpoint!
+  :admin.users.list
+  {:middlewares [pagination/wrap-sort
+                 pagination/wrap-paginate]}
+  (fn [_ {:keys [session]}]
+    (->> (entity/query :user)
+         (map #(entity/to-json % {:culture (api/get-culture session)})))))
+
+(register-admin-endpoint!
   :admin.users.save
   (fn [{:keys [params]} state]
     (entity/upsert

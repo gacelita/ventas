@@ -14,34 +14,6 @@
    [ventas.events.backend :as backend]
    [ventas.events :as events]))
 
-(defn- login-successful [{:keys [user token]}]
-  (rf/dispatch [::notificator/add {:message (i18n ::session-started)}])
-  (rf/dispatch [::login-success user token]))
-
-(rf/reg-event-fx
-  ::login-success
-  [(rf/inject-cofx :local-storage)]
-  (fn [{:keys [db local-storage]} [_ user token]]
-    {:db (assoc db :session user)
-     :local-storage (assoc local-storage :token token)}))
-
-(rf/reg-event-fx
-  ::login
-  (fn [cofx [_ {:keys [email password]}]]
-    {:dispatch [::backend/users.login
-                {:params {:email email
-                          :password password}
-                 :success login-successful}]}))
-
-(rf/reg-event-fx
- ::register
- (fn [cofx [_ {:keys [name email password]}]]
-   {:dispatch [::backend/users.register
-               {:params {:name name
-                         :email email
-                         :password password}
-                :success #(rf/dispatch [::notificator/add {:message (i18n ::user-registered)}])}]}))
-
 (defn- login []
   (reagent/with-let [data (atom {})]
     [base/segment {:class "login-page__segment"}
@@ -57,7 +29,7 @@
       [:a.login-page__forgot-password {:href "/"}
        (i18n ::forgot-password)]
       [base/button {:type "button"
-                    :on-click #(rf/dispatch [::login @data])}
+                    :on-click #(rf/dispatch [::events/users.login @data])}
        (i18n ::login)]]]))
 
 (defn- register []
@@ -76,7 +48,7 @@
                 :type "password"
                 :on-change (value-handler #(swap! data assoc :password %))}]]
       [base/button {:type "button"
-                    :on-click #(rf/dispatch [::register @data])}
+                    :on-click #(rf/dispatch [::events/users.register @data])}
        (i18n ::register)]]]))
 
 (defn page []

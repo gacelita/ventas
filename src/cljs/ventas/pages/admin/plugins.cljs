@@ -14,7 +14,7 @@
   ::fetch
   (fn [{:keys [db]} [_ {:keys [state-path]}]]
     (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
-      {:dispatch [::backend/plugins.list
+      {:dispatch [::backend/admin.plugins.list
                   {:success ::fetch.next
                    :params {:pagination {:page page
                                          :items-per-page items-per-page}

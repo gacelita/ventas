@@ -126,6 +126,33 @@
     :local-storage (dissoc local-storage :token)}))
 
 (rf/reg-event-fx
+  ::users.login
+  (fn [_ [_ {:keys [email password]}]]
+    {:dispatch [::backend/users.login
+                {:params {:email email
+                          :password password}
+                 :success ::users.login.next}]}))
+
+(rf/reg-event-fx
+  ::users.login.next
+  [(rf/inject-cofx :local-storage)]
+  (fn [{:keys [db local-storage]} [_ {:keys [user token]}]]
+    {:db (assoc db :session user)
+     :local-storage (assoc local-storage :token token)
+     :dispatch [:ventas.components.notificator/add
+                {:message (i18n ::session-started)}]}))
+
+(rf/reg-event-fx
+  ::users.register
+  (fn [_ [_ {:keys [name email password]}]]
+    {:dispatch [::backend/users.register
+                {:params {:name name
+                          :email email
+                          :password password}
+                 :success [:ventas.components.notificator/add
+                           {:message (i18n ::user-registered)}]}]}))
+
+(rf/reg-event-fx
  ::users.addresses
  (fn [cofx [_ options]]
    {:forward-events {:register ::users.addresses.listener

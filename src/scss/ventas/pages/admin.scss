@@ -81,6 +81,33 @@
     }
 }
 
+.admin__login-wrapper {
+    max-width: 350px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.admin__login {
+    width: 100%;
+
+    .ui.form {
+        margin: 10px 0px 5px;
+    }
+}
+
+.admin__login-image {
+    text-align: center;
+
+    img {
+        width: 50px;
+    }
+}
 
 .admin__content {
     width: 100%;

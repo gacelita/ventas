@@ -50,6 +50,11 @@
     :ventas.pages.admin.products.edit/send "Send"
     :ventas.pages.admin.products.edit/tags "Tags"
     :ventas.pages.admin.products.edit/tax "Tax"
+
+    :ventas.pages.admin.skeleton/email "Email"
+    :ventas.pages.admin.skeleton/password "Password"
+    :ventas.pages.admin.skeleton/login "Login"
+
     :ventas.pages.admin.skeleton/activity-log "Activity log"
     :ventas.pages.admin.skeleton/administration "Administration"
     :ventas.pages.admin.skeleton/configuration "Configuration"

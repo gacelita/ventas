@@ -161,14 +161,6 @@
          (entity/query :state))))
 
 (register-endpoint!
-  :users.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ {:keys [session]}]
-    (->> (entity/query :user)
-         (map #(entity/to-json % {:culture (get-culture session)})))))
-
-(register-endpoint!
   :users.addresses
   (fn [{:keys [params] :as message} {:keys [session] :as state}]
     (let [user (get-user session)]
