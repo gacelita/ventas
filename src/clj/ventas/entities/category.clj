@@ -30,7 +30,7 @@
                (-> (db/nice-query {:find ['?id]
                                    :in {'?category (:db/id entity)}
                                    :where '[[?product :product/categories ?category]
-                                            [?image :product.image/product ?product]
+                                            [?product :product/images ?image]
                                             [?image :product.image/file ?id]]})
                    (first)
                    (:id))]

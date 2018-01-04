@@ -49,6 +49,10 @@
   (spec/with-gen ::entity/refs
                  #(entity/refs-generator :product.term)))
 
+(spec/def :product/images
+  (spec/with-gen ::entity/refs
+                 #(entity/refs-generator :product.image)))
+
 (spec/def :product/variation-terms
   (spec/with-gen ::entity/refs
                  #(entity/refs-generator :product.term)))
@@ -155,6 +159,11 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident :product/images
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
    {:db/ident :product/variation-terms
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/many}
@@ -184,13 +193,9 @@
 (spec/def :product.image/file
   (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
 
-(spec/def :product.image/product
-  (spec/with-gen ::entity/ref #(entity/ref-generator :product)))
-
 (spec/def :schema.type/product.image
   (spec/keys :req [:product.image/position
-                   :product.image/file
-                   :product.image/product]))
+                   :product.image/file]))
 
 (entity/register-type!
  :product.image
@@ -200,13 +205,10 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident :product.image/file
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :product.image/product
-    :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
 
   :dependencies
-  #{:file :product}
+  #{:file}
 
   :seed-number 0})
 
@@ -274,9 +276,10 @@
               :schema/type :schema.type/file}
         image {:schema/type :schema.type/product.image
                :product.image/position 0
-               :product.image/file file
-               :product.image/product product-eid}
-        {:product.image/keys [file]} (entity/create* image)]
+               :product.image/file file}
+        {:product.image/keys [file] :db/keys [id]} (entity/create* image)]
+    (entity/update* {:db/id product-eid
+                     :product/images id})
     (entities.file/copy-file!
      (entity/find file)
      (io/file path))))

@@ -85,7 +85,13 @@
   :admin.entities.find
   (fn [{{:keys [id]} :params} _]
     {:pre [(number? id)]}
-    (entity/find id)))
+    (entity/find-json id)))
+
+(register-admin-endpoint!
+ :admin.i18ns.find
+ (fn [{{:keys [id]} :params} _]
+   {:pre [(number? id)]}
+   (entity/find-json id)))
 
 (register-admin-endpoint!
   :admin.events.list

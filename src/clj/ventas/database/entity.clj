@@ -135,8 +135,8 @@
       result)))
 
 (defn find-json
-  "Same as doing (to-json (find eid) params), which is a very, very common thing to do"
-  [eid params]
+  "Same as doing (to-json (find eid) params), which is a very common thing to do"
+  [eid & [params]]
   (when-let [entity (find eid)]
     (to-json entity params)))
 
