@@ -31,4 +31,5 @@ pom.xml.asc
 /resources/config.edn
 /resources/demo
 
-/storage
+/storage/*
+!/storage/logo.png
