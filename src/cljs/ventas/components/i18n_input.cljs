@@ -15,7 +15,6 @@
 (rf/reg-event-fx
  ::on-change
  (fn [{:keys [db]} [_ {:keys [culture translation callback id]}]]
-   (js/console.log "culture" culture "translation" translation "id" id)
    (let [data (get-in db [state-key id :data])
          new-data (assoc data culture translation)]
      (callback new-data)

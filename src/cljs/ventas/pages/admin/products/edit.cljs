@@ -115,7 +115,6 @@
     (let [product @(rf/subscribe [::events/db [state-key :product]])
           form-hash @(rf/subscribe [::events/db [state-key :product-hash]])
           {{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
-      (js/console.log "product" product)
       ^{:key form-hash}
       [:div
        [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit product]))}
