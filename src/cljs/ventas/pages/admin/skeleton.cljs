@@ -71,13 +71,23 @@
   [:div.root
    [ventas.notificator/notificator]
    [ventas.popup/popup]
-   (let [session @(rf/subscribe [::events/db [:session]])]
-     (if-not (contains? (set (get-in session [:identity :roles])) :user.role/administrator)
+   (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
+     (if-not (contains? (set (:roles identity)) :user.role/administrator)
        [login]
-       [:div.admin__skeleton
-        [:div.admin__sidebar
-         [:a {:href (routes/path-for :admin)}
-          [:h3 (i18n ::administration)]]
-         [menu]]
-        [:div.admin__content
-         content]]))])
+       [:div
+        [:div.admin__userbar
+         [:div.admin__userbar-logo
+          [:img {:src "/files/logo"}]]
+         [:div.admin__userbar-home
+          [:a {:href (routes/path-for :frontend)}
+           [base/icon {:name "home"}]
+           [:span (i18n ::home)]]]
+         [:div.admin__userbar-profile
+          [:span (:first-name identity)]]]
+        [:div.admin__skeleton
+         [:div.admin__sidebar
+          [:a {:href (routes/path-for :admin)}
+           [:h3 (i18n ::administration)]]
+          [menu]]
+         [:div.admin__content
+          content]]]))])

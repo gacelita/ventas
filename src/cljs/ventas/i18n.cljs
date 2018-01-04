@@ -64,6 +64,7 @@
     :ventas.pages.admin.products.edit/tax "Tax"
 
     :ventas.pages.admin.skeleton/email "Email"
+    :ventas.pages.admin.skeleton/home "The store"
     :ventas.pages.admin.skeleton/password "Password"
     :ventas.pages.admin.skeleton/login "Login"
 

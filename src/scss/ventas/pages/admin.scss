@@ -7,7 +7,7 @@
     min-height: 100vh;
     min-width: 160px;
     background-color: #212121;
-    padding-top: 10px;
+    padding-top: 15px;
 
     h3 {
         padding: 0px 10px;
@@ -115,6 +115,47 @@
 
 .admin__default-content {
     padding: 15px;
+}
+
+.admin__userbar {
+    background-color: #212121;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    min-height: 35px;
+}
+
+.admin__userbar-logo {
+    padding: 6px;
+
+    img {
+        display: block;
+        width: 23px;
+    }
+}
+
+.admin__userbar-profile {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    padding: 8px;
+}
+
+.admin__userbar-home {
+
+    &:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+
+    a {
+        padding: 7px 13px 7px 9px;
+        display: inline-block;
+        color: inherit !important;
+    }
+
+    .icon {
+        font-size: 1.2rem;
+    }
 }
 
 @import "./admin/users";
