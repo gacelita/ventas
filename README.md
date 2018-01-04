@@ -78,7 +78,12 @@ Then, create the database, apply the schema and create the fixtures:
 
 Now you can open `localhost:3450` to see the frontend!
 
-The backoffice's URL is `localhost:3450/admin`, which currently requires no auth :)
+The backoffice's URL is `localhost:3450/admin`:
+
+```
+Username: test@test.com
+Password: test
+```
 
 Finally, ClojureScript development is usually done by connecting via nREPL and executing `cljs-repl`:
 
