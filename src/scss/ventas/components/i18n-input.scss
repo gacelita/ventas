@@ -1,0 +1,30 @@
+.i18n-input {
+
+    .ui.input input, .ui.input textarea {
+        border-top-left-radius: 0px !important;
+        border-bottom-left-radius: 0px !important;
+    }
+
+    &--focused {
+        margin-bottom: 15px;
+        .i18n-input__cultures {
+            display: block;
+        }
+    }
+}
+
+.i18n-input__cultures {
+    display: none;
+}
+
+.i18n-input__culture {
+    padding: 0px 8px;
+    background: #f6f6f6;
+    border: 1px solid rgba(34,36,38,.15);
+    border-right: 0px;
+    display: flex;
+    align-items: center;
+    border-radius: .28571429rem;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}

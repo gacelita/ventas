@@ -161,6 +161,16 @@
     {:ws-request (merge {:name :admin.events.list} options)}))
 
 (rf/reg-event-fx
+ ::admin.entities.find
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.entities.find} options)}))
+
+(rf/reg-event-fx
+ ::admin.i18ns.find
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.i18ns.find} options)}))
+
+(rf/reg-event-fx
   ::admin.image-sizes.list
   (fn [cofx [_ options]]
     {:ws-request (merge {:name :admin.image-sizes.list} options)}))

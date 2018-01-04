@@ -68,6 +68,15 @@
                            (rf/dispatch [::db [:entities eid] entity-data]))}]}))
 
 (rf/reg-event-fx
+ ::admin.entities.sync
+ (fn [cofx [_ eid]]
+   {:dispatch [::backend/admin.entities.find
+               {:sync true
+                :params {:id eid}
+                :success (fn [entity-data]
+                           (rf/dispatch [::db [:admin-entities eid] entity-data]))}]}))
+
+(rf/reg-event-fx
  ::admin.entities.remove
  (fn [cofx [_ eid]]
    {:dispatch [::backend/admin.entities.remove
