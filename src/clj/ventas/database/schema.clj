@@ -31,6 +31,10 @@
 
          {:db/ident :ventas/pluginVersion
           :db/valueType :db.type/string
+          :db/cardinality :db.cardinality/one}
+
+         {:db/ident :event/kind
+          :db/valueType :db.type/keyword
           :db/cardinality :db.cardinality/one}]]
     [{(keyword (str "hash-" (hash initial-schema))) initial-schema}]))
 

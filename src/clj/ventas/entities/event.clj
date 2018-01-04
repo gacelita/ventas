@@ -12,6 +12,4 @@
 (entity/register-type!
   :event
   {:attributes
-   [{:db/ident :event/kind
-     :db/valueType :db.type/keyword
-     :db/cardinality :db.cardinality/one}]})
+   []})
