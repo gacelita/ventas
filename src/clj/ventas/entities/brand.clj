@@ -25,6 +25,7 @@
  :brand
  {:attributes
   [{:db/ident :brand/name
+    :db/isComponent true
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 
@@ -34,6 +35,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :brand/description
+    :db/isComponent true
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 

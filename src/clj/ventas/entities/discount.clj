@@ -27,7 +27,8 @@
  {:attributes
   [{:db/ident :discount/name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :discount/code
     :db/valueType :db.type/string
@@ -90,7 +91,8 @@
 
    {:db/ident :discount.action/amount
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :discount.action/amount.tax-included?
     :db/valueType :db.type/boolean

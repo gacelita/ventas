@@ -27,7 +27,8 @@
  {:attributes
   [{:db/ident :tax/name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :tax/keyword
     :db/valueType :db.type/keyword

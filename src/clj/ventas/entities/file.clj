@@ -91,4 +91,8 @@
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
-        (assoc :url (url this))))})
+        (assoc :url (url this))))
+
+  :from-json
+  (fn [this]
+    (dissoc this :url))})

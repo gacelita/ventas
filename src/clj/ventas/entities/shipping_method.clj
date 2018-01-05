@@ -34,7 +34,8 @@
 
    {:db/ident :shipping-method.price/amount
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :shipping-method.price/country-groups
     :db/valueType :db.type/ref
@@ -71,7 +72,8 @@
  {:attributes
   [{:db/ident :shipping-method/name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :shipping-method/default?
     :db/valueType :db.type/boolean
@@ -79,7 +81,8 @@
 
    {:db/ident :shipping-method/manipulation-fee
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :shipping-method/pricing
     :db/valueType :db.type/ref

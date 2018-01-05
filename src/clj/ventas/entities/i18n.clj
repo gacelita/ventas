@@ -37,6 +37,10 @@
   (fn [this _]
     (:i18n.culture/keyword this))
 
+  :from-json
+  (fn [this]
+    (entity/find [:i18n.culture/keyword this]))
+
   :seed-number 0
   :autoresolve? true})
 

@@ -45,7 +45,8 @@
 
    {:db/ident :category/name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :category/image
     :db/valueType :db.type/ref

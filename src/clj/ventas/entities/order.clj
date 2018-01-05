@@ -99,7 +99,8 @@
 
    {:db/ident :order/payment-amount
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}]
 
   :dependencies
   #{:address :user :amount}

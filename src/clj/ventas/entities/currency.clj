@@ -21,10 +21,12 @@
  {:attributes
   [{:db/ident :currency/name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
    {:db/ident :currency/plural-name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
    {:db/ident :currency/symbol
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}

@@ -23,7 +23,8 @@
  {:attributes
   [{:db/ident :product.term/name
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident :product.term/taxonomy
     :db/valueType :db.type/ref
