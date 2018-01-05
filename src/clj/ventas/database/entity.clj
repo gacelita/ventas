@@ -81,6 +81,14 @@
   {:pre [(entity? entity)]}
   (call-type-fn :to-json entity options))
 
+(defn from-json
+  [type data]
+  (let [type-properties (type-properties type)
+        type-fn (if-let [f (:from-json type-properties)]
+                  f
+                  (:from-json default-type))]
+    (type-fn data)))
+
 (defn filter-seed [entity]
   {:pre [(entity? entity)]}
   (call-type-fn :filter-seed entity))
@@ -181,19 +189,6 @@
             (assoc :schema/type (db/kw->type type)))]
     (create* entity)))
 
-(defn from-json
-  "Inverse of to-json"
-  [attributes]
-  {:pre [(map? attributes)]}
-  (let [id (:id attributes)
-        type (:schema/type (find id))]
-    (-> attributes
-        (dissoc :id)
-        (dissoc :type)
-        (utils/qualify-map-keywords type)
-        (assoc :schema/type type)
-        (assoc :db/id id))))
-
 (defn attributes
   [type]
   (:attributes (type-properties type)))
@@ -252,7 +247,7 @@
       (to-json subentity options)
       ref)))
 
-(defn autoresolve
+(defn- autoresolve
   "Resolves references to entity types that have an :autoresolve?
    property with a truthy value"
   [entity & [options]]
@@ -275,9 +270,34 @@
       (dissoc :schema/type)
       (utils/dequalify-keywords)))
 
+(defn- unresolve* [attr]
+  (if (sequential? attr)
+    (map unresolve* attr)
+    (if (and (map? attr) (:id attr))
+      (:id attr)
+      attr)))
+
+(defn- unresolve [attrs]
+  (common.utils/map-vals unresolve* attrs))
+
+(defn default-from-json
+  "Inverse of to-json"
+  [attributes]
+  {:pre [(map? attributes)]}
+  (let [id (:id attributes)
+        type (:schema/type (find id))]
+    (-> attributes
+        (unresolve)
+        (dissoc :id)
+        (dissoc :type)
+        (utils/qualify-map-keywords type)
+        (assoc :schema/type type)
+        (assoc :db/id id))))
+
 (def ^:private default-type
   {:attributes []
    :to-json default-to-json
+   :from-json default-from-json
    :filter-seed identity
    :filter-create identity
    :filter-update (fn [entity data] data)
