@@ -330,15 +330,16 @@
 (defn update*
   "Updates an entity.
    Example usage:
-   (update {:db/id 1234567
-            :user/name `Other name`})"
-  [{:db/keys [id] :as attrs}]
-  (let [entity (find id)]
-    (filter-update entity attrs)
+   (update* {:db/id 1234567
+             :user/name `Other name`})"
+  [{:db/keys [id] :as attrs} & {:keys [append?]}]
+  (let [entity (find id)
+        attrs (filter-update entity attrs)]
     (db/transact (concat [attrs]
-                         (get-enum-retractions entity attrs)
-                         {:db/id (d/tempid :db.part/tx)
-                          :event/kind :entity.update}))
+                         (when-not append?
+                           (get-enum-retractions entity attrs))
+                         [{:db/id (d/tempid :db.part/tx)
+                           :event/kind :entity.update}]))
     (find id)))
 
 (defn update

@@ -241,18 +241,29 @@
       (let [cart (entities.user/get-cart user)]
         (entity/to-json cart {:culture (get-culture session)})))))
 
+(defn- find-order-line [order product-variation]
+  (-> (db/nice-query
+       {:find '[?id]
+        :in {'?order order
+             '?variation product-variation}
+        :where '[[?order :order/lines ?id]
+                 [?id :order.line/product-variation ?variation]]})
+      first
+      :id
+      entity/find))
+
 (register-endpoint!
   :users.cart.add
   (fn [{{:keys [id]} :params} {:keys [session]}]
     {:pre [id]}
     (when-let [user (get-user session)]
       (let [cart (entities.user/get-cart user)]
-        (if-let [line (entity/query-one :order.line {:order (:db/id cart)
-                                                     :product-variation id})]
+        (if-let [line (find-order-line (:db/id cart) id)]
           (entity/update* (update line :order.line/quantity inc))
-          (entity/create :order.line {:order (:db/id cart)
-                                      :product-variation id
-                                      :quantity 1}))
+          (entity/update* {:db/id (:db/id cart)
+                           :order/lines {:schema/type :schema.type/order.line
+                                         :order.line/product-variation id
+                                         :order.line/quantity 1}}))
         (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
 
 (register-endpoint!
@@ -261,8 +272,7 @@
     {:pre [id]}
     (when-let [user (get-user session)]
       (let [cart (entities.user/get-cart user)]
-        (when-let [line (entity/query-one :order.line {:order (:db/id cart)
-                                                       :product-variation id})]
+        (when-let [line (find-order-line (:db/id cart) id)]
           (entity/delete (:db/id line)))
         (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
 
@@ -272,12 +282,12 @@
     {:pre [id (< 0 quantity Integer/MAX_VALUE)]}
     (when-let [user (get-user session)]
       (let [cart (entities.user/get-cart user)]
-        (if-let [line (entity/query-one :order.line {:order (:db/id cart)
-                                                     :product-variation id})]
-          (entity/update* (assoc line :quantity quantity))
-          (entity/create :order.line {:order (:db/id cart)
-                                      :product-variation id
-                                      :quantity quantity}))
+        (if-let [line (find-order-line (:db/id cart) id)]
+          (entity/update* (assoc line :order.line/quantity quantity))
+          (entity/update* {:db/id (:db/id cart)
+                           :order/lines {:schema/type :schema.type/order.line
+                                         :order.line/product-variation id
+                                         :order.line/quantity quantity}}))
         (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
 
 (register-endpoint!

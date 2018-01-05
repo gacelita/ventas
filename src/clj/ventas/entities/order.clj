@@ -1,21 +1,8 @@
 (ns ventas.entities.order
   (:require
    [clojure.spec.alpha :as spec]
-   [clojure.test.check.generators :as gen]
-   [com.gfredericks.test.chuck.generators :as gen']
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]))
-
-#_"
-  Orders have:
-  - An user
-  - A status
-  - Billing and shipping addresses
-  - A list of products with their quantities (order lines)
-  - A shipping method (maybe with comments)
-  - A payment method
-"
 
 (spec/def :order/user
   (spec/with-gen ::entity/ref #(entity/ref-generator :user)))
@@ -45,6 +32,9 @@
 (spec/def :order/payment-amount
   (spec/with-gen ::entity/ref #(entity/ref-generator :amount)))
 
+(spec/def :order/lines
+  (spec/with-gen ::entity/refs #(entity/refs-generator :order.line)))
+
 (spec/def :schema.type/order
   (spec/keys :req [:order/user
                    :order/status]
@@ -53,7 +43,8 @@
                    :order/shipping-address
                    :order/billing-address
                    :order/shipping-method
-                   :order/payment-method]))
+                   :order/payment-method
+                   :order/lines]))
 
 (entity/register-type!
  :order
@@ -93,6 +84,11 @@
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident :order/lines
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
    {:db/ident :order/payment-reference
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -103,17 +99,7 @@
     :db/isComponent true}]
 
   :dependencies
-  #{:address :user :amount}
-
-  :to-json
-  (fn [this params]
-    (-> ((entity/default-attr :to-json) this params)
-        (assoc :lines (->> (entity/query :order.line {:order (:db/id this)})
-                           (map #(entity/to-json (dissoc % :order.line/order) params))))))})
-
-
-(spec/def :order.line/order
-  (spec/with-gen ::entity/ref #(entity/ref-generator :order)))
+  #{:address :user :amount}})
 
 (spec/def :order.line/product-variation
   (spec/with-gen ::entity/ref #(entity/ref-generator :product.variation)))
@@ -121,18 +107,13 @@
 (spec/def :order.line/quantity (spec/and integer? pos?))
 
 (spec/def :schema.type/order.line
-  (spec/keys :req [:order.line/order
-                   :order.line/product-variation
+  (spec/keys :req [:order.line/product-variation
                    :order.line/quantity]))
 
 (entity/register-type!
  :order.line
  {:attributes
-  [{:db/ident :order.line/order
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident :order.line/product-variation
+  [{:db/ident :order.line/product-variation
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}
 
@@ -143,6 +124,8 @@
    {:db/ident :order.line/discount
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one}]
+
+  :autoresolve? true
 
   :dependencies
   #{:order :product :product.variation :discount}})

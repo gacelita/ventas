@@ -95,4 +95,6 @@
 
   :from-json
   (fn [this]
-    (dissoc this :url))})
+    (-> this
+        (dissoc :url)
+        ((entity/default-attr :from-json))))})
