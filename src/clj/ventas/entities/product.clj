@@ -182,13 +182,13 @@
     (-> ((entity/default-attr :to-json) this params)
         (update :terms terms-to-json)
         (update :variation-terms terms-to-json)
-        (assoc :images (->> (entity/query :product.image {:product (:db/id this)})
-                            (map #(entity/to-json % params))
-                            (map (fn [{:keys [file position]}]
-                                   (assoc file :position position)))
-                            (sort-by :position)
-                            (into [])))))})
-
+        (update :images (fn [images]
+                          (->> images
+                               (map (fn [{:keys [file position]}]
+                                      (assoc file :position position)))
+                               (sort-by :position)
+                               (map #(dissoc % :position))
+                               (into []))))))})
 
 (spec/def :product.image/position number?)
 
@@ -211,6 +211,8 @@
 
   :dependencies
   #{:file}
+
+  :autoresolve? true
 
   :seed-number 0})
 
@@ -281,7 +283,8 @@
                :product.image/file file}
         {:product.image/keys [file] :db/keys [id]} (entity/create* image)]
     (entity/update* {:db/id product-eid
-                     :product/images id})
+                     :product/images id}
+                    :append? true)
     (entities.file/copy-file!
      (entity/find file)
      (io/file path))))

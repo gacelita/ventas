@@ -69,4 +69,10 @@
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
-        (assoc :image (get-image this params))))})
+        (assoc :image (get-image this params))))
+
+  :from-json
+  (fn [this]
+    (-> this
+        (dissoc :image)
+        ((entity/default-attr :from-json))))})
