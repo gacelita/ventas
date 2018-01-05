@@ -37,6 +37,14 @@
     (entity/delete (:id params))))
 
 (register-admin-endpoint!
+ :admin.currencies.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :currency))))
+
+(register-admin-endpoint!
   :admin.taxes.list
   {:middlewares [pagination/wrap-sort
                  pagination/wrap-paginate]}
@@ -109,6 +117,14 @@
     (entity/upsert :product
                    (-> (:params message)
                        (update-in [:price :value] bigdec)))))
+
+(register-admin-endpoint!
+ :admin.product.terms.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :product.term))))
 
 (register-admin-endpoint!
   :admin.datadmin.datoms

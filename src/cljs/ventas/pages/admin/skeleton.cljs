@@ -2,6 +2,7 @@
   (:require
    [ventas.routes :as routes]
    [ventas.events :as events]
+   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
@@ -67,6 +68,33 @@
 
      [base/form-button {:type "submit"} (i18n ::login)]]]])
 
+(defn- content-view [content]
+  (rf/dispatch [::backend/admin.brands.list
+                {:success [::events/db [:admin :brands]]}])
+  (rf/dispatch [::backend/admin.taxes.list
+                {:success [::events/db [:admin :taxes]]}])
+  (rf/dispatch [::backend/admin.currencies.list
+                {:success [::events/db [:admin :currencies]]}])
+  (rf/dispatch [::events/i18n.cultures.list])
+  (fn []
+    [:div
+     [:div.admin__userbar
+      [:div.admin__userbar-logo
+       [:img {:src "/files/logo"}]]
+      [:div.admin__userbar-home
+       [:a {:href (routes/path-for :frontend)}
+        [base/icon {:name "home"}]
+        [:span (i18n ::home)]]]
+      [:div.admin__userbar-profile
+       [:span (:first-name identity)]]]
+     [:div.admin__skeleton
+      [:div.admin__sidebar
+       [:a {:href (routes/path-for :admin)}
+        [:h3 (i18n ::administration)]]
+       [menu]]
+      [:div.admin__content
+       content]]]))
+
 (defn skeleton [content]
   [:div.root
    [ventas.notificator/notificator]
@@ -74,20 +102,4 @@
    (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
      (if-not (contains? (set (:roles identity)) :user.role/administrator)
        [login]
-       [:div
-        [:div.admin__userbar
-         [:div.admin__userbar-logo
-          [:img {:src "/files/logo"}]]
-         [:div.admin__userbar-home
-          [:a {:href (routes/path-for :frontend)}
-           [base/icon {:name "home"}]
-           [:span (i18n ::home)]]]
-         [:div.admin__userbar-profile
-          [:span (:first-name identity)]]]
-        [:div.admin__skeleton
-         [:div.admin__sidebar
-          [:a {:href (routes/path-for :admin)}
-           [:h3 (i18n ::administration)]]
-          [menu]]
-         [:div.admin__content
-          content]]]))])
+       [content-view content]))])

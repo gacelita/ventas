@@ -38,7 +38,8 @@
   "Returns a new width and height that matches the given target relation, using the maximum
    available space within the given width and height"
   (let [source-relation (/ width height)]
-    (if (or (and (landscape? target-relation) (landscape? source-relation))
+    (if (or (= 1 target-relation)
+            (and (landscape? target-relation) (landscape? source-relation))
             (and (portrait? target-relation) (portrait? source-relation)))
       (adapt-dimensions-to-relation* {:width width :height height} target-relation)
       (let [{:keys [width height]} (adapt-dimensions-to-relation

@@ -8,6 +8,7 @@
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
+   [ventas.components.amount-input :as amount-input]
    [ventas.page :refer [pages]]
    [ventas.routes :as routes]
    [ventas.utils.ui :as utils.ui]
@@ -108,9 +109,8 @@
                  :success (fn [entity-data]
                             (rf/dispatch [::events/db [state-key :product] entity-data])
                             (rf/dispatch [::events/db [state-key :product-hash] (hash entity-data)]))}])
-  (rf/dispatch [::backend/admin.brands.list {:success [::events/db [state-key :brands]]}])
-  (rf/dispatch [::backend/admin.taxes.list {:success [::events/db [state-key :taxes]]}])
-  (rf/dispatch [::events/i18n.cultures.list])
+  (rf/dispatch [::backend/admin.product.terms.list
+                {:success [::events/db [state-key :product.terms]]}])
   (fn []
     (let [product @(rf/subscribe [::events/db [state-key :product]])
           form-hash @(rf/subscribe [::events/db [state-key :product-hash]])
@@ -152,12 +152,10 @@
                        :title "Price"}
 
          (let [field :price]
-           [base/form-input
+           [amount-input/input
             {:label (i18n ::price)
-             :default-value (get product field)
-             :on-change #(rf/dispatch [::set-field
-                                       field
-                                       (js/parseInt (-> % .-target .-value))])}])
+             :amount (get product field)
+             :on-change #(rf/dispatch [::set-field field %])}])
 
          (let [field :tax]
            [base/form-field
@@ -166,7 +164,7 @@
              {:fluid true
               :selection true
               :options (map (fn [v] {:text (:name v) :value (:id v)})
-                            @(rf/subscribe [::events/db [state-key :taxes]]))
+                            @(rf/subscribe [::events/db [:admin :taxes]]))
               :default-value (get product field)
               :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
 
@@ -205,7 +203,7 @@
              {:fluid true
               :selection true
               :options (map (fn [v] {:text (:name v) :value (:id v)})
-                            @(rf/subscribe [::events/db [state-key :brands]]))
+                            @(rf/subscribe [::events/db [:admin :brands]]))
               :default-value (get product field)
               :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
 
@@ -220,6 +218,41 @@
              (for [eid (get product field)]
                ^{:key eid} [image eid])
              [image-placeholder]]])]
+
+        [base/segment {:color "orange"
+                       :title "Terms"}
+         (let [field :variation-terms]
+           [base/form-field
+            [:label (i18n ::variation-terms)]
+            [base/dropdown
+             {:multiple true
+              :fluid true
+              :search true
+              :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
+                            (map (fn [v]
+                                   {:text (str (get-in v [:taxonomy :name]) ": " (:name v))
+                                    :value (:id v)}))
+                            (sort-by :text))
+              :selection true
+              :default-value (or (->> (get product field)
+                                      (mapcat :terms)
+                                      (map :id)) #{})
+              :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])
+         (let [field :terms]
+           [base/form-field
+            [:label (i18n ::terms)]
+            [base/dropdown
+             {:multiple true
+              :fluid true
+              :search true
+              :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
+                            (map (fn [v]
+                                   {:text (str (get-in v [:taxonomy :name]) ": " (:name v))
+                                    :value (:id v)}))
+                            (sort-by :text))
+              :selection true
+              :default-value (or (get product field) #{})
+              :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])]
 
         [base/divider {:hidden true}]
 

@@ -24,12 +24,13 @@
   [base/form-input {:label label}
    [:div.i18n-input__culture
     [:span (name culture)]]
-   [(or control :input) {:default-value translation
-            :on-change #(rf/dispatch [::on-change
-                                      {:id id
-                                       :culture culture
-                                       :translation (-> % .-target .-value)
-                                       :callback on-change}])}]])
+   [(or control :input)
+    {:default-value translation
+     :on-change #(rf/dispatch [::on-change
+                               {:id id
+                                :culture culture
+                                :translation (-> % .-target .-value)
+                                :callback on-change}])}]])
 
 (defn input [{:keys [label value on-change culture control]}]
   (let [id (str (gensym))]

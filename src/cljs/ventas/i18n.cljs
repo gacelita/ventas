@@ -49,10 +49,13 @@
     :ventas.pages.admin.plugins/version "Version"
 
     :ventas.pages.admin.products/page "Products"
+
     :ventas.pages.admin.products.edit/active "Active"
     :ventas.pages.admin.products.edit/brand "Brand"
     :ventas.pages.admin.products.edit/description "Description"
     :ventas.pages.admin.products.edit/ean13 "EAN13"
+    :ventas.pages.admin.products.edit/variation-terms "Variation terms"
+    :ventas.pages.admin.products.edit/terms "Terms"
     :ventas.pages.admin.products.edit/images "Images"
     :ventas.pages.admin.products.edit/name "Name"
     :ventas.pages.admin.products.edit/page "Edit product"

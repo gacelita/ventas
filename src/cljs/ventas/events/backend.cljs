@@ -146,6 +146,11 @@
     {:ws-request (merge {:name :admin.brands.list} options)}))
 
 (rf/reg-event-fx
+ ::admin.currencies.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.currencies.list} options)}))
+
+(rf/reg-event-fx
   ::admin.entities.remove
   (fn [cofx [_ options]]
     {:ws-request (merge {:name :admin.entities.remove} options)}))
@@ -189,6 +194,11 @@
   ::admin.products.save
   (fn [cofx [_ options]]
     {:ws-request (merge {:name :admin.products.save} options)}))
+
+(rf/reg-event-fx
+ ::admin.product.terms.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.product.terms.list} options)}))
 
 (rf/reg-event-fx
   ::admin.taxes.list
