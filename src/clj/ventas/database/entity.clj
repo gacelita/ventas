@@ -243,6 +243,7 @@
 
 (defn- autoresolve-ref [ref & [options]]
   (let [subentity (-> ref find)]
+    (assert subentity)
     (if (autoresolve? (db/type->kw (:schema/type subentity)))
       (to-json subentity options)
       ref)))
@@ -370,6 +371,13 @@
   (if id
     (update attributes)
     (create type attributes)))
+
+(defn upsert*
+  [{:db/keys [id] :as attributes}]
+  {:pre [(map? attributes)]}
+  (if id
+    (update* attributes)
+    (create* attributes)))
 
 (defn dates
   "First and last dates associated with an eid"
