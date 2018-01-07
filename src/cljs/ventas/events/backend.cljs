@@ -171,6 +171,11 @@
    {:ws-request (merge {:name :admin.entities.find} options)}))
 
 (rf/reg-event-fx
+ ::admin.entities.find-json
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.entities.find-json} options)}))
+
+(rf/reg-event-fx
  ::admin.i18ns.find
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :admin.i18ns.find} options)}))
