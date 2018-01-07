@@ -19,7 +19,7 @@
   (get @output-channels :fressian))
 
 (defn output-json-channel []
-  (get @output-channels :json-kw))
+  (get @output-channels :json))
 
 (defn send-request!
   "Sends a request and calls the callback with the response"
@@ -70,7 +70,7 @@
   "Receives messages from the server and calls an appropiate dispatcher"
   (go-loop []
     (let [message (:message (<! websocket-channel))
-          {:keys [type] :as message} (if (= format :json-kw)
+          {:keys [type] :as message} (if (= format :json)
                                        (common.utils/process-input-message message)
                                        message)]
       (log/debug ::receive-messages! message)
@@ -87,7 +87,7 @@
   [output-channel websocket-channel format]
   (go-loop []
    (let [message (<! output-channel)
-         message (if (= format :json-kw)
+         message (if (= format :json)
                    (common.utils/process-output-message message)
                    message)]
      (>! websocket-channel message)
@@ -101,7 +101,7 @@
        "/ws/" (name format)))
 
 (defn- start-websocket [format]
-  {:pre [(#{:fressian :json-kw} format)]}
+  {:pre [(#{:fressian :json} format)]}
   (let [channel (chan)]
     (go
      (let [url (websocket-url format)
@@ -123,7 +123,7 @@
   (let [channel (chan)]
     (go
       (log/info "Starting websockets")
-      (let [json-result (<! (start-websocket :json-kw))
+      (let [json-result (<! (start-websocket :json))
             fressian-result (<! (start-websocket :fressian))]
         (>! channel (and json-result fressian-result))))
     channel))

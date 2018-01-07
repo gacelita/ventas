@@ -83,8 +83,8 @@
 
 ;; All routes
 (defroutes routes
-  (GET "/ws/json-kw" []
-    (handle-websocket :json-kw))
+  (GET "/ws/json" []
+    (handle-websocket :json))
   (GET "/ws/fressian" []
     (handle-websocket :fressian))
   (GET "/files/*" {{path :*} :route-params}

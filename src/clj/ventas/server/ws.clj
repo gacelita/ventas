@@ -43,11 +43,7 @@
       (error-response message e))))
 
 (defn send-response [response channel]
-  (if (utils/chan? response)
-    (go-loop []
-      (>! channel (<! response))
-      (recur))
-    (go (>! channel response))))
+  (go (>! channel (common.utils/process-output-message response))))
 
 (defn send-event [response channel]
   (go (>! channel response)))
@@ -76,7 +72,7 @@
   (fn [format _]
     format))
 
-(defmethod handle-messages :json-kw [_ {channel :ws-channel :as request}]
+(defmethod handle-messages :json [_ {channel :ws-channel :as request}]
   (let [shared-channel (get-shared-channel)
         client-id (uuid/v4)
         session (atom {})]
