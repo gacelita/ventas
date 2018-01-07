@@ -88,6 +88,11 @@
    {:ws-request (merge {:name :admin.users.list} options)}))
 
 (rf/reg-event-fx
+ ::admin.users.addresses.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.users.addresses.list} options)}))
+
+(rf/reg-event-fx
  ::users.login
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :users.login} options)}))
@@ -214,3 +219,13 @@
   ::admin.taxes.save
   (fn [cofx [_ options]]
     {:ws-request (merge {:name :admin.taxes.save} options)}))
+
+(rf/reg-event-fx
+ ::admin.orders.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.orders.list} options)}))
+
+(rf/reg-event-fx
+ ::admin.orders.get
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.orders.get} options)}))

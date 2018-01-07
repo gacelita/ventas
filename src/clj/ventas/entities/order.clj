@@ -4,6 +4,15 @@
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]))
 
+(defn- get-amount [{:order/keys [lines]}]
+  (->> lines
+       (map entity/find)
+       (map (fn [{:order.line/keys [product-variation quantity]}]
+              (let [{:product/keys [price]} (entity/find product-variation)
+                    {:amount/keys [value]} (entity/find price)]
+                (* value quantity))))
+       (reduce +)))
+
 (spec/def :order/user
   (spec/with-gen ::entity/ref #(entity/ref-generator :user)))
 
@@ -99,7 +108,18 @@
     :db/isComponent true}]
 
   :dependencies
-  #{:address :user :amount}})
+  #{:address :user :amount}
+
+  :to-json
+  (fn [this params]
+    (-> ((entity/default-attr :to-json) this params)
+        (assoc :amount (get-amount this))))
+
+  :from-json
+  (fn [this]
+    (-> this
+        (dissoc :amount)
+        ((entity/default-attr :from-json))))})
 
 (spec/def :order.line/product-variation
   (spec/with-gen ::entity/ref #(entity/ref-generator :product.variation)))

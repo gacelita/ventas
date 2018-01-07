@@ -10,6 +10,10 @@
 (def ^:private base-dicts
   {:en_US
    {:ventas.components.cart/product-added "Product added!"
+
+    :ventas.components.table/no-rows "No items to show"
+
+    :ventas.events/session-started "Welcome!"
     
     :ventas.page/not-found "404"
 
@@ -70,7 +74,7 @@
     :ventas.pages.admin.skeleton/home "The store"
     :ventas.pages.admin.skeleton/password "Password"
     :ventas.pages.admin.skeleton/login "Login"
-
+    :ventas.pages.admin.skeleton/logout "Logout"
     :ventas.pages.admin.skeleton/activity-log "Activity log"
     :ventas.pages.admin.skeleton/administration "Administration"
     :ventas.pages.admin.skeleton/configuration "Configuration"
@@ -80,11 +84,37 @@
     :ventas.pages.admin.skeleton/products "Products"
     :ventas.pages.admin.skeleton/users "Users"
     :ventas.pages.admin.skeleton/taxes "Taxes"
+    :ventas.pages.admin.skeleton/orders "Orders"
 
     :ventas.pages.admin.taxes/name "Name"
     :ventas.pages.admin.taxes/amount "Amount"
     :ventas.pages.admin.taxes/actions "Actions"
     :ventas.pages.admin.taxes/create "Create tax"
+
+    :ventas.pages.admin.orders/user "User"
+    :ventas.pages.admin.orders/status "Status"
+    :ventas.pages.admin.orders/amount "Amount"
+    :ventas.pages.admin.orders/actions "Actions"
+    :ventas.pages.admin.orders/create "Create order"
+
+    :ventas.pages.admin.orders.edit/user "User"
+    :ventas.pages.admin.orders.edit/status "Status"
+    :ventas.pages.admin.orders.edit/payment-reference "Payment reference"
+    :ventas.pages.admin.orders.edit/submit "Submit"
+    :ventas.pages.admin.orders.edit/order "Order"
+    :ventas.pages.admin.orders.edit/billing "Billing"
+    :ventas.pages.admin.orders.edit/payment-method "Payment method"
+    :ventas.pages.admin.orders.edit/billing-address "Payment address"
+    :ventas.pages.admin.orders.edit/shipping "Shipping"
+    :ventas.pages.admin.orders.edit/shipping-method "Shipping method"
+    :ventas.pages.admin.orders.edit/shipping-address "Shipping address"
+    :ventas.pages.admin.orders.edit/shipping-comments "Comments"
+    :ventas.pages.admin.orders.edit/lines "Order lines"
+    :ventas.pages.admin.orders.edit/image "Image"
+    :ventas.pages.admin.orders.edit/name "Name"
+    :ventas.pages.admin.orders.edit/price "Price"
+    :ventas.pages.admin.orders.edit/quantity "Quantity"
+    :ventas.pages.admin.orders.edit/total "Total"
 
     :ventas.pages.admin.taxes.edit/amount "Amount"
     :ventas.pages.admin.taxes.edit/name "Name"
@@ -126,6 +156,13 @@
     :user.status/pending "Pending"
     :user.status/active "Active"
     :user.status/cancelled "Cancelled"
+
+    :order.status/draft "Draft"
+    :order.status/acknowledged "Acknowledged"
+    :order.status/paid "Paid"
+    :order.status/ready "Ready"
+    :order.status/shipped "Shipped"
+    :order.status/unpaid "Unpaid"
 
     :entity.create "Creation"
     :entity.delete "Deletion"

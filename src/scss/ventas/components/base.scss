@@ -32,3 +32,12 @@ body .ui.header {
         margin-top: 27px;
     }
 }
+
+.ui.dropdown {
+    &.dropdown--align-right {
+        .menu {
+            left: auto;
+            right: 0px;
+        }
+    }
+}

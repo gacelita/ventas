@@ -3,13 +3,14 @@
   (:require
     [re-frame.core :as rf]
     [ventas.components.base :as base]
+    [ventas.i18n :refer [i18n]]
     [ventas.events :as events]))
 
 (rf/reg-event-fx
   ::set-state
   (fn [{:keys [db]} [_ {:keys [state-path fetch-fx] :as config} new-state]]
     {:dispatch-n [[::events/db state-path new-state]
-                  [fetch-fx config]]}))
+                  (when fetch-fx [fetch-fx config])]}))
 
 (rf/reg-event-fx
   ::set-page
@@ -77,16 +78,21 @@
              :on-click #(rf/dispatch [::sort config id])}
             label])]]
        [base/table-body
-        (for [row @(rf/subscribe [::events/db data-path])]
-          [base/table-row
-           {:key (hash row)}
-           (for [{:keys [id component width]} columns]
-             [base/table-cell {:key id
-                               :style (when width
-                                        {:width width})}
-              (if component
-                [component row]
-                (id row))])])]
+        (let [rows @(rf/subscribe [::events/db data-path])]
+          (if (empty? rows)
+            [base/table-row
+             [base/table-cell {:col-span (count columns)}
+              [:p.table-component__no-rows (i18n ::no-rows)]]]
+            (for [row rows]
+              [base/table-row
+               {:key (hash row)}
+               (for [{:keys [id component width]} columns]
+                 [base/table-cell {:key id
+                                   :style (when width
+                                            {:width width})}
+                  (if component
+                    [component row]
+                    (id row))])])))]
        [base/table-footer
         [base/table-row
          [base/table-header-cell {:col-span (count columns)}

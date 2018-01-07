@@ -48,7 +48,6 @@
    :ventas.themes.clothing.pages.frontend.login/page "Login"
    :ventas.themes.clothing.pages.frontend.login/forgot-password "Password forgotten?"
    :ventas.themes.clothing.pages.frontend.login/user-registered "Your account is ready. Welcome!"
-   :ventas.themes.clothing.pages.frontend.login/session-started "Welcome!"
 
    :ventas.themes.clothing.pages.frontend.privacy-policy/privacy-policy "Privacy policy"
    :ventas.themes.clothing.pages.frontend.privacy-policy/privacy-policy-text "Just some example text"

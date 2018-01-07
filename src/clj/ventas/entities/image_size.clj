@@ -90,6 +90,13 @@
       :image-size/width 150
       :image-size/height 150
       :image-size/algorithm :image-size.algorithm/crop-and-resize
+      :image-size/entities #{:schema.type/product}}
+
+     {:schema/type :schema.type/image-size
+      :image-size/keyword :admin-orders-edit-line
+      :image-size/width 80
+      :image-size/height 80
+      :image-size/algorithm :image-size.algorithm/crop-and-resize
       :image-size/entities #{:schema.type/product}}])})
 
 (defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]

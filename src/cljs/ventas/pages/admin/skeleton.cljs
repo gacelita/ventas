@@ -16,6 +16,7 @@
 (def menu-items
   [{:route :admin.users :label ::users}
    {:route :admin.products :label ::products}
+   {:route :admin.orders :label ::orders}
    {:route :admin.plugins :label ::plugins}
    {:route :admin.taxes :label ::taxes}
    {:route :admin.activity-log :label ::activity-log}
@@ -64,6 +65,7 @@
 
      [base/form-input
       {:placeholder (i18n ::password)
+       :type :password
        :on-change #(rf/dispatch [::set-field :password (-> % .-target .-value)])}]
 
      [base/form-button {:type "submit"} (i18n ::login)]]]])
@@ -85,8 +87,13 @@
        [:a {:href (routes/path-for :frontend)}
         [base/icon {:name "home"}]
         [:span (i18n ::home)]]]
-      [:div.admin__userbar-profile
-       [:span (:first-name identity)]]]
+      (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
+        [:div.admin__userbar-profile
+         [base/dropdown {:text (:first-name identity)
+                         :class "dropdown--align-right"}
+          [base/dropdown-menu
+           [base/dropdown-item {:text (i18n ::logout)
+                                :on-click #(rf/dispatch [::events/session.stop])}]]]])]
      [:div.admin__skeleton
       [:div.admin__sidebar
        [:a {:href (routes/path-for :admin)}

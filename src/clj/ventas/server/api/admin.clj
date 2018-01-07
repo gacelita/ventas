@@ -67,6 +67,12 @@
          (map #(entity/to-json % {:culture (api/get-culture session)})))))
 
 (register-admin-endpoint!
+ :admin.users.addresses.list
+ (fn [{:keys [user]} {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :address {:user user}))))
+
+(register-admin-endpoint!
   :admin.users.save
   (fn [{:keys [params]} state]
     (entity/upsert
@@ -110,6 +116,22 @@
          (take-last 10)
          (db/explain-txs)
          (filter :entity-id))))
+
+(register-admin-endpoint!
+ :admin.orders.get
+ (fn [{{:keys [id]} :params} {:keys [session]}]
+   (let [order (entity/find id)]
+     {:order order
+      :lines (map #(entity/find-json % {:culture (api/get-culture session)})
+                  (:order/lines order))})))
+
+(register-admin-endpoint!
+ :admin.orders.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :order))))
 
 (register-admin-endpoint!
  :admin.products.save

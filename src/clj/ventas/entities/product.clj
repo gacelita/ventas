@@ -177,6 +177,8 @@
   :dependencies
   #{:brand :tax :file :category :product.term :amount}
 
+  :autoresolve? true
+
   :to-json
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)

@@ -6,6 +6,8 @@
    [ventas.pages.admin.products.edit]
    [ventas.pages.admin.products]
    [ventas.pages.admin.skeleton :as skeleton]
+   [ventas.pages.admin.orders]
+   [ventas.pages.admin.orders.edit]
    [ventas.pages.admin.users]
    [ventas.pages.admin.users.edit]
    [ventas.pages.admin.taxes]
