@@ -93,10 +93,10 @@
   :admin.entities.find
   (fn [{{:keys [id]} :params} _]
     {:pre [(number? id)]}
-    (entity/find-json id)))
+    (entity/find id)))
 
 (register-admin-endpoint!
- :admin.i18ns.find
+ :admin.entities.find-json
  (fn [{{:keys [id]} :params} _]
    {:pre [(number? id)]}
    (entity/find-json id)))
@@ -112,11 +112,11 @@
          (filter :entity-id))))
 
 (register-admin-endpoint!
-  :admin.products.save
-  (fn [message state]
-    (entity/upsert :product
-                   (-> (:params message)
-                       (update-in [:price :value] bigdec)))))
+ :admin.products.save
+ (fn [{:keys [params]} _]
+   (entity/upsert* (if (get-in params [:product/price :amount/value])
+                     (update-in params [:product/price :amount/value] bigdec)
+                     params))))
 
 (register-admin-endpoint!
  :admin.product.terms.list
