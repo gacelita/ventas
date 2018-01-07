@@ -20,6 +20,12 @@
               [k (f v)]))
        (into {})))
 
+(defn map-kv [f m]
+  (->> m
+       (map (fn [[k v]]
+              (f k v)))
+       (into {})))
+
 (defn filter-vals
   [pred m]
   (->> m
@@ -77,13 +83,16 @@
   [message]
   (cond
     (map? message)
-      (map-vals process-input-message message)
+      (map-kv (fn [k v]
+                [(process-input-message k)
+                 (process-input-message v)])
+              message)
     (string? message)
       (cond
         (str/starts-with? message ":")
           (read-keyword message)
         :else message)
-    (vector? message)
+    (sequential? message)
       (if (= (first message) set-identifier)
         (set (map process-input-message (rest message)))
         (map process-input-message message))
@@ -93,8 +102,11 @@
   "Properly encode keywords and sets"
   [message]
   (cond
-    (map? message) (map-vals process-output-message message)
-    (vector? message) (map process-output-message message)
+    (map? message) (map-kv (fn [k v]
+                             [(process-output-message k)
+                              (process-output-message v)])
+                           message)
+    (sequential? message) (map process-output-message message)
     (keyword? message) (str message)
     (set? message) (vec (concat [set-identifier] (map process-output-message message)))
     :else message))
