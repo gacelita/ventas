@@ -17,15 +17,17 @@
    [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]
    [ventas.events.backend :as backend]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [ventas.utils.logging :as log]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
  ::submit
  (fn [cofx [_ data]]
-   {:dispatch [::backend/products.save {:params data
-                                   :success ::submit.next}]}))
+   {:dispatch [::backend/admin.products.save
+               {:params data
+                :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next
@@ -119,28 +121,30 @@
       [:div
        [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit product]))}
 
+        (log/debug "Current product:" product)
+
         [base/segment {:color "orange"
                        :title "Product"}
 
-         (let [field :name]
+         (let [field :product/name]
            [i18n-input/input
             {:label (i18n ::name)
-             :value (get product field)
+             :entity (get product field)
              :culture culture
              :on-change #(rf/dispatch [::set-field field %])}])
-         (let [field :active]
+         (let [field :product/active]
            [base/form-field
             [:label (i18n ::active)]
             [base/checkbox
              {:toggle true
               :checked (get product field)
               :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}]])
-         (let [field :reference]
+         (let [field :product/reference]
            [base/form-input
             {:label (i18n ::reference)
              :default-value (get product field)
              :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
-         (let [field :ean13]
+         (let [field :product/ean13]
            [base/form-input
             {:label (i18n ::ean13)
              :default-value (get product field)
@@ -151,13 +155,13 @@
         [base/segment {:color "orange"
                        :title "Price"}
 
-         (let [field :price]
+         (let [field :product/price]
            [amount-input/input
             {:label (i18n ::price)
              :amount (get product field)
              :on-change #(rf/dispatch [::set-field field %])}])
 
-         (let [field :tax]
+         (let [field :product/tax]
            [base/form-field
             [:label (i18n ::tax)]
             [base/dropdown
@@ -173,16 +177,16 @@
         [base/segment {:title "Description"
                        :color "orange"}
 
-         (let [field :description]
+         (let [field :product/description]
 
            [i18n-input/input
             {:label (i18n ::description)
              :control :textarea
-             :value (get product field)
+             :entity (get product field)
              :culture culture
              :on-change #(rf/dispatch [::set-field field %])}])
 
-         (let [field :tags]
+         (let [field :product/tags]
            [base/form-field
             [:label (i18n ::tags)]
             [base/dropdown
@@ -196,7 +200,7 @@
               :default-value (or (get product field) #{})
               :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])
 
-         (let [field :brand]
+         (let [field :product/brand]
            [base/form-field
             [:label (i18n ::brand)]
             [base/dropdown
@@ -212,7 +216,7 @@
         [base/segment {:color "orange"
                        :title "Images"}
 
-         (let [field :images]
+         (let [field :product/images]
            [base/form-field {:class "admin-products-edit__images"}
             [base/image-group
              (for [eid (get product field)]
@@ -221,7 +225,7 @@
 
         [base/segment {:color "orange"
                        :title "Terms"}
-         (let [field :variation-terms]
+         (let [field :product/variation-terms]
            [base/form-field
             [:label (i18n ::variation-terms)]
             [base/dropdown
@@ -234,11 +238,9 @@
                                     :value (:id v)}))
                             (sort-by :text))
               :selection true
-              :default-value (or (->> (get product field)
-                                      (mapcat :terms)
-                                      (map :id)) #{})
+              :default-value (get product field)
               :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])
-         (let [field :terms]
+         (let [field :product/terms]
            [base/form-field
             [:label (i18n ::terms)]
             [base/dropdown
@@ -251,7 +253,7 @@
                                     :value (:id v)}))
                             (sort-by :text))
               :selection true
-              :default-value (or (get product field) #{})
+              :default-value (get product field)
               :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])]
 
         [base/divider {:hidden true}]
