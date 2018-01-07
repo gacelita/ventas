@@ -153,11 +153,13 @@
   [sa/Segment (if-not title
                   opts
                   (update opts :class #(str % "segment--with-title")))
-   (if-not title
-     children
-     (concat [[:div.segment-title {:style {:background-color (semantic->css-color color)}}
-               title]]
-             children))])
+   (when title
+     [:div.segment-title {:style {:background-color (semantic->css-color color)}}
+      title])
+   (map-indexed
+    (fn [idx child]
+      (with-meta child {:key idx}))
+    children)])
 
 (def segment-group sa/SegmentGroup)
 (def select sa/Select)
