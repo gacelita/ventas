@@ -7,6 +7,7 @@
    [chord.format.fressian]
    [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]
+   [ventas.events :as events]
    [re-frame.core :as rf])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
@@ -135,24 +136,28 @@
     fn? (to-call data)
     (log/error "Not an effect or function: " to-call)))
 
-(defn effect-ws-request [{:keys [name params success error]}]
-  (send-request!
-   {:name name
-    :params params
-    :callback
-    (fn [{data :data request-succeeded? :success :as response}]
-      (cond
-        (not request-succeeded?)
-          (do
-            (rf/dispatch [::notificator/add {:message data :theme "warning"}])
-            (log/error "Request failed!" response)
-            (when error
-              (call error data)))
-        success
-        (call success data)))}))
+(defn- effect-ws-request [{:keys [name params success error] :as request}]
+  (let [args-hash (hash request)]
+    (when-not @(rf/subscribe [::events/db [::pending-requests args-hash]])
+      (rf/dispatch [::events/db.update ::pending-requests #(conj (set %) args-hash)])
+      (send-request!
+       {:name name
+        :params params
+        :callback
+        (fn [{data :data request-succeeded? :success :as response}]
+          (rf/dispatch [::events/db.update ::pending-requests #(disj (set %) args-hash)])
+          (cond
+            (not request-succeeded?)
+            (do
+              (rf/dispatch [::notificator/add {:message data :theme "warning"}])
+              (log/error "Request failed!" response)
+              (when error
+                (call error data)))
+            success
+            (call success data)))}))))
 
 
-(defn effect-ws-upload-request [request & [file-id start]]
+(defn- effect-ws-upload-request [request & [file-id start]]
   (let [file-id (or file-id false)
         start (or start 0)
         {:keys [name upload-data params upload-key success]} request
