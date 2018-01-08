@@ -63,9 +63,7 @@
 
 (spec/def ::product-for-generation
   (spec/keys :req [:product/name
-                   :product/active
-                   :product/price
-                   :product/keyword]
+                   :product/price]
              :opt [:product/reference
                    :product/ean13
                    :product/description
@@ -75,7 +73,9 @@
                    :product/categories
                    :product/terms
                    :product/variation-terms
-                   :product/parent]))
+                   :product/parent
+                   :product/keyword
+                   :product/active]))
 
 (spec/def :schema.type/product
   (spec/with-gen
