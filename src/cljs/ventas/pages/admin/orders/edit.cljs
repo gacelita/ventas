@@ -140,7 +140,7 @@
   (fn []
     (let [{:keys [order]} @(rf/subscribe [::events/db state-key])]
 
-      [base/form {:key (:id order)
+      [base/form {:key (:db/id order)
                   :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
        [base/segment {:color "orange"
