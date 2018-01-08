@@ -157,10 +157,10 @@
             (call success data)))}))))
 
 
-(defn- effect-ws-upload-request [request & [file-id start]]
+(defn- effect-ws-upload-request
+  [{:keys [name upload-data params upload-key success] :as request} & [file-id start]]
   (let [file-id (or file-id false)
         start (or start 0)
-        {:keys [name upload-data params upload-key success]} request
         data-length (-> upload-data .-byteLength)
         raw-end (+ start ws-upload-chunk-size)
         is-last (> raw-end data-length)
@@ -175,7 +175,7 @@
                       :file-id file-id})
       :callback (fn [{:keys [data]}]
                   (if is-last
-                    (success data)
+                    (call success data)
                     (effect-ws-upload-request request
                                               (if is-first data file-id)
                                               end)))}
