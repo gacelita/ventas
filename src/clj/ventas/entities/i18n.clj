@@ -35,11 +35,11 @@
 
   :to-json
   (fn [this _]
-    (:i18n.culture/keyword this))
+    (:db/id this))
 
   :from-json
   (fn [this]
-    (entity/find [:i18n.culture/keyword this]))
+    (entity/find this))
 
   :seed-number 0
   :autoresolve? true})
@@ -69,7 +69,7 @@
 
   :to-json
   (fn [this _]
-    [(:i18n.culture/keyword (entity/find (:i18n.translation/culture this)))
+    [(:i18n.translation/culture this)
      (:i18n.translation/value this)])})
 
 (defn translations-generator-for-culture [culture-id]

@@ -36,7 +36,7 @@
 (defn get-culture [session]
   (let [user (get-user session)]
     (or (:user/culture user)
-        [:i18n.culture/keyword :en_US])))
+        (:db/id (db/entity [:i18n.culture/keyword :en_US])))))
 
 (register-endpoint!
   :categories.get
