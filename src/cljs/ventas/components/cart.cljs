@@ -6,7 +6,6 @@
    [clojure.string :as s]
    [bidi.bidi :as bidi]
    [ventas.components.base :as base]
-   [ventas.routes :refer [routes]]
    [ventas.utils.ui :refer [with-handler]]
    [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]

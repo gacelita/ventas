@@ -7,7 +7,6 @@
    [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.page :refer [pages]]
-   [ventas.routes :refer [route-parents routes]]
    [ventas.components.notificator :as ventas.notificator]
    [ventas.components.popup :as ventas.popup]
    [ventas.components.category-list :refer [category-list]]

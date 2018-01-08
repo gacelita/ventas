@@ -45,7 +45,7 @@
         path (concat (map #(% indexed-urls) parents) [url])]
     (update-in acc path #(merge % {"" route}))))
 
-(defn compile-routes [routes]
+(defn- compile-routes [routes]
   (let [routes (prepare-routes routes)
         indexed-urls (index-urls routes)]
     ["" (-> (reduce (fn [acc item]
@@ -54,10 +54,10 @@
                      routes)
              (assoc true :not-found))]))
 
-(def route-data
+(def ^:private route-data
   (atom []))
 
-(def routes (atom (compile-routes @route-data)))
+(def ^:private routes (atom (compile-routes @route-data)))
 
 (defn define-route! [name {:keys [component] :as attrs}]
   (swap! route-data conj (assoc attrs :route name))
@@ -112,7 +112,7 @@
       (keyword? name) (apply i18n name route-params)
       (fn? name) (name route-params)
       (vector? name) @(rf/subscribe name)
-      :else (log/warn "A route returns a name that is not a string, keyword or function" kw name))))
+      :else (log/warn "A route returns a name that is not a string, keyword, function or vector" kw name))))
 
 (rf/reg-fx
  :go-to
