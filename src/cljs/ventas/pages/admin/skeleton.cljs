@@ -7,6 +7,7 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.utils.ui :as utils.ui]
+   [ventas.ws :as ws]
    [ventas.components.notificator :as ventas.notificator]
    [ventas.components.popup :as ventas.popup]))
 
@@ -87,6 +88,9 @@
        [:a {:href (routes/path-for :frontend)}
         [base/icon {:name "home"}]
         [:span (i18n ::home)]]]
+      [base/loader {:active (seq @(rf/subscribe [::events/db [::ws/pending-requests]]))
+                    :inverted true
+                    :size "small"}]
       (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
         [:div.admin__userbar-profile
          [base/dropdown {:text (:first-name identity)
