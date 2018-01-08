@@ -5,7 +5,8 @@
    [ventas.server.pagination :as pagination]
    [ventas.database :as db]
    [ventas.plugin :as plugin]
-   [ventas.entities.image-size :as entities.image-size]))
+   [ventas.entities.image-size :as entities.image-size]
+   [ventas.common.utils :as common.utils]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -75,12 +76,7 @@
 (register-admin-endpoint!
   :admin.users.save
   (fn [{:keys [params]} state]
-    (entity/upsert
-      :user
-      (-> params
-          (update :culture (fn [v]
-                             (when v
-                               [:i18n.culture/keyword v])))))))
+    (entity/upsert :user params)))
 
 (register-admin-endpoint!
   :admin.image-sizes.list
@@ -106,6 +102,12 @@
  (fn [{{:keys [id]} :params} _]
    {:pre [(number? id)]}
    (entity/find-json id)))
+
+(register-admin-endpoint!
+ :admin.entities.pull
+ (fn [{{:keys [id]} :params} _]
+   {:pre [(number? id)]}
+   (db/pull '[*] id)))
 
 (register-admin-endpoint!
   :admin.events.list
@@ -136,9 +138,10 @@
 (register-admin-endpoint!
  :admin.products.save
  (fn [{:keys [params]} _]
-   (entity/upsert* (if (get-in params [:product/price :amount/value])
-                     (update-in params [:product/price :amount/value] bigdec)
-                     params))))
+   (entity/upsert* (-> params
+                       (common.utils/update-in-when-some
+                        [:product/price :amount/value]
+                        bigdec)))))
 
 (register-admin-endpoint!
  :admin.product.terms.list

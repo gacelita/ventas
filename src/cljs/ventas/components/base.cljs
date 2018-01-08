@@ -1,7 +1,8 @@
 (ns ventas.components.base
   (:require
    [reagent.core :as reagent]
-   [soda-ash.core :as sa])
+   [soda-ash.core :as sa]
+   [ventas.common.utils :as common.utils])
   (:refer-clojure :exclude [list comment]))
 
 (def accordion sa/Accordion)
@@ -37,21 +38,20 @@
 (def dimmer-dimmable sa/DimmerDimmable)
 (def divider sa/Divider)
 
-(defn- update-when-some [m k f]
-  (if (get m k)
-    (update m k f)
-    m))
-
 (defn dropdown [options & [child]]
   [sa/Dropdown
    (-> options
-       (update-when-some :default-value (fn [v]
-                                          (if (coll? v)
-                                            (map str v)
-                                            (str v))))
-       (update-when-some :options (fn [options]
-                                    (map #(update % :value str)
-                                         options))))
+       (common.utils/update-when-some
+        :default-value
+        (fn [v]
+          (if (coll? v)
+            (map str v)
+            (str v))))
+       (common.utils/update-when-some
+        :options
+        (fn [options]
+          (map #(update % :value str)
+               options))))
    child])
 
 (def dropdown-divider sa/DropdownDivider)

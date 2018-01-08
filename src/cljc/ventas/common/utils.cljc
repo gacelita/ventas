@@ -65,6 +65,16 @@
         (fn [term]
           (->> term (map #(dissoc % kw)))))))
 
+(defn update-when-some [m k f]
+  (if (get m k)
+    (update m k f)
+    m))
+
+(defn update-in-when-some [m ks f]
+  (if (get-in m ks)
+    (update-in m ks f)
+    m))
+
 (defn read-keyword [str]
   (keyword (str/replace str #"\:" "")))
 
