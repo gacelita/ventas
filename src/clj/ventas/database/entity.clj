@@ -321,11 +321,13 @@
         enum-idents (map :db/ident enum-attrs)]
     (mapcat (fn [{:keys [ident new-val]}]
               (let [diff (set/difference (set (get entity ident))
-                                         (set new-val))]
+                                         new-val)]
                 (map (fn [val-to-retract]
                        [:db/retract (:db/id new-values) ident val-to-retract])
                      diff)))
-            (map #(hash-map :ident % :new-val (get new-values %))
+            (map #(hash-map :ident % :new-val (->> (get new-values %)
+                                                   (map db/normalize-ref)
+                                                   (set)))
                  enum-idents))))
 
 (defn update*

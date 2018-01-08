@@ -46,7 +46,7 @@
 (defn pull
   "pull wrapper"
   [& args]
-  (apply d/pull (concat [(d/db db)] args)))
+  (apply d/pull (d/db db) args))
 
 (defn transact
   "transact wrapper"
@@ -120,6 +120,12 @@
   "tempid wrapper"
   []
   (d/tempid :db.part/user))
+
+(defn normalize-ref [ref]
+  (cond
+    (vector? ref) (:db/id (entity ref))
+    (:db/id ref) (:db/id ref)
+    :default ref))
 
 (defn datom->map
   [^datomic.Datom datom]
