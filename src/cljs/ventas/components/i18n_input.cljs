@@ -14,58 +14,45 @@
 
 (defn- to-i18n-entity [data]
   {:schema/type :schema.type/i18n
-   :i18n/translations (for [[culture-kw text] data]
-                        [{:schema/type :schema.type/i18n.translation
-                          :i18n.translation/value text
-                          :i18n.translation/culture [:i18n.culture/keyword culture-kw]}])})
+   :i18n/translations (for [[culture text] data]
+                        {:schema/type :schema.type/i18n.translation
+                         :i18n.translation/value text
+                         :i18n.translation/culture {:db/id culture}})})
 
-(rf/reg-event-fx
- ::on-change
- (fn [{:keys [db]} [_ {:keys [culture translation callback id]}]]
-   (let [data (get-in db [state-key id :data])
-         new-data (assoc data culture translation)]
-     (callback (to-i18n-entity new-data))
-     {:db (assoc-in db [state-key id :data] new-data)})))
+(defn- on-change-handler [{:keys [translations callback id]}]
+  (callback (to-i18n-entity translations)))
 
-(defn- culture-view [{:keys [translation culture id label on-change control]}]
+(defn- culture-view [{:keys [translations culture id label on-change control]}]
   [base/form-input {:label label}
    [:div.i18n-input__culture
-    [:span (name culture)]]
+    (let [culture-data (->> @(rf/subscribe [::events/db :cultures])
+                              (filter #(= (:value %) culture))
+                              first)]
+      [:span (when culture-data (name (:keyword culture-data)))])]
    [(or control :input)
-    {:default-value translation
-     :on-change #(rf/dispatch [::on-change
-                               {:id id
-                                :culture culture
-                                :translation (-> % .-target .-value)
-                                :callback on-change}])}]])
+    {:default-value (get translations culture)
+     :on-change #(on-change (-> translations
+                                (assoc culture (-> % .-target .-value))
+                                (to-i18n-entity)))}]])
 
-(rf/reg-event-fx
- ::init
- (fn [_ [_ id entity]]
-   {:dispatch [::backend/admin.entities.find-json
-               {:params {:id entity}
-                :success [::init.next id]}]}))
+(defn- translation-map [{:i18n/keys [translations]}]
+  (->> translations
+       (map (fn [{:i18n.translation/keys [value culture]}]
+              [(:db/id culture) value]))
+       (into {})))
 
-(rf/reg-event-db
- ::init.next
- (fn [db [_ id data]]
-   (assoc-in db [state-key id :value] (-> data
-                                          (dissoc :db/id)))))
-
-(defn- input* [{:keys [label entity on-change culture control]}]
+(defn input [_]
   (let [id (gensym)]
-    (when entity
-      (rf/dispatch [::init id entity]))
-    (fn []
-      (let [{:keys [focused? value]} @(rf/subscribe [::events/db [state-key id]])
-            cultures (map :value @(rf/subscribe [::events/db :cultures]))]
-        [:div.i18n-input {:key (boolean value)
-                          :class (when focused? "i18n-input--focused")
+    (fn [{:keys [label entity on-change culture control]}]
+      (let [{:keys [focused?]} @(rf/subscribe [::events/db [state-key id]])
+            cultures (map :value @(rf/subscribe [::events/db :cultures]))
+            translations (translation-map entity)]
+        [:div.i18n-input {:class (when focused? "i18n-input--focused")
                           :on-focus #(rf/dispatch [::set-focus id true])
                           :on-blur #(rf/dispatch [::set-focus id false])}
          [culture-view {:culture culture
                         :control control
-                        :translation (get value culture)
+                        :translations translations
                         :id id
                         :on-change on-change
                         :label label}]
@@ -73,11 +60,7 @@
           (for [culture (rest cultures)]
             [culture-view {:culture culture
                            :control control
-                           :translation (get value culture)
+                           :translations translations
                            :id id
                            :on-change on-change
                            :key culture}])]]))))
-
-(defn input [{:keys [entity] :as args}]
-  [input*
-   (assoc args :key (boolean entity))])

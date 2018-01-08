@@ -59,13 +59,11 @@
                    :size "large"
                    :src url}]]]))
 
-(defn image [eid]
-  (rf/dispatch [::events/entities.sync eid])
-  (fn [eid]
-    (let [{:keys [id url]} @(rf/subscribe [::events/db [:entities eid]])]
-      [base/image {:src (str "/images/" id "/resize/admin-products-edit")
-                   :size "small"
-                   :on-click #(rf/dispatch [::image-modal.open url])}])))
+(defn image-view [{:product.image/keys [file]}]
+  (let [{:db/keys [id]} file]
+    [base/image {:src (str "/images/" id "/resize/admin-products-edit")
+                 :size "small"
+                 :on-click #(rf/dispatch [::image-modal.open id])}]))
 
 (rf/reg-event-db
  ::set-field
@@ -84,9 +82,23 @@
      (update-in db (concat [state-key :product] field) update-fn))))
 
 (rf/reg-event-fx
+ ::upload
+ (fn [cofx [_ file]]
+   {:dispatch [::events/upload
+               {:success ::upload.next
+                :file file}]}))
+
+(rf/reg-event-fx
  ::upload.next
- (fn [db [_ image]]
-   {:dispatch [::update-field :images #(conj (vec %) (:db/id image))]}))
+ (fn [db [_ {:db/keys [id]}]]
+   (let [image {:schema/type :schema.type/product.image
+                :product.image/file {:db/id id}}]
+     {:dispatch [::update-field
+                 :product/images
+                 (fn [images]
+                   (->> (conj (vec images) image)
+                        (map-indexed (fn [idx itm]
+                                       (assoc itm :product.image/position idx)))))]})))
 
 (defn- image-placeholder []
   (let [ref (atom nil)]
@@ -96,21 +108,27 @@
        [base/icon {:name "plus"}]
        [:input {:type "file"
                 :ref #(reset! ref %)
-                :on-change (fn [e]
-                             (rf/dispatch [::events/upload
-                                           {:success #(rf/dispatch [::upload.next %])
-                                            :file (-> (-> e .-target .-files)
-                                                      js/Array.from
-                                                      first)}]))}]])))
+                :on-change #(rf/dispatch [::upload (-> (-> % .-target .-files)
+                                                       js/Array.from
+                                                       first)])}]])))
+
+(rf/reg-event-db
+ ::set-product
+ (fn [db [_ product]]
+   (-> db
+       (assoc-in [state-key :product] product)
+       (assoc-in [state-key :product-hash] (hash product)))))
 
 (defn product-form []
-  (rf/dispatch [::backend/admin.entities.find
-                {:params {:id (-> (routes/current)
-                                  (get-in [:route-params :id])
-                                  (js/parseInt))}
-                 :success (fn [entity-data]
-                            (rf/dispatch [::events/db [state-key :product] entity-data])
-                            (rf/dispatch [::events/db [state-key :product-hash] (hash entity-data)]))}])
+  (let [id (-> (routes/current)
+               (get-in [:route-params :id])
+               (js/parseInt))]
+    (if-not (pos? id)
+      (rf/dispatch [::set-product {:schema/type :schema.type/product}])
+      (rf/dispatch [::backend/admin.entities.pull
+                    {:params {:id id}
+                     :success ::set-product}])))
+
   (rf/dispatch [::backend/admin.product.terms.list
                 {:success [::events/db [state-key :product.terms]]}])
   (fn []
@@ -119,6 +137,7 @@
           {{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
       ^{:key form-hash}
       [:div
+       (js/console.log "form-hash: " form-hash)
        [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit product]))}
 
         (log/debug "Current product:" product)
@@ -138,7 +157,7 @@
             [base/checkbox
              {:toggle true
               :checked (get product field)
-              :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}]])
+              :on-change #(rf/dispatch [::set-field field (.-checked %2)])}]])
          (let [field :product/reference]
            [base/form-input
             {:label (i18n ::reference)
@@ -169,8 +188,8 @@
               :selection true
               :options (map (fn [v] {:text (:name v) :value (:id v)})
                             @(rf/subscribe [::events/db [:admin :taxes]]))
-              :default-value (get product field)
-              :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
+              :default-value (get-in product [field :db/id])
+              :on-change #(rf/dispatch [::set-field [field :db/id] (.-value %2)])}]])]
 
         [base/divider {:hidden true}]
 
@@ -197,7 +216,9 @@
               :options (map (fn [v] {:text v :value v})
                             (get product field))
               :selection true
-              :default-value (or (get product field) #{})
+              :default-value (->> (get product field)
+                                  (map :db/id)
+                                  (set))
               :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])
 
          (let [field :product/brand]
@@ -208,8 +229,8 @@
               :selection true
               :options (map (fn [v] {:text (:name v) :value (:id v)})
                             @(rf/subscribe [::events/db [:admin :brands]]))
-              :default-value (get product field)
-              :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
+              :default-value (get-in product [field :db/id])
+              :on-change #(rf/dispatch [::set-field [field :db/id] (.-value %2)])}]])]
 
         [base/divider {:hidden true}]
 
@@ -219,8 +240,8 @@
          (let [field :product/images]
            [base/form-field {:class "admin-products-edit__images"}
             [base/image-group
-             (for [eid (get product field)]
-               ^{:key eid} [image eid])
+             (for [{:db/keys [id] :as image} (get product field)]
+               ^{:key id} [image-view image])
              [image-placeholder]]])]
 
         [base/segment {:color "orange"
@@ -238,8 +259,12 @@
                                     :value (:id v)}))
                             (sort-by :text))
               :selection true
-              :default-value (get product field)
-              :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])
+              :default-value (->> (get product field)
+                                  (map :db/id)
+                                  (set))
+              :on-change #(rf/dispatch [::set-field field (->> (.-value %2)
+                                                               (map js/parseInt)
+                                                               (set))])}]])
          (let [field :product/terms]
            [base/form-field
             [:label (i18n ::terms)]
@@ -253,8 +278,12 @@
                                     :value (:id v)}))
                             (sort-by :text))
               :selection true
-              :default-value (get product field)
-              :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])]
+              :default-value (->> (get product field)
+                                  (map :db/id)
+                                  (set))
+              :on-change #(rf/dispatch [::set-field field (->> (.-value %2)
+                                                               (map js/parseInt)
+                                                               (set))])}]])]
 
         [base/divider {:hidden true}]
 

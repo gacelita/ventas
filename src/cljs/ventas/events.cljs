@@ -100,7 +100,8 @@
     (->> cultures
          (map (fn [culture]
                 {:text (:name culture)
-                 :value (:keyword culture)}))
+                 :value (:id culture)
+                 :keyword (:keyword culture)}))
          (assoc db :cultures))))
 
 (rf/reg-event-fx
