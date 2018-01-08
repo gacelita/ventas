@@ -137,7 +137,6 @@
           {{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
       ^{:key form-hash}
       [:div
-       (js/console.log "form-hash: " form-hash)
        [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit product]))}
 
         (log/debug "Current product:" product)
