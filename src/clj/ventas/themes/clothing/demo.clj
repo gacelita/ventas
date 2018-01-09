@@ -503,7 +503,8 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 19M
                          :amount/currency [:currency/keyword :eur]}
-         :product/name (entities.i18n/get-i18n-entity {:en_US "Test product (dark green and large variation)"})}]))
+         :product/name (entities.i18n/get-i18n-entity
+                        {:en_US "Test product (dark green and large variation)"})}]))
 
 (defn users []
   (map #(assoc % :schema/type :schema.type/user)
@@ -516,6 +517,24 @@
          :user/phone "+34 654 543 431"
          :user/roles #{:user.role/administrator}
          :user/favorites [[:product/keyword :test-product]]
+         :user/culture [:i18n.culture/keyword :en_US]}
+
+        {:user/first-name "Paul"
+         :user/last-name "Becker"
+         :user/company "Important Company Inc."
+         :user/email "paul@gmail.com"
+         :user/status :user.status/active
+         :user/password "paulbecker"
+         :user/phone "666 555 444"
+         :user/culture [:i18n.culture/keyword :es_ES]}
+
+        {:user/first-name "Bob"
+         :user/last-name "Smith"
+         :user/company "Bad Company Inc."
+         :user/email "bobsmith@gmail.com"
+         :user/status :user.status/active
+         :user/password "bobsmith"
+         :user/phone "4444 33 222 333"
          :user/culture [:i18n.culture/keyword :en_US]}]))
 
 (defn addresses []
