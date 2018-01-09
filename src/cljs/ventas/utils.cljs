@@ -1,7 +1,6 @@
 (ns ventas.utils
   "Random utilities"
   (:require
-   [bidi.bidi :as bidi]
    [reagent.session :as session]
    [re-frame.core :as rf]
    [ventas.routes :as routes]

@@ -2,10 +2,8 @@
   (:require
     [reagent.core :as reagent :refer [atom]]
     [re-frame.core :as rf]
-    [bidi.bidi :as bidi]
     [day8.re-frame.forward-events-fx]
     [re-frame-datatable.core :as dt]
-    [re-frame-datatable.views :as dt.views]
     [ventas.page :refer [pages]]
     [ventas.utils :as utils]
     [ventas.utils.ui :as utils.ui]
