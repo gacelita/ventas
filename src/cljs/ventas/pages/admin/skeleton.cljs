@@ -12,27 +12,47 @@
    [ventas.components.popup :as ventas.popup]))
 
 (def configuration-items
-  [{:route :admin.configuration.image-sizes :label ::image-sizes}])
+  [{:route :admin.configuration.image-sizes
+    :label ::image-sizes}])
 
 (def menu-items
-  [{:route :admin.users :label ::users}
-   {:route :admin.products :label ::products}
-   {:route :admin.orders :label ::orders}
-   {:route :admin.plugins :label ::plugins}
-   {:route :admin.taxes :label ::taxes}
-   {:route :admin.activity-log :label ::activity-log}
+  [{:route :admin.products
+    :label ::products
+    :icon "tag"}
+   {:route :admin.orders
+    :label ::orders
+    :icon "unordered list"}
+   {:route :admin.users
+    :label ::users
+    :icon "user"}
+   {:route :admin.plugins
+    :label ::plugins
+    :icon "plug"}
+   {:route :admin.taxes
+    :label ::taxes
+    :icon "percent"}
+   {:divider true}
+   {:route :admin.activity-log
+    :label ::activity-log
+    :icon "time"}
    {:route :admin.configuration.image-sizes
     :label ::configuration
+    :icon "configure"
     :children configuration-items}])
 
-(defn- menu-item [{:keys [route label children]}]
+(defn- menu-item [{:keys [route label icon children] :as item}]
   [:li
-   [:a {:href (routes/path-for route)}
-    (i18n label)]
-   (when children
-     [:ul
-      (for [child children]
-        ^{:key (hash child)} [menu-item child])])])
+   (if (:divider item)
+     [base/divider]
+     (list
+      [:a {:href (routes/path-for route)}
+       (when icon
+         [base/icon {:name icon}])
+       (i18n label)]
+      (when children
+        [:ul
+         (for [child children]
+           ^{:key (hash child)} [menu-item child])])))])
 
 (defn- menu []
   [:ul
