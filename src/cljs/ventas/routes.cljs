@@ -2,7 +2,6 @@
   "Bidi wrapper and route utilities"
   (:require
    [clojure.string :as str]
-   [bidi.bidi :as bidi]
    [ventas.utils.logging :refer [error]]
    [accountant.core :as accountant]
    [ventas.page :as page]
@@ -10,7 +9,8 @@
    [re-frame.core :as rf]
    [reagent.ratom :as ratom]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.logging :as log]))
+   [ventas.utils.logging :as log]
+   [bidi.bidi :as bidi]))
 
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
