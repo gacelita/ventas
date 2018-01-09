@@ -15,14 +15,13 @@
 - Routing using slugs for products, categories and terms
 
 ## Backoffice
-
-- Products list and edition
 - Orders list and edition
 - Customers list and edition
+- Product variations list and edition
+- Improve the activity log
 
 ## Backend
-
 - Email management
 - Shipping and stock management
-- Activity log
 - Data import and export
+- Dynamic plugin and theme system
