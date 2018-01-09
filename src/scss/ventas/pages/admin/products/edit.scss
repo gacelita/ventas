@@ -1,7 +1,25 @@
 
+.admin-products-edit__image {
+    display: inline-block;
+    position: relative;
+
+    img.ui.image {
+        margin: 0;
+    }
+
+    .ui.icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+}
+
 .admin-products-edit__images {
     .ui.small.image {
         height: 150px;
+    }
+    .draggable-list__item {
+        display: inline-block;
     }
 }
 

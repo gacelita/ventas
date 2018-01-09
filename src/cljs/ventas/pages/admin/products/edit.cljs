@@ -9,6 +9,7 @@
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
    [ventas.components.amount-input :as amount-input]
+   [ventas.components.draggable-list :as draggable-list]
    [ventas.page :refer [pages]]
    [ventas.routes :as routes]
    [ventas.utils.ui :as utils.ui]
@@ -59,11 +60,37 @@
                    :size "large"
                    :src url}]]]))
 
+(rf/reg-event-db
+ ::remove-image
+ (fn [db [_ file-id]]
+   (update-in db
+              [state-key :product :product/images]
+              (fn [images]
+                (remove #(= file-id (get-in % [:product.image/file :db/id]))
+                        images)))))
+
 (defn image-view [{:product.image/keys [file]}]
   (let [{:db/keys [id]} file]
-    [base/image {:src (str "/images/" id "/resize/admin-products-edit")
-                 :size "small"
-                 :on-click #(rf/dispatch [::image-modal.open id])}]))
+    [:div.admin-products-edit__image
+     [base/image {:src (str "/images/" id "/resize/admin-products-edit")
+                  :size "small"
+                  :on-click (utils.ui/with-handler
+                             #(rf/dispatch [::image-modal.open id]))}]
+     [base/button {:icon true
+                   :size "mini"
+                   :on-click (utils.ui/with-handler
+                              #(rf/dispatch [::remove-image id]))}
+      [base/icon {:name "remove"}]]]))
+
+(defmulti set-field-filter (fn [field _] field))
+
+(defmethod set-field-filter :product/images [_ value]
+  (->> value
+       (map-indexed (fn [idx itm]
+                      (assoc itm :product.image/position idx)))))
+
+(defmethod set-field-filter :default [_ value]
+  value)
 
 (rf/reg-event-db
  ::set-field
@@ -71,15 +98,18 @@
    (let [field (if-not (sequential? field)
                  [field]
                  field)]
-     (assoc-in db (concat [state-key :product] field) value))))
+     (assoc-in db
+               (concat [state-key :product] field)
+               (set-field-filter field value)))))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::update-field
- (fn [db [_ field update-fn]]
+ (fn [{:keys [db]} [_ field update-fn]]
    (let [field (if-not (sequential? field)
                  [field]
-                 field)]
-     (update-in db (concat [state-key :product] field) update-fn))))
+                 field)
+         new-value (update-fn (get-in db (concat [state-key :product] field)))]
+     {:dispatch [::set-field field new-value]})))
 
 (rf/reg-event-fx
  ::upload
@@ -95,10 +125,7 @@
                 :product.image/file {:db/id id}}]
      {:dispatch [::update-field
                  :product/images
-                 (fn [images]
-                   (->> (conj (vec images) image)
-                        (map-indexed (fn [idx itm]
-                                       (assoc itm :product.image/position idx)))))]})))
+                 #(conj (vec %) image)]})))
 
 (defn- image-placeholder []
   (let [ref (atom nil)]
@@ -239,9 +266,15 @@
          (let [field :product/images]
            [base/form-field {:class "admin-products-edit__images"}
             [base/image-group
-             (for [{:db/keys [id] :as image} (get product field)]
-               ^{:key id} [image-view image])
-             [image-placeholder]]])]
+             (let [s (reagent/atom {})]
+               [:div
+                [draggable-list/main-view
+                 {:on-reorder (fn [items]
+                                (let [images (map second items)]
+                                  (rf/dispatch [::set-field field images])))}
+                 (for [{:db/keys [id] :as image} (get product field)]
+                   ^{:key id} [image-view image])]
+                [image-placeholder]])]])]
 
         [base/segment {:color "orange"
                        :title "Terms"}
