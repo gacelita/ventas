@@ -1,3 +1,4 @@
 language: clojure
+script: "./travis/test.sh"
 jdk:
   - oraclejdk8
