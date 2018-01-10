@@ -1,4 +1,4 @@
 language: clojure
-script: "./travis/test.sh"
+script: "./.travis/test.sh"
 jdk:
   - oraclejdk8
