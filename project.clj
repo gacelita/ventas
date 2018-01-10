@@ -10,7 +10,13 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :repositories {"my.datomic.com"
-                 {:url "https://my.datomic.com/repo"}}
+                 ~(merge
+                    {:url "https://my.datomic.com/repo"}
+                    (let [username (System/getenv "DATOMIC__USERNAME")
+                          password (System/getenv "DATOMIC__PASSWORD")]
+                      (when (and username password)
+                        {:username username
+                         :password password})))}
 
   :dependencies [
                  ;; Clojure
