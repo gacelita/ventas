@@ -1,7 +1,7 @@
 (ns ventas.payment-method
   "The API for registering payment methods.
    Payment methods are responsible for:
-     - Transforming an :order entity into the form they need
+     - Transforming an :order entity into the shape they need
      - Making the HTTP requests they need and handling them correctly
      - Updating the :order with the resulting :payment-reference and :payment-amount
      - Changing the status of the :order from :unpaid to :paid if nothing went wrong

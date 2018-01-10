@@ -4,6 +4,12 @@
     padding-top: 35px;
 }
 
+.admin__menu-item {
+    &--active {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
 .admin__sidebar {
     min-height: calc(100vh - 35px);
     min-width: 160px;
@@ -40,6 +46,7 @@
                 left: 100%;
                 width: auto;
                 background-color: #696969;
+                z-index: 1;
 
                 &:before {
                     display: block;
@@ -171,3 +178,4 @@
 @import "./admin/products";
 @import "./admin/taxes";
 @import "./admin/activity-log";
+@import "./admin/dashboard";

@@ -16,32 +16,48 @@
     :label ::image-sizes}])
 
 (def menu-items
-  [{:route :admin.products
+  [{:route :admin.dashboard
+    :label ::dashboard
+    :icon "home"}
+
+   {:route :admin.products
     :label ::products
     :icon "tag"}
+
    {:route :admin.orders
     :label ::orders
     :icon "unordered list"}
+
    {:route :admin.users
     :label ::users
     :icon "user"}
+
    {:route :admin.plugins
     :label ::plugins
     :icon "plug"}
+
    {:route :admin.taxes
     :label ::taxes
     :icon "percent"}
+
+   {:route :admin.payment-methods
+    :label ::payment-methods
+    :icon "payment"}
+
    {:divider true}
+
    {:route :admin.activity-log
     :label ::activity-log
     :icon "time"}
+
    {:route :admin.configuration.image-sizes
     :label ::configuration
     :icon "configure"
     :children configuration-items}])
 
 (defn- menu-item [{:keys [route label icon children] :as item}]
-  [:li
+  [:li.admin__menu-item (when (= (:current-page (routes/current)) route)
+                          {:class "admin__menu-item--active"})
    (if (:divider item)
      [base/divider]
      (list

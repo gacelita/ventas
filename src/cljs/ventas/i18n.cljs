@@ -71,6 +71,7 @@
     :ventas.pages.admin.products.edit/tax "Tax"
 
     :ventas.pages.admin.skeleton/email "Email"
+    :ventas.pages.admin.skeleton/dashboard "Dashboard"
     :ventas.pages.admin.skeleton/home "The store"
     :ventas.pages.admin.skeleton/password "Password"
     :ventas.pages.admin.skeleton/login "Login"
@@ -85,6 +86,7 @@
     :ventas.pages.admin.skeleton/users "Users"
     :ventas.pages.admin.skeleton/taxes "Taxes"
     :ventas.pages.admin.skeleton/orders "Orders"
+    :ventas.pages.admin.skeleton/payment-methods "Billing"
 
     :ventas.pages.admin.taxes/name "Name"
     :ventas.pages.admin.taxes/amount "Amount"
