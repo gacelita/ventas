@@ -15,6 +15,7 @@ pom.xml.asc
 /*.iml
 /.idea
 /*.sublime-*
+/node_modules
 
 /profiles.clj
 /datomic/config/transactor.properties
