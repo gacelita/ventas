@@ -22,6 +22,9 @@ pom.xml.asc
 /datomic/.credentials
 .env
 
+/.travis/deploy_rsa.pub
+/.travis/deploy_rsa
+
 /resources/public/files/js/compiled/**
 /resources/public/files/css
 /resources/public/files/lib
