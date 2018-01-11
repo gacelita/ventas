@@ -1,5 +1,7 @@
 # ventas
 
+[![Build Status](https://travis-ci.org/JoelSanchez/ventas.svg?branch=master)](https://travis-ci.org/JoelSanchez/ventas)
+
 ventas wants to be an ecommerce platform written entirely in Clojure.
 
 For now, the project is a WIP. Although the foundation is good, there aren't many features yet (and no tests whatsoever).
