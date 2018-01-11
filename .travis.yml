@@ -1,4 +1,7 @@
 language: clojure
 script: "./.travis/test.sh"
+sudo: required
+addons:
+  chrome: stable
 jdk:
   - oraclejdk8
