@@ -10,7 +10,7 @@
   (is (= (sut/entity? {:type :any-kw}) false)))
 
 (def test-user-attrs
-  {:name "Test user"
+  {:first-name "Test user"
    :password ""
    :email "email@email.com"
    :status :user.status/active})
@@ -21,7 +21,7 @@
                (dissoc :db/id)
                (dissoc :user/password))
            {:schema/type :schema.type/user
-            :user/name "Test user"
+            :user/first-name "Test user"
             :user/email "email@email.com"
             :user/status :user.status/active}))
     (sut/delete (:db/id user))))
