@@ -2,7 +2,9 @@
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
    [ventas.database.entity :as sut]
-   [ventas.database.seed :as seed]))
+   [ventas.database :as db]
+   [ventas.database.seed :as seed]
+   [ventas.test-tools :as test-tools]))
 
 (deftest entity?
   (is (= (sut/entity? {:schema/type :any-kw}) true))
@@ -16,15 +18,16 @@
    :status :user.status/active})
 
 (deftest entity-create
-  (let [user (sut/create :user test-user-attrs)]
-    (is (= (-> user
-               (dissoc :db/id)
-               (dissoc :user/password))
-           {:schema/type :schema.type/user
-            :user/first-name "Test user"
-            :user/email "email@email.com"
-            :user/status :user.status/active}))
-    (sut/delete (:db/id user))))
+  (with-redefs [db/db (test-tools/test-conn)]
+    (let [user (sut/create :user test-user-attrs)]
+      (is (= (-> user
+                 (dissoc :db/id)
+                 (dissoc :user/password))
+             {:schema/type :schema.type/user
+              :user/first-name "Test user"
+              :user/email "email@email.com"
+              :user/status :user.status/active}))
+      (sut/delete (:db/id user)))))
 
 (deftest register-type!
   (with-redefs [sut/registered-types (atom {})]
@@ -35,11 +38,13 @@
           (= @sut/registered-types {:new-type test-fns})))))
 
 (deftest entities-remove
-  (let [{id :db/id} (sut/create :user test-user-attrs)]
-    (sut/delete id)
-    (is (= nil (sut/find id)))))
+  (with-redefs [db/db (test-tools/test-conn)]
+    (let [{id :db/id} (sut/create :user test-user-attrs)]
+      (sut/delete id)
+      (is (= nil (sut/find id))))))
 
 (deftest entities-find
-  (let [{id :db/id :as user} (sut/create :user test-user-attrs)]
-    (is (= user (sut/find id)))
-    (sut/delete id)))
+  (with-redefs [db/db (test-tools/test-conn)]
+    (let [{id :db/id :as user} (sut/create :user test-user-attrs)]
+      (is (= user (sut/find id)))
+      (sut/delete id))))

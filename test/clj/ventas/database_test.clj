@@ -1,10 +1,11 @@
 (ns ventas.database-test
   (:require
    [clojure.test :refer [deftest testing is]]
+   [ventas.core]
    [ventas.database :as sut]
    [ventas.database.entity :as entity]
-   [ventas.test-tools :as test-tools]
-   [ventas.database.seed :as seed]))
+   [ventas.database.seed :as seed]
+   [ventas.test-tools :as test-tools]))
 
 (deftest nice-query
   (let [c (test-tools/test-conn)]
