@@ -5,7 +5,7 @@ cd ventas
 echo "Pulling from github"
 git pull
 echo "Building Docker images"
-./build.sh
+bash -e build.sh
 echo "Restarting service"
 systemctl --user restart ventas
 echo "Done"
