@@ -18,7 +18,7 @@
             {:a {:b {:c 2 :d {:z 9} :z 3} :e 100}})
            {:a {:b {:z 3, :c 2, :d {:z 9, :x 1, :y 2}}, :e 100}, :f 4}))))
 
-(def example-input-message {:user {:roles [#'sut/set-identifier ":user.role/administrator" ":user.role/user"]}})
+(def example-input-message {":user" {":roles" ["__set" ":user.role/administrator" ":user.role/user"]}})
 
 (def example-output-message {:user {:roles #{:user.role/administrator :user.role/user}}})
 
