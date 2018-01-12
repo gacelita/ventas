@@ -32,7 +32,7 @@
   `(do (~'use '[cemerick.pomegranate :only (~'add-dependencies)])
        (~'add-dependencies :coordinates '[~dependency]
         :repositories (~'merge cemerick.pomegranate.aether/maven-central
-                       {"clojars" "http://clojars.org/repo"}))))
+                       {"clojars" "https://clojars.org/repo"}))))
 
 ;; Lifecycle
 (defn init []
