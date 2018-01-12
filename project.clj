@@ -125,6 +125,8 @@
 
                  [binaryage/devtools "0.9.8"]
 
+                 [cc.qbits/spandex "0.5.5"]
+
                  ; Error reporting for Ring
                  [prone "1.1.4"]
                  [devcards "0.2.4" :exclusions [cljsjs/react]]]
@@ -149,7 +151,10 @@
 
   :main ventas.core
 
-  :repl-options {:init-ns user :port 4001 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+  :repl-options {:init-ns user
+                 :port 4001
+                 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+                 :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
