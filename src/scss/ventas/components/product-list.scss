@@ -1,15 +1,22 @@
 
 .product-list {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
     margin: 30px 0px 40px;
+
+    .ui.grid {
+        margin: 0px;
+    }
+
+    .column {
+        text-align: center;
+        padding: 6px !important;
+    }
 }
+
 .product-list__product {
-    width: calc(25% - 12px);
-    margin: 6px;
-    position: relative;
     color: black;
+    display: inline-block;
+    max-width: 350px;
+    width: 100%;
 
     img {
         width: 100%;
