@@ -13,6 +13,7 @@
    'ws 'ventas.server.ws
    'api 'ventas.server.api
    'db 'ventas.database
+   'search 'ventas.search
    'schema 'ventas.database.schema
    'seed 'ventas.database.seed
    'entity 'ventas.database.entity
@@ -56,6 +57,7 @@
   (get {:figwheel 'client/figwheel
         :sass 'client/sass
         :db 'ventas.database/db
+        :indexer 'ventas.search/indexer
         :server 'ventas.server/server}
        kw))
 

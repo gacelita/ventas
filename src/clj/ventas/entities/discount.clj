@@ -106,6 +106,7 @@
    {:db/ident :discount.action.amount.kind/amount}]
 
   :autoresolve? true
+  :component? true
 
   :dependencies
   #{:product :amount}})

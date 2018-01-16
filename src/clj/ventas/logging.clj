@@ -47,7 +47,7 @@
 (timbre/merge-config!
  {:level :debug
   :output-fn timbre-logger
-  :ns-blacklist ["datomic.*" "io.netty.*"]
+  :ns-blacklist ["datomic.*" "io.netty.*" "org.apache.http.*"]
   :appenders {:println {:enabled? false}
               :pprint-appender {:enabled?   true
                                 :async?     false

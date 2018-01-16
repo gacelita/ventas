@@ -44,7 +44,8 @@
   :dependencies
   #{:amount :country.group}
 
-  :autoresolve? true})
+  :autoresolve? true
+  :component? true})
 
 
 (spec/def :shipping-method/name ::entities.i18n/ref)

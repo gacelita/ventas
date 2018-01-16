@@ -215,7 +215,7 @@
   #{:file}
 
   :autoresolve? true
-
+  :component? true
   :seed-number 0})
 
 (spec/def :product.variation/parent

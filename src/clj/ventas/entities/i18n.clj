@@ -70,7 +70,9 @@
   :to-json
   (fn [this _]
     [(:i18n.translation/culture this)
-     (:i18n.translation/value this)])})
+     (:i18n.translation/value this)])
+
+  :component? true})
 
 (defn translations-generator-for-culture [culture-id]
   (->> (entity/generate :i18n.translation)
@@ -128,7 +130,8 @@
           (first)
           (first))))
 
-  :autoresolve? true})
+  :autoresolve? true
+  :component? true})
 
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :i18n :new? true)))

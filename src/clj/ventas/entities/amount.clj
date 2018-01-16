@@ -35,4 +35,5 @@
   #{:currency}
 
   :seed-number 0
-  :autoresolve? true})
+  :autoresolve? true
+  :component? true})
