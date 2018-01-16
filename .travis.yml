@@ -3,8 +3,13 @@ language: clojure
 script: "./.travis/test.sh"
 
 sudo: required
+
 addons:
   chrome: stable
+
+cache:
+  directories:
+  - $HOME/.m2
 
 jdk:
 - oraclejdk8
