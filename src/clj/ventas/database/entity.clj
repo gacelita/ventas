@@ -203,6 +203,10 @@
   [type]
   (:autoresolve? (type-properties type)))
 
+(defn component?
+  [type]
+  (:component? (type-properties type)))
+
 (defn dependencies
   [type]
   (or (:dependencies (type-properties type)) #{}))

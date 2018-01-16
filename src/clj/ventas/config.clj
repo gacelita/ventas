@@ -7,6 +7,9 @@
 (def ^:private defaults
   {:server {:port 3450
             :host "localhost"}
+   :elasticsearch {:index "ventas"
+                   :port 9200
+                   :host "127.0.0.1"}
    :debug false
    :cljs-port 3001})
 

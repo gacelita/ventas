@@ -8,17 +8,6 @@ services:
     volumes:
       - datomic:/opt/datomic-pro-0.9.5561/data
 
-  ventas:
-    image: ventas
-    ports:
-        - ${LOCAL_PORT}:${SERVER__PORT}
-    depends_on:
-      - datomic
-    env_file:
-        - .env
-    volumes:
-        - ./storage:/storage
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
     container_name: elasticsearch

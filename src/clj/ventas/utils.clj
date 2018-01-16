@@ -2,7 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
-   [expound.alpha :as expound])
+   [expound.alpha :as expound]
+   [clojure.core.async :as core.async :refer [go-loop go <! >! chan]])
   (:import [java.io File]))
 
 (defn chan? [v]
@@ -79,3 +80,25 @@
     (Long. v)
     (catch Exception e
       nil)))
+
+(defn batch [in out max-time max-count]
+  (let [lim-1 (dec max-count)]
+    (go-loop [buffer []]
+      (let [[message ch] (core.async/alts! [in (core.async/timeout max-time)])]
+        (cond
+          (not= ch in)
+          (do
+            (core.async/>! out buffer)
+            (recur []))
+
+          (nil? message)
+          (when (seq buffer)
+            (core.async/>! out buffer))
+
+          (= (count buffer) lim-1)
+          (do
+            (core.async/>! out (conj buffer message))
+            (recur []))
+
+          :else
+          (recur (conj buffer message)))))))

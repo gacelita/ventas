@@ -6,7 +6,7 @@
    [clojure.tools.logging :as log]
    [clojure.walk :as walk]
    [clojure.pprint :as p]
-   [clojure.core.async :refer [<! >! go go-loop]]
+   [clojure.core.async :refer [chan <! >! go go-loop]]
    [datomic.api :as d]
    [buddy.hashers :as hashers]
    [mount.core :as mount :refer [defstate]]
@@ -105,6 +105,14 @@
   "tx-report-queue wrapper"
   [& args]
   (apply d/tx-report-queue db args))
+
+(defonce ^:private tx-report-queue-ch
+  (chan))
+
+(defn tx-report-queue-async []
+  (go (>! tx-report-queue-ch
+          (.take (tx-report-queue))))
+  tx-report-queue-ch)
 
 (defn resolve-tempid
   "resolve-tempid wrapper"
