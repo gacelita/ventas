@@ -12,10 +12,12 @@
    [ventas.common.utils :as common.utils]
    [ventas.events :as events]))
 
-(def c (spandex/client {:hosts [(str "http://"
-                                     (config/get :elasticsearch :host)
-                                     ":"
-                                     (config/get :elasticsearch :port))]}))
+(defstate elasticsearch
+  :start
+  (spandex/client {:hosts [(str "http://"
+                                (config/get :elasticsearch :host)
+                                ":"
+                                (config/get :elasticsearch :port))]}))
 
 (def batch-size 5)
 
@@ -25,51 +27,55 @@
       (apply str index "/" url)
       index)))
 
+(defn- request [data]
+  (spandex/request elasticsearch data))
+
+(defn- request-async [data]
+  (spandex/request-async elasticsearch data))
+
 (defn create-index [mapping]
   (timbre/debug mapping)
-  (spandex/request c {:url (make-url)
-                      :method :put
-                      :body {:mappings {:doc mapping}}}))
+  (request {:url (make-url)
+            :method :put
+            :body {:mappings {:doc mapping}}}))
 
 (defn remove-index []
-  (spandex/request c {:url (make-url)
-                      :method :delete}))
+  (request {:url (make-url)
+            :method :delete}))
 
 (defn get-index []
-  (spandex/request c {:url (make-url)
-                      :method :get}))
+  (request {:url (make-url)
+            :method :get}))
 
 
 (defn create-document [doc]
-  (spandex/request c {:url (make-url "doc")
-                      :method :post
-                      :body doc}))
+  (request {:url (make-url "doc")
+            :method :post
+            :body doc}))
 
 (defn remove-document [doc]
-  (spandex/request c {:url (make-url "doc")
-                      :method :delete}))
+  (request {:url (make-url "doc")
+            :method :delete}))
 
 (defn get-document [id]
-  (spandex/request c {:url (make-url "doc/" id)}))
+  (request {:url (make-url "doc/" id)}))
 
 (defn index-document [doc & {:keys [channel]}]
   {:pre [(map? doc)]}
   (timbre/debug "Indexing document" doc)
-  (let [f (if-not channel
-            spandex/request
-            spandex/request-async)]
-    (f c (merge {:url (make-url "doc/" (get doc "db/id"))
-                 :method :put
-                 :body (dissoc doc "db/id")}
-                (when channel
-                  {:success (fn [res]
-                              (go (>! channel res)))
-                   :error (fn [ex]
-                            (go (>! channel ex)))})))))
+  (let [f (if-not channel request request-async)]
+    (f (merge {:url (make-url "doc/" (get doc "db/id"))
+               :method :put
+               :body (dissoc doc "db/id")}
+              (when channel
+                {:success (fn [res]
+                            (go (>! channel res)))
+                 :error (fn [ex]
+                          (go (>! channel ex)))})))))
 
 (defn search [q]
-  (spandex/request c {:url (make-url "_search")
-                      :body q}))
+  (request {:url (make-url "_search")
+            :body q}))
 
 (defn- ident->property [ident]
   (str/replace (str (namespace ident) "/" (name ident))
