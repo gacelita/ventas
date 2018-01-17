@@ -323,6 +323,11 @@
     (toggle-favorite session id disj)))
 
 (register-endpoint!
+  :search
+  (fn [{:keys [text] :params} {:keys [session]}]
+    ))
+
+(register-endpoint!
   :upload
   {:binary? true}
   (fn [{:keys [params]} state]

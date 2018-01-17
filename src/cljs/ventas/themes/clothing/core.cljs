@@ -9,6 +9,7 @@
   {:ventas.themes.clothing.components.header/my-cart "My cart"
    :ventas.themes.clothing.components.header/my-account "My account"
    :ventas.themes.clothing.components.header/logout "Logout"
+   :ventas.themes.clothing.components.header/search "Search"
    :ventas.themes.clothing.components.menu/home "Home"
    :ventas.themes.clothing.components.menu/woman "Woman"
    :ventas.themes.clothing.components.menu/man "Man"
