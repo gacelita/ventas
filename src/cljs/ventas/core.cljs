@@ -1,26 +1,25 @@
 (ns ventas.core
   "Try to keep this namespace on a strict diet :)"
   (:require
-   [reagent.core :as reagent]
-   [reagent.session :as session]
+   [accountant.core :as accountant]
+   [cljs.core.async :refer [<!]]
    [re-frame.core :as rf]
    [re-frame.loggers :as rf.loggers]
-   [accountant.core :as accountant]
-   [ventas.utils.logging :refer [debug info]]
-   [cljs.core.async :refer [<!]]
-   [ventas.events.backend :as backend]
-   [ventas.ws :as ws]
-   [ventas.local-storage :as storage]
+   [reagent.core :as reagent]
+   [reagent.session :as session]
+   [ventas.components.base :as base]
    [ventas.devcards.core]
-   [ventas.routes :as routes]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
+   [ventas.local-storage :as storage]
    [ventas.page :as p]
-   [ventas.plugins.core]
    [ventas.pages.admin]
    [ventas.pages.datadmin]
-   [ventas.pages.api]
+   [ventas.plugins.core]
+   [ventas.routes :as routes]
    [ventas.themes.clothing.core]
-   [ventas.components.base :as base]
-   [ventas.events :as events])
+   [ventas.utils.logging :refer [debug info]]
+   [ventas.ws :as ws])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
