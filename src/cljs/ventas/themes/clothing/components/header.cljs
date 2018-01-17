@@ -42,6 +42,15 @@
           [:img {:src "files/logo"}]])]
 
       [:div.skeleton-header__right
+       [:div.skeleton-header__search
+        [base/dropdown {:placeholder (i18n ::search)
+                        :search true
+                        :selection true
+                        :options []
+                        :on-change #(rf/dispatch [::search (-> % .-target .-value)])}]
+        #_[base/form-input
+         {:placeholder (i18n ::search)
+          :on-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
        [:div.skeleton-header__buttons
 
         [:button {:on-click #(routes/go-to :frontend.cart)}
