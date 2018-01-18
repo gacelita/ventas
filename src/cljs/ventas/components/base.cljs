@@ -50,7 +50,10 @@
        (common.utils/update-when-some
         :options
         (fn [options]
-          (map #(update % :value str)
+          (map (fn [option]
+                 (if (map? option)
+                   (update option :value str)
+                   option))
                options))))
    child])
 
