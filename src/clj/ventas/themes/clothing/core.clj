@@ -28,6 +28,13 @@
        :image-size/entities #{:schema.type/product}}
 
       {:schema/type :schema.type/image-size
+       :image-size/keyword :header-search
+       :image-size/width 50
+       :image-size/height 50
+       :image-size/algorithm :image-size.algorithm/crop-and-resize
+       :image-size/entities #{:schema.type/product}}
+
+      {:schema/type :schema.type/image-size
        :image-size/keyword :cart-page-line
        :image-size/width 145
        :image-size/height 215

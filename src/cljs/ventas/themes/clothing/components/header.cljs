@@ -5,8 +5,11 @@
    [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
+   [ventas.utils :as utils :include-macros true]
    [ventas.events.backend :as backend]
    [ventas.events :as events]))
+
+(def state-key ::state)
 
 (rf/reg-sub
  ::opened
@@ -29,6 +32,27 @@
    {:dispatch-n [[::toggle]
                  [::events/session.stop]]}))
 
+(rf/reg-event-fx
+ ::search
+ (fn [{:keys [db]} [_ search]]
+   (if (empty? search)
+     {:db (update db state-key #(dissoc % :search))}
+     {:dispatch [::backend/search
+                 {:params {:search search}
+                  :success [::events/db [state-key :search]]}]})))
+
+(defn- search-result-view [{:keys [id name image type]}]
+  [:div.search-result
+   (let [route (case type
+                 :product :frontend.product
+                 :category :frontend.category)]
+     {:on-click #(routes/go-to route :id id)})
+   (when image
+     [:img {:src (str "images/" (:id image) "/resize/header-search")}])
+   [:div.search-result__right
+    [:p.search-result__name name]
+    [:p.search-result__type (i18n (utils/ns-kw type))]]])
+
 (defn header []
   (rf/dispatch [::events/configuration.get :site.title])
   (fn []
@@ -44,13 +68,13 @@
       [:div.skeleton-header__right
        [:div.skeleton-header__search
         [base/dropdown {:placeholder (i18n ::search)
-                        :search true
                         :selection true
-                        :options []
-                        :on-change #(rf/dispatch [::search (-> % .-target .-value)])}]
-        #_[base/form-input
-         {:placeholder (i18n ::search)
-          :on-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
+                        :search (fn [options _] options)
+                        :options (->> @(rf/subscribe [::events/db [state-key :search]])
+                                      (sort-by :type)
+                                      (reverse)
+                                      (map #(reagent/as-element [search-result-view %])))
+                        :on-search-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
        [:div.skeleton-header__buttons
 
         [:button {:on-click #(routes/go-to :frontend.cart)}

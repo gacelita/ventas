@@ -137,6 +137,10 @@
  (fn [cofx [_ options]]
     {:ws-request (merge {:name :users.favorites.add} options)}))
 
+(rf/reg-event-fx
+ ::search
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :search} options)}))
 
 (rf/reg-event-fx
  ::states.list
