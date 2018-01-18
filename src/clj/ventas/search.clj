@@ -14,10 +14,12 @@
 
 (defstate elasticsearch
   :start
-  (spandex/client {:hosts [(str "http://"
-                                (config/get :elasticsearch :host)
-                                ":"
-                                (config/get :elasticsearch :port))]}))
+  (let [address (str "http://"
+                     (config/get :elasticsearch :host)
+                     ":"
+                     (config/get :elasticsearch :port))]
+    (timbre/info "Connecting to Elasticsearch at" address)
+    (spandex/client {:hosts [address]})))
 
 (def batch-size 5)
 
