@@ -113,7 +113,8 @@
     :db/valueType :db.type/ref
     :db/index true
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :i18n}
 
    {:db/ident :product/keyword
     :db/valueType :db.type/keyword
@@ -135,7 +136,8 @@
    {:db/ident :product/description
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :i18n}
 
    {:db/ident :product/tax
     :db/valueType :db.type/ref

@@ -74,7 +74,8 @@
   [{:db/ident :shipping-method/name
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :i18n}
 
    {:db/ident :shipping-method/default?
     :db/valueType :db.type/boolean
