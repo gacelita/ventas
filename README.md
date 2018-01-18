@@ -18,7 +18,7 @@ No open source ecommerce project satisfies me. I've been working with most of th
 
 - They tend to be **difficult to extend or modify**. They try to tackle the problem with extension systems, but in the end you need to modify the code of the core to do meaningful changes. This forces you to choose between never updating the software or making an exceptional effort to keep your changes applied. This is why one of the main design decisions for this project is to make it very easy to extend and modify.
 
-- They tend to be **difficult to reason about**. Because they are built upon a fundamentally mutable model, it's impossible to know how did the database get to the current state. In the best case, something bad happens and I don't know why. In the worse case, something bad happens and I don't even notice (until it's too late). Mutable objects everywhere doesn't exactly help either.
+- They tend to be **difficult to reason about**. Because they are built upon a fundamentally mutable model, it's impossible to know how did the database get to the current state. In the best case, something bad happens and I don't know why. In the worse case, something bad happens and I don't even notice (until it's too late). Having mutable objects everywhere doesn't exactly help either.
 
 - They tend to have **poor performance out of the box**. Of course everything can be made performant, but I shouldn't need to make the effort. Particularly when "effort" means rewriting SQL queries, or wasting several days trying to find out what's causing my store to take 20 seconds to load.
 
@@ -217,6 +217,6 @@ To quit, type: :cljs/quit
 
 ### Contributing
 
-Prior to writing any code, discuss with me what you want to do via issue or email (you'll find my email in `project.clj`, as I mentioned). Doing otherwise might result in wasted effort, which is never good.
+I'd appreciate help in any part of the project.
 
-If you wish to contribute but you don't know what do to, read this: [TODO](./TODO.md)
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md)
