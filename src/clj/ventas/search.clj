@@ -21,23 +21,23 @@
 
 (def batch-size 5)
 
-(defn- make-url [& url]
+(defn make-url [& url]
   (let [index (config/get :elasticsearch :index)]
     (if url
       (apply str index "/" url)
       index)))
 
-(defn- request [data]
+(defn request [data]
   (spandex/request elasticsearch data))
 
-(defn- request-async [data]
+(defn request-async [data]
   (spandex/request-async elasticsearch data))
 
 (defn create-index [mapping]
   (timbre/debug mapping)
   (request {:url (make-url)
             :method :put
-            :body {:mappings {:doc mapping}}}))
+            :body mapping}))
 
 (defn remove-index []
   (request {:url (make-url)
@@ -78,6 +78,7 @@
             :body q}))
 
 (defn- ident->property [ident]
+  {:pre [(keyword? ident)]}
   (str/replace (str (namespace ident) "/" (name ident))
                "."
                "__"))
@@ -93,16 +94,49 @@
     :db.type/string "text"
     "text"))
 
+(def ^:private autocomplete-idents
+  #{:product/name
+    :category/name
+    :brand/name})
+
+(defn- with-culture [ident culture-kw]
+  (keyword (namespace ident)
+           (str (name ident) "." (name culture-kw))))
+
 (defn- attributes->mapping [attrs]
-  (->> attrs
-       (map (fn [{:db/keys [ident valueType]}]
-              (when valueType
-                [(ident->property ident)
-                 {:type (value-type->es-type valueType)}])))
-       (into {})))
+  (let [culture-kws (->> (entity/query :i18n.culture)
+                         (map :i18n.culture/keyword))]
+    (->> attrs
+         (filter :db/valueType)
+         (map (fn [{:db/keys [ident valueType] :as attr}]
+                {:attr attr
+                 :value
+                 (let [type (value-type->es-type valueType)]
+                   (merge {:type type}
+                          (when (contains? autocomplete-idents ident)
+                            {:analyzer "autocomplete"
+                             :search_analyzer "standard"})))}))
+         (reduce (fn [acc {:keys [attr value]}]
+                   (let [{:ventas/keys [refEntityType] :db/keys [ident]} attr]
+                     (if-not (= refEntityType :i18n)
+                       (assoc acc (ident->property ident) value)
+                       (merge acc
+                              (->> culture-kws
+                                   (map (fn [culture-kw]
+                                          [(ident->property (with-culture ident culture-kw))
+                                           value]))
+                                   (into {}))))))
+                 {}))))
 
 (defn setup []
-  (create-index {:properties (attributes->mapping (db/schema))}))
+  (create-index {:mappings {:doc {:properties (attributes->mapping (db/schema))}}
+                 :settings {:analysis {:filter {:autocomplete_filter {:type "edge_ngram"
+                                                                      :min_gram 1
+                                                                      :max_gram 20}}
+                                       :analyzer {:autocomplete {:type "custom"
+                                                                 :tokenizer "standard"
+                                                                 :filter ["lowercase"
+                                                                          "autocomplete_filter"]}}}}}))
 
 (defonce ^:private indexing-queue (chan (core.async/buffer (* 10 batch-size))))
 
@@ -183,7 +217,6 @@
         (let [[message ch] (core.async/alts! [indexer-ch batch-ch])]
           (when (and (= ch batch-ch) (seq message))
             (let [response-ch (chan)]
-              (taoensso.timbre/debug "got msg" message)
               (doseq [doc message]
                 (index-document doc :channel response-ch))
               (doseq [doc message]
