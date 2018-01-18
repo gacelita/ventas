@@ -11,6 +11,7 @@
    [ventas.server.ws :as server.ws]
    [ventas.entities.product :as entities.product]
    [ventas.paths :as paths]
+   [ventas.search :as search]
    [ventas.entities.file :as entities.file]))
 
 (defn register-endpoint!
@@ -324,8 +325,28 @@
 
 (register-endpoint!
   :search
-  (fn [{:keys [text] :params} {:keys [session]}]
-    ))
+  (fn [{{:keys [search]} :params} {:keys [session]}]
+    (let [culture (get-culture session)
+          {culture-kw :i18n.culture/keyword} (entity/find culture)
+          shoulds (for [attr [:product/name
+                              :category/name
+                              :brand/name]]
+                    {:match {(keyword (namespace attr)
+                                      (str (name attr) "__" (name culture-kw)))
+                             search}})
+          hits (-> (search/search {:query {:bool {:should shoulds}}
+                                   :_source false})
+                   (get-in [:body :hits :hits]))]
+      (->> hits
+           (map :_id)
+           (map (fn [v] (Long/parseLong v)))
+           (map #(entity/find-json % {:culture culture
+                                      :keep-type? true}))
+           (map (fn [{:keys [images] :as result}]
+                  (let [result (if images
+                                 (assoc result :image (first images))
+                                 result)]
+                    (select-keys result [:id :type :name :images :image]))))))))
 
 (register-endpoint!
   :upload
