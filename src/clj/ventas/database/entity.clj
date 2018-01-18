@@ -270,10 +270,12 @@
                            :else value))]))
          (into {}))))
 
-(defn default-to-json [entity & [options]]
-  (-> (autoresolve entity options)
-      (dissoc :schema/type)
-      (utils/dequalify-keywords)))
+(defn default-to-json [entity & [{:keys [keep-type?] :as options}]]
+  (let [result (-> (autoresolve entity options)
+                   (utils/dequalify-keywords))]
+    (if keep-type?
+      (clojure.core/update result :type #(keyword (name %)))
+      (dissoc result :type))))
 
 (defn- unresolve* [attr]
   (if (sequential? attr)
