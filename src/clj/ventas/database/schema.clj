@@ -33,6 +33,10 @@
           :db/valueType :db.type/string
           :db/cardinality :db.cardinality/one}
 
+         {:db/ident :ventas/refEntityType
+          :db/valueType :db.type/keyword
+          :db/cardinality :db.cardinality/one}
+
          {:db/ident :event/kind
           :db/valueType :db.type/keyword
           :db/cardinality :db.cardinality/one}]]

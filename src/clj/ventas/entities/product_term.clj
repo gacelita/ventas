@@ -24,7 +24,8 @@
   [{:db/ident :product.term/name
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :i18n}
 
    {:db/ident :product.term/taxonomy
     :db/valueType :db.type/ref

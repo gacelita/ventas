@@ -15,7 +15,8 @@
   [{:db/ident :country/name
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}]
+    :db/isComponent true
+    :ventas/refEntityType :i18n}]
 
   :dependencies
   #{:i18n}

@@ -28,7 +28,8 @@
   [{:db/ident :discount/name
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :i18n}
 
    {:db/ident :discount/code
     :db/valueType :db.type/string

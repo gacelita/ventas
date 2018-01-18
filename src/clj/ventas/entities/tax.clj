@@ -28,7 +28,8 @@
   [{:db/ident :tax/name
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :i18n}
 
    {:db/ident :tax/keyword
     :db/valueType :db.type/keyword

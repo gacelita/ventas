@@ -46,7 +46,8 @@
    {:db/ident :category/name
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :i18n}
 
    {:db/ident :category/image
     :db/valueType :db.type/ref
