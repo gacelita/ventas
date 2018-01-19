@@ -33,7 +33,9 @@
 (defn- timbre-appender-fn [{:keys [output_]}]
   (let [{:keys [level where whats]} (force output_)
         info-line (str level " " where " - ")]
-    (print (clansi/green info-line))
+    (print (case level
+             "ERROR" (clansi/red info-line)
+             (clansi/green info-line)))
     (if (string? whats)
       (println whats)
       (doseq [[idx what] (map-indexed vector whats)]
