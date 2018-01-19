@@ -85,14 +85,17 @@
                "."
                "__"))
 
-(defn- value-type->es-type [type]
+(defn- value-type->es-type [type ref-entity-type]
   (case type
     :db.type/bigdec "long"
     :db.type/boolean "boolean"
     :db.type/float "double"
     :db.type/keyword "keyword"
     :db.type/long "long"
-    :db.type/ref "text"
+    :db.type/ref (case ref-entity-type
+                   :i18n "text"
+                   :enum "keyword"
+                   "long")
     :db.type/string "text"
     "text"))
 
@@ -110,10 +113,10 @@
                          (map :i18n.culture/keyword))]
     (->> attrs
          (filter :db/valueType)
-         (map (fn [{:db/keys [ident valueType] :as attr}]
+         (map (fn [{:db/keys [ident valueType] :ventas/keys [refEntityType] :as attr}]
                 {:attr attr
                  :value
-                 (let [type (value-type->es-type valueType)]
+                 (let [type (value-type->es-type valueType refEntityType)]
                    (merge {:type type}
                           (when (contains? autocomplete-idents ident)
                             {:analyzer "autocomplete"
@@ -140,10 +143,11 @@
                                                                  :filter ["lowercase"
                                                                           "autocomplete_filter"]}}}}}))
 
-(defonce ^:private indexing-queue (chan (core.async/buffer (* 10 batch-size))))
+(def ^:private indexing-queue
+  (atom (chan (core.async/buffer (* 10 batch-size)))))
 
 (defn document->indexing-queue [doc]
-  (go (>! indexing-queue doc)))
+  (go (>! @indexing-queue doc)))
 
 (defn- resolve-i18n [v]
   (if (number? v)
@@ -222,10 +226,13 @@
               (doseq [doc message]
                 (index-document doc :channel response-ch))
               (doseq [doc message]
-                (<! response-ch))))
+                (let [result (<! response-ch)]
+                  (when (instance? clojure.lang.ExceptionInfo result)
+                    (taoensso.timbre/error (get-in (ex-data result)
+                                                   [:body :error])))))))
           (when-not (nil? message)
             (recur))))
-      (utils/batch indexing-queue
+      (utils/batch @indexing-queue
                    batch-ch
                    4000
                    5)
