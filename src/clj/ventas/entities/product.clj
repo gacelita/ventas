@@ -149,7 +149,8 @@
 
    {:db/ident :product/condition
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :ventas/refEntityType :enum}
 
    {:db/ident :product.condition/new}
    {:db/ident :product.condition/used}

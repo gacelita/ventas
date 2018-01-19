@@ -42,7 +42,8 @@
 
    {:db/ident :tax/kind
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :ventas/refEntityType :enum}
 
    {:db/ident :tax.kind/percentage}
    {:db/ident :tax.kind/amount}]

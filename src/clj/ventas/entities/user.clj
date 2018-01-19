@@ -112,7 +112,8 @@
 
     {:db/ident :user/status
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :enum}
 
     {:db/ident :user/culture
      :db/valueType :db.type/ref
@@ -120,7 +121,8 @@
 
     {:db/ident :user/roles
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many}
+     :db/cardinality :db.cardinality/many
+     :ventas/refEntityType :enum}
 
     {:db/ident :user/favorites
      :db/valueType :db.type/ref
