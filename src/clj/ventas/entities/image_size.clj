@@ -69,7 +69,8 @@
 
    {:db/ident :image-size/algorithm
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :ventas/refEntityType :enum}
 
    {:db/ident :image-size.algorithm/resize-only-if-over-maximum}
    {:db/ident :image-size.algorithm/always-resize}
@@ -81,7 +82,8 @@
 
    {:db/ident :image-size/entities
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]
+    :db/cardinality :db.cardinality/many
+    :ventas/refEntityType :enum}]
 
   :fixtures
   (fn []
