@@ -7,10 +7,12 @@
 (defn user->token [user]
   (buddy.jwt/sign {:user-id (:db/id user)} (config/get :auth-secret)))
 
-(defn token->user [token]
-  (let [user (-> (buddy.jwt/unsign token (config/get :auth-secret))
-                 :user-id
-                 (entity/find))]
-    (if (entity/entity? user)
-      user
+(defn- unsign [token secret]
+  (try
+    (buddy.jwt/unsign token secret)
+    (catch Exception e
       nil)))
+
+(defn token->user [token]
+  (when-let [{:keys [user-id]} (unsign token (config/get :auth-secret))]
+    (entity/find user-id)))
