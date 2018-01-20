@@ -87,3 +87,9 @@
 
 (defn run-tests []
   (clojure.test/run-all-tests #"ventas.*?\-test"))
+
+(defn migrate-and-reindex!
+  "Returns everything to its default state, removing all data"
+  []
+  (ventas.database.seed/seed :recreate? true)
+  (ventas.search/reindex))
