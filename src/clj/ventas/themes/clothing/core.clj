@@ -69,7 +69,7 @@
        :image-size/algorithm :image-size.algorithm/crop-and-resize
        :image-size/entities #{:schema.type/product}}
 
-      ;; Themes can also include taxonomies (in this case, the color of the clothes)
+      ;; Themes can also include taxonomies
       {:schema/type :schema.type/product.taxonomy
        :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Color"
                                                               :es_ES "Color"})
@@ -78,7 +78,22 @@
       {:schema/type :schema.type/product.taxonomy
        :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Size"
                                                               :es_ES "Talla"})
-       :product.taxonomy/keyword :size}]
+       :product.taxonomy/keyword :size}
+
+      {:schema/type :schema.type/product.taxonomy
+       :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Shoes size"
+                                                              :es_ES "Talla de zapatos"})
+       :product.taxonomy/keyword :shoes-size}
+
+      {:schema/type :schema.type/product.taxonomy
+       :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Length"
+                                                              :es_ES "Longitud"})
+       :product.taxonomy/keyword :length}
+
+      {:schema/type :schema.type/product.taxonomy
+       :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Lace type"
+                                                              :es_ES "Tipo de cordones"})
+       :product.taxonomy/keyword :lace-type}]
 
      (demo/demo-data)))})
 

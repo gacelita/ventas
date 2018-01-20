@@ -30,6 +30,7 @@
    :ventas.themes.clothing.pages.frontend/recently-added "Recently added"
 
    :ventas.themes.clothing.pages.frontend.category/page "%s"
+   :ventas.themes.clothing.pages.frontend.category/search "Search"
 
    :ventas.themes.clothing.pages.frontend.cart/cart "Cart"
    :ventas.themes.clothing.pages.frontend.cart/page "Cart"
