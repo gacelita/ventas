@@ -8,7 +8,7 @@
   [ventas.menu/menu
    [{:text (i18n ::home)
      :href (routes/path-for :frontend)}
-    {:text (i18n ::man)
-     :href (routes/path-for :frontend.category :id :man)}
-    {:text (i18n ::woman)
-     :href (routes/path-for :frontend.category :id :woman)}]])
+    {:text (i18n ::men)
+     :href (routes/path-for :frontend.category :id :root.men)}
+    {:text (i18n ::women)
+     :href (routes/path-for :frontend.category :id :root.women)}]])

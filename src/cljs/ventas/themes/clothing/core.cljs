@@ -14,8 +14,8 @@
    :ventas.themes.clothing.components.header/category "Category"
 
    :ventas.themes.clothing.components.menu/home "Home"
-   :ventas.themes.clothing.components.menu/woman "Woman"
-   :ventas.themes.clothing.components.menu/man "Man"
+   :ventas.themes.clothing.components.menu/women "Women"
+   :ventas.themes.clothing.components.menu/men "Men"
 
    :ventas.themes.clothing.components.footer/footer-text "This is the example Ventas theme."
    :ventas.themes.clothing.components.footer/footer-subtext "Here you can add custom text."
