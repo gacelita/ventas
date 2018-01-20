@@ -7,6 +7,7 @@
    [taoensso.timbre :as timbre]
    [ventas.config :as config]
    [ventas.database]
+   [ventas.database.seed :as seed]
    [ventas.entities.address]
    [ventas.entities.amount]
    [ventas.entities.brand]
@@ -32,7 +33,7 @@
    [ventas.plugins.featured-categories.core]
    [ventas.plugins.featured-products.core]
    [ventas.plugins.slider.core]
-   [ventas.search]
+   [ventas.search :as search]
    [ventas.server.api.admin]
    [ventas.server.api]
    [ventas.server]
@@ -45,3 +46,8 @@
   (mount/start)
   (go (>! (events/pub :init) true)))
 
+(defn migrate-and-reindex!
+  "Returns everything to its default state, removing all data"
+  []
+  (seed/seed :recreate? true)
+  (search/reindex))
