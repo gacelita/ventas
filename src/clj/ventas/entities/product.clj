@@ -95,7 +95,7 @@
                     :product/active])
    #(spec/gen ::product-for-generation)))
 
-(defn- terms-to-json [terms]
+(defn terms-to-json [terms]
   (->> terms
        (common.utils/group-by-keyword :taxonomy)
        (map (fn [[taxonomy terms]]

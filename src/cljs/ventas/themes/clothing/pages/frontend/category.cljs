@@ -14,10 +14,6 @@
    [ventas.events.backend :as backend]
    [ventas.events :as events]))
 
-(def term-counts-key ::term-counts)
-
-(def products-key ::products)
-
 (def state-key ::state)
 
 (defn- get-ref []
@@ -26,49 +22,64 @@
       (js/parseInt id 10)
       (keyword id))))
 
-(rf/reg-event-db
- ::populate
- (fn [db [_ category]]
-   (assoc-in db [state-key :category] category)))
+(rf/reg-event-fx
+ ::init
+ (fn [{:keys [db]} _]
+   {:db (assoc-in db [state-key :filters :categories] [(get-ref)])
+    :dispatch [::fetch]}))
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ ref]]
-   {:dispatch [::backend/categories.get {:params {:id ref}
-                                         :success ::populate}]}))
+ (fn [{:keys [db]} _]
+   {:dispatch [::backend/products.aggregations
+               {:success ::fetch.next
+                :params (get-in db [state-key :filters])}]}))
 
-(defn content [{:keys [ref]}]
-  (rf/dispatch [::fetch ref])
-  (rf/dispatch [::backend/products.aggregations
-                {:success #(rf/dispatch [::events/db [term-counts-key] %])}])
-  (fn [{:keys [ref]}]
+(rf/reg-event-db
+ ::fetch.next
+ (fn [db [_ {:keys [items taxonomies]}]]
+   (-> db
+       (assoc-in [state-key :items] items)
+       (assoc-in [state-key :taxonomies] taxonomies))))
+
+(rf/reg-event-fx
+ ::set-filters
+ (fn [{:keys [db]} [_ filters]]
+   {:db (assoc-in db [state-key :filters] filters)
+    :dispatch [::fetch]}))
+
+(defn content []
+  (rf/dispatch [::init])
+  (fn [_]
     [:div.category-page.ui.container
+
      [:div.category-page__sidebar
-      (let [data @(rf/subscribe [::events/db [term-counts-key]])]
-        (when (seq data)
-          [components.product-filters/product-filters
-           (merge data
-                  {:products-path [products-key]})]))]
+      (let [{:keys [filters taxonomies]} @(rf/subscribe [::events/db [state-key]])]
+        [components.product-filters/product-filters
+         {:filters filters
+          :taxonomies taxonomies
+          :event ::set-filters}])]
+
      [:div.category-page__content
-      (let [products @(rf/subscribe [::events/db [products-key :products]])]
+      (let [products @(rf/subscribe [::events/db [state-key :items]])]
+
         [products-list products])
-      [scroll/infinite-scroll
+      #_[scroll/infinite-scroll
        (let [more-items-available? true]
          {:can-show-more? more-items-available?
-          :load-fn #(rf/dispatch [::components.product-filters/apply-filters [products-key]])})]]]))
+          :load-fn #(rf/dispatch [::components.product-filters/apply-filters [state-key]])})]]]))
 
 (defn- page []
   [skeleton
-   [content
-    (let [ref (get-ref)]
-      {:key (hash ref)
-       :ref ref})]])
+   ^{:key (hash (get-ref))} [content]])
 
 (rf/reg-sub
  ::title
  (fn [db _]
-   (let [{:keys [category]} (get db state-key)]
-     (:name category))))
+   (let [{:keys [category brand]} (get-in db [state-key :filters])]
+     (or (:name category)
+         (:brand category)
+         (i18n ::search)))))
 
 (routes/define-route!
  :frontend.category

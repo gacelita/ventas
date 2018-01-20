@@ -148,14 +148,63 @@
              (first))]
     {:min min :max max}))
 
+(defn- get-product-filters [{:keys [terms categories name price]} culture-kw]
+  {:pre [culture-kw]}
+  (concat (mapcat (fn [term]
+                    [{:term {:product/terms term}}])
+                  terms)
+          (mapcat (fn [category]
+                    (let [category (if (keyword? category)
+                                     (:db/id (entity/find [:category/keyword category]))
+                                     category)]
+                      [{:term {:product/categories category}}]))
+                  categories)
+          (when price
+            [{:range {:product/price {:gte (:min price)
+                                      :lte (:max price)}}}])
+          (when name
+            [{:match {(search/i18n-field :product/name culture-kw) name}}])))
+
+(defn- term-aggregation->json [{:keys [doc_count buckets]} json-opts]
+  (entities.product/terms-to-json
+   (for [{:keys [key doc_count]} buckets]
+     (let [term (entity/find-json key json-opts)]
+       (merge (dissoc term :keyword)
+              {:count doc_count})))))
+
+(defn- category-aggregation->json [{:keys [doc_count buckets]} json-opts]
+  [{:taxonomy :category
+    :terms
+    (for [{:keys [key doc_count]} buckets]
+      (let [category (entity/find-json key json-opts)]
+        (merge (dissoc category :keyword)
+               {:count doc_count})))}])
+
 (register-endpoint!
   :products.aggregations
-  (fn [message _]
-    {:taxonomies
-     (map (fn [[k v]]
-            (assoc k :terms (map #(dissoc % :taxonomy) v)))
-          (group-by :taxonomy (term-counts)))
-     :prices (prices)}))
+  (fn [{:keys [params]} {:keys [session]}]
+    (let [culture (get-culture session)
+          culture-kw (-> culture
+                         entity/find
+                         :i18n.culture/keyword)
+          _ (taoensso.timbre/debug (seq (get-product-filters params culture-kw)))
+          json-opts {:culture culture}
+          search (search/search {:_source false
+                                 :query {:bool {:must (get-product-filters params culture-kw)}}
+                                 :aggs {:categories {:terms {:field "product/categories"}}
+                                        :terms {:terms {:field "product/terms"}}
+                                        :variation-terms {:terms {:field "product/variation-terms"}}
+                                        :brands {:terms {:field "product/brand"}}}})]
+      {:items
+       (->> (get-in search
+                    [:body :hits :hits])
+            (map :_id)
+            (map (fn [v] (Long/parseLong v)))
+            (map #(entity/find-json % json-opts)))
+       :taxonomies (let [aggs (get-in search [:body :aggregations])]
+                     (concat (term-aggregation->json (:terms aggs) json-opts)
+                             (term-aggregation->json (:variation-terms aggs) json-opts)
+                             (category-aggregation->json (:categories aggs) json-opts)))})))
 
 (register-endpoint!
   :states.list

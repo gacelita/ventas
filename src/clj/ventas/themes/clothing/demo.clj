@@ -17,17 +17,70 @@
          :product.term/color "#5f3239"
          :product.term/taxonomy [:product.taxonomy/keyword :color]}
 
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark blue"
+                                                            :es_ES "Azul oscuro"})
+         :product.term/keyword :color-dark-blue
+         :product.term/color "#262b3f"
+         :product.term/taxonomy [:product.taxonomy/keyword :color]}
+
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Black"
                                                             :es_ES "Negro"})
          :product.term/keyword :color-black
          :product.term/color "#252525"
          :product.term/taxonomy [:product.taxonomy/keyword :color]}
 
-        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Dark blue"
-                                                            :es_ES "Azul oscuro"})
-         :product.term/keyword :color-dark-blue
-         :product.term/color "#262b3f"
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Green"
+                                                            :es_ES "Verde"})
+         :product.term/keyword :color-green
+         :product.term/color "#3b8c16"
          :product.term/taxonomy [:product.taxonomy/keyword :color]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Red"
+                                                            :es_ES "Rojo"})
+         :product.term/keyword :color-red
+         :product.term/color "#c60d0d"
+         :product.term/taxonomy [:product.taxonomy/keyword :color]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Blue"
+                                                            :es_ES "Azul"})
+         :product.term/keyword :color-blue
+         :product.term/color "#1c43af"
+         :product.term/taxonomy [:product.taxonomy/keyword :color]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Long"
+                                                            :es_ES "Largo"})
+         :product.term/keyword :length-long
+         :product.term/taxonomy [:product.taxonomy/keyword :length]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Short"
+                                                            :es_ES "Corto"})
+         :product.term/keyword :length-short
+         :product.term/taxonomy [:product.taxonomy/keyword :length]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "38"
+                                                            :es_ES "38"})
+         :product.term/keyword :shoes-size-38
+         :product.term/taxonomy [:product.taxonomy/keyword :shoes-size]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "40"
+                                                            :es_ES "40"})
+         :product.term/keyword :shoes-size-40
+         :product.term/taxonomy [:product.taxonomy/keyword :shoes-size]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "41"
+                                                            :es_ES "41"})
+         :product.term/keyword :shoes-size-41
+         :product.term/taxonomy [:product.taxonomy/keyword :shoes-size]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "None"
+                                                            :es_ES "Ninguno"})
+         :product.term/keyword :lace-type-none
+         :product.term/taxonomy [:product.taxonomy/keyword :lace-type]}
+
+        {:product.term/name (entities.i18n/get-i18n-entity {:en_US "Regular"
+                                                            :es_ES "Normal"})
+         :product.term/keyword :lace-type-regular
+         :product.term/taxonomy [:product.taxonomy/keyword :lace-type]}
 
         {:product.term/name (entities.i18n/get-i18n-entity {:en_US "XS"
                                                             :es_ES "XS"})
@@ -69,7 +122,15 @@
        [{:brand/name (entities.i18n/get-i18n-entity {:en_US "Test brand"})
          :brand/keyword :test-brand
          :brand/description (entities.i18n/get-i18n-entity {:en_US "This is the description of the test brand"})
-         :brand/logo [:file/keyword :test-brand-logo]}]))
+         :brand/logo [:file/keyword :test-brand-logo]}
+
+        {:brand/name (entities.i18n/get-i18n-entity {:en_US "Profitable Brand"})
+         :brand/keyword :profitable-brand
+         :brand/description (entities.i18n/get-i18n-entity {:en_US "A very profitable brand"})}
+
+        {:brand/name (entities.i18n/get-i18n-entity {:en_US "Terrible Brand"})
+         :brand/keyword :terrible-brand
+         :brand/description (entities.i18n/get-i18n-entity {:en_US "A terrible brand"})}]))
 
 (defn categories []
   (map #(assoc % :schema/type :schema.type/category)
@@ -134,6 +195,7 @@
          :product/brand [:brand/keyword :test-brand]
          :product/tax [:tax/keyword :test-tax]
          :product/categories [[:category/keyword :man]]
+         :product/terms [[:product.term/keyword :length-long]]
          :product/variation-terms [[:product.term/keyword :color-dark-green]
                                    [:product.term/keyword :color-dark-red]
                                    [:product.term/keyword :size-large]
@@ -148,6 +210,13 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :dresses]]
          :product/keyword :dress-1
+         :product/brand [:brand/keyword :profitable-brand]
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :color-red]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-small]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -166,6 +235,11 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :dresses]]
          :product/keyword :dress-2
+         :product/brand [:brand/keyword :profitable-brand]
+         :product/terms [[:product.term/keyword :length-short]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :color-green]
+                                   [:product.term/keyword :size-large]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -184,6 +258,11 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :jackets]]
          :product/keyword :jacket-1
+         :product/brand [:brand/keyword :profitable-brand]
+         :product/terms [[:product.term/keyword :length-short]]
+         :product/variation-terms [[:product.term/keyword :color-green]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-small]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -202,6 +281,14 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :jackets]]
          :product/keyword :jacket-2
+         :product/brand [:brand/keyword :terrible-brand]
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-blue]
+                                   [:product.term/keyword :color-red]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-3x-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-small]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -230,6 +317,10 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :jackets]]
          :product/keyword :jacket-3
+         :product/brand [:brand/keyword :terrible-brand]
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-blue]
+                                   [:product.term/keyword :size-large]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -248,6 +339,8 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :jackets]]
          :product/keyword :jacket-4
+         :product/brand [:brand/keyword :terrible-brand]
+         :product/terms [[:product.term/keyword :length-short]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -276,6 +369,18 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :jackets]]
          :product/keyword :jacket-5
+         :product/brand [:brand/keyword :profitable-brand]
+         :product/variation-terms [[:product.term/keyword :color-blue]
+                                   [:product.term/keyword :color-red]
+                                   [:product.term/keyword :color-black]
+                                   [:product.term/keyword :color-green]
+                                   [:product.term/keyword :color-dark-blue]
+                                   [:product.term/keyword :color-dark-red]
+                                   [:product.term/keyword :size-x-large]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-small]
+                                   [:product.term/keyword :size-x-small]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -294,6 +399,10 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :trousers]]
          :product/keyword :jeans-1
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -312,6 +421,12 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :shirts]]
          :product/keyword :shirt-1
+         :product/brand [:brand/keyword :profitable-brand]
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-large]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -335,6 +450,13 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :shirts]]
          :product/keyword :shirt-2
+         :product/brand [:brand/keyword :profitable-brand]
+         :product/terms [[:product.term/keyword :length-short]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :color-dark-red]
+                                   [:product.term/keyword :size-large]
+                                   [:product.term/keyword :size-medium]
+                                   [:product.term/keyword :size-large]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -358,6 +480,7 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :shirts]]
          :product/keyword :shirt-3
+         :product/terms [[:product.term/keyword :length-short]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -376,6 +499,11 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :shoes]]
          :product/keyword :shoes-1
+         :product/terms [[:product.term/keyword :lace-type-regular]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :color-dark-red]
+                                   [:product.term/keyword :shoes-size-40]
+                                   [:product.term/keyword :shoes-size-38]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -399,6 +527,12 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :shoes]]
          :product/keyword :shoes-2
+         :product/brand [:brand/keyword :terrible-brand]
+         :product/terms [[:product.term/keyword :lace-type-none]]
+         :product/variation-terms [[:product.term/keyword :color-blue]
+                                   [:product.term/keyword :shoes-size-40]
+                                   [:product.term/keyword :shoes-size-41]
+                                   [:product.term/keyword :shoes-size-38]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -432,6 +566,9 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :sweaters]]
          :product/keyword :sweater-1
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :size-large]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -460,6 +597,9 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :sweaters]]
          :product/keyword :sweater-2
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :size-large]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
@@ -483,6 +623,9 @@
                          :amount/currency [:currency/keyword :eur]}
          :product/categories [[:category/keyword :sweaters]]
          :product/keyword :sweater-3
+         :product/terms [[:product.term/keyword :length-long]]
+         :product/variation-terms [[:product.term/keyword :color-black]
+                                   [:product.term/keyword :size-large]]
          :product/images [{:product.image/position 0
                            :schema/type :schema.type/product.image
                            :product.image/file {:schema/type :schema.type/file
