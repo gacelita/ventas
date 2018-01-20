@@ -43,9 +43,9 @@
        (assoc-in [state-key :taxonomies] taxonomies))))
 
 (rf/reg-event-fx
- ::set-filters
- (fn [{:keys [db]} [_ filters]]
-   {:db (assoc-in db [state-key :filters] filters)
+ ::update-filters
+ (fn [{:keys [db]} [_ f]]
+   {:db (update-in db [state-key :filters] f)
     :dispatch [::fetch]}))
 
 (defn content []
@@ -58,7 +58,7 @@
         [components.product-filters/product-filters
          {:filters filters
           :taxonomies taxonomies
-          :event ::set-filters}])]
+          :event ::update-filters}])]
 
      [:div.category-page__content
       (let [products @(rf/subscribe [::events/db [state-key :items]])]
