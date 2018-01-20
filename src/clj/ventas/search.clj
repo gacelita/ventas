@@ -192,6 +192,11 @@
         (doseq [{:db/keys [id]} entities]
           (index-entity id))))))
 
+(defn i18n-field [field culture-kw]
+  (keyword (namespace field)
+           (str (name field)
+                "__" (name culture-kw))))
+
 (defn- index-report [{:keys [db-after tx-data]}]
   (let [types (->> (keys @ventas.database.entity/registered-types)
                    (map name)
