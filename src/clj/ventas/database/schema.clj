@@ -25,7 +25,14 @@
 
                     {:db/ident :ventas/pluginVersion
                      :db/valueType :db.type/string
-                     :db/cardinality :db.cardinality/one}])
+                     :db/cardinality :db.cardinality/one}
+
+                    {:db/ident :ventas/slug
+                     :db/unique :db.unique/identity
+                     :db/valueType :db.type/ref
+                     :db/cardinality :db.cardinality/one
+                     :db/isComponent true
+                     :ventas/refEntityType :i18n}])
    (make-migration [{:db/ident :schema/deprecated
                      :db/valueType :db.type/boolean
                      :db/cardinality :db.cardinality/one}
