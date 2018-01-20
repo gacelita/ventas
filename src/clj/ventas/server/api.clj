@@ -50,8 +50,6 @@
 
 (register-endpoint!
   :categories.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
   (fn [_ {:keys [session]}]
     (map #(entity/to-json % {:culture (get-culture session)})
          (entity/query :category))))
@@ -165,20 +163,15 @@
           (when name
             [{:match {(search/i18n-field :product/name culture-kw) name}}])))
 
-(defn- term-aggregation->json [{:keys [doc_count buckets]} json-opts]
+(defn- term-aggregation->json [{:keys [doc_count buckets]} & [json-opts taxonomy-kw]]
   (entities.product/terms-to-json
    (for [{:keys [key doc_count]} buckets]
-     (let [term (entity/find-json key json-opts)]
+     (let [{:keys [taxonomy] :as term} (entity/find-json key json-opts)]
        (merge (dissoc term :keyword)
-              {:count doc_count})))))
-
-(defn- category-aggregation->json [{:keys [doc_count buckets]} json-opts]
-  [{:taxonomy :category
-    :terms
-    (for [{:keys [key doc_count]} buckets]
-      (let [category (entity/find-json key json-opts)]
-        (merge (dissoc category :keyword)
-               {:count doc_count})))}])
+              {:count doc_count
+               :taxonomy (or taxonomy
+                             {:id taxonomy-kw
+                              :keyword taxonomy-kw})})))))
 
 (register-endpoint!
   :products.aggregations
@@ -202,9 +195,9 @@
             (map (fn [v] (Long/parseLong v)))
             (map #(entity/find-json % json-opts)))
        :taxonomies (let [aggs (get-in search [:body :aggregations])]
-                     (concat (term-aggregation->json (:terms aggs) json-opts)
-                             (term-aggregation->json (:variation-terms aggs) json-opts)
-                             (category-aggregation->json (:categories aggs) json-opts)))})))
+                     (concat (term-aggregation->json (:categories aggs) json-opts :category)
+                             (term-aggregation->json (:terms aggs) json-opts)
+                             (term-aggregation->json (:variation-terms aggs) json-opts)))})))
 
 (register-endpoint!
   :states.list
