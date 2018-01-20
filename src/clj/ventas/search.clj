@@ -178,15 +178,18 @@
                  (common.utils/map-keys ident->property))]
     (document->indexing-queue doc)))
 
+(defn- indexable-types []
+  (->> @ventas.database.entity/registered-types
+       (filter (fn [[k v]]
+                 (not (:component? v))))
+       (keys)))
+
 (defn reindex
   "Indexes everything"
   []
   (remove-index)
   (setup)
-  (let [types (->> @ventas.database.entity/registered-types
-                   (filter (fn [[k v]]
-                             (not (:component? v))))
-                   (keys))]
+  (let [types (indexable-types)]
     (doseq [type types]
       (let [entities (entity/query type)]
         (doseq [{:db/keys [id]} entities]
@@ -198,7 +201,7 @@
                 "__" (name culture-kw))))
 
 (defn- index-report [{:keys [db-after tx-data]}]
-  (let [types (->> (keys @ventas.database.entity/registered-types)
+  (let [types (->> (indexable-types)
                    (map name)
                    (set))
         eids (->> tx-data
