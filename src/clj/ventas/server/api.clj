@@ -146,15 +146,27 @@
              (first))]
     {:min min :max max}))
 
+(defn- resolve-ref
+  "A ref is an identifier that refers to an entity.
+   The possibilities are:
+     - A keyword, like :category/keyword
+     - A slug
+     - An eid"
+  [ref kw-ident]
+  {:pre [(or (number? ref) (string? ref) (keyword? ref))
+         (keyword? kw-ident)]}
+  (cond
+    (number? ref) ref
+    (keyword? ref) (:db/id (db/entity [kw-ident ref]))
+    (string? ref) (entity/resolve-by-slug ref)))
+
 (defn- get-product-filters [{:keys [terms categories name price]} culture-kw]
   {:pre [culture-kw]}
   (concat (mapcat (fn [term]
                     [{:term {:product/terms term}}])
                   terms)
-          (mapcat (fn [category]
-                    (let [category (if (keyword? category)
-                                     (:db/id (entity/find [:category/keyword category]))
-                                     category)]
+          (mapcat (fn [category-ref]
+                    (let [category (resolve-ref category-ref :category/keyword)]
                       [{:term {:product/categories category}}]))
                   categories)
           (when price

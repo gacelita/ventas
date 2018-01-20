@@ -8,24 +8,19 @@
    [ventas.i18n :refer [i18n]]
    [ventas.page :refer [pages]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.utils :as util :refer [value-handler]]
+   [ventas.utils :as utils]
    [ventas.routes :as routes]
    [ventas.components.infinite-scroll :as scroll]
    [ventas.events.backend :as backend]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [clojure.string :as str]))
 
 (def state-key ::state)
-
-(defn- get-ref []
-  (let [{:keys [id]} (routes/params)]
-    (if (pos? (js/parseInt id 10))
-      (js/parseInt id 10)
-      (keyword id))))
 
 (rf/reg-event-fx
  ::init
  (fn [{:keys [db]} _]
-   {:db (assoc-in db [state-key :filters :categories] [(get-ref)])
+   {:db (assoc-in db [state-key :filters :categories] [(routes/ref-from-param :id)])
     :dispatch [::fetch]}))
 
 (rf/reg-event-fx
@@ -71,7 +66,7 @@
 
 (defn- page []
   [skeleton
-   ^{:key (hash (get-ref))} [content]])
+   ^{:key (hash (routes/ref-from-param :id))} [content]])
 
 (rf/reg-sub
  ::title

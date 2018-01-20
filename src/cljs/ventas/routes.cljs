@@ -10,7 +10,8 @@
    [reagent.ratom :as ratom]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.logging :as log]
-   [bidi.bidi :as bidi]))
+   [bidi.bidi :as bidi]
+   [ventas.utils :as utils]))
 
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
@@ -118,3 +119,12 @@
  :go-to
  (fn [[route params]]
    (go-to route params)))
+
+(defn- ref-from-param [param-kw]
+  (let [params (params)
+        ref (get params param-kw)
+        as-int (utils/parse-int ref)]
+    (cond
+      (pos? as-int) as-int
+      (str/starts-with? ref "_") (keyword ref)
+      :default ref)))

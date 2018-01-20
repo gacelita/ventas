@@ -70,3 +70,6 @@
     (when (not (get-in session [:identity :id]))
       (routes/go-to :frontend.login))
     (:identity session)))
+
+(defn parse-int [n]
+  (js/parseInt n 10))

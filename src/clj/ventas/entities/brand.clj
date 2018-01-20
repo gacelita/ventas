@@ -4,7 +4,8 @@
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [ventas.utils.slugs :as utils.slugs]))
 
 (spec/def :brand/name ::entities.i18n/ref)
 
@@ -46,6 +47,14 @@
     :db/cardinality :db.cardinality/one}]
 
   :autoresolve? true
+
+  :filter-create
+  (fn [this]
+    (utils.slugs/add-slug-to-entity this :brand/name))
+
+  :filter-update
+  (fn [_ attrs]
+    (utils.slugs/add-slug-to-entity attrs :brand/name))
 
   :dependencies
   #{:file :i18n}})
