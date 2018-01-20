@@ -13,6 +13,8 @@
 
     :ventas.components.table/no-rows "No items to show"
 
+    :ventas.components.product-filters/category "Category"
+
     :ventas.events/session-started "Welcome!"
     
     :ventas.page/not-found "404"
