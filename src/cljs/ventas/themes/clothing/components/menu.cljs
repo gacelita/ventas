@@ -9,6 +9,6 @@
    [{:text (i18n ::home)
      :href (routes/path-for :frontend)}
     {:text (i18n ::men)
-     :href (routes/path-for :frontend.category :id :root.men)}
+     :href (routes/path-for :frontend.category :id "men")}
     {:text (i18n ::women)
-     :href (routes/path-for :frontend.category :id :root.women)}]])
+     :href (routes/path-for :frontend.category :id "women")}]])

@@ -25,14 +25,7 @@
 
                     {:db/ident :ventas/pluginVersion
                      :db/valueType :db.type/string
-                     :db/cardinality :db.cardinality/one}
-
-                    {:db/ident :ventas/slug
-                     :db/unique :db.unique/identity
-                     :db/valueType :db.type/ref
-                     :db/cardinality :db.cardinality/one
-                     :db/isComponent true
-                     :ventas/refEntityType :i18n}])
+                     :db/cardinality :db.cardinality/one}])
    (make-migration [{:db/ident :schema/deprecated
                      :db/valueType :db.type/boolean
                      :db/cardinality :db.cardinality/one}
@@ -44,11 +37,18 @@
                     {:db/ident :schema/type
                      :db/valueType :db.type/ref
                      :db/cardinality :db.cardinality/one
-                     :ventas/refEntityType :enum}
+                     :ventas/refEntityType :enum}])
 
-                    {:db/ident :event/kind
+   (make-migration [{:db/ident :event/kind
                      :db/valueType :db.type/keyword
-                     :db/cardinality :db.cardinality/one}])])
+                     :db/cardinality :db.cardinality/one}
+
+                    {:db/ident :ventas/slug
+                     :db/unique :db.unique/identity
+                     :db/valueType :db.type/ref
+                     :db/cardinality :db.cardinality/one
+                     :db/isComponent true
+                     :ventas/refEntityType :i18n}])])
 
 (defonce ^:private migrations
  (atom (initial-migrations)))

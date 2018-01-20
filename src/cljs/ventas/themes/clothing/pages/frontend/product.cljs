@@ -68,12 +68,6 @@
  (fn [db [_ qty]]
    (assoc-in db [state-key :quantity] qty)))
 
-(defn- get-product-ref []
-  (let [{:keys [id]} (routes/params)]
-    (if (pos? (js/parseInt id 10))
-      (js/parseInt id 10)
-      (keyword id))))
-
 (rf/reg-event-fx
  ::fetch
  (fn [{:keys [db]} [_ ref terms]]
@@ -137,14 +131,14 @@
                             :style {:background-color color}
                             :title name
                             :on-click #(rf/dispatch [::select-term
-                                                     (get-product-ref)
+                                                     (routes/ref-from-param :id)
                                                      taxonomy
                                                      term])}])
 
 (defmethod term-view :default [taxonomy {:keys [name] :as term} active?]
   [:div.product-page__term {:class (when active? "product-page__term--active")
                             :on-click #(rf/dispatch [::select-term
-                                                     (get-product-ref)
+                                                     (routes/ref-from-param :id)
                                                      taxonomy
                                                      term])}
    [:h3 name]])

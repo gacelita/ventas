@@ -142,6 +142,22 @@
     (when (entity? result)
       result)))
 
+(defn resolve-by-slug
+  [slug]
+  (-> (db/nice-query
+       {:find '[?id]
+        :in {'?slug slug}
+        :where '[[?translation :i18n.translation/value ?slug]
+                 [?i18n :i18n/translations ?translation]
+                 [?id :ventas/slug ?i18n]]})
+      first
+      :id))
+
+(defn find-by-slug
+  [slug]
+  (-> (resolve-by-slug slug)
+      (find)))
+
 (defn find-json
   "Same as doing (to-json (find eid) params), which is a very common thing to do"
   [eid & [params]]

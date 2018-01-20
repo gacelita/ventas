@@ -11,7 +11,8 @@
    [ventas.utils.files :as utils.files]
    [ventas.entities.file :as entities.file]
    [ventas.common.utils :as common.utils]
-   [clojure.java.io :as io]))
+   [clojure.java.io :as io]
+   [ventas.utils.slugs :as utils.slugs]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -181,6 +182,14 @@
   #{:brand :tax :file :category :product.term :amount}
 
   :autoresolve? true
+
+  :filter-create
+  (fn [this]
+    (utils.slugs/add-slug-to-entity this :product/name))
+
+  :filter-update
+  (fn [_ attrs]
+    (utils.slugs/add-slug-to-entity attrs :product/name))
 
   :to-json
   (fn [this params]

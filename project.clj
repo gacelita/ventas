@@ -51,7 +51,7 @@
                  ;; Server-side HTTP requests
                  [clj-http "3.7.0" :exclusions [riddley]]
 
-                 ; Server
+                 ; HTTP server
                  [http-kit "2.2.0"]
 
                  ; Authentication
@@ -61,7 +61,7 @@
                  [ring "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
                  [bk/ring-gzip "0.2.1"]
-                 [ring/ring-json "0.4.0" :exclusions [cheshire]] ;; see: buddy
+                 [ring/ring-json "0.4.0" :exclusions [cheshire]]
 
                  ;; Routing
                  [compojure "1.6.0" :exclusions [instaparse]]
@@ -72,7 +72,7 @@
                  ;; i18n
                  [tongue "0.2.3"]
 
-                 ;; Reagent
+                 ;; Reagent, re-frame, etc.
                  [reagent "0.7.0"]
                  [reagent-utils "0.2.1"]
                  [re-frame "0.10.2"]
@@ -125,10 +125,16 @@
 
                  [binaryage/devtools "0.9.8"]
 
+                 ;; String manipulation
+                 [funcool/cuerdas "2.0.5"]
+
+                 ;; Elasticsearch
                  [cc.qbits/spandex "0.5.5"]
 
                  ; Error reporting for Ring
                  [prone "1.1.4"]
+
+                 ;; Devcards itself
                  [devcards "0.2.4" :exclusions [cljsjs/react]]]
 
   :plugins [[lein-cljsbuild "1.1.7"]

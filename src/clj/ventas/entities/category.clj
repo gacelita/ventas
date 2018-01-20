@@ -5,6 +5,7 @@
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
+   [ventas.utils.slugs :as utils.slugs]
    [ventas.database.generators :as generators]))
 
 (spec/def :category/name ::entities.i18n/ref)
@@ -63,6 +64,14 @@
     [{:category/name (entities.i18n/get-i18n-entity {:en_US "Default"
                                                      :es_ES "Predeterminada"})
       :category/keyword :default}])
+
+  :filter-create
+  (fn [this]
+    (utils.slugs/add-slug-to-entity this :category/name))
+
+  :filter-update
+  (fn [_ attrs]
+    (utils.slugs/add-slug-to-entity attrs :category/name))
 
   :dependencies
   #{:file :i18n}
