@@ -1,9 +1,7 @@
 (ns ventas.pages.admin.products.edit
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
@@ -146,9 +144,7 @@
        (assoc-in [state-key :product-hash] (hash product)))))
 
 (defn product-form []
-  (let [id (-> (routes/current)
-               (get-in [:route-params :id])
-               (js/parseInt))]
+  (let [id (routes/ref-from-param :id)]
     (if-not (pos? id)
       (rf/dispatch [::set-product {:schema/type :schema.type/product}])
       (rf/dispatch [::backend/admin.entities.pull

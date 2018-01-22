@@ -44,29 +44,26 @@
     :dispatch [::fetch]}))
 
 (defn content []
-  (rf/dispatch [::init])
-  (fn [_]
-    [:div.category-page.ui.container
+  [:div.category-page.ui.container
 
-     [:div.category-page__sidebar
-      (let [{:keys [filters taxonomies]} @(rf/subscribe [::events/db [state-key]])]
-        [components.product-filters/product-filters
-         {:filters filters
-          :taxonomies taxonomies
-          :event ::update-filters}])]
+   [:div.category-page__sidebar
+    (let [{:keys [filters taxonomies]} @(rf/subscribe [::events/db [state-key]])]
+      [components.product-filters/product-filters
+       {:filters filters
+        :taxonomies taxonomies
+        :event ::update-filters}])]
 
-     [:div.category-page__content
-      (let [products @(rf/subscribe [::events/db [state-key :items]])]
+   [:div.category-page__content
+    (let [products @(rf/subscribe [::events/db [state-key :items]])]
 
-        [products-list products])
-      #_[scroll/infinite-scroll
+      [products-list products])
+    #_[scroll/infinite-scroll
        (let [more-items-available? true]
          {:can-show-more? more-items-available?
-          :load-fn #(rf/dispatch [::components.product-filters/apply-filters [state-key]])})]]]))
+          :load-fn #(rf/dispatch [::components.product-filters/apply-filters [state-key]])})]]])
 
 (defn- page []
-  [skeleton
-   ^{:key (hash (routes/ref-from-param :id))} [content]])
+  [skeleton [content]])
 
 (rf/reg-sub
  ::title
@@ -80,4 +77,5 @@
  :frontend.category
  {:name [::title]
   :url ["category/" :id]
-  :component page})
+  :component page
+  :init-fx [::init]})

@@ -12,6 +12,7 @@
    [ventas.components.notificator :as notificator]
    [ventas.common.utils :as common.utils]
    [ventas.events.backend :as backend]
+   [ventas.session :as session]
    [ventas.events :as events]))
 
 (def addresses-key ::addresses)
@@ -192,7 +193,7 @@
 
 (defn page []
   [profile.skeleton/skeleton
-   [content (utils/get-identity)]])
+   [content (session/get-identity)]])
 
 (routes/define-route!
  :frontend.profile.addresses

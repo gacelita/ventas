@@ -1,9 +1,7 @@
 (ns ventas.pages.admin.taxes.edit
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.page :refer [pages]]
@@ -32,10 +30,7 @@
 (defn form []
   (let [data (atom {})
         key (atom nil)]
-    (rf/dispatch [::backend/entities.find
-                  (-> (routes/current)
-                      (get-in [:route-params :id])
-                      (js/parseInt))
+    (rf/dispatch [::backend/entities.find (routes/ref-from-param :id)
                   {:success (fn [entity]
                                  (reset! data entity)
                                  (reset! key (hash entity)))}])

@@ -1,9 +1,7 @@
 (ns ventas.pages.admin.configuration.image-sizes.edit
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.page :refer [pages]]
@@ -45,10 +43,7 @@
      (assoc-in db (concat [form-data-key] field) value))))
 
 (defn form []
-  (rf/dispatch [::backend/entities.find
-                (-> (routes/current)
-                    (get-in [:route-params :id])
-                    (js/parseInt))
+  (rf/dispatch [::backend/entities.find (routes/ref-from-param :id)
                 {:success (fn [entity-data]
                             (rf/dispatch [::events/db form-data-key entity-data])
                             (rf/dispatch [::events/db form-hash-key (hash entity-data)]))}])

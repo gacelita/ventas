@@ -1,9 +1,7 @@
 (ns ventas.pages.admin.orders.edit
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.page :refer [pages]]
@@ -130,9 +128,7 @@
         addresses)))
 
 (defn- content []
-  (rf/dispatch [::init (-> (routes/current)
-                           (get-in [:route-params :id])
-                           (js/parseInt))])
+  (rf/dispatch [::init (routes/ref-from-param :id)])
   (rf/dispatch [::events/enums.get :order.status])
   (rf/dispatch [::backend/admin.users.list
                 {:success [::events/db [state-key :users]]}])

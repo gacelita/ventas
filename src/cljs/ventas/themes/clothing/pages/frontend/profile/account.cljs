@@ -11,7 +11,8 @@
    [reagent.core :as reagent]
    [ventas.utils.validation :as validation]
    [ventas.utils.forms :as forms]
-   [ventas.common.utils :as common.utils]))
+   [ventas.common.utils :as common.utils]
+   [ventas.session :as session]))
 
 (def regular-length-validator [::length-error validation/length-validator {:max 30}])
 
@@ -76,7 +77,7 @@
 
 (defn page []
   [profile.skeleton/skeleton
-   [content (utils/get-identity)]])
+   [content (session/get-identity)]])
 
 (routes/define-route!
  :frontend.profile.account
