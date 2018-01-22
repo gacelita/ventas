@@ -1,9 +1,7 @@
 (ns ventas.utils
   "Random utilities"
   (:require
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [ventas.routes :as routes]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.utils.formatting :as utils.formatting]
    [cljs.spec.alpha :as spec]
@@ -12,9 +10,6 @@
    [ventas.events :as events])
   (:require-macros
    [ventas.utils]))
-
-(defn route-param [kw]
-  (get-in (session/get :route) [:route-params kw]))
 
 (defn value-handler [callback]
   (fn [e]
@@ -64,12 +59,6 @@
                                    (reset! t nil)
                                    (apply f args))
                                 threshold))))))
-
-(defn get-identity []
-  (let [session @(rf/subscribe [::events/db [:session]])]
-    (when (not (get-in session [:identity :id]))
-      (routes/go-to :frontend.login))
-    (:identity session)))
 
 (defn parse-int [n]
   (js/parseInt n 10))

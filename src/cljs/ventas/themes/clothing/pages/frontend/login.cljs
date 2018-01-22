@@ -7,7 +7,7 @@
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.i18n :refer [i18n]]
    [ventas.components.base :as base]
-   [ventas.utils :as util :refer [value-handler]]
+   [ventas.utils :as utils]
    [ventas.components.notificator :as notificator]
    [ventas.components.sidebar :as sidebar]
    [ventas.routes :as routes]
@@ -21,11 +21,11 @@
      [base/form
       [base/form-field
        [:input {:placeholder (i18n ::email)
-                :on-change (value-handler #(swap! data assoc :email %))}]]
+                :on-change (utils/value-handler #(swap! data assoc :email %))}]]
       [base/form-field
        [:input {:placeholder (i18n ::password)
                 :type "password"
-                :on-change (value-handler #(swap! data assoc :password %))}]]
+                :on-change (utils/value-handler #(swap! data assoc :password %))}]]
       [:a.login-page__forgot-password {:href "/"}
        (i18n ::forgot-password)]
       [base/button {:type "button"
@@ -39,14 +39,14 @@
      [base/form
       [base/form-field
        [:input {:placeholder (i18n ::full-name)
-                :on-change (value-handler #(swap! data assoc :name %))}]]
+                :on-change (utils/value-handler #(swap! data assoc :name %))}]]
       [base/form-field
        [:input {:placeholder (i18n ::email)
-                :on-change (value-handler #(swap! data assoc :email %))}]]
+                :on-change (utils/value-handler #(swap! data assoc :email %))}]]
       [base/form-field
        [:input {:placeholder (i18n ::password)
                 :type "password"
-                :on-change (value-handler #(swap! data assoc :password %))}]]
+                :on-change (utils/value-handler #(swap! data assoc :password %))}]]
       [base/button {:type "button"
                     :on-click #(rf/dispatch [::events/users.register @data])}
        (i18n ::register)]]]))

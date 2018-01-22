@@ -1,9 +1,7 @@
 (ns ventas.themes.clothing.pages.frontend
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.page :refer [pages]]
    [ventas.components.notificator :as ventas.notificator]

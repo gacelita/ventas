@@ -1,9 +1,7 @@
 (ns ventas.pages.admin.users.edit
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.components.base :as base]
    [ventas.page :refer [pages]]
@@ -37,10 +35,7 @@
     (assoc-in db [state-key :user k] v)))
 
 (defn user-form []
-  (rf/dispatch [::backend/entities.find
-                (-> (routes/current)
-                    (get-in [:route-params :id])
-                    (js/parseInt))
+  (rf/dispatch [::backend/entities.find (routes/ref-from-param :id)
                 {:success [::events/db [state-key :user]]}])
   (rf/dispatch [::events/enums.get :user.role])
   (rf/dispatch [::events/enums.get :user.status])

@@ -3,7 +3,6 @@
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
    [day8.re-frame.forward-events-fx]
-   [re-frame-datatable.core :as dt]
    [ventas.page :refer [pages]]
    [ventas.utils :as utils]
    [ventas.utils.ui :as utils.ui]

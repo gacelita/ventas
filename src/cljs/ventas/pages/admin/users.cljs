@@ -2,7 +2,6 @@
   (:require
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.components.base :as base]

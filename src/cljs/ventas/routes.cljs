@@ -1,17 +1,16 @@
 (ns ventas.routes
   "Bidi wrapper and route utilities"
   (:require
-   [clojure.string :as str]
-   [ventas.utils.logging :refer [error]]
    [accountant.core :as accountant]
-   [ventas.page :as page]
-   [reagent.session :as session]
+   [bidi.bidi :as bidi]
+   [clojure.string :as str]
    [re-frame.core :as rf]
    [reagent.ratom :as ratom]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.logging :as log]
-   [bidi.bidi :as bidi]
-   [ventas.utils :as utils]))
+   [ventas.page :as page]
+   [ventas.utils :as utils]
+   [ventas.events :as events]
+   [ventas.utils.logging :as log]))
 
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
@@ -81,7 +80,7 @@
   [& args]
   (let [path (apply bidi/path-for @routes args)]
     (when-not path
-      (error "Route not found" args))
+      (log/error "Route not found" args))
     path))
 
 (defn match-route
@@ -96,24 +95,31 @@
 (defn current
   "Returns the current route"
   []
-  (session/get :route))
+  @(rf/subscribe [::events/db :route]))
+
+(defn handler
+  "Returns the current route handler"
+  []
+  (first (current)))
 
 (defn params
   "Returns the current route params"
   []
-  (:route-params (current)))
+  (last (current)))
 
 (defn route-name
   "Returns the name of a route"
-  [kw & [route-params]]
-  {:pre [(or (nil? route-params) (map? route-params))]}
-  (let [{:keys [name]} (find-route kw)]
+  [handler & [params]]
+  {:pre [(or (nil? params) (map? params))]}
+  (let [{:keys [name]} (find-route handler)]
     (cond
       (string? name) name
-      (keyword? name) (apply i18n name route-params)
-      (fn? name) (name route-params)
+      (keyword? name) (apply i18n name params)
+      (fn? name) (name params)
       (vector? name) @(rf/subscribe name)
-      :else (log/warn "A route returns a name that is not a string, keyword, function or vector" kw name))))
+      :else (log/warn "A route returns a name that is not a string, keyword, function or vector"
+                      handler
+                      name))))
 
 (rf/reg-fx
  :go-to
@@ -128,3 +134,8 @@
       (pos? as-int) as-int
       (str/starts-with? ref "_") (keyword ref)
       :default ref)))
+
+(rf/reg-event-db
+ ::set
+ (fn [db [_ handler route-params]]
+   (assoc db :route [handler route-params])))

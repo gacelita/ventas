@@ -3,7 +3,6 @@
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
    [ventas.page :refer [pages]]
-   [ventas.utils :refer [value-handler]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
@@ -188,7 +187,7 @@
 
 (defn content []
   (rf/dispatch [::events/db [state-key] {:quantity 1}])
-  (rf/dispatch [::fetch (get-product-ref)])
+  (rf/dispatch [::fetch (routes/ref-from-param :id)])
   (fn []
     (let [state @(rf/subscribe [::events/db state-key])]
       [:div.product-page

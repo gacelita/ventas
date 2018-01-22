@@ -56,7 +56,7 @@
     :children configuration-items}])
 
 (defn- menu-item [{:keys [route label icon children] :as item}]
-  [:li.admin__menu-item (when (= (:current-page (routes/current)) route)
+  [:li.admin__menu-item (when (= (routes/handler) route)
                           {:class "admin__menu-item--active"})
    (if (:divider item)
      [base/divider]

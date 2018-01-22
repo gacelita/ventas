@@ -6,7 +6,6 @@
    [re-frame.core :as rf]
    [re-frame.loggers :as rf.loggers]
    [reagent.core :as reagent]
-   [reagent.session :as session]
    [ventas.components.base :as base]
    [ventas.devcards.core]
    [ventas.events :as events]
@@ -55,8 +54,7 @@
   (let [session @(rf/subscribe [::events/db [:session]])]
     (if-not session
       [loading]
-      (let [{:keys [current-page]} (session/get :route)]
-        [p/pages current-page]))))
+      [p/pages (routes/handler)])))
 
 (defn app-element []
   (js/document.getElementById "app"))
@@ -66,12 +64,9 @@
    {:nav-handler
     (fn [path]
       (info "Current path" path)
-      (let [match (routes/match-route path)
-            current-page (:handler match)
-            route-params (:route-params match)]
-        (info "Current page" current-page)
-        (session/put! :route {:current-page current-page
-                              :route-params route-params})))
+      (let [{:keys [handler route-params]} (routes/match-route path)]
+        (info "Current page" handler)
+        (rf/dispatch [::routes/set handler route-params])))
     :path-exists?
     (fn [path]
       (boolean (routes/match-route path)))})

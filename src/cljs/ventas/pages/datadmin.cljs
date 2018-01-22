@@ -1,9 +1,7 @@
 (ns ventas.pages.datadmin
   (:require
    [reagent.core :as reagent :refer [atom]]
-   [reagent.session :as session]
    [re-frame.core :as rf]
-   [re-frame-datatable.core :as dt]
    [ventas.utils.logging :refer [trace debug info warn error]]
    [ventas.page :refer [pages]]
    [ventas.components.notificator]
@@ -15,40 +13,34 @@
    [ventas.routes :as routes]
    [ventas.events :as events]))
 
+(def state-key ::state)
+
 (defn skeleton [contents]
-  (info "Rendering...")
-  (let [current-page (:current-page (session/get :route))
-        route-params (:route-params (session/get :route))]
+  (let [handler (routes/handler)]
     [:div.ventas.root
       [ventas.components.notificator/notificator]
       [ventas.components.popup/popup]
       [:div.ventas.wrapper
         [base/container {:class "bu main"}
           [base/divider]
-          ^{:key current-page} contents]]]))
+          ^{:key handler} contents]]]))
 
-(rf/reg-sub :datadmin/datoms
-  (fn [db _] (-> db :datadmin :datoms)))
-
-(rf/reg-sub :datadmin/filters
-  (fn [db _] (-> db :datadmin :filters)))
-
-(rf/reg-event-db :datadmin.filters/add
+(rf/reg-event-db ::filters.add
   (fn [db [_ field value]]
-    (-> db (update-in [:datadmin :filters] assoc field value))))
+    (-> db (update-in [state-key :filters] assoc field value))))
 
-(rf/reg-event-db :datadmin.filter/remove
+(rf/reg-event-db ::filters.remove
   (fn [db [_ field value]]
-    (-> db (update-in [:datadmin :filters] dissoc field))))
+    (-> db (update-in [state-key :filters] dissoc field))))
 
-(rf/reg-event-fx :datadmin/datoms
+(rf/reg-event-fx ::datoms.fetch
   (fn [cofx [_]]
     {:ws-request {:name :admin.datadmin.datoms
                   :params {}
-                  :success #(rf/dispatch [::events/db [:datadmin :datoms] (:datoms %)])}}))
+                  :success #(rf/dispatch [::events/db [state-key :datoms] (:datoms %)])}}))
 
 (defn page []
-  (rf/dispatch [:datadmin/datoms])
+  (rf/dispatch [::datoms.fetch])
   (fn []
     [skeleton
       [:div
@@ -61,7 +53,7 @@
             [base/table-header-cell "Value"]
             [base/table-header-cell "Transaction"]]]
           [base/table-body
-           (for [datom @(rf/subscribe [:datadmin/datoms])]
+           (for [datom @(rf/subscribe [::events/db [state-key :datoms]])]
              [base/table-row
               [base/table-cell (:e datom)]
               [base/table-cell (:a datom)]
@@ -88,7 +80,7 @@
               [base/table-header-cell "Field"]
               [base/table-header-cell "Value"]]]
           [base/table-body
-            (for [filter @(rf/subscribe [:datadmin/filters])]
+            (for [filter @(rf/subscribe [::events/db [state-key :filters]])]
               [base/table-row
                 [base/table-cell
                   [base/select {:placeholder "Field"
@@ -112,9 +104,7 @@
               [base/table-cell
                 [base/input {:placeholder "Value"
                            :type :text}]
-                [base/button "Add" {:on-click #(rf/dispatch [:datadmin.filters/add ])}]]]]]
-
-        ]]))
+                [base/button "Add" {:on-click #(rf/dispatch [::filters.add])}]]]]]]]))
 
 
 (routes/define-route!
