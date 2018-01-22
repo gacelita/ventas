@@ -16,7 +16,6 @@
    [clojure.spec.alpha :as spec]
    [clojure.spec.test.alpha :as stest]
    [clojure.test.check.generators :as gen]
-   [com.gfredericks.test.chuck.generators :as gen']
    [taoensso.timbre :as timbre :refer [info]]
    [io.rkn.conformity :as conformity])
   (:import [java.io File]
