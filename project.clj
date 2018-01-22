@@ -20,10 +20,10 @@
 
   :dependencies [
                  ;; Clojure
-                 [org.clojure/clojure "1.9.0-RC2"]
+                 [org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
-                 [org.clojure/core.async "0.3.465" :exclusions [org.clojure/tools.reader]]
-                 [expound "0.3.4"]
+                 [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
+                 [expound "0.4.0"]
                  [org.clojure/spec.alpha "0.1.143" :scope "provided"]
                  [com.google.guava/guava "23.0"]
                  [org.clojure/tools.nrepl "0.2.13"]
@@ -34,11 +34,11 @@
                  ;; Logging
                  ;; We use timbre for logging, so we redirect everything to slf4j
                  ;; and then we redirect slf4j to timbre
-                 [com.fzakaria/slf4j-timbre "0.3.7"]
+                 [com.fzakaria/slf4j-timbre "0.3.8"]
                  [com.taoensso/timbre       "4.10.0"]
-                 [org.slf4j/log4j-over-slf4j "1.7.14"]
-                 [org.slf4j/jul-to-slf4j "1.7.14"]
-                 [org.slf4j/jcl-over-slf4j "1.7.14"]
+                 [org.slf4j/log4j-over-slf4j "1.7.25"]
+                 [org.slf4j/jul-to-slf4j "1.7.25"]
+                 [org.slf4j/jcl-over-slf4j "1.7.25"]
 
                  ;; JSON, Transit and Fressian
                  [jarohen/chord "0.8.1"]
@@ -72,20 +72,20 @@
                  ;; i18n
                  [tongue "0.2.3"]
 
-                 ;; Reagent, re-frame, etc.
+                 ;; re-frame
                  [reagent "0.7.0"]
-                 [reagent-utils "0.2.1"]
                  [re-frame "0.10.2"]
-                 [re-frame-datatable "0.6.0"]
-                 [soda-ash "0.76.0"]
                  [day8.re-frame/forward-events-fx "0.0.5"]
 
+                 ;; Semantic UI
+                 [soda-ash "0.76.0"]
+
                  ; Routing
-                 [bidi "2.1.2"]
+                 [bidi "2.1.3"]
                  [venantius/accountant "0.2.3"]
 
                  ; HTML templating
-                 [selmer "1.11.3" :exclusions [cheshire joda-time]]
+                 [selmer "1.11.5" :exclusions [cheshire joda-time]]
 
                  ;; component alternative
                  [mount "0.1.11"]
@@ -123,7 +123,7 @@
                  ;; Image processing
                  [fivetonine/collage "0.2.1"]
 
-                 [binaryage/devtools "0.9.8"]
+                 [binaryage/devtools "0.9.9"]
 
                  ;; String manipulation
                  [funcool/cuerdas "2.0.5"]
@@ -132,7 +132,7 @@
                  [cc.qbits/spandex "0.5.5"]
 
                  ; Error reporting for Ring
-                 [prone "1.1.4"]
+                 [prone "1.2.0"]
 
                  ;; Devcards itself
                  [devcards "0.2.4" :exclusions [cljsjs/react]]]
