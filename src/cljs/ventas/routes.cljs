@@ -135,7 +135,8 @@
       (str/starts-with? ref "_") (keyword ref)
       :default ref)))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::set
- (fn [db [_ handler route-params]]
-   (assoc db :route [handler route-params])))
+ (fn [{:keys [db]} [_ handler route-params]]
+   {:db (assoc db :route [handler route-params])
+    :dispatch (:init-fx (find-route handler))}))
