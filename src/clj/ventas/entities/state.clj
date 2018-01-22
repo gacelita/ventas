@@ -2,7 +2,6 @@
   (:require
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
-   [com.gfredericks.test.chuck.generators :as gen']
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]

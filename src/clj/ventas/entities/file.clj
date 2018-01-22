@@ -3,7 +3,6 @@
     [clojure.java.io :as io]
     [clojure.spec.alpha :as spec]
     [clojure.test.check.generators :as gen]
-    [com.gfredericks.test.chuck.generators :as gen']
     [ventas.config :as config]
     [ventas.database :as db]
     [ventas.database.entity :as entity]
