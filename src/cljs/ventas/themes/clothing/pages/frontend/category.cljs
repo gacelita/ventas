@@ -47,9 +47,8 @@
 (defn content []
   [:div.category-page.ui.container
 
-   (let [{:keys [filters taxonomies]} @(rf/subscribe [::events/db [state-key]])]
-
-     (if-not (and (seq filters) (seq taxonomies))
+   (let [{:keys [filters taxonomies items]} @(rf/subscribe [::events/db [state-key]])]
+     (if (and items (empty? items))
        [error/no-data]
        (list
         [:div.category-page__sidebar
@@ -59,9 +58,7 @@
            :event ::update-filters}]]
 
         [:div.category-page__content
-         (let [products @(rf/subscribe [::events/db [state-key :items]])]
-
-           [products-list products])
+         [products-list items]
          #_[scroll/infinite-scroll
             (let [more-items-available? true]
               {:can-show-more? more-items-available?

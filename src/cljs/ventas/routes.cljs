@@ -138,5 +138,6 @@
 (rf/reg-event-fx
  ::set
  (fn [{:keys [db]} [_ handler route-params]]
-   {:db (assoc db :route [handler route-params])
-    :dispatch (:init-fx (find-route handler))}))
+   (merge {:db (assoc db :route [handler route-params])}
+          (when-let [init-fx (:init-fx (find-route handler))]
+            {:dispatch init-fx}))))
