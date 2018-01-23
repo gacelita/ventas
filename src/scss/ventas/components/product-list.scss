@@ -36,6 +36,17 @@
 
 .product-list__images-wrapper {
     position: relative;
+
+    &--no-image {
+        .product-list__actions {
+            bottom: 0px;
+            opacity: 1;
+            position: static;
+            padding-top: 15px;
+            font-size: 1.3rem;
+            padding-bottom: 5px;
+        }
+    }
 }
 
 .product-list__actions {
