@@ -4,7 +4,8 @@
    [ventas.common.utils :as common.utils]
    [ventas.utils :as utils]
    [taoensso.timbre :refer [debug]]
-   [clj-uuid :as uuid]))
+   [clj-uuid :as uuid]
+   [ventas.database.entity :as entity]))
 
 (def ^:private shared-hub
   (atom nil))
@@ -120,3 +121,11 @@
 
 (defn stop! []
   (core.async/close! @shared-hub))
+
+(defn call-handler-with-user
+  "Simulates a request done from the client. Meant for the REPL."
+  [name params user]
+  {:pre [(entity/entity? user)]}
+  (call-request-handler {:name name
+                         :params params}
+                        {:session (atom {:identity user})}))
