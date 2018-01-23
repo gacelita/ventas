@@ -1,19 +1,20 @@
 (ns ventas.themes.clothing.pages.frontend.category
   (:require
+   [clojure.string :as str]
    [re-frame.core :as rf]
    [reagent.core :as reagent :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.components.product-list :refer [products-list]]
+   [ventas.components.error :as error]
+   [ventas.components.infinite-scroll :as scroll]
    [ventas.components.product-filters :as components.product-filters]
+   [ventas.components.product-list :refer [products-list]]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.page :refer [pages]]
-   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.utils :as utils]
    [ventas.routes :as routes]
-   [ventas.components.infinite-scroll :as scroll]
-   [ventas.events.backend :as backend]
-   [ventas.events :as events]
-   [clojure.string :as str]))
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
+   [ventas.utils :as utils]))
 
 (def state-key ::state)
 
@@ -46,21 +47,25 @@
 (defn content []
   [:div.category-page.ui.container
 
-   [:div.category-page__sidebar
-    (let [{:keys [filters taxonomies]} @(rf/subscribe [::events/db [state-key]])]
-      [components.product-filters/product-filters
-       {:filters filters
-        :taxonomies taxonomies
-        :event ::update-filters}])]
+   (let [{:keys [filters taxonomies]} @(rf/subscribe [::events/db [state-key]])]
 
-   [:div.category-page__content
-    (let [products @(rf/subscribe [::events/db [state-key :items]])]
+     (if-not (and (seq filters) (seq taxonomies))
+       [error/no-data]
+       (list
+        [:div.category-page__sidebar
+         [components.product-filters/product-filters
+          {:filters filters
+           :taxonomies taxonomies
+           :event ::update-filters}]]
 
-      [products-list products])
-    #_[scroll/infinite-scroll
-       (let [more-items-available? true]
-         {:can-show-more? more-items-available?
-          :load-fn #(rf/dispatch [::components.product-filters/apply-filters [state-key]])})]]])
+        [:div.category-page__content
+         (let [products @(rf/subscribe [::events/db [state-key :items]])]
+
+           [products-list products])
+         #_[scroll/infinite-scroll
+            (let [more-items-available? true]
+              {:can-show-more? more-items-available?
+               :load-fn #(rf/dispatch [::components.product-filters/apply-filters [state-key]])})]])))])
 
 (defn- page []
   [skeleton [content]])
