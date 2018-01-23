@@ -124,7 +124,7 @@
        [:a {:href (routes/path-for :frontend)}
         [base/icon {:name "home"}]
         [:span (i18n ::home)]]]
-      [base/loader {:active (boolean (seq @(rf/subscribe [::events/db [::ws/pending-requests]])))
+      [base/loader {:active (boolean (seq @(rf/subscribe [::ws/pending-requests])))
                     :inverted true
                     :size "small"}]
       (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
