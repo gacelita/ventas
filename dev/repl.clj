@@ -8,18 +8,19 @@
    [clojure.spec.alpha :as spec]))
 
 (def aliases
-  {'config 'ventas.config
-   'server 'ventas.server
-   'ws 'ventas.server.ws
-   'api 'ventas.server.api
-   'db 'ventas.database
-   'search 'ventas.search
-   'schema 'ventas.database.schema
-   'seed 'ventas.database.seed
-   'entity 'ventas.database.entity
+  {'api 'ventas.server.api
+   'common.utils 'ventas.common.utils
+   'config 'ventas.config
    'd 'datomic.api
+   'db 'ventas.database
+   'entity 'ventas.database.entity
+   'plugin 'ventas.plugin
+   'schema 'ventas.database.schema
+   'search 'ventas.search
+   'seed 'ventas.database.seed
+   'server 'ventas.server
    'utils 'ventas.utils
-   'plugin 'ventas.plugin})
+   'ws 'ventas.server.ws})
 
 (defn init-aliases []
   (doseq [[from to] aliases]
