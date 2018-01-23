@@ -42,9 +42,7 @@
  (fn [cofx [_ key]]
    {:dispatch [::backend/configuration.get
                {:params {:keyword key}
-                :success
-                (fn [data]
-                  (rf/dispatch [::db [:configuration key] data]))}]}))
+                :success [::db [:configuration key]]}]}))
 
 (rf/reg-event-fx
  ::enums.get
@@ -64,8 +62,13 @@
  (fn [cofx [_ eid]]
    {:dispatch [::backend/entities.find eid
                {:sync true
-                :success (fn [entity-data]
-                           (rf/dispatch [::db [:entities eid] entity-data]))}]}))
+                :success [::db [:entities eid]]}]}))
+
+(rf/reg-event-fx
+ ::image-sizes.list
+ (fn [cofx [_]]
+   {:dispatch [::backend/image-sizes.list
+               {:success [::db :image-sizes]}]}))
 
 (rf/reg-event-fx
  ::admin.entities.sync
@@ -73,15 +76,14 @@
    {:dispatch [::backend/admin.entities.find
                {:sync true
                 :params {:id eid}
-                :success (fn [entity-data]
-                           (rf/dispatch [::db [:admin-entities eid] entity-data]))}]}))
+                :success [::db [:admin-entities eid]]}]}))
 
 (rf/reg-event-fx
  ::admin.entities.remove
  (fn [cofx [_ eid]]
    {:dispatch [::backend/admin.entities.remove
                {:params {:id eid}
-                :success #(rf/dispatch [::admin.entities.remove.next eid])}]}))
+                :success [::admin.entities.remove.next eid]}]}))
 
 (rf/reg-event-db
  ::admin.entities.remove.next
@@ -182,16 +184,41 @@
                {:success [::db :users.favorites]}]}))
 
 (rf/reg-event-fx
- ::image-sizes.list
- (fn [cofx [_ db-key]]
-   {:dispatch [::backend/image-sizes.list
-               {:success #(rf/dispatch [::db db-key %])}]}))
+ ::users.favorites.toggle
+ (fn [{:keys [db]} [_ id]]
+   (let [favorites (set (get db :users.favorites))]
+     {:dispatch (if (contains? favorites id)
+                  [::backend/users.favorites.remove
+                   {:params {:id id}
+                    :success (fn [favorites]
+                               (rf/dispatch [::db.update :users.favorites #(disj (set favorites) id)]))}]
+                  [::backend/users.favorites.add
+                   {:params {:id id}
+                    :success (fn [favorites]
+                               (rf/dispatch [::db.update :users.favorites #(conj (set favorites) id)]))}])
+      :db (update db :users.favorites #(if (contains? favorites id)
+                                         (disj (set %) id)
+                                         (conj (set %) id)))})))
+
+(rf/reg-sub
+ ::users.favorites.favorited?
+ (fn [_]
+   (rf/subscribe [::db :users.favorites]))
+ (fn [favorites [_ id]]
+   (contains? (set favorites) id)))
+
+(rf/reg-sub
+ ::item-count
+ (fn [_]
+   (rf/subscribe [::main]))
+ (fn [state]))
+
 
 (rf/reg-event-fx
  ::admin.taxes.list
  (fn [cofx [_ db-key]]
    {:dispatch [::backend/admin.taxes.list
-               {:success #(rf/dispatch [::admin.taxes.list.next db-key %])}]}))
+               {:success [::admin.taxes.list.next db-key]}]}))
 
 (rf/reg-event-db
  ::admin.taxes.list.next

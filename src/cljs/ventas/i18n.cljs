@@ -11,6 +11,8 @@
   {:en_US
    {:ventas.components.cart/product-added "Product added!"
 
+    :ventas.components.error/no-data "Nothing found!"
+
     :ventas.components.table/no-rows "No items to show"
 
     :ventas.components.product-filters/category "Category"
