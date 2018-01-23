@@ -38,6 +38,12 @@
      (update-in db where what-fn))))
 
 (rf/reg-event-fx
+ ::categories.list
+ (fn [_ _]
+   {:dispatch [::backend/categories.list
+               {:success [::db :categories]}]}))
+
+(rf/reg-event-fx
  ::configuration.get
  (fn [cofx [_ key]]
    {:dispatch [::backend/configuration.get
