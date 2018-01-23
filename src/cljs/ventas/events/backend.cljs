@@ -32,6 +32,11 @@
                         :params {:id id}}
                        options)}))
 
+(rf/reg-event-fx
+ ::image-sizes.list
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :image-sizes.list} options)}))
+
 
 (rf/reg-event-fx
  ::products.get
@@ -135,7 +140,7 @@
 (rf/reg-event-fx
  ::users.favorites.remove
  (fn [cofx [_ options]]
-    {:ws-request (merge {:name :users.favorites.add} options)}))
+    {:ws-request (merge {:name :users.favorites.remove} options)}))
 
 (rf/reg-event-fx
  ::search

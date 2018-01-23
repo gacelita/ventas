@@ -75,6 +75,14 @@
     (update-in m ks f)
     m))
 
+(defn index-by
+  "Indexes a collection using the given keyword as key"
+  [keyword coll]
+  (->> coll
+       (map (fn [item]
+              [(get item keyword) (dissoc item keyword)]))
+       (into {})))
+
 (defn read-keyword [str]
   (keyword (str/replace str #"\:" "")))
 

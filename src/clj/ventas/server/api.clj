@@ -12,7 +12,8 @@
    [ventas.entities.product :as entities.product]
    [ventas.paths :as paths]
    [ventas.search :as search]
-   [ventas.entities.file :as entities.file]))
+   [ventas.entities.file :as entities.file]
+   [ventas.common.utils :as common.utils]))
 
 (defn register-endpoint!
   ([kw f]
@@ -83,6 +84,12 @@
                  :name name
                  :id id})))))
 
+(register-endpoint!
+ :image-sizes.list
+ (fn [_ {:keys [session]}]
+   (->> (entity/query :image-size)
+        (map #(entity/to-json % {:culture (get-culture session)}))
+        (common.utils/index-by :keyword))))
 
 (register-endpoint!
   :products.get
@@ -364,8 +371,10 @@
 
 (defn- toggle-favorite [session product-id f]
   (when-let [user (get-user session)]
-    (entity/update* {:db/id (:db/id user)
-                     :user/favorites (f (set (:user/favorites user)) product-id)})))
+    (let [favorites (f (set (:user/favorites user)) product-id)]
+      (entity/update* {:db/id (:db/id user)
+                       :user/favorites favorites})
+      favorites)))
 
 (register-endpoint!
   :users.favorites.add
