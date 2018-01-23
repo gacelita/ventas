@@ -83,6 +83,17 @@
               [(get item keyword) (dissoc item keyword)]))
        (into {})))
 
+(defn tree-by
+  "Creates a recursive structure from a flat structure"
+  [id-key parent-key coll & [parent]]
+  (->> coll
+       (filter #(if parent
+                  (= parent (get % parent-key))
+                  (not (get % parent-key))))
+       (map (fn [root]
+              [root (tree-by id-key parent-key coll (get root id-key))]))
+       (into {})))
+
 (defn read-keyword [str]
   (keyword (str/replace str #"\:" "")))
 
