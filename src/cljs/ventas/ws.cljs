@@ -8,9 +8,18 @@
    [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
-   [re-frame.core :as rf])
+   [re-frame.core :as rf]
+   [reagent.core :as reagent]
+   [reagent.ratom :as ratom])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
+
+(defonce ^:private pending-requests (reagent/atom #{}))
+
+(rf/reg-sub-raw
+ ::pending-requests
+ (fn [_ _]
+   (ratom/reaction @pending-requests)))
 
 (defonce ^:private request-channels (atom {}))
 (defonce ^:private output-channels (atom {}))
@@ -138,14 +147,14 @@
 
 (defn- effect-ws-request [{:keys [name params success error] :as request}]
   (let [args-hash (hash request)]
-    (when-not @(rf/subscribe [::events/db [::pending-requests args-hash]])
-      (rf/dispatch [::events/db.update ::pending-requests #(conj (set %) args-hash)])
+    (when-not (contains? @pending-requests args-hash)
+      (swap! pending-requests conj args-hash)
       (send-request!
        {:name name
         :params params
         :callback
         (fn [{data :data request-succeeded? :success :as response}]
-          (rf/dispatch [::events/db.update ::pending-requests #(disj (set %) args-hash)])
+          (swap! pending-requests disj args-hash)
           (cond
             (not request-succeeded?)
             (do
