@@ -20,6 +20,7 @@
                           :computer 4}
         [:div.product-list__product
          [:div.product-list__images-wrapper
+          {:class (when (empty? images) "product-list__images-wrapper--no-image")}
           (when (seq images)
             [image/image (:id (first images)) :product-listing])
           [:div.product-list__actions
