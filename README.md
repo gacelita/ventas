@@ -6,9 +6,9 @@ ventas wants to be an ecommerce platform written entirely in Clojure.
 
 For now, the project is a WIP. Although the foundation is good, there aren't many features yet (and no tests whatsoever).
 
-For any questions I'm always available at my email (which you can find in `project.clj`). You can also open an issue.
+For any questions I'm usually available at the `#ventas` channel in [clojurians](clojurians.slack.com). You can also open an issue, or contact me by email (you'll find it in `project.clj`) .
 
-[Demo](https://ventas.kazer.es) (may not be the latest code, may not be online, may explode in your face)
+[Demo instance](https://ventas.kazer.es) (may not be running)
 
 
 
@@ -32,7 +32,7 @@ No open source ecommerce project satisfies me. I've been working with most of th
 
 At the moment, ventas is unfit for its purpose. However, if you are a developer and just want to see the project in action, read on.
 
-You need to have  `git`, `sassc` and `leiningen` installed. You also need access to a Datomic database.
+You need to have  `git`, `sassc` and `leiningen` installed. You also need access to a Datomic database and an ElasticSearch instance. (See [Setting up a local environment with docker-compose](#setting-up-a-local-environment-with-docker-compose) if you feel comfortable with Docker)
 
 First `clone` the project, `cd` into it, and install the frontend dependencies:
 
@@ -126,9 +126,22 @@ Prompt will show when Figwheel connects to your application
 To quit, type: :cljs/quit
 ```
 
+#### Setting up a local environment with Docker Compose
 
+- `cd datomic`
+- `cp .credentials.example .credentials`
+- In `.credentials`, replace "username" and "pasword" with your credentials for downloading Datomic from my.datomic.com
+- `cd config`
+- `cp transactor.example.properties transactor.properties`
+- In `transactor.properties`, replace "YOUR_LICENSE_KEY" with your Datomic Pro license key (you can get one for free, see Datomic Starter [here](https://www.datomic.com/get-datomic.html))
+- `cd ../../` (repository root)
+- `docker build -t datomic datomic`
 
+Now everything is prepared for starting your local environment. Every time you want to use (or develop) `ventas`, you can execute:
 
+`docker-compose -f docker-compose.dev.yml up` 
+
+That will start Datomic and Elasticsearch.
 
 ### Overview
 
