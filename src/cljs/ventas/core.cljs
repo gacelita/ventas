@@ -48,9 +48,15 @@
     [base/loader {:inverted true}
      "Loading"]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::events/session.start]
+                 [::events/users.favorites.list]]}))
+
 (defn page []
   (info "Rendering...")
-  (rf/dispatch [::events/session.start])
+  (rf/dispatch [::init])
   (let [session @(rf/subscribe [::events/db [:session]])]
     (if-not session
       [loading]

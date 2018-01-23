@@ -1,0 +1,18 @@
+
+.error {
+    text-align: center;
+    font-size: 1.7rem;
+    color: #4c4c4c;
+    padding: 50px 0px;
+    width: 100%;
+
+    i {
+        text-align: center;
+        &:before {
+            display: block;
+        }
+    }
+    &--no-data {
+
+    }
+}

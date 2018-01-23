@@ -109,18 +109,6 @@
                     :visible-slides visible-slides}))
        (assoc-in [state-key :main-image] (first images)))))
 
-(rf/reg-event-fx
- ::toggle-favorite
- (fn [{:keys [db]} [_]]
-   (let [{:keys [id]} (get-in db [state-key :product])
-         favorites (set (get db :users.favorites))]
-     {:dispatch (if (contains? favorites id)
-                  [::backend/users.favorites.remove {:params {:id id}}]
-                  [::backend/users.favorites.add {:params {:id id}}])
-      :db (update db :users.favorites #(if (contains? favorites id)
-                                         (disj (set %) id)
-                                         (conj (set %) id)))})))
-
 (defmulti term-view (fn [{:keys [keyword]} _] keyword))
 
 (defmethod term-view :color [taxonomy {:keys [color name] :as term} active?]
@@ -169,7 +157,7 @@
            {:type "button"
             :class (when (contains? favorites (:id product))
                      "product-page__heart--active")
-            :on-click #(rf/dispatch [::toggle-favorite])}
+            :on-click #(rf/dispatch [::events/users.favorites.toggle (:id product)])}
            [base/icon {:name "empty heart"}]])
         [:button.product-page__add-to-cart
          {:type "button"
