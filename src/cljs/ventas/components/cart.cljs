@@ -83,12 +83,6 @@
                                                   :params {:id eid
                                                            :quantity quantity}}]}))
 
-;; Remove item from the cart
-(rf/reg-event-fx
- ::remove
- (fn [{:keys [db local-storage]} [_ item-id]]
-   {:db (update-in db [:cart :items] #(dissoc % item-id))}))
-
 (defn cart-item [item]
   [:div.cart__item
    [:p (:name item)]])
