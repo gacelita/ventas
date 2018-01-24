@@ -149,8 +149,18 @@
 (defn document->indexing-queue [doc]
   (go (>! @indexing-queue doc)))
 
-(defn- resolve-i18n [v]
-  (if (number? v)
+(defn- category-parents [id]
+  (let [{:category/keys [parent]} (entity/find id)]
+    (if parent
+      (conj (category-parents parent) id)
+      [id])))
+
+(defn- value->es [a v]
+  (cond
+    (= a :product/categories)
+    (set (mapcat category-parents v))
+
+    (number? v)
     (let [entity (entity/find v)]
       (if (and entity (= (:schema/type entity) :schema.type/i18n))
         (->> (entity/to-json entity)
@@ -159,7 +169,8 @@
                      value]))
              (into {}))
         v))
-    v))
+
+    :default v))
 
 (defn- filter-entity-attr [e [a v]]
   (if-not (map? v)
@@ -172,7 +183,8 @@
 
 (defn- index-entity [eid]
   (let [doc (->> (entity/find eid)
-                 (common.utils/map-vals resolve-i18n)
+                 (map (fn [[a v]]
+                        [a (value->es a v)]))
                  (reduce filter-entity-attr
                          {})
                  (common.utils/map-keys ident->property))]
