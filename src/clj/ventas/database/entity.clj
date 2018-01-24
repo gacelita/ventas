@@ -251,15 +251,14 @@
          (attributes type))))
 
 (defn idents-with-value-type
-  "Returns the idents of an entity type with the given valueType"
-  [type value-type]
-  (let [attrs (attributes-by-ident type)]
-    (->> attrs
-         (filter (fn [[k v]]
-                   (= value-type (:db/valueType v))))
-         (into {})
-         (keys)
-         (set))))
+  "Returns the idents of an entity with the given valueType"
+  [entity value-type]
+  (->> (keys entity)
+       (map db/touch-eid)
+       (filter (fn [v]
+                 (= value-type (:db/valueType v))))
+       (map :db/ident)
+       (set)))
 
 (defn- autoresolve-ref [ref & [options]]
   (let [subentity (-> ref find)]
@@ -272,8 +271,7 @@
   "Resolves references to entity types that have an :autoresolve?
    property with a truthy value"
   [entity & [options]]
-  (let [ref-idents (idents-with-value-type (db/type->kw (:schema/type entity))
-                                           :db.type/ref)]
+  (let [ref-idents (idents-with-value-type entity :db.type/ref)]
     (->> entity
          (map (fn [[ident value]]
                 [ident (if-not (contains? ref-idents ident)
