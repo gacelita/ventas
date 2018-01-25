@@ -167,17 +167,20 @@
     (keyword? ref) (:db/id (db/entity [kw-ident ref]))
     (string? ref) (entity/resolve-by-slug ref)))
 
+(defn- get-product-category-filter [categories]
+  (mapcat (fn [category-ref]
+            (let [category (resolve-ref category-ref :category/keyword)]
+              [{:term {:product/categories category}}]))
+          categories))
+
 (defn- get-product-filters [{:keys [terms categories name price]} culture-kw]
   {:pre [culture-kw]}
   (concat [{:term {:schema/type ":schema.type/product"}}]
-          (mapcat (fn [term]
-                    [{:bool {:should [{:term {:product/terms term}}
-                                      {:term {:product/variation-terms term}}]}}])
-                  terms)
-          (mapcat (fn [category-ref]
-                    (let [category (resolve-ref category-ref :category/keyword)]
-                      [{:term {:product/categories category}}]))
-                  categories)
+          [{:bool {:should (mapcat (fn [term]
+                                     [{:bool {:should [{:term {:product/terms term}}
+                                                       {:term {:product/variation-terms term}}]}}])
+                                   terms)}}]
+          (get-product-category-filter categories)
           (when price
             [{:range {:product/price {:gte (:min price)
                                       :lte (:max price)}}}])
@@ -194,31 +197,38 @@
                              {:id taxonomy-kw
                               :keyword taxonomy-kw})})))))
 
+(defn- aggregate-products [categories culture]
+  (let [json-opts {:culture culture}
+        aggs-result (search/search {:size 0
+                                    :query {:bool {:must (get-product-category-filter categories)}}
+                                    :aggs {:categories {:terms {:field "product/categories"}}
+                                           :terms {:terms {:field "product/terms"}}
+                                           :variation-terms {:terms {:field "product/variation-terms"}}
+                                           :brands {:terms {:field "product/brand"}}}})
+        aggs (get-in aggs-result [:body :aggregations])]
+    (concat (term-aggregation->json (:categories aggs) json-opts :category)
+            (term-aggregation->json (:terms aggs) json-opts)
+            (term-aggregation->json (:variation-terms aggs) json-opts))))
+
+(defn- search-products [params culture]
+  (let [culture-kw (-> culture
+                       entity/find
+                       :i18n.culture/keyword)
+        results (search/search {:_source false
+                                :query {:bool {:must (get-product-filters params
+                                                                          culture-kw)}}})]
+    (->> (get-in results
+                 [:body :hits :hits])
+         (map :_id)
+         (map (fn [v] (Long/parseLong v)))
+         (map #(entity/find-json % {:culture culture})))))
+
 (register-endpoint!
   :products.aggregations
   (fn [{:keys [params]} {:keys [session]}]
-    (let [culture (get-culture session)
-          culture-kw (-> culture
-                         entity/find
-                         :i18n.culture/keyword)
-          _ (taoensso.timbre/debug (seq (get-product-filters params culture-kw)))
-          json-opts {:culture culture}
-          search (search/search {:_source false
-                                 :query {:bool {:must (get-product-filters params culture-kw)}}
-                                 :aggs {:categories {:terms {:field "product/categories"}}
-                                        :terms {:terms {:field "product/terms"}}
-                                        :variation-terms {:terms {:field "product/variation-terms"}}
-                                        :brands {:terms {:field "product/brand"}}}})]
-      {:items
-       (->> (get-in search
-                    [:body :hits :hits])
-            (map :_id)
-            (map (fn [v] (Long/parseLong v)))
-            (map #(entity/find-json % json-opts)))
-       :taxonomies (let [aggs (get-in search [:body :aggregations])]
-                     (concat (term-aggregation->json (:categories aggs) json-opts :category)
-                             (term-aggregation->json (:terms aggs) json-opts)
-                             (term-aggregation->json (:variation-terms aggs) json-opts)))})))
+    (let [culture (get-culture session)]
+      {:items (search-products params culture)
+       :taxonomies (aggregate-products (:categories params) culture)})))
 
 (register-endpoint!
   :states.list
