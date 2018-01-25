@@ -21,7 +21,7 @@
                               :tablet 4
                               :computer 4}
             [:div.product-list__product
-             [:a.product-list__images-wrapper
+             [:div.product-list__images-wrapper
               {:class (when (empty? images) "product-list__images-wrapper--no-image")}
               (when (seq images)
                 [:a {:href (routes/path-for :frontend.product :id id)}
