@@ -3,6 +3,7 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.components.image :as image]
+   [ventas.components.cart :as cart]
    [ventas.events :as events]
    [ventas.routes :as routes]
    [ventas.utils :as utils]
@@ -20,17 +21,20 @@
                               :tablet 4
                               :computer 4}
             [:div.product-list__product
-             [:div.product-list__images-wrapper
+             [:a.product-list__images-wrapper
               {:class (when (empty? images) "product-list__images-wrapper--no-image")}
               (when (seq images)
-                [image/image (:id (first images)) :product-listing])
+                [:a {:href (routes/path-for :frontend.product :id id)}
+                 [image/image (:id (first images)) :product-listing]])
               [:div.product-list__actions
                [base/icon {:name (if @(rf/subscribe [::events/users.favorites.favorited? id])
                                    "heart"
                                    "empty heart")
                            :on-click (utils.ui/with-handler
                                       #(rf/dispatch [::events/users.favorites.toggle id]))}]
-               [base/icon {:name "shopping bag"}]]]
+               [base/icon {:name "shopping bag"
+                           :on-click (utils.ui/with-handler
+                                      #(rf/dispatch [::cart/add id]))}]]]
              [:a.product-list__content {:href (routes/path-for :frontend.product :id id)}
               [:span.product-list__name
                name]

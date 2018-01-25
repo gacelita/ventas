@@ -26,6 +26,9 @@
          [:div.sidebar-section__content
           args]]))))
 
-(defn sidebar [& args]
+(defn sidebar [& children]
   [:div.sidebar
-   args])
+   (map-indexed
+    (fn [idx child]
+      (with-meta child {:key idx}))
+    children)])

@@ -10,15 +10,29 @@
    [ventas.common.utils :as common.utils]
    [ventas.routes :as routes]))
 
+(defn color-term [{:keys [name color]} args]
+  [:div.product-filters__color
+   (merge
+    {:title name
+     :style {:background-color color}
+     :class (when (:active? args) "product-filters__color--active")}
+    (dissoc args :active?))])
+
 (defmulti product-term* (fn [taxonomy-kw _] taxonomy-kw))
 
-(defmethod product-term* :color [_ {:keys [name color]}]
-  [:div {:title name
-         :style {:background-color color}}])
+(defmethod product-term* :color [_ {:keys [id] :as term} {:keys [filters event]}]
+  (let [active? (contains? (set (:terms filters)) id)]
+    [color-term
+     term
+     {:active? active?
+      :on-click #(if-not active?
+                   (rf/dispatch [::add-term id event])
+                   (rf/dispatch [::remove-term id event]))}]))
 
 (rf/reg-event-fx
  ::add-term
  (fn [_ [_ term event]]
+   (js/console.log :add-term term event)
    {:dispatch [event (fn [filters]
                        (update filters :terms #(conj (set %) term)))]}))
 
@@ -37,8 +51,8 @@
                                 (rf/dispatch [::remove-term id event]))}])
 
 (defn product-term [taxonomy-kw term {:keys [filters event]}]
-  [:div.product-filter__term {:class (when taxonomy-kw
-                                       (str "product-filter__term--" (name taxonomy-kw)))}
+  [:div.product-filters__term {:class (when taxonomy-kw
+                                        (str "product-filters__term--" (name taxonomy-kw)))}
    [product-term* taxonomy-kw term {:filters filters
                                     :event event}]])
 
@@ -56,7 +70,8 @@
         (str (:name category)
              (when count (str " (" count ")")))]
        (for [[subcategory subchildren] children]
-         [category-term {:category subcategory
+         [category-term {:key (:id subcategory)
+                         :category subcategory
                          :children subchildren
                          :event event
                          :terms terms
@@ -69,7 +84,8 @@
     [sidebar/sidebar-section {:name (i18n ::category)}
      (for [[category children] (common.utils/tree-by :id :parent categories)]
        [category-term
-        {:category category
+        {:key (:id category)
+         :category category
          :children children
          :terms terms
          :event event
@@ -93,5 +109,6 @@
                                     :name (or name
                                               (i18n (ns-kw keyword)))}
            (for [term terms]
+             ^{:key (:id term)}
              [product-term keyword term {:filters filters
                                          :event event}])]))]]))

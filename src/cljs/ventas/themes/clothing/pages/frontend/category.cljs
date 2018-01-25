@@ -53,12 +53,14 @@
      (if (and items (empty? items))
        [error/no-data]
        (list
+        ^{:key :sidebar}
         [:div.category-page__sidebar
          [components.product-filters/product-filters
           {:filters filters
            :taxonomies taxonomies
            :event ::update-filters}]]
 
+        ^{:key :content}
         [:div.category-page__content
          [products-list items]
          #_[scroll/infinite-scroll
