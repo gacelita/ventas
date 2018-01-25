@@ -5,7 +5,8 @@
    [ventas.utils :as utils]
    [clojure.test.check.generators :as gen]
    [ventas.database.generators :as generators]
-   [ventas.database :as db]))
+   [ventas.database :as db]
+   [ventas.common.utils :as common.utils]))
 
 (spec/def :i18n.culture/keyword ::generators/keyword)
 
@@ -143,3 +144,33 @@
                               :i18n.translation/value value
                               :i18n.translation/culture [:i18n.culture/keyword culture-kw]})
                            translations)})
+
+(defn- normalize-i18n [i18n]
+  (update i18n
+          :i18n/translations
+          #(map (fn [translation]
+                  (update translation
+                          :i18n.translation/culture
+                          db/normalize-ref))
+                %)))
+
+(defn- merge-i18ns-with* [f a b]
+  (let [a (normalize-i18n a)
+        b (normalize-i18n b)
+        b-map (->> (get b :i18n/translations)
+                   (common.utils/index-by :i18n.translation/culture)
+                   (common.utils/map-vals :i18n.translation/value))]
+    (update a
+            :i18n/translations
+            (fn [translations]
+              (map (fn [translation]
+                     (update translation
+                             :i18n.translation/value
+                             #(f % (get b-map (:i18n.translation/culture translation)))))
+                   translations)))))
+
+(defn merge-i18ns-with [f & i18ns]
+  (reduce (fn [acc itm]
+            (merge-i18ns-with* f acc itm))
+          (first i18ns)
+          (rest i18ns)))

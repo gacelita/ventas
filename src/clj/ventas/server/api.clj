@@ -169,8 +169,10 @@
 
 (defn- get-product-filters [{:keys [terms categories name price]} culture-kw]
   {:pre [culture-kw]}
-  (concat (mapcat (fn [term]
-                    [{:term {:product/terms term}}])
+  (concat [{:term {:schema/type ":schema.type/product"}}]
+          (mapcat (fn [term]
+                    [{:bool {:should [{:term {:product/terms term}}
+                                      {:term {:product/variation-terms term}}]}}])
                   terms)
           (mapcat (fn [category-ref]
                     (let [category (resolve-ref category-ref :category/keyword)]
