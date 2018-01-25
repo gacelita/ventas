@@ -21,7 +21,9 @@
 (rf/reg-event-fx
  ::init
  (fn [{:keys [db]} _]
-   {:db (assoc-in db [state-key :filters :categories] [(routes/ref-from-param :id)])
+   {:db (if-let [ref (routes/ref-from-param :id)]
+          (assoc-in db [state-key :filters :categories] [ref])
+          db)
     :dispatch [::fetch]}))
 
 (rf/reg-event-fx
@@ -79,5 +81,12 @@
  :frontend.category
  {:name [::title]
   :url ["category/" :id]
+  :component page
+  :init-fx [::init]})
+
+(routes/define-route!
+ :frontend.search
+ {:name [::title]
+  :url "search"
   :component page
   :init-fx [::init]})

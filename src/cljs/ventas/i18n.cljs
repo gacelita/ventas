@@ -9,7 +9,9 @@
 
 (def ^:private base-dicts
   {:en_US
-   {:ventas.components.cart/product-added "Product added!"
+   {:ventas.components.base/loading "Loading"
+
+    :ventas.components.cart/product-added "Product added!"
 
     :ventas.components.error/no-data "Nothing found!"
 

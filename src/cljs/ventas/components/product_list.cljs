@@ -14,26 +14,27 @@
    [base/grid
     (doall
      (for [{:keys [id images price name]} products]
-       [base/grid-column {:key id
-                          :mobile 8
-                          :tablet 4
-                          :computer 4}
-        [:div.product-list__product
-         [:div.product-list__images-wrapper
-          {:class (when (empty? images) "product-list__images-wrapper--no-image")}
-          (when (seq images)
-            [image/image (:id (first images)) :product-listing])
-          [:div.product-list__actions
-           [base/icon {:name (if @(rf/subscribe [::events/users.favorites.favorited? id])
-                               "heart"
-                               "empty heart")
-                       :on-click (utils.ui/with-handler
-                                  #(rf/dispatch [::events/users.favorites.toggle id]))}]
-           [base/icon {:name "shopping bag"}]]]
-         [:a.product-list__content {:href (routes/path-for :frontend.product :id id)}
-          [:span.product-list__name
-           name]
-          [:div.product-list__price
-           [:span (str (formatting/format-number (:value price))
-                       " "
-                       (get-in price [:currency :symbol]))]]]]]))]])
+       (do (assert id)
+           [base/grid-column {:key id
+                              :mobile 8
+                              :tablet 4
+                              :computer 4}
+            [:div.product-list__product
+             [:div.product-list__images-wrapper
+              {:class (when (empty? images) "product-list__images-wrapper--no-image")}
+              (when (seq images)
+                [image/image (:id (first images)) :product-listing])
+              [:div.product-list__actions
+               [base/icon {:name (if @(rf/subscribe [::events/users.favorites.favorited? id])
+                                   "heart"
+                                   "empty heart")
+                           :on-click (utils.ui/with-handler
+                                      #(rf/dispatch [::events/users.favorites.toggle id]))}]
+               [base/icon {:name "shopping bag"}]]]
+             [:a.product-list__content {:href (routes/path-for :frontend.product :id id)}
+              [:span.product-list__name
+               name]
+              [:div.product-list__price
+               [:span (str (formatting/format-number (:value price))
+                           " "
+                           (get-in price [:currency :symbol]))]]]]])))]])

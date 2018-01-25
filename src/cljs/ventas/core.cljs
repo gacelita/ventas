@@ -41,13 +41,6 @@
  {:fx :local-storage
   :cofx :local-storage})
 
-(defn loading []
-  [base/segment
-   [base/dimmer {:active true
-                 :inverted true}
-    [base/loader {:inverted true}
-     "Loading"]]])
-
 (rf/reg-event-fx
  ::init
  (fn [_ _]
@@ -59,7 +52,7 @@
   (rf/dispatch [::init])
   (let [session @(rf/subscribe [::events/db [:session]])]
     (if-not session
-      [loading]
+      [base/loading]
       [p/pages (routes/handler)])))
 
 (defn app-element []

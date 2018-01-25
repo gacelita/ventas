@@ -14,10 +14,7 @@
         [:div.image-component {:style {:width width
                                        :height height}}
          [:div.image-component__dimmer (when @loaded? {:style {:display "none"}})
-          [base/dimmer {:active true
-                        :inverted true}
-           [base/loader {:inverted true}
-            "Loading"]]]
+          [base/loading]]
          [:img {:style (when-not @loaded? {:display "none"})
                 :on-load #(reset! loaded? true)
                 :src (str "images/" id "/resize/" (name size))}]]))))
