@@ -147,26 +147,25 @@
      (mapcat #(process-category % kw) children))))
 
 (defn categories []
-  (process-category
-   [:root {:en_US "Root" :es_ES "Raíz"}
-    [:men {:en_US "Men" :es_ES "Hombre"}
-     [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
-     [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
-     [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
-     [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
-     [:pants {:en_US "Pants" :es_ES "Pantalones"}]
-     [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
-     [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
-    [:women {:en_US "Women" :es_ES "Mujer"}
-     [:dresses {:en_US "Dresses" :es_ES "Vestidos"}]
-     [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
-     [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
-     [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
-     [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
-     [:pants {:en_US "Pants" :es_ES "Pantalones"}]
-     [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
-     [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
-    [:children {:en_US "Children" :es_ES "Niños"}]]))
+  (mapcat process-category
+       [[:men {:en_US "Men" :es_ES "Hombre"}
+         [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
+         [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
+         [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
+         [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
+         [:pants {:en_US "Pants" :es_ES "Pantalones"}]
+         [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
+         [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
+        [:women {:en_US "Women" :es_ES "Mujer"}
+         [:dresses {:en_US "Dresses" :es_ES "Vestidos"}]
+         [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
+         [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
+         [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
+         [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
+         [:pants {:en_US "Pants" :es_ES "Pantalones"}]
+         [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
+         [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
+        [:children {:en_US "Children" :es_ES "Niños"}]]))
 
 (defn files []
   (map #(assoc % :schema/type :schema.type/file)
@@ -197,7 +196,7 @@
          :product/condition :product.condition/new
          :product/brand [:brand/keyword :test-brand]
          :product/tax [:tax/keyword :test-tax]
-         :product/categories [[:category/keyword :root.men]]
+         :product/categories [[:category/keyword :men]]
          :product/terms [[:product.term/keyword :length-long]]
          :product/variation-terms [[:product.term/keyword :color-dark-green]
                                    [:product.term/keyword :color-dark-red]
@@ -211,7 +210,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.dresses]]
+         :product/categories [[:category/keyword :women.dresses]]
          :product/keyword :dress-1
          :product/brand [:brand/keyword :profitable-brand]
          :product/terms [[:product.term/keyword :length-long]]
@@ -236,7 +235,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.dresses]]
+         :product/categories [[:category/keyword :women.dresses]]
          :product/keyword :dress-2
          :product/brand [:brand/keyword :profitable-brand]
          :product/terms [[:product.term/keyword :length-short]]
@@ -259,7 +258,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.jackets]]
+         :product/categories [[:category/keyword :men.jackets]]
          :product/keyword :jacket-1
          :product/brand [:brand/keyword :profitable-brand]
          :product/terms [[:product.term/keyword :length-short]]
@@ -282,7 +281,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.jackets]]
+         :product/categories [[:category/keyword :women.jackets]]
          :product/keyword :jacket-2
          :product/brand [:brand/keyword :terrible-brand]
          :product/terms [[:product.term/keyword :length-long]]
@@ -318,7 +317,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.jackets]]
+         :product/categories [[:category/keyword :men.jackets]]
          :product/keyword :jacket-3
          :product/brand [:brand/keyword :terrible-brand]
          :product/terms [[:product.term/keyword :length-long]]
@@ -340,7 +339,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.jackets]]
+         :product/categories [[:category/keyword :women.jackets]]
          :product/keyword :jacket-4
          :product/brand [:brand/keyword :terrible-brand]
          :product/terms [[:product.term/keyword :length-short]]
@@ -370,7 +369,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.jackets]]
+         :product/categories [[:category/keyword :men.jackets]]
          :product/keyword :jacket-5
          :product/brand [:brand/keyword :profitable-brand]
          :product/variation-terms [[:product.term/keyword :color-blue]
@@ -400,7 +399,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.pants]]
+         :product/categories [[:category/keyword :men.pants]]
          :product/keyword :jeans-1
          :product/terms [[:product.term/keyword :length-long]]
          :product/variation-terms [[:product.term/keyword :color-black]
@@ -422,7 +421,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.shirts]]
+         :product/categories [[:category/keyword :men.shirts]]
          :product/keyword :shirt-1
          :product/brand [:brand/keyword :profitable-brand]
          :product/terms [[:product.term/keyword :length-long]]
@@ -451,7 +450,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.shirts]]
+         :product/categories [[:category/keyword :women.shirts]]
          :product/keyword :shirt-2
          :product/brand [:brand/keyword :profitable-brand]
          :product/terms [[:product.term/keyword :length-short]]
@@ -481,7 +480,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.shirts]]
+         :product/categories [[:category/keyword :women.shirts]]
          :product/keyword :shirt-3
          :product/terms [[:product.term/keyword :length-short]]
          :product/images [{:product.image/position 0
@@ -500,7 +499,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.shoes]]
+         :product/categories [[:category/keyword :men.shoes]]
          :product/keyword :shoes-1
          :product/terms [[:product.term/keyword :lace-type-regular]]
          :product/variation-terms [[:product.term/keyword :color-black]
@@ -528,7 +527,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.shoes]]
+         :product/categories [[:category/keyword :women.shoes]]
          :product/keyword :shoes-2
          :product/brand [:brand/keyword :terrible-brand]
          :product/terms [[:product.term/keyword :lace-type-none]]
@@ -567,7 +566,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.sweaters]]
+         :product/categories [[:category/keyword :men.sweaters]]
          :product/keyword :sweater-1
          :product/terms [[:product.term/keyword :length-long]]
          :product/variation-terms [[:product.term/keyword :color-black]
@@ -598,7 +597,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.women.sweaters]]
+         :product/categories [[:category/keyword :women.sweaters]]
          :product/keyword :sweater-2
          :product/terms [[:product.term/keyword :length-long]]
          :product/variation-terms [[:product.term/keyword :color-black]
@@ -624,7 +623,7 @@
          :product/price {:schema/type :schema.type/amount
                          :amount/value 10M
                          :amount/currency [:currency/keyword :eur]}
-         :product/categories [[:category/keyword :root.men.sweaters]]
+         :product/categories [[:category/keyword :men.sweaters]]
          :product/keyword :sweater-3
          :product/terms [[:product.term/keyword :length-long]]
          :product/variation-terms [[:product.term/keyword :color-black]

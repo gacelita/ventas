@@ -3,7 +3,9 @@
    [cuerdas.core :as cuerdas]
    [ventas.database.entity :as entity]
    [ventas.common.utils :as common.utils]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [clojure.string :as str]
+   [ventas.database :as db]))
 
 (defn slug [s]
   ;; cuerdas is just an implementation detail, that's why we're wrapping it

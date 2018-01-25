@@ -6,7 +6,8 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
    [ventas.utils.slugs :as utils.slugs]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [clojure.string :as str]))
 
 (spec/def :category/name ::entities.i18n/ref)
 
@@ -33,9 +34,39 @@
                                    :where '[[?product :product/categories ?category]
                                             [?product :product/images ?image]
                                             [?image :product.image/file ?id]]})
-                   (first)
-                   (:id))]
+                   first
+                   :id)]
       (entity/find-json image-eid params))))
+
+(defn get-parents [id]
+  (let [id (db/normalize-ref id)
+        {:category/keys [parent]} (entity/find id)]
+    (if parent
+      (conj (get-parents parent) id)
+      #{id})))
+
+(defn get-parent-slug [id]
+  {:pre [id]}
+  (let [slug (-> (entity/find id)
+                 (utils.slugs/add-slug-to-entity :category/name)
+                 :ventas/slug)]
+    (if (map? slug)
+      slug
+      (entity/find-recursively slug))))
+
+(defn- add-slug-to-category [entity]
+  (let [source (:category/name entity)]
+    (if (and (not (:ventas/slug entity)) source)
+      (assoc
+       entity
+       :ventas/slug
+        (let [slug (utils.slugs/slugify-i18n source)]
+          (if-let [parent (:category/parent entity)]
+            (entities.i18n/merge-i18ns-with #(str/join "-" [%1 %2])
+                                            (get-parent-slug parent)
+                                            slug)
+            slug)))
+      entity)))
 
 (entity/register-type!
  :category
@@ -66,12 +97,13 @@
       :category/keyword :default}])
 
   :filter-create
+
   (fn [this]
-    (utils.slugs/add-slug-to-entity this :category/name))
+    (add-slug-to-category this))
 
   :filter-update
   (fn [_ attrs]
-    (utils.slugs/add-slug-to-entity attrs :category/name))
+    (add-slug-to-category attrs))
 
   :dependencies
   #{:file :i18n}

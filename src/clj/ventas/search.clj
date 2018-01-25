@@ -7,6 +7,7 @@
    [ventas.database :as db]
    [taoensso.timbre :as timbre]
    [ventas.database.entity :as entity]
+   [ventas.entities.category :as entities.category]
    [ventas.utils :as utils]
    [clojure.string :as str]
    [ventas.common.utils :as common.utils]
@@ -149,16 +150,10 @@
 (defn document->indexing-queue [doc]
   (go (>! @indexing-queue doc)))
 
-(defn- category-parents [id]
-  (let [{:category/keys [parent]} (entity/find id)]
-    (if parent
-      (conj (category-parents parent) id)
-      [id])))
-
 (defn- value->es [a v]
   (cond
     (= a :product/categories)
-    (set (mapcat category-parents v))
+    (set (mapcat entities.category/get-parents v))
 
     (number? v)
     (let [entity (entity/find v)]

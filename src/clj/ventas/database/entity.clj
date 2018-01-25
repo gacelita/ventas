@@ -482,3 +482,16 @@
 
 (defn refs-generator [type & {:keys [new?]}]
   (gen/vector (ref-generator type :new? new?)))
+
+(defn find-recursively [eid]
+  "Finds the given eid or lookup ref, and all the refs inside it"
+  (let [entity (find eid)
+        ref-idents (idents-with-value-type entity :db.type/ref)]
+    (->> entity
+         (map (fn [[k v]]
+                [k (if (and (contains? ref-idents k) (not (keyword? v)))
+                     (if (sequential? v)
+                       (map find-recursively v)
+                       (find-recursively v))
+                     v)]))
+         (into {}))))
