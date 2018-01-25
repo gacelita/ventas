@@ -23,5 +23,10 @@
 }
 
 .category-term {
+    cursor: pointer;
     padding-left: 12px;
+
+    &--active {
+        font-weight: bold;
+    }
 }

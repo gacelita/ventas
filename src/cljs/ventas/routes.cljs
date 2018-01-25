@@ -131,6 +131,7 @@
         ref (get params param-kw)
         as-int (utils/parse-int ref)]
     (cond
+      (not ref) nil
       (pos? as-int) as-int
       (str/starts-with? ref "_") (keyword ref)
       :default ref)))

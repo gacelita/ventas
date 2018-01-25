@@ -2,6 +2,7 @@
   (:require
    [reagent.core :as reagent]
    [soda-ash.core :as sa]
+   [ventas.i18n :refer [i18n]]
    [ventas.common.utils :as common.utils])
   (:refer-clojure :exclude [list comment]))
 
@@ -193,3 +194,9 @@
 (def table-row sa/TableRow)
 (def text-area sa/TextArea)
 (def visibility sa/Visibility)
+
+(defn loading []
+  [dimmer {:active true
+                :inverted true}
+   [loader {:inverted true}
+    (i18n ::loading)]])
