@@ -6,6 +6,7 @@
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
+   [ventas.components.product-filters :as product-filters]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.events :as events]
@@ -112,15 +113,13 @@
 (defmulti term-view (fn [{:keys [keyword]} _] keyword))
 
 (defmethod term-view :color [taxonomy {:keys [color name] :as term} active?]
-  [:div.product-page__term {:class (str "product-page__term--color "
-                                        (when active?
-                                          "product-page__term--active"))
-                            :style {:background-color color}
-                            :title name
-                            :on-click #(rf/dispatch [::select-term
-                                                     (routes/ref-from-param :id)
-                                                     taxonomy
-                                                     term])}])
+  [product-filters/color-term
+   term
+   {:active? active?
+    :on-click #(rf/dispatch [::select-term
+                             (routes/ref-from-param :id)
+                             taxonomy
+                             term])}])
 
 (defmethod term-view :default [taxonomy {:keys [name] :as term} active?]
   [:div.product-page__term {:class (when active? "product-page__term--active")
