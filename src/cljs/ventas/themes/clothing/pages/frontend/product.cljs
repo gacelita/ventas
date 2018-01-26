@@ -152,7 +152,6 @@
                                             :height (+ 540 -6)}))
                                   images)
                     :orientation :horizontal
-                    :centered? true
                     :render-index (dec (count images))
                     :current-index (if (<= visible-slides (count images))
                                      1
