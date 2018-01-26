@@ -23,7 +23,9 @@
  (fn [{:keys [db]} _]
    {:db (let [ref (routes/ref-from-param :id)
               search (:search (routes/params))
-              db (assoc-in db [state-key :filters] {})]
+              db (-> db
+                     (assoc-in [state-key :filters] {})
+                     (assoc-in [state-key :pagination] {}))]
           (cond
             ref (assoc-in db [state-key :filters :categories] [ref])
             search (assoc-in db [state-key :filters :name] search)
