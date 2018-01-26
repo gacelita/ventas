@@ -150,21 +150,27 @@
 (defn document->indexing-queue [doc]
   (go (>! @indexing-queue doc)))
 
+(defn- ref->es [{:schema/keys [type] :as entity}]
+  (case type
+    :schema.type/i18n
+      (->> (entity/to-json entity)
+           (map (fn [[culture value]]
+                  [(->> culture entity/find :i18n.culture/keyword)
+                   value]))
+           (into {}))
+    :schema.type/amount
+      (:amount/value entity)
+
+    (:db/id entity)))
+
 (defn- value->es [a v]
   (cond
     (= a :product/categories)
-    (set (mapcat entities.category/get-parents v))
-
+      (set (mapcat entities.category/get-parents v))
     (number? v)
-    (let [entity (entity/find v)]
-      (if (and entity (= (:schema/type entity) :schema.type/i18n))
-        (->> (entity/to-json entity)
-             (map (fn [[culture value]]
-                    [(->> culture entity/find :i18n.culture/keyword)
-                     value]))
-             (into {}))
-        v))
-
+      (if-let [entity (entity/find v)]
+        (ref->es entity)
+        v)
     :default v))
 
 (defn- filter-entity-attr [e [a v]]

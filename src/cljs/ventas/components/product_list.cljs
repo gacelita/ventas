@@ -10,7 +10,7 @@
    [ventas.utils.ui :as utils.ui]
    [ventas.utils.formatting :as formatting]))
 
-(defn products-list [products]
+(defn product-list [products]
   [:div.product-list
    [base/grid
     (doall

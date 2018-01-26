@@ -173,13 +173,14 @@
               [{:term {:product/categories category}}]))
           categories))
 
-(defn- get-product-filters [{:keys [terms categories name price]} culture-kw]
+(defn- get-products-query [{:keys [terms categories name price]} culture-kw]
   {:pre [culture-kw]}
   (concat [{:term {:schema/type ":schema.type/product"}}]
-          [{:bool {:should (mapcat (fn [term]
-                                     [{:bool {:should [{:term {:product/terms term}}
-                                                       {:term {:product/variation-terms term}}]}}])
-                                   terms)}}]
+          (when terms
+            [{:bool {:should (mapcat (fn [term]
+                                       [{:bool {:should [{:term {:product/terms term}}
+                                                         {:term {:product/variation-terms term}}]}}])
+                                     terms)}}])
           (get-product-category-filter categories)
           (when price
             [{:range {:product/price {:gte (:min price)
@@ -210,25 +211,38 @@
             (term-aggregation->json (:terms aggs) json-opts)
             (term-aggregation->json (:variation-terms aggs) json-opts))))
 
-(defn- search-products [params culture]
+(defn sorting-field->es [field]
+  (get {:price "product/price"}
+       field))
+
+(defn- search-products [filters {:keys [items-per-page sorting page]} culture]
   (let [culture-kw (-> culture
                        entity/find
                        :i18n.culture/keyword)
-        results (search/search {:_source false
-                                :query {:bool {:must (get-product-filters params
-                                                                          culture-kw)}}})]
-    (->> (get-in results
-                 [:body :hits :hits])
-         (map :_id)
-         (map (fn [v] (Long/parseLong v)))
-         (map #(entity/find-json % {:culture culture})))))
+        results (search/search
+                 {:_source false
+                  :from (* page items-per-page)
+                  :size items-per-page
+                  :sort [{(sorting-field->es (:field sorting))
+                          (name (:direction sorting))}
+                         "_score"]
+                  :query {:bool {:must (get-products-query filters
+                                                           culture-kw)}}})]
+    {:can-load-more? (<= items-per-page (get-in results [:body :hits :total]))
+     :items (->> (get-in results
+                         [:body :hits :hits])
+                 (map :_id)
+                 (map (fn [v] (Long/parseLong v)))
+                 (map #(entity/find-json % {:culture culture})))}))
 
 (register-endpoint!
   :products.aggregations
-  (fn [{:keys [params]} {:keys [session]}]
-    (let [culture (get-culture session)]
-      {:items (search-products params culture)
-       :taxonomies (aggregate-products (:categories params) culture)})))
+  (fn [{{:keys [filters pagination]} :params} {:keys [session]}]
+    (let [culture (get-culture session)
+          {:keys [items can-load-more?]} (search-products filters pagination culture)]
+      {:items items
+       :can-load-more? can-load-more?
+       :taxonomies (aggregate-products (:categories filters) culture)})))
 
 (register-endpoint!
   :states.list
