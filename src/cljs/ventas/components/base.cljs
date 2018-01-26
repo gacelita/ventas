@@ -197,6 +197,6 @@
 
 (defn loading []
   [dimmer {:active true
-                :inverted true}
+           :inverted true}
    [loader {:inverted true}
     (i18n ::loading)]])
