@@ -5,17 +5,20 @@
    [ventas.events :as events]
    [ventas.components.base :as base]))
 
+(def state-key ::state)
+
 (defn image [id size]
-  {:pre [id (keyword? size)]}
+  {:pre [(keyword? size)]}
   (rf/dispatch [::events/image-sizes.list])
-  (let [loaded? (reagent/atom false)]
-    (fn [id size]
+  (fn [id size]
+    (let [loaded? @(rf/subscribe [::events/db [state-key [id size]]])]
       (when-let [{:keys [width height]} @(rf/subscribe [::events/db [:image-sizes size]])]
         [:div.image-component {:style {:width width
                                        :height height}}
-         [:div.image-component__dimmer (when @loaded? {:style {:display "none"}})
-          [base/loading]]
+         (when-not loaded?
+           [:div.image-component__dimmer
+            [base/loading]])
          [:div.image-component__inner
-          [:img {:style (when-not @loaded? {:display "none"})
-                 :on-load #(reset! loaded? true)
+          [:img {:style (when-not loaded? {:display "none"})
+                 :on-load #(rf/dispatch [::events/db [state-key [id size]] true])
                  :src (str "images/" id "/resize/" (name size))}]]]))))

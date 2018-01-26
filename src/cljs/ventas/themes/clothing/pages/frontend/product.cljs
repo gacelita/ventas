@@ -6,6 +6,7 @@
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
+   [ventas.components.image :as image]
    [ventas.components.product-filters :as product-filters]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
@@ -40,13 +41,13 @@
       [:div.product-page__images-inner {:style {:top @(rf/subscribe [::components.slider/offset state-path])}}
        (map-indexed
         (fn [idx image]
-          [:img.product-page__image
+          [:div.product-page__image
            {:key idx
-            :src (str "/images/" (:id image) "/resize/product-page-vertical-carousel")
             :on-click #(rf/dispatch [::set-main-image image (case idx
                                                               1 :up
                                                               visible-slides :down
-                                                              nil)])}])
+                                                              nil)])}
+           [image/image (:id image) :product-page-vertical-carousel]])
         @(rf/subscribe [::components.slider/slides state-path]))]]
      (when (<= visible-slides (count slides))
        [:div.product-page__down
@@ -55,8 +56,8 @@
 
 (defn- main-image-view [{:keys [product]}]
   (let [image @(rf/subscribe [::events/db [state-key :main-image]])]
-    [:img.product-page__main-image
-     {:src (str "/images/" (:id image) "/resize/product-page-main")}]))
+    [:div.product-page__main-image
+     [image/image (:id image) :product-page-main]]))
 
 (rf/reg-event-db
  ::update-quantity
