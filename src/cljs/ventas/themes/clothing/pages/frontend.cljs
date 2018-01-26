@@ -7,7 +7,6 @@
    [ventas.components.notificator :as ventas.notificator]
    [ventas.components.popup :as ventas.popup]
    [ventas.components.category-list :refer [category-list]]
-   [ventas.components.product-list :refer [products-list]]
    [ventas.components.cart :as ventas.cart]
    [ventas.plugins.slider.core :as plugins.slider]
    [ventas.plugins.featured-products.core :as plugins.featured-products]

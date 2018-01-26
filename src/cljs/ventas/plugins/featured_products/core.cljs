@@ -15,4 +15,4 @@
   (rf/dispatch [::featured-products.list])
   (fn []
     (let [products @(rf/subscribe [::events/db [::featured-products]])]
-      [components.product-list/products-list products])))
+      [components.product-list/product-list products])))

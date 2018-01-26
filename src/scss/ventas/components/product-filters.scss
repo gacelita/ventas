@@ -37,7 +37,13 @@
     cursor: pointer;
     padding-left: 12px;
 
-    &--active {
-        font-weight: bold;
+    a {
+        color: rgba(0,0,0,.87);
+
+        &.category-term--active, &:hover {
+            font-weight: bold;
+        }
     }
+
+
 }

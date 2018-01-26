@@ -7,3 +7,14 @@
 .category-page__content {
     width: 100%;
 }
+
+.category-page__header {
+    margin: 11px 11px 25px;
+    display: flex;
+    align-items: center;
+
+    .ui.header {
+        width: 100%;
+        margin: 0px;
+    }
+}

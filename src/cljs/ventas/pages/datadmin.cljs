@@ -6,7 +6,6 @@
    [ventas.page :refer [pages]]
    [ventas.components.notificator]
    [ventas.components.popup]
-   [ventas.components.product-list :refer [products-list]]
    [ventas.components.cart :as cart]
    [ventas.utils :as util]
    [ventas.components.base :as base]

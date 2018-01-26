@@ -37,15 +37,17 @@
  (fn [{:keys [db]} [_ search]]
    (if (empty? search)
      {:db (update db state-key #(dissoc % :search))}
-     {:dispatch [::backend/search
+     {:db (assoc-in db [state-key :search-query] search)
+      :dispatch [::backend/search
                  {:params {:search search}
                   :success [::events/db [state-key :search]]}]})))
 
 (defn- search-result-view [{:keys [id name image type]}]
   [:div.search-result
-   (let [route (case type
-                 :product :frontend.product
-                 :category :frontend.category)]
+   (when-let [route (case type
+                      :product :frontend.product
+                      :category :frontend.category
+                      nil)]
      {:on-click #(routes/go-to route :id id)})
    (when image
      [:img {:src (str "images/" (:id image) "/resize/header-search")}])
@@ -69,6 +71,10 @@
        [:div.skeleton-header__search
         [base/dropdown {:placeholder (i18n ::search)
                         :selection true
+                        :on-key-down (fn [e] (when (= (.-key e) "Enter")
+                                               (routes/go-to :frontend.search
+                                                             :search
+                                                             @(rf/subscribe [::events/db [state-key :search-query]]))))
                         :search (fn [options _] options)
                         :options (->> @(rf/subscribe [::events/db [state-key :search]])
                                       (sort-by :type)

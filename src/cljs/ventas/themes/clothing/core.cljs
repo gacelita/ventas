@@ -31,6 +31,8 @@
 
    :ventas.themes.clothing.pages.frontend.category/page "%s"
    :ventas.themes.clothing.pages.frontend.category/search "Search"
+   :ventas.themes.clothing.pages.frontend.category/highest-price "Highest price"
+   :ventas.themes.clothing.pages.frontend.category/lowest-price "Lowest price"
 
    :ventas.themes.clothing.pages.frontend.cart/cart "Cart"
    :ventas.themes.clothing.pages.frontend.cart/page "Cart"
