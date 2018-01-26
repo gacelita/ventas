@@ -38,7 +38,7 @@
   (rf/dispatch [::forms/populate form-config (common.utils/map-keys #(utils/ns-kw %) identity)])
   ^{:key (forms/get-key form-config)}
   [base/segment
-   [base/form {:error (forms/valid-form? form-config)}
+   [base/form
 
     [base/form-group
      [base/form-field {:width 5}
