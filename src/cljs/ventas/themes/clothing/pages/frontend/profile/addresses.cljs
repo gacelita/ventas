@@ -69,7 +69,7 @@
         (i18n ::editing-address)
         (i18n ::new-address))]
      [base/segment {:attached true}
-      [base/form {:error (forms/valid-form? form-config)}
+      [base/form
 
        [base/form-group
         [base/form-field {:width 5}

@@ -112,6 +112,8 @@
    :ventas.themes.clothing.pages.frontend.profile.addresses/cancel "Cancel"
    :ventas.themes.clothing.pages.frontend.profile.addresses/address-saved "Address saved!"
 
+   :ventas.themes.clothing.pages.frontend.profile.orders/page "My orders"
+
    :ventas.themes.clothing.components.preheader/support-and-orders "Support and orders:"
    :ventas.themes.clothing.components.preheader/schedule "Schedule:"
    :ventas.themes.clothing.components.preheader/schedule-info "Monday to Friday, 9am - 5pm"
