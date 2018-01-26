@@ -59,6 +59,10 @@
   (js/document.getElementById "app"))
 
 (defn init []
+  (.addEventListener js/window
+                     "resize"
+                     #(rf/dispatch [::events/db [:window] {:width js/window.innerWidth
+                                                           :height js/window.innerHeight}]))
   (accountant/configure-navigation!
    {:nav-handler
     (fn [path]

@@ -13,7 +13,7 @@
   (fn [id size]
     (let [loaded? @(rf/subscribe [::events/db [state-key [id size]]])]
       (when-let [{:keys [width height]} @(rf/subscribe [::events/db [:image-sizes size]])]
-        [:div.image-component {:style {:width width
+        [:div.image-component {:style {:width (dec width)
                                        :height height}}
          (when-not loaded?
            [:div.image-component__dimmer

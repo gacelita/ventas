@@ -28,6 +28,13 @@
        :image-size/entities #{:schema.type/product}}
 
       {:schema/type :schema.type/image-size
+       :image-size/keyword :product-page-horizontal-carousel
+       :image-size/width 360
+       :image-size/height 540
+       :image-size/algorithm :image-size.algorithm/crop-and-resize
+       :image-size/entities #{:schema.type/product}}
+
+      {:schema/type :schema.type/image-size
        :image-size/keyword :header-search
        :image-size/width 50
        :image-size/height 50

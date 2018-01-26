@@ -47,28 +47,32 @@
 (def update-stage (atom nil))
 
 (defn- update-current-index [db state-path increment]
-  (if (= :started @update-stage)
-    db
-    (do
-      (reset! update-stage :started)
-      (go (<! (timeout transition-duration-ms))
-          (rf/dispatch [::events/db.update
-                        state-path
-                        (fn [state]
-                          (-> state
-                              (update :render-index #(mod (+ % increment) (count (:slides state))))
-                              (update :current-index #(- % increment))))])
-          (reset! update-stage :finished))
-      (update-in db state-path (fn [state]
-                                 (-> state
-                                     (update :current-index #(+ % increment))))))))
+  (let [{:keys [visible-slides slides]} (get-in db state-path)]
+    (when (<= visible-slides (count slides))
+      (if (= :started @update-stage)
+        db
+        (do
+          (reset! update-stage :started)
+          (go (<! (timeout transition-duration-ms))
+              (rf/dispatch [::events/db.update
+                            state-path
+                            (fn [state]
+                              (-> state
+                                  (update :render-index #(mod (+ % increment) (count (:slides state))))
+                                  (update :current-index #(- % increment))))])
+              (reset! update-stage :finished))
+          (update-in db state-path (fn [state]
+                                     (-> state
+                                         (update :current-index #(+ % increment))))))))))
 
 (rf/reg-event-db
  ::next
  (fn [db [_ state-path]]
-   (update-current-index db state-path 1)))
+   (or (update-current-index db state-path 1)
+       db)))
 
 (rf/reg-event-db
  ::previous
  (fn [db [_ state-path]]
-   (update-current-index db state-path -1)))
+   (or (update-current-index db state-path -1)
+       db)))

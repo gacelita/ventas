@@ -32,7 +32,6 @@
 (rf/reg-event-fx
  ::add-term
  (fn [_ [_ term event]]
-   (js/console.log :add-term term event)
    {:dispatch [event (fn [filters]
                        (update filters :terms #(conj (set %) term)))]}))
 
