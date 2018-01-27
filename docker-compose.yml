@@ -4,7 +4,9 @@ services:
   datomic:
     image: datomic
     ports:
-      - 4334
+      - 4334:4334
+      - 4335:4335
+      - 4336:4336
     volumes:
       - datomic:/opt/datomic-pro-0.9.5561/data
 
