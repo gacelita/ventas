@@ -316,6 +316,8 @@
    This function not returning an entity is considered a bug."
   [ref & [terms]]
   {:pre [(utils/check ::entity/ref ref)]}
+  (when-not (entity/find ref)
+    (throw (Exception. (str "Product not found: " ref))))
   (let [terms (set terms)]
     (if (empty? terms)
       (if-let [default (entity/query-one :product.variation {:default? true
