@@ -10,6 +10,8 @@ For any questions I'm usually available at the `#ventas` channel in [clojurians]
 
 [Demo instance](https://ventas.kazer.es) (may not be running)
 
+- [Swagger-like API tool](https://ventas.kazer.es/api)
+
 
 
 ### Motivation
