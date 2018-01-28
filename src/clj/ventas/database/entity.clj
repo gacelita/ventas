@@ -341,7 +341,9 @@
   (when-not (map? refs)
     (map db/normalize-ref refs)))
 
-(defn- get-enum-retractions [entity new-values]
+(defn- get-enum-retractions
+  "TODO: Document and make readable"
+  [entity new-values]
   (let [relevant-attrs (filter #(contains? (set (keys new-values)) (:db/ident %))
                                (attributes (type entity)))
         enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
