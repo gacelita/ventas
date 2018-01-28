@@ -15,7 +15,7 @@
 
 (defn- register-admin-endpoint!
   ([kw f]
-    (api/register-endpoint! kw {} f))
+   (register-admin-endpoint! kw {} f))
   ([kw opts f]
    (api/register-endpoint!
      kw
@@ -34,8 +34,9 @@
 
 (register-admin-endpoint!
   :admin.entities.remove
-  (fn [{:keys [params]} state]
-    (entity/delete (:id params))))
+  {:spec {:id ::api/id}}
+  (fn [{{:keys [id]} :params} state]
+    (entity/delete id)))
 
 (register-admin-endpoint!
  :admin.currencies.list
@@ -55,8 +56,9 @@
 
 (register-admin-endpoint!
   :admin.taxes.save
-  (fn [message state]
-    (entity/upsert :tax (-> (:params message)
+  {:spec ::entity/entity}
+  (fn [{tax :params} state]
+    (entity/upsert :tax (-> tax
                             (update :amount float)))))
 
 (register-admin-endpoint!
@@ -69,14 +71,16 @@
 
 (register-admin-endpoint!
  :admin.users.addresses.list
+ {:spec {:user ::entity/entity}}
  (fn [{:keys [user]} {:keys [session]}]
    (map #(entity/to-json % {:culture (api/get-culture session)})
         (entity/query :address {:user user}))))
 
 (register-admin-endpoint!
   :admin.users.save
-  (fn [{:keys [params]} state]
-    (entity/upsert :user params)))
+  {:spec ::entity/entity}
+  (fn [{user :params} state]
+    (entity/upsert :user user)))
 
 (register-admin-endpoint!
   :admin.image-sizes.list
@@ -93,20 +97,20 @@
 
 (register-admin-endpoint!
   :admin.entities.find
+  {:spec {:id ::api/id}}
   (fn [{{:keys [id]} :params} _]
-    {:pre [(number? id)]}
     (entity/find id)))
 
 (register-admin-endpoint!
  :admin.entities.find-json
+ {:spec {:id ::api/id}}
  (fn [{{:keys [id]} :params} _]
-   {:pre [(number? id)]}
    (entity/find-json id)))
 
 (register-admin-endpoint!
  :admin.entities.pull
+ {:spec {:id ::api/id}}
  (fn [{{:keys [id]} :params} _]
-   {:pre [(number? id)]}
    (db/pull '[*] id)))
 
 (register-admin-endpoint!
@@ -121,6 +125,7 @@
 
 (register-admin-endpoint!
  :admin.orders.get
+ {:spec {:id ::api/id}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [order (entity/find id)]
      {:order order
@@ -137,8 +142,9 @@
 
 (register-admin-endpoint!
  :admin.products.save
- (fn [{:keys [params]} _]
-   (entity/upsert* (-> params
+ {:spec ::entity/entity}
+ (fn [{product :params} _]
+   (entity/upsert* (-> product
                        (common.utils/update-in-when-some
                         [:product/price :amount/value]
                         bigdec)))))
@@ -153,9 +159,11 @@
 
 (register-admin-endpoint!
   :admin.datadmin.datoms
-  (fn [message state]
-    (let [datoms (db/datoms :eavt)]
-      {:datoms (map db/datom->map (take 10 datoms))})))
+  {:middlewares [pagination/wrap-sort
+                 pagination/wrap-paginate]}
+  (fn [_ _]
+    (->> (db/datoms :eavt)
+         (map db/datom->map))))
 
 (register-admin-endpoint!
   :admin.plugins.list

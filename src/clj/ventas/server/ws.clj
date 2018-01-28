@@ -128,4 +128,4 @@
   {:pre [(entity/entity? user)]}
   (call-request-handler {:name name
                          :params params}
-                        {:session (atom {:identity user})}))
+                        {:session (atom {:user user})}))

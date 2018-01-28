@@ -7,7 +7,7 @@
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [datomic.api :as d]
-   [taoensso.timbre :as timbre :refer [trace debug info warn error]]
+   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.schema :as schema]
    [ventas.database.generators :as db.generators]
@@ -33,7 +33,8 @@
                       ::after-delete]))
 
 (defn entity? [entity]
-  (spec/valid? ::entity (select-keys entity #{:schema/type})))
+  (when (map? entity)
+    (spec/valid? ::entity (select-keys entity #{:schema/type}))))
 
 (defonce registered-types (atom {}))
 
@@ -189,7 +190,7 @@
 (defn create*
   "Creates an entity"
   [attrs]
-  {:pre [(do (debug attrs) (spec attrs))]}
+  {:pre [(do (timbre/debug attrs) (spec attrs))]}
   (before-create attrs)
   (let [tempid (d/tempid :db.part/user)
         pre-entity (prepare-creation-attrs attrs tempid)
@@ -336,6 +337,10 @@
 (defn default-attr [attr-name]
   (get default-type attr-name))
 
+(defn- normalize-refs [refs]
+  (when-not (map? refs)
+    (map db/normalize-ref refs)))
+
 (defn- get-enum-retractions [entity new-values]
   (let [relevant-attrs (filter #(contains? (set (keys new-values)) (:db/ident %))
                                (attributes (type entity)))
@@ -350,7 +355,7 @@
                        [:db/retract (:db/id new-values) ident val-to-retract])
                      diff)))
             (map #(hash-map :ident % :new-val (->> (get new-values %)
-                                                   (map db/normalize-ref)
+                                                   normalize-refs
                                                    (set)))
                  enum-idents))))
 
@@ -358,7 +363,7 @@
   "Updates an entity.
    Example usage:
    (update* {:db/id 1234567
-             :user/name `Other name`})"
+             :user/first-name `Other name`})"
   [{:db/keys [id] :as attrs} & {:keys [append?]}]
   (let [entity (find id)
         attrs (filter-update entity attrs)]

@@ -35,6 +35,8 @@
    [ventas.plugins.slider.core]
    [ventas.search :as search]
    [ventas.server.api.admin]
+   [ventas.server.api.description]
+   [ventas.server.api.user]
    [ventas.server.api]
    [ventas.server]
    [ventas.themes.clothing.core]))

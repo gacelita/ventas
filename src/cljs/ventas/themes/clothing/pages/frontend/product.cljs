@@ -107,9 +107,10 @@
 (rf/reg-event-fx
  ::fetch
  (fn [{:keys [db]} [_ ref terms]]
-   {:dispatch [::backend/products.get {:params {:id ref
-                                                :terms terms}
-                                       :success ::populate}]}))
+   {:dispatch [::backend/products.get
+               {:params {:id ref
+                         :terms (remove nil? terms)}
+                :success ::populate}]}))
 
 (defn- get-selection-map [variation]
   (->> variation
