@@ -77,8 +77,13 @@
                           (go (>! channel ex)))})))))
 
 (defn search [q]
-  (request {:url (make-url "_search")
-            :body q}))
+  (try
+    (request {:url (make-url "_search")
+              :body q})
+    (catch Exception e
+      (let [message (get-in (ex-data e) [:body :error])]
+        (taoensso.timbre/error message)
+        (throw (Exception. (str "Elasticsearch error: " message)))))))
 
 (defn- ident->property [ident]
   {:pre [(keyword? ident)]}
