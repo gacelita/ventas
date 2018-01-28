@@ -10,7 +10,7 @@
    [clojure.string :as str]
    [ventas.database.generators :as generators]))
 
-(spec/def :user/name ::generators/string)
+(spec/def :user/first-name ::generators/string)
 
 (spec/def :user/password ::generators/string)
 

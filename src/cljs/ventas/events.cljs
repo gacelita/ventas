@@ -173,8 +173,7 @@
                 {:params {:name name
                           :email email
                           :password password}
-                 :success [:ventas.components.notificator/add
-                           {:message (i18n ::user-registered)}]}]}))
+                 :success ::users.login.next}]}))
 
 (rf/reg-event-fx
  ::users.addresses

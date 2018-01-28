@@ -5,6 +5,7 @@
    [clojure.string :as str]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
+   [ventas.database.generators :as db.generators]
    [ventas.auth :as auth]
    [ventas.entities.user :as entities.user]
    [ventas.server.pagination :as pagination]
@@ -13,17 +14,28 @@
    [ventas.paths :as paths]
    [ventas.search :as search]
    [ventas.entities.file :as entities.file]
-   [ventas.common.utils :as common.utils]))
+   [ventas.common.utils :as common.utils]
+   [clojure.spec.alpha :as spec]
+   [spec-tools.data-spec :as data-spec :refer [opt maybe]]
+   [spec-tools.json-schema :as json-schema]
+   [ventas.utils :as utils]))
+
+(defonce available-requests (atom {}))
 
 (defn register-endpoint!
   ([kw f]
    (register-endpoint! kw {:binary? false} f))
   ([kw opts f]
    {:pre [(keyword? kw) (ifn? f) (map? opts)]}
-   (let [{:keys [binary? middlewares] :or {middlewares []}} opts]
+   (let [{:keys [binary? middlewares spec nilable-params?] :or {middlewares []}} opts]
+     (swap! available-requests assoc kw opts)
      (cond
        (not binary?)
        (defmethod server.ws/handle-request kw [request state]
+         (when (and spec (not (and (not (:params request))
+                                   nilable-params?)))
+           (utils/check (data-spec/spec kw spec)
+                        (:params request)))
          (:response (reduce (fn [acc middleware]
                               (middleware acc))
                             {:request request :state state :response (f request state)}
@@ -33,21 +45,37 @@
          (f request state))))))
 
 (defn get-user [session]
-  (:user @session))
+  (when session
+    (:user @session)))
 
 (defn get-culture [session]
   (let [user (get-user session)]
     (or (:user/culture user)
         (:db/id (db/entity [:i18n.culture/keyword :en_US])))))
 
+(spec/def ::id
+  (spec-tools.core/create-spec
+   {:spec (spec/or :lookup-ref ::db/lookup-ref
+                   :eid number?)
+    :description "Either a Datomic lookup ref or an entity ID"}))
+
+(spec/def ::keyword
+  (spec-tools.core/create-spec
+   {:spec keyword?
+    :gen (db.generators/keyword-generator)}))
+
 (register-endpoint!
   :categories.get
+  {:spec {:id (spec/or :eid number?
+                       :keyword-ref ::keyword)}}
   (fn [{{:keys [id]} :params} {:keys [session]}]
-    (-> (cond
-          (number? id) id
-          (keyword? id) [:category/keyword id])
-        (entity/find)
-        (entity/to-json {:culture (get-culture session)}))))
+    (let [category (-> (cond
+                         (number? id) id
+                         (keyword? id) [:category/keyword id])
+                       (entity/find))]
+      (when-not category
+        (throw (Exception. "Category not found")))
+      (entity/to-json category {:culture (get-culture session)}))))
 
 (register-endpoint!
   :categories.list
@@ -57,27 +85,30 @@
 
 (register-endpoint!
   :configuration.get
-  (fn [{:keys [params]} {:keys [session]}]
-    {:pre [(keyword? (:keyword params))]}
-    (let [kw (:keyword params)]
-      (if-let [value (first (entity/query :configuration {:keyword kw}))]
-        (entity/to-json value {:culture (get-culture session)})
-        (throw (Error. (str "Could not find configuration with keyword: " kw)))))))
+  {:spec {:keyword ::keyword}}
+  (fn [{{:keys [keyword]} :params} {:keys [session]}]
+    (if-let [value (first (entity/query :configuration {:keyword keyword}))]
+      (entity/to-json value {:culture (get-culture session)})
+      (throw (Error. (str "Could not find configuration with keyword: " keyword))))))
 
 (register-endpoint!
   :entities.find
+  {:spec {:id ::id}}
   (fn [{{:keys [id]} :params} {:keys [session]}]
-    {:pre [(number? id)]}
-    (entity/find-json id {:culture (get-culture session)})))
+    (let [entity (entity/find id)]
+      (when-not entity
+        (throw (Exception. (str "Unable to find entity: " id))))
+      (entity/to-json entity {:culture (get-culture session)}))))
 
 (register-endpoint!
   :enums.get
-  (fn [{:keys [params]} _]
-    (db/enum-values (name (:type params)))))
+  {:spec {:type ::keyword}}
+  (fn [{{:keys [type]} :params} _]
+    (db/enum-values (name type))))
 
 (register-endpoint!
   :i18n.cultures.list
-  (fn [{:keys [params]} _]
+  (fn [_ _]
     (->> (entity/query :i18n.culture)
          (map (fn [{:i18n.culture/keys [keyword name] :db/keys [id]}]
                 {:keyword keyword
@@ -93,6 +124,9 @@
 
 (register-endpoint!
   :products.get
+  {:spec {:id (spec/or :eid number?
+                       :keyword-ref ::keyword)
+          (opt :terms) (maybe [::id])}}
   (fn [{{:keys [id terms]} :params} {:keys [session]}]
     (-> (cond
           (number? id) id
@@ -103,21 +137,23 @@
 (register-endpoint!
   :products.list
   {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [{{:keys [filters]} :params} {:keys [session]}]
-    (let [{:keys [terms price]} filters]
-      (assert (or (nil? terms) (set? terms)))
-
-      (let [wheres
-            (as-> (entity/filters->wheres :product {:terms terms}) wheres
-                  (if (seq price)
-                    (let [{:keys [min max] :or {min '?price max '?price}} price]
-                      (concat wheres [['?id :product/price '?price]
-                                      [[<= min '?price max]]]))
-                    wheres))]
-        (map #(entity/find-json (:id %) {:culture (get-culture session)})
-             (db/nice-query {:find '[?id]
-                             :where wheres}))))))
+                 pagination/wrap-paginate]
+   :spec {(opt :filters) {(opt :terms) [::id]
+                          (opt :price) {(opt :min) number?
+                                        (opt :max) number?}}}
+   ;; workaround for https://github.com/metosin/spec-tools/issues/100
+   :nilable-params? true}
+  (fn [{{{:keys [terms price]} :filters} :params} {:keys [session]}]
+    (let [wheres
+          (as-> (entity/filters->wheres :product {:terms (set terms)}) wheres
+                (if (seq price)
+                  (let [{:keys [min max] :or {min '?price max '?price}} price]
+                    (concat wheres [['?id :product/price '?price]
+                                    [[<= min '?price max]]]))
+                  wheres))]
+      (map #(entity/find-json (:id %) {:culture (get-culture session)})
+           (db/nice-query {:find '[?id]
+                           :where wheres})))))
 
 (defn- term-counts []
   (->> (db/q '[:find (count ?product-eid)
@@ -215,19 +251,24 @@
   (get {:price "product/price"}
        field))
 
-(defn- search-products [filters {:keys [items-per-page sorting page]} culture]
+(defn- search-products [filters {:keys [items-per-page page sorting]} culture]
   (let [culture-kw (-> culture
                        entity/find
                        :i18n.culture/keyword)
+        items-per-page (or items-per-page 10)
+        page (or page 0)
         results (search/search
-                 {:_source false
-                  :from (* page items-per-page)
-                  :size items-per-page
-                  :sort [{(sorting-field->es (:field sorting))
-                          (name (:direction sorting))}
-                         "_score"]
-                  :query {:bool {:must (get-products-query filters
-                                                           culture-kw)}}})]
+                 (merge
+                  {:_source false
+                   :query {:bool {:must (get-products-query filters
+                                                            culture-kw)}}
+                   :size items-per-page
+                   :from (* page items-per-page)}
+                  (let [{:keys [field direction]} sorting]
+                    (when (and field direction)
+                      {:sort [{(sorting-field->es field)
+                               (name direction)}
+                              "_score"]}))))]
     {:can-load-more? (<= items-per-page (get-in results [:body :hits :total]))
      :items (->> (get-in results
                          [:body :hits :hits])
@@ -237,6 +278,19 @@
 
 (register-endpoint!
   :products.aggregations
+  {:spec
+   {(opt :filters) {(opt :categories) [(spec/or :id ::id
+                                                :slug string?)]
+                    (opt :price) {(opt :min) number?
+                                  (opt :max) number?}
+                    (opt :terms) [::id]
+                    (opt :name) (maybe string?)}
+    (opt :pagination) ::pagination/pagination}
+   :nilable-params? true
+   :doc
+   "Returns:
+     - Products filtered by category, price, terms and name
+     - Aggregated product terms and categories for the given category"}
   (fn [{{:keys [filters pagination]} :params} {:keys [session]}]
     (let [culture (get-culture session)
           {:keys [items can-load-more?]} (search-products filters pagination culture)]
@@ -252,49 +306,26 @@
          (entity/query :state))))
 
 (register-endpoint!
-  :users.addresses
-  (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [user (get-user session)]
-      (->> (entity/query :address {:user (:db/id user)})
-           (map #(entity/to-json % {:culture (get-culture session)}))))))
-
-(register-endpoint!
-  :users.addresses.save
-  (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [user (get-user session)
-          address (entity/find (:id params))]
-      (when-not (= (:db/id user) (:address/user address))
-        (throw (Exception. "Unauthorized")))
-      (entity/upsert :address params))))
-
-(register-endpoint!
-  :users.addresses.remove
-  (fn [{{:keys [id]} :params} {:keys [session]}]
-    (let [user (get-user session)
-          address (entity/find id)]
-      (when-not (= (:db/id user) (:address/user address))
-        (throw (Exception. "Unauthorized")))
-      (entity/delete id))))
-
-(register-endpoint!
   :users.login
-  (fn [{:keys [params] :as message} {:keys [session]}]
-    (let [{:keys [email password]} params]
-      (when-not (and email password)
-        (throw (Exception. "Email and password are required")))
-      (let [user (first (entity/query :user {:email email}))]
-        (when-not user
-          (throw (Exception. "User not found")))
-        (when-not (hashers/check password (:user/password user))
-          (throw (Exception. "Invalid credentials")))
-        (let [token (auth/user->token user)]
-          (swap! session assoc :token token)
-          {:user (entity/to-json user)
-           :token token})))))
+  {:spec {:email string?
+          :password string?}}
+  (fn [{{:keys [email password]} :params} {:keys [session]}]
+    (when-not (and email password)
+      (throw (Exception. "Email and password are required")))
+    (let [user (first (entity/query :user {:email email}))]
+      (when-not user
+        (throw (Exception. "User not found")))
+      (when-not (hashers/check password (:user/password user))
+        (throw (Exception. "Invalid credentials")))
+      (let [token (auth/user->token user)]
+        (swap! session assoc :token token)
+        {:user (entity/to-json user)
+         :token token}))))
 
 (register-endpoint!
   :users.session
-  (fn [{:keys [params] :as message} {:keys [session] :as state}]
+  {:spec {(opt :token) (maybe string?)}}
+  (fn [{:keys [params]} {:keys [session]}]
     (when-let [token (or (:token params) (get @session :token))]
       (when-let [user (auth/token->user token)]
         (when (:token params)
@@ -304,116 +335,30 @@
 
 (register-endpoint!
   :users.logout
-  (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [token (:token session)]
-      (when token
-        (swap! session dissoc :token)))))
+  (fn [_ {:keys [session]}]
+    (swap! session dissoc :token :user)
+    true))
 
 (register-endpoint!
   :users.register
-  (fn [{:keys [params] :as message} {:keys [session] :as state}]
-    (let [{:keys [email password name]} params]
-      (when (or (empty? email) (empty? password) (empty? name))
-        (throw (Exception. "Email, password and name are required")))
-      (let [user (entity/create :user {:name name
-                                       :email email
-                                       :password password})
-            token (auth/user->token user)]
-        {:user (entity/to-json user)
-         :token token}))))
-
-(register-endpoint!
-  :users.cart.get
-  (fn [{:keys [params]} {:keys [session]}]
-    (when-let [user (get-user session)]
-      (let [cart (entities.user/get-cart user)]
-        (entity/to-json cart {:culture (get-culture session)})))))
-
-(defn- find-order-line [order product-variation]
-  (-> (db/nice-query
-       {:find '[?id]
-        :in {'?order order
-             '?variation product-variation}
-        :where '[[?order :order/lines ?id]
-                 [?id :order.line/product-variation ?variation]]})
-      first
-      :id
-      entity/find))
-
-(register-endpoint!
-  :users.cart.add
-  (fn [{{:keys [id]} :params} {:keys [session]}]
-    {:pre [id]}
-    (when-let [user (get-user session)]
-      (let [cart (entities.user/get-cart user)]
-        (if-let [line (find-order-line (:db/id cart) id)]
-          (entity/update* (update line :order.line/quantity inc))
-          (entity/update* {:db/id (:db/id cart)
-                           :order/lines {:schema/type :schema.type/order.line
-                                         :order.line/product-variation id
-                                         :order.line/quantity 1}}))
-        (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
-
-(register-endpoint!
-  :users.cart.remove
-  (fn [{{:keys [id]} :params} {:keys [session]}]
-    {:pre [id]}
-    (when-let [user (get-user session)]
-      (let [cart (entities.user/get-cart user)]
-        (when-let [line (find-order-line (:db/id cart) id)]
-          (entity/delete (:db/id line)))
-        (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
-
-(register-endpoint!
-  :users.cart.set-quantity
-  (fn [{{:keys [id quantity]} :params} {:keys [session]}]
-    {:pre [id (< 0 quantity Integer/MAX_VALUE)]}
-    (when-let [user (get-user session)]
-      (let [cart (entities.user/get-cart user)]
-        (if-let [line (find-order-line (:db/id cart) id)]
-          (entity/update* (assoc line :order.line/quantity quantity))
-          (entity/update* {:db/id (:db/id cart)
-                           :order/lines {:schema/type :schema.type/order.line
-                                         :order.line/product-variation id
-                                         :order.line/quantity quantity}}))
-        (entity/find-json (:db/id cart) {:culture (get-culture session)})))))
-
-(register-endpoint!
-  :users.cart.add-discount
-  (fn [{{:keys [code]} :params} {:keys [session]}]
-    {:pre [(string? code) (not (str/blank? code))]}
-    (when-let [user (get-user session)]
-      (if-let [discount (entity/query-one :discount {:code code})]
-        (let [cart (entities.user/get-cart user)]
-          (entity/update* (assoc cart :discount (:db/id discount)))
-          (entity/find-json (:db/id cart) {:culture (get-culture session)}))
-        (throw (Exception. "No discount found with the given code"))))))
-
-(register-endpoint!
-  :users.favorites.list
-  (fn [{:keys [params]} {:keys [session]}]
-    (let [user (get-user session)]
-      (:user/favorites user))))
-
-(defn- toggle-favorite [session product-id f]
-  (when-let [user (get-user session)]
-    (let [favorites (f (set (:user/favorites user)) product-id)]
-      (entity/update* {:db/id (:db/id user)
-                       :user/favorites favorites})
-      favorites)))
-
-(register-endpoint!
-  :users.favorites.add
-  (fn [{{:keys [id]} :params} {:keys [session]}]
-    (toggle-favorite session id conj)))
-
-(register-endpoint!
-  :users.favorites.remove
-  (fn [{{:keys [id]} :params} {:keys [session]}]
-    (toggle-favorite session id disj)))
+  {:spec {:email string?
+          :password string?
+          :name string?}}
+  (fn [{{:keys [email password name]} :params} _]
+    (when (or (empty? email) (empty? password) (empty? name))
+      (throw (Exception. "Email, password and name are required and can't be empty")))
+    (let [name-parts (str/split name #" ")
+          user (entity/create :user {:first-name (first name-parts)
+                                     :last-name (str/join " " (rest name-parts))
+                                     :email email
+                                     :password password})
+          token (auth/user->token user)]
+      {:user (entity/to-json user)
+       :token token})))
 
 (register-endpoint!
   :search
+  {:spec {:search string?}}
   (fn [{{:keys [search]} :params} {:keys [session]}]
     (let [culture (get-culture session)
           {culture-kw :i18n.culture/keyword} (entity/find culture)
@@ -439,7 +384,10 @@
 
 (register-endpoint!
   :upload
-  {:binary? true}
+  {:binary? true
+   :spec {:is-first boolean?
+          :is-last boolean?
+          (opt :file-id) some?}}
   (fn [{:keys [params]} state]
     (let [{:keys [bytes is-first is-last file-id]} params
           file-id (if is-first (gensym "temp-file") file-id)
