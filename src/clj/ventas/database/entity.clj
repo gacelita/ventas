@@ -10,10 +10,11 @@
    [taoensso.timbre :as timbre :refer [trace debug info warn error]]
    [ventas.database :as db]
    [ventas.database.schema :as schema]
+   [ventas.database.generators :as db.generators]
    [ventas.utils :as utils]
    [ventas.common.utils :as common.utils]))
 
-(spec/def :schema/type keyword?)
+(spec/def :schema/type ::db.generators/keyword)
 
 (spec/def ::entity
   (spec/keys :req [:schema/type]))
@@ -32,7 +33,7 @@
                       ::after-delete]))
 
 (defn entity? [entity]
-  (spec/valid? ::entity entity))
+  (spec/valid? ::entity (select-keys entity #{:schema/type})))
 
 (defonce registered-types (atom {}))
 
