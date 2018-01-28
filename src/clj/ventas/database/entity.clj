@@ -13,9 +13,10 @@
    [ventas.utils :as utils]
    [ventas.common.utils :as common.utils]))
 
-(defn entity? [entity]
-  (when (map? entity)
-    (contains? (set (keys entity)) :schema/type)))
+(spec/def :schema/type keyword?)
+
+(spec/def ::entity
+  (spec/keys :req [:schema/type]))
 
 (spec/def ::entity-type
   (spec/keys :opt-un [::attributes
@@ -29,6 +30,9 @@
                       ::after-seed
                       ::after-create
                       ::after-delete]))
+
+(defn entity? [entity]
+  (spec/valid? ::entity entity))
 
 (defonce registered-types (atom {}))
 
@@ -201,7 +205,7 @@
    (create :user {:name `Joel` :email `test@test.com`})"
   [type attributes]
   (let [entity
-        (-> (utils/qualify-map-keywords (common.utils/filter-empty-vals attributes) type)
+        (-> (utils/qualify-map-keywords (common.utils/remove-nil-vals attributes) type)
             (assoc :schema/type (db/kw->type type)))]
     (create* entity)))
 
@@ -262,8 +266,7 @@
 
 (defn- autoresolve-ref [ref & [options]]
   (let [subentity (-> ref find)]
-    (assert subentity)
-    (if (autoresolve? (db/type->kw (:schema/type subentity)))
+    (if (and subentity (autoresolve? (db/type->kw (:schema/type subentity))))
       (to-json subentity options)
       ref)))
 

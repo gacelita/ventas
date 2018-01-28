@@ -9,42 +9,61 @@
       [cognitect.transit :as transit])))
 
 (defn map-keys [f m]
+  "Maps only the keys of a map"
   (->> m
        (map (fn [[k v]]
               [(f k) v]))
        (into {})))
 
 (defn map-vals [f m]
+  "Maps only the values of a map"
   (->> m
        (map (fn [[k v]]
               [k (f v)]))
        (into {})))
 
-(defn map-kv [f m]
+(defn map-kv
+  "Syntax sugar for map->map transformations"
+  [f m]
   (->> m
        (map (fn [[k v]]
               (f k v)))
        (into {})))
 
-(defn filter-vals
-  [pred m]
-  (->> m
-       (filter (fn [[k v]] (pred v)))
-       (into {})))
+(defn map-leaves
+  "Applies f to all 'leaves' (anything that is not sequential or a map)"
+  [f v]
+  (cond
+    (map? v)
+    (->> v
+         (map (fn [[k v]]
+                [(map-leaves f k)
+                 (map-leaves f v)]))
+         (into {}))
 
-(defn filter-empty-vals [m]
-  (filter-vals (fn [v]
-                 (not (nil? v)))
-               m))
+    (sequential? v)
+    (map #(map-leaves f %) v)
+
+    :default
+    (f v)))
+
+(defn remove-nil-vals
+  "Removes nil values from a map"
+  [m]
+  (->> m
+       (remove (fn [[k v]] (nil? v)))
+       (into {})))
 
 (defn find-first
   "Finds the first value from coll that satisfies pred.
-  Returns nil if it doesn't find such a value."
+   Returns nil if it doesn't find such a value."
   [pred coll]
   {:pre [(ifn? pred) (coll? coll)]}
   (some #(when (pred %) %) coll))
 
-(defn find-index [pred coll]
+(defn find-index
+  "Returns the index of the first value in `coll` that satisfies `pred`"
+  [pred coll]
   (first (keep-indexed #(when (pred %2) %1) coll)))
 
 (defn deep-merge
@@ -56,7 +75,7 @@
     (last maps)))
 
 (defn group-by-keyword
-  "Same as group-by but dissocs the keyword used for grouping the items."
+  "Same as group-by but dissocs the keyword used for grouping the items"
   [kw coll]
   {:pre [(keyword? kw)]}
   (->> coll
@@ -65,12 +84,15 @@
         (fn [term]
           (->> term (map #(dissoc % kw)))))))
 
-(defn update-when-some [m k f]
+(defn update-when-some
+  "Like `update` but does not do anything if the value does not exist or is nil"
+  [m k f]
   (if (get m k)
     (update m k f)
     m))
 
 (defn update-in-when-some [m ks f]
+  "See `update-when-some`"
   (if (get-in m ks)
     (update-in m ks f)
     m))
@@ -95,6 +117,7 @@
        (into {})))
 
 (defn read-keyword [str]
+  "Makes a keyword from a string beginning with `:`"
   (keyword (str/replace str #"\:" "")))
 
 (def ^:private set-identifier "__set")
@@ -108,7 +131,8 @@
   #?(:cljs (reader/read-string (.-rep v))))
 
 (defn process-input-message
-  "Properly decode keywords and sets"
+  "Properly decode keywords and sets.
+   Used for json communication between client and server, to allow using keywords and sets"
   [message]
   (cond
     (map? message)
@@ -128,7 +152,8 @@
     :else message))
 
 (defn process-output-message
-  "Properly encode keywords and sets"
+  "Properly encode keywords and sets.
+   Used for json communication between client and server, to allow using keywords and sets"
   [message]
   (cond
     (map? message) (map-kv (fn [k v]
