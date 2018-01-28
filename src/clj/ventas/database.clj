@@ -1,23 +1,24 @@
 (ns ventas.database
   (:require
+   [buddy.hashers :as hashers]
+   [clojure.core.async :refer [chan <! >! go go-loop]]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
-   [clojure.string]
-   [clojure.tools.logging :as log]
-   [clojure.walk :as walk]
    [clojure.pprint :as p]
-   [clojure.core.async :refer [chan <! >! go go-loop]]
-   [datomic.api :as d]
-   [buddy.hashers :as hashers]
-   [mount.core :as mount :refer [defstate]]
-   [ventas.config :as config]
-   [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+]]
    [clojure.spec.alpha :as spec]
    [clojure.spec.test.alpha :as stest]
+   [clojure.string]
    [clojure.test.check.generators :as gen]
+   [clojure.tools.logging :as log]
+   [clojure.walk :as walk]
+   [datomic.api :as d]
+   [io.rkn.conformity :as conformity]
+   [mount.core :as mount :refer [defstate]]
+   [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre :refer [info]]
-   [io.rkn.conformity :as conformity])
+   [ventas.config :as config]
+   [ventas.database.generators :as db.generators]
+   [ventas.utils :as utils])
   (:import [java.io File]
            [java.util.concurrent ExecutionException]))
 
@@ -299,9 +300,14 @@
   {:pre [(keyword? id) (coll? migration)]}
   (conformity/ensure-conforms db {id {:txes [migration]}}))
 
+(spec/def ::lookup-ref
+  (spec/with-gen
+   (spec/tuple keyword? some?)
+   #(gen/tuple (db.generators/keyword-generator)
+               (db.generators/keyword-generator))))
+
 (defn lookup-ref? [v]
-  (and (sequential? v)
-       (keyword? (first v))))
+  (spec/valid? ::lookup-ref v))
 
 (defn rename-ident! [old new]
   (transact
