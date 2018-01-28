@@ -29,7 +29,7 @@
   {:type :response
    :id id
    :success false
-   :data (.getMessage e)})
+   :data (or (.getMessage e) (str e))})
 
 (defn call-request-handler [{:keys [id] :as message} state]
   (try
