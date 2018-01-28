@@ -152,6 +152,12 @@
                  :success ::users.login.next}]}))
 
 (rf/reg-event-fx
+ ::users.logout
+ (fn [_ _]
+   {:dispatch [::backend/users.logout
+               {:success ::session.stop}]}))
+
+(rf/reg-event-fx
   ::users.login.next
   [(rf/inject-cofx :local-storage)]
   (fn [{:keys [db local-storage]} [_ {:keys [user token]}]]
