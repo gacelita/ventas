@@ -8,11 +8,9 @@
    [clojure.core.async :refer [>! go]]
    [repl]))
 
-;; Let Clojure warn you when it needs to reflect on types, or when it does math
-;; on unboxed numbers. In both cases you should add type annotations to prevent
-;; degraded performance.
-(set! *warn-on-reflection* true)
-(set! *unchecked-math* :warn-on-boxed)
+;; Let Clojure warn you when it needs to reflect on types.
+;; Type annotations should be added in such cases to prevent degraded performance.
+(alter-var-root #'*warn-on-reflection* (constantly true))
 
 (clojure.tools.namespace.repl/set-refresh-dirs "src/clj" "src/cljc" "dev" "test/clj" "test/cljc")
 
