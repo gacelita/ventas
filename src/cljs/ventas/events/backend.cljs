@@ -103,6 +103,11 @@
    {:ws-request (merge {:name :users.login} options)}))
 
 (rf/reg-event-fx
+ ::users.logout
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.logout} options)}))
+
+(rf/reg-event-fx
  ::users.register
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :users.register} options)}))
