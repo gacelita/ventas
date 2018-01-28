@@ -149,7 +149,10 @@
 
   :test-paths ["test/clj" "test/cljc"]
 
-  :jvm-opts ["-Xverify:none" "-XX:-OmitStackTraceInFastThrow"]
+  :jvm-opts ["-Xverify:none"
+             "-XX:-OmitStackTraceInFastThrow"
+             "-Dapple.awt.UIElement=true" ;; Disable empty/useless menu item in OSX
+             ]
 
   :clean-targets ^{:protect false} [:target-path :compile-path "resources/public/files/js"]
 
