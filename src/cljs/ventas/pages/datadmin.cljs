@@ -1,4 +1,5 @@
 (ns ventas.pages.datadmin
+  "Underdeveloped idea; don't use, don't read, etc."
   (:require
    [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
