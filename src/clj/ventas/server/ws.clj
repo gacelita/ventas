@@ -120,7 +120,7 @@
   (reset! shared-mult (core.async/mult @shared-hub)))
 
 (defn stop! []
-  (core.async/close! @shared-hub))
+  (some-> @shared-hub core.async/close!))
 
 (defn call-handler-with-user
   "Simulates a request done from the client. Meant for the REPL."
