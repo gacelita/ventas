@@ -1,11 +1,16 @@
 (ns repl
   "REPL-driven development"
   (:require
+   [clojure.core.async :refer [>! go]]
+   [clojure.spec.alpha :as spec]
    [clojure.tools.namespace.repl :as tn]
    [mount.core :as mount]
-   [clojure.core.async :refer [>! go]]
-   [ventas.events :as events]
-   [clojure.spec.alpha :as spec]))
+   [ventas.config] ;; note: no `:as` used for ventas. Avoids issues
+   [ventas.events]))
+
+(when (ventas.config/get :strict-classloading)
+  ;; ensures all code is required - avoiding issues:
+  (require 'ventas.core))
 
 (def aliases
   {'api 'ventas.server.api
@@ -22,9 +27,13 @@
    'utils 'ventas.utils
    'ws 'ventas.server.ws})
 
-(defn init-aliases []
+(defn deinit-aliases []
   (doseq [[from to] aliases]
-    (ns-unalias 'repl from)
+    (ns-unalias 'repl from)))
+
+(defn init-aliases []
+  (deinit-aliases)
+  (doseq [[from to] aliases]
     (alias from to)))
 
 (defmacro add-dependency
@@ -33,25 +42,27 @@
   [dependency]
   `(do (~'use '[cemerick.pomegranate :only (~'add-dependencies)])
        (~'add-dependencies :coordinates '[~dependency]
-        :repositories (~'merge cemerick.pomegranate.aether/maven-central
-                       {"clojars" "https://clojars.org/repo"}))))
+                           :repositories (~'merge cemerick.pomegranate.aether/maven-central
+                                                  {"clojars" "https://clojars.org/repo"}))))
 
 ;; Lifecycle
 (defn init []
   (in-ns 'repl)
+  (deinit-aliases)
   (let [result (tn/refresh-all)]
-    (when (instance? Exception result)
+    (when (instance? Throwable result)
       (throw result))
     (mount/start)
     (init-aliases)
-    (go (>! (events/pub :init) true))
+    (go (>! (ventas.events/pub :init) true))
     :done))
 
 (defn reset []
+  (deinit-aliases)
   (mount/stop)
   (tn/refresh :after 'mount/start)
   (init-aliases)
-  (go (>! (events/pub :init) true))
+  (go (>! (ventas.events/pub :init) true))
   :done)
 
 (defn keyword->state [kw]
@@ -70,20 +81,21 @@
      (r :figwheel :db)
    Refer to keyword->state to see what states can be restarted in this way"
   [& states]
+  (when (= (ns-name *ns*) 'repl)
+    (deinit-aliases))
   (let [states (->> states
                     (map keyword->state)
                     (map #(ns-resolve 'repl %)))
         _ (when (seq states)
             (apply mount/stop states))
         result (tn/refresh)]
-    (when (or (instance? Exception result)
-              (instance? Error result))
+    (when (instance? Throwable result)
       (throw result))
     (when (seq states)
       (apply mount/start states))
     (when (= (ns-name *ns*) 'repl)
       (init-aliases))
-    (go (>! (events/pub :init) true))
+    (go (>! (ventas.events/pub :init) true))
     :done))
 
 (defn run-tests []
