@@ -223,12 +223,14 @@
                                   [com.cemerick/pomegranate "1.0.0"]
                                   [org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.8"]]
-                    :plugins [[lein-figwheel "0.5.14" :exclusions [org.clojure/clojure]]
-                              [lein-doo "0.1.8" :exclusions [org.clojure/clojure]]]
-                    :source-paths ["dev"]}
+                   :plugins [[lein-figwheel "0.5.14" :exclusions [org.clojure/clojure]]
+                             [lein-doo "0.1.8" :exclusions [org.clojure/clojure]]
+                             [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
+                             [refactor-nrepl "2.4.0-SNAPSHOT"]]
+                   :source-paths ["dev"]}
 
-              :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
-                        :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
-                        :hooks [leiningen.sassc]
-                        :omit-source true
-                        :aot :all}})
+             :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
+                       :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
+                       :hooks [leiningen.sassc]
+                       :omit-source true
+                       :aot :all}})
