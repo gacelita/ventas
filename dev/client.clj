@@ -5,6 +5,7 @@
    [figwheel-sidecar.repl-api :as figwheel]
    [figwheel-sidecar.components.css-watcher :as figwheel.css-watcher]
    [ventas.utils :as utils]
+   [ventas.config :as config]
    [clojure.java.shell]
    [me.raynes.conch.low-level :as sh]
    [mount.core :as mount :refer [defstate]]
@@ -25,12 +26,14 @@
          (figwheel.css-watcher/send-css-files figwheel-server sendable-files))))))
 
 (defn figwheel-start []
-  (info "Starting Figwheel")
-  (figwheel/start-figwheel!))
+  (when (config/get :embed-figwheel?)
+    (info "Starting Figwheel")
+    (figwheel/start-figwheel!)))
 
 (defn figwheel-stop []
-  (info "Stopping Figwheel")
-  (figwheel/stop-figwheel!))
+  (when (config/get :embed-figwheel?)
+    (info "Stopping Figwheel")
+    (figwheel/stop-figwheel!)))
 
 (defstate figwheel :start (figwheel-start) :stop (figwheel-stop))
 

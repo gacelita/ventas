@@ -8,4 +8,8 @@
          :host "localhost"}
  :debug true
  :cljs-port 3001
- :auth-secret "CHANGEME"}
+ :auth-secret "CHANGEME"
+
+ ;; recommended `false` for Emacs:
+ :embed-figwheel? true
+ }
