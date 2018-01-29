@@ -113,7 +113,7 @@
       (stop-fn)
       (catch Exception e
         ;; Avoids occasional ConcurrentModificationException, which is a bug in httpkit
-        ))))
+        (info ::stop-server! " - Caught exception while stopping the server:" (pr-str e))))))
 
 (defn start-server! []
   (info "Starting server")
