@@ -205,7 +205,9 @@
 (defn reindex
   "Indexes everything"
   []
-  (remove-index)
+  (try
+    (remove-index)
+    (catch Throwable e))
   (setup)
   (let [types (indexable-types)]
     (doseq [type types]
