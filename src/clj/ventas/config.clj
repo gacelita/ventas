@@ -11,6 +11,7 @@
                    :port 9200
                    :host "127.0.0.1"}
    :debug false
+   :embed-figwheel? true
    :cljs-port 3001})
 
 (defonce ^:private config (atom (merge defaults (load-config))))
