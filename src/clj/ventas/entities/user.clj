@@ -3,7 +3,7 @@
    [clojure.spec.alpha :as spec]
    [buddy.hashers :as hashers]
    [clojure.test.check.generators :as gen]
-   [com.gfredericks.test.chuck.generators :as gen']
+   [com.gfredericks.test.chuck.generators :as chuck]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.utils :as utils]
@@ -50,8 +50,8 @@
 
 (spec/def :user/email
   (spec/with-gen
-   (spec/and string? #(str/includes? % "@"))
-   #(gen'/string-from-regex #"[a-z0-9]{3,6}@[a-z0-9]{3,6}\.(com|es|org)")))
+    (spec/and string? #(str/includes? % "@"))
+    #(chuck/string-from-regex #"[a-z0-9]{3,6}@[a-z0-9]{3,6}\.(com|es|org)")))
 
 (spec/def :schema.type/user
   (spec/keys :opt [:user/description
