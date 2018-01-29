@@ -42,10 +42,14 @@
    [ventas.themes.clothing.core]))
 
 (defn -main [& args]
+  (mount/start)
+  (let [auth-secret (config/get :auth-secret)]
+    (when (or (empty? auth-secret) (= auth-secret "CHANGEME"))
+      (throw (Exception. (str ":auth-secret is empty or has not been changed.\n"
+                              "Either edit resources/config.edn or add an AUTH_SECRET environment variable, and try again.")))))
   (let [{:keys [host port]} (config/get :nrepl)]
     (timbre/info (str "Starting nREPL server on " host ":" port))
     (nrepl/start-server :port port :bind host))
-  (mount/start)
   (go (>! (events/pub :init) true)))
 
 (defn migrate-and-reindex!
