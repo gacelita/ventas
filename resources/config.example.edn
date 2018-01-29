@@ -12,4 +12,6 @@
 
  ;; recommended `false` for Emacs:
  :embed-figwheel? true
- }
+
+ ;; recommended `true` for Emacs users:
+ :strict-classloading false}
