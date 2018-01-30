@@ -8,9 +8,9 @@ For now, the project is a WIP. Although the foundation is good, there aren't man
 
 For any questions I'm usually available at the `#ventas` channel in [clojurians](clojurians.slack.com). You can also open an issue, or contact me by email (you'll find it in `project.clj`) .
 
-[Demo instance](https://ventas.kazer.es) (may not be running)
+[Demo instance](https://ventas2.kazer.es) (may not be running)
 
-- [Swagger-like API tool](https://ventas.kazer.es/api)
+- [Swagger-like API tool](https://ventas2.kazer.es/api)
 
 
 
