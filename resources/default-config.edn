@@ -1,3 +1,7 @@
+;;
+;; Don't edit this file, create "config.edn" and edit that instead.
+;;
+
 {:database {:url "datomic:dev://localhost:4334/ventas"}
  :server {:port 3450
           :host "localhost"}

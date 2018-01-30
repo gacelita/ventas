@@ -44,12 +44,6 @@ $ cd ventas
 $ bower install
 ```
 
-Then, go to `resources` and copy the example configuration file:
-
-```bash
-$ cp resources/config.example.edn resources/config.edn
-```
-
 Now you can start the REPL:
 
 ```bash
