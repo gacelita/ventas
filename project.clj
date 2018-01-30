@@ -25,7 +25,7 @@
                  [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
                  [expound "0.4.0"]
                  [org.clojure/spec.alpha "0.1.143" :scope "provided"]
-                 [metosin/spec-tools "0.5.1"]
+                 [metosin/spec-tools "0.6.0-SNAPSHOT"]
                  [com.google.guava/guava "23.0"]
                  [org.clojure/tools.nrepl "0.2.13"]
 

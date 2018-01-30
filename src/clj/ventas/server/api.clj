@@ -27,13 +27,12 @@
    (register-endpoint! kw {:binary? false} f))
   ([kw opts f]
    {:pre [(keyword? kw) (ifn? f) (map? opts)]}
-   (let [{:keys [binary? middlewares spec nilable-params?] :or {middlewares []}} opts]
+   (let [{:keys [binary? middlewares spec] :or {middlewares []}} opts]
      (swap! available-requests assoc kw opts)
      (cond
        (not binary?)
        (defmethod server.ws/handle-request kw [request state]
-         (when (and spec (not (and (not (:params request))
-                                   nilable-params?)))
+         (when spec
            (utils/check (data-spec/spec kw spec)
                         (:params request)))
          (:response (reduce (fn [acc middleware]
@@ -138,11 +137,9 @@
   :products.list
   {:middlewares [pagination/wrap-sort
                  pagination/wrap-paginate]
-   :spec {(opt :filters) {(opt :terms) [::id]
-                          (opt :price) {(opt :min) number?
-                                        (opt :max) number?}}}
-   ;; workaround for https://github.com/metosin/spec-tools/issues/100
-   :nilable-params? true}
+   :spec (maybe {(opt :filters) {(opt :terms) [::id]
+                                 (opt :price) {(opt :min) number?
+                                               (opt :max) number?}}})}
   (fn [{{{:keys [terms price]} :filters} :params} {:keys [session]}]
     (let [wheres
           (as-> (entity/filters->wheres :product {:terms (set terms)}) wheres
@@ -279,14 +276,13 @@
 (register-endpoint!
   :products.aggregations
   {:spec
-   {(opt :filters) {(opt :categories) [(spec/or :id ::id
-                                                :slug string?)]
-                    (opt :price) {(opt :min) number?
-                                  (opt :max) number?}
-                    (opt :terms) [::id]
-                    (opt :name) (maybe string?)}
-    (opt :pagination) ::pagination/pagination}
-   :nilable-params? true
+   (maybe {(opt :filters) {(opt :categories) [(spec/or :id ::id
+                                                       :slug string?)]
+                           (opt :price) {(opt :min) number?
+                                         (opt :max) number?}
+                           (opt :terms) [::id]
+                           (opt :name) (maybe string?)}
+           (opt :pagination) ::pagination/pagination})
    :doc
    "Returns:
      - Products filtered by category, price, terms and name
