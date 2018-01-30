@@ -8,8 +8,13 @@
    [taoensso.timbre :as timbre]))
 
 (defn- load-config []
-  (cprop/load-config :resource "default-config.edn"
-                     :merge [(cprop.source/from-resource "config.edn")]))
+  (let [custom-config (try
+                        (cprop.source/from-resource "config.edn")
+                        (catch Throwable e))]
+    (apply cprop/load-config
+           :resource "default-config.edn"
+           (when custom-config
+             [:merge [custom-config]]))))
 
 (defonce ^:private config (atom (load-config)))
 
