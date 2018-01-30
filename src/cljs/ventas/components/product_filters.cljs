@@ -2,6 +2,7 @@
   (:require
    [ventas.components.base :as base]
    [ventas.components.sidebar :as sidebar]
+   [ventas.components.term :as term]
    [ventas.events :as events]
    [ventas.utils :as utils :include-macros true]
    [ventas.i18n :refer [i18n]]
@@ -10,19 +11,12 @@
    [ventas.common.utils :as common.utils]
    [ventas.routes :as routes]))
 
-(defn color-term [{:keys [name color]} args]
-  [:div.product-filters__color
-   (merge
-    {:title name
-     :style {:background-color color}
-     :class (when (:active? args) "product-filters__color--active")}
-    (dissoc args :active?))])
-
 (defmulti product-term* (fn [taxonomy-kw _] taxonomy-kw))
 
-(defmethod product-term* :color [_ {:keys [id] :as term} {:keys [filters event]}]
+(defmethod product-term* :color [taxonomy-kw {:keys [id] :as term} {:keys [filters event]}]
   (let [active? (contains? (set (:terms filters)) id)]
-    [color-term
+    [term/term-view
+     taxonomy-kw
      term
      {:active? active?
       :on-click #(if-not active?

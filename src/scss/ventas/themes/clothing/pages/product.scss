@@ -188,32 +188,9 @@
 }
 
 .product-page__terms {
-    .product-filters__color {
+    .term.term--color {
         width: 25px;
         height: 25px;
-    }
-}
-
-.product-page__term {
-    display: inline-block;
-    background: white;
-    margin: 5px;
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
-    text-align: center;
-    border: solid 2px transparent;
-    box-sizing: content-box;
-    cursor: pointer;
-    border-radius: 50%;
-
-    h3 {
-        line-height: inherit;
-        font-weight: normal;
-    }
-
-    &:hover, &--active {
-        border: solid 2px #c3c3c3;
     }
 }
 

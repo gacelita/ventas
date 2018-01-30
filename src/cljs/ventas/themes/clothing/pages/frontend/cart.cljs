@@ -13,7 +13,8 @@
    [ventas.utils :as utils]
    [ventas.utils.formatting :as utils.formatting]
    [ventas.components.product-filters :as product-filters]
-   [ventas.components.image :as image]))
+   [ventas.components.image :as image]
+   [ventas.components.term :as term]))
 
 (rf/reg-event-fx
  ::add-voucher
@@ -110,15 +111,11 @@
                (* quantity
                   (utils.formatting/format-number (get-in product-variation [:price :value])))
                " " (get-in product-variation [:price :currency :symbol]))]]
-    [:table.cart-page__terms
-     [:tbody
-      (let [variation-data (get product-variation :variation)]
-        (for [{:keys [taxonomy selected]} variation-data]
-          [:div.cart-page__term
-           [:p (str (:name taxonomy) ": ")]
-           (if (:color selected)
-             [product-filters/color-term selected]
-             [:p (:name selected)])]))]]
+    [:div.cart-page__terms
+     (let [variation-data (get product-variation :variation)]
+       (for [{:keys [taxonomy selected]} variation-data]
+         [:div.cart-page__term
+          [term/term-view (:keyword taxonomy) selected {:active? true}]]))]
 
     [:div.cart-page__actions
      [base/button {:icon true

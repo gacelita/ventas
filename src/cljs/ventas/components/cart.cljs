@@ -5,12 +5,14 @@
    [reagent.core :as reagent]
    [clojure.string :as s]
    [ventas.components.base :as base]
+   [ventas.components.image :as image]
    [ventas.utils.ui :refer [with-handler]]
    [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]
    [ventas.events.backend :as backend]
    [ventas.utils.formatting :as formatting]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.components.term :as term]))
 
 (rf/reg-sub
  ::main
@@ -42,7 +44,7 @@
 (rf/reg-event-fx
  ::add
  (fn [db [_ eid]]
-   {:dispatch [::backend/users.cart.add {:success ::add.next
+   {:dispatch [::backend/users.cart.add {:success [::add.next eid]
                                          :params {:id eid}}]}))
 
 (defn- notification-view [{:keys [id quantity product-variation] :as line}]
@@ -56,19 +58,21 @@
        [:h4 (:name product-variation)]
        (let [{:keys [value currency]} price]
          [:h4 (str (formatting/format-number value) " " (:symbol currency))])
-       [:table
-        [:tbody
-         (for [{:keys [taxonomy selected]} variation]
-           [:tr
-            [:td (:name taxonomy)]
-            [:td (:name selected)]])]]]]]))
+
+       [:div.cart-notification__terms
+        (for [{:keys [taxonomy selected]} variation]
+          [:div.cart-notification__term
+           [term/term-view (:keyword taxonomy) selected {:active? true}]])]]]]))
 
 (rf/reg-event-fx
  ::add.next
- (fn [db [_ cart]]
+ (fn [db [_ eid cart]]
    {:dispatch-n [[::cart cart]
-                 [::notificator/add {:theme "cart-notification"
-                                     :component [notification-view (last (:lines cart))]}]]}))
+                 [::notificator/add
+                  {:theme "cart-notification"
+                   :component [notification-view (->> (:lines cart)
+                                                      (filter #(= (get-in % [:product-variation :id]) eid))
+                                                      (first))]}]]}))
 
 (rf/reg-event-fx
  ::remove

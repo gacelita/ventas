@@ -104,3 +104,34 @@
         margin-bottom: 0.5rem;
     }
 }
+
+.cart-notification__terms {
+    line-height: 0px;
+}
+
+.cart-notification__term {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 3px;
+    margin-left: 0px;
+    margin-right: 6px;
+
+    .term {
+        margin: 0px !important;
+    }
+
+    .term.term--default {
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+
+        h3 {
+            font-size: 1rem;
+        }
+    }
+
+    .term.term--color {
+        width: 20px;
+        height: 20px;
+    }
+}

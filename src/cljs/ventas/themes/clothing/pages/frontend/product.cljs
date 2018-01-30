@@ -6,6 +6,7 @@
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.components.image :as image]
+   [ventas.components.term :as term]
    [ventas.components.product-filters :as product-filters]
    [ventas.components.slider :as components.slider]
    [ventas.events :as events]
@@ -160,24 +161,13 @@
                     :visible-slides visible-slides}))
        (assoc-in [state-key :main-image] (first images)))))
 
-(defmulti term-view (fn [{:keys [keyword]} _] keyword))
-
-(defmethod term-view :color [taxonomy {:keys [color name] :as term} active?]
-  [product-filters/color-term
-   term
+(defn term-view [taxonomy term active?]
+  [term/term-view (:keyword taxonomy) term
    {:active? active?
     :on-click #(rf/dispatch [::select-term
                              (routes/ref-from-param :id)
                              taxonomy
                              term])}])
-
-(defmethod term-view :default [taxonomy {:keys [name] :as term} active?]
-  [:div.product-page__term {:class (when active? "product-page__term--active")
-                            :on-click #(rf/dispatch [::select-term
-                                                     (routes/ref-from-param :id)
-                                                     taxonomy
-                                                     term])}
-   [:h3 name]])
 
 (defn- info-view [_]
   (rf/dispatch [::events/users.favorites.list])
