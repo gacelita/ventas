@@ -150,6 +150,8 @@
     :ventas.pages.admin.activity-log/entity-type "Entity type"
     :ventas.pages.admin.activity-log/type "Event type"
 
+    :ventas.session/unregistered-error "You need to be a registered user to do that"
+
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
 

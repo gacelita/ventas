@@ -118,13 +118,7 @@
          (entity/find-json (:db/id cart) {:culture (api/get-culture session)}))
        (throw (Exception. "No discount found with the given code"))))))
 
-
-;;
-;; @TODO: these three requests should require an user,
-;; when we add the concept of temporary users (sessions)
-;;
-
-(api/register-endpoint!
+(register-user-endpoint!
  :users.favorites.list
  (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]
@@ -137,13 +131,13 @@
                        :user/favorites favorites})
       favorites)))
 
-(api/register-endpoint!
+(register-user-endpoint!
  :users.favorites.add
  {:spec {:id ::api/id}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (toggle-favorite session id conj)))
 
-(api/register-endpoint!
+(register-user-endpoint!
  :users.favorites.remove
  {:spec {:id ::api/id}}
  (fn [{{:keys [id]} :params} {:keys [session]}]

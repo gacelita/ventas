@@ -22,7 +22,7 @@
     [sidebar/link {:href (routes/path-for :frontend.profile.account)}
      (i18n ::my-account)]
 
-    [sidebar/link {:on-click #(rf/dispatch [::events/session.stop])}
+    [sidebar/link {:on-click #(rf/dispatch [::events/users.logout])}
      (i18n ::logout)]]])
 
 (defn skeleton [content]

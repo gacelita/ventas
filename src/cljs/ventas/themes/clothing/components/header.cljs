@@ -30,7 +30,7 @@
  ::logout
  (fn [_ _]
    {:dispatch-n [[::toggle]
-                 [::events/session.stop]]}))
+                 [::events/users.logout]]}))
 
 (rf/reg-event-fx
  ::search

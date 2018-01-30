@@ -133,7 +133,7 @@
                          :class "dropdown--align-right"}
           [base/dropdown-menu
            [base/dropdown-item {:text (i18n ::logout)
-                                :on-click #(rf/dispatch [::events/session.stop])}]]]])]
+                                :on-click #(rf/dispatch [::events/users.logout])}]]]])]
      [:div.admin__skeleton
       [:div.admin__sidebar
        [:a {:href (routes/path-for :admin)}

@@ -79,8 +79,14 @@
   [profile.skeleton/skeleton
    [content (session/get-identity)]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::session/require-identity]}))
+
 (routes/define-route!
  :frontend.profile.account
  {:name ::page
   :url ["account"]
-  :component page})
+  :component page
+  :init-fx [::init]})

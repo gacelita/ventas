@@ -52,19 +52,22 @@
        (i18n ::register)]]]))
 
 (defn page []
-  (let [session @(rf/subscribe [::events/db [:session]])]
-    (if (get-in session [:identity :id])
-      (do
-        (routes/go-to :frontend.profile)
-        [:div])
-      [skeleton
-       [:div.login-page
-        [base/container
-         [login]
-         [register]]]])))
+  [skeleton
+   [:div.login-page
+    [base/container
+     [login]
+     [register]]]])
+
+(rf/reg-event-fx
+ ::init
+ (fn [{:keys [db]} _]
+   (let [{:keys [id status]} (get-in db [:session :identity])]
+     (when (and id (not= status :user.status/unregistered))
+       {:go-to [:frontend.profile]}))))
 
 (routes/define-route!
  :frontend.login
  {:name ::page
   :url ["login"]
-  :component page})
+  :component page
+  :init-fx [::init]})

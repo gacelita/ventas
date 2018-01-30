@@ -301,20 +301,49 @@
     (map #(entity/to-json % {:culture (get-culture session)})
          (entity/query :state))))
 
+(defn- create-unregistered-user
+  "Unauthenticated users can be able to add favorite products and create
+   temporary orders (carts) by being temporary users.
+   Later on, they can make a proper user simply updating the fields of this
+   temporary user."
+  []
+  (let [user (entity/create :user {:status :user.status/unregistered})
+        token (auth/user->token user)]
+    {:user user
+     :token token}))
+
+(register-endpoint!
+ :users.register
+ {:spec {:email string?
+         :password string?
+         :name string?}}
+ (fn [{{:keys [email password name]} :params} {:keys [session]}]
+   (when (or (empty? email) (empty? password) (empty? name))
+     (throw (Exception. "Email, password and name are required and can't be empty")))
+   (let [name-parts (str/split name #" ")
+         user (entity/create :user {:first-name (first name-parts)
+                                    :last-name (str/join " " (rest name-parts))
+                                    :email email
+                                    :password password})
+         token (auth/user->token user)]
+     (swap! session :user user)
+     {:user (entity/to-json user)
+      :token token})))
+
 (register-endpoint!
   :users.login
   {:spec {:email string?
           :password string?}}
   (fn [{{:keys [email password]} :params} {:keys [session]}]
-    (when-not (and email password)
-      (throw (Exception. "Email and password are required")))
-    (let [user (first (entity/query :user {:email email}))]
+    (when (or (empty? email) (empty? password))
+      (throw (Exception. "Email and password are required and can't be empty")))
+    (let [user (entity/query-one :user {:email email})]
       (when-not user
         (throw (Exception. "User not found")))
       (when-not (hashers/check password (:user/password user))
         (throw (Exception. "Invalid credentials")))
       (let [token (auth/user->token user)]
-        (swap! session assoc :token token)
+        (swap! session assoc :user user)
         {:user (entity/to-json user)
          :token token}))))
 
@@ -322,35 +351,23 @@
   :users.session
   {:spec {(opt :token) (maybe string?)}}
   (fn [{:keys [params]} {:keys [session]}]
-    (when-let [token (or (:token params) (get @session :token))]
-      (when-let [user (auth/token->user token)]
-        (when (:token params)
-          (swap! session assoc :token token)
-          (swap! session assoc :user user))
-        {:identity (entity/to-json user)}))))
+    (if-let [user (get @session :user)]
+      {:user (entity/to-json user)}
+      (if-let [token (:token params)]
+        (let [user (auth/token->user token)]
+          (when-not user
+            (throw (Exception. "Invalid token")))
+          (swap! session assoc :user user)
+          {:user (entity/to-json user)})
+        (let [{:keys [user token]} (create-unregistered-user)]
+          {:user (entity/to-json user)
+           :token token})))))
 
 (register-endpoint!
   :users.logout
   (fn [_ {:keys [session]}]
-    (swap! session dissoc :token :user)
+    (swap! session dissoc :user)
     true))
-
-(register-endpoint!
-  :users.register
-  {:spec {:email string?
-          :password string?
-          :name string?}}
-  (fn [{{:keys [email password name]} :params} _]
-    (when (or (empty? email) (empty? password) (empty? name))
-      (throw (Exception. "Email, password and name are required and can't be empty")))
-    (let [name-parts (str/split name #" ")
-          user (entity/create :user {:first-name (first name-parts)
-                                     :last-name (str/join " " (rest name-parts))
-                                     :email email
-                                     :password password})
-          token (auth/user->token user)]
-      {:user (entity/to-json user)
-       :token token})))
 
 (register-endpoint!
   :search

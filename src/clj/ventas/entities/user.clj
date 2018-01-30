@@ -25,10 +25,16 @@
 (spec/def :user/phone ::generators/string)
 
 (def statuses
-  #{:user.status/pending
+  #{;; user needs approval
+    :user.status/pending
+    ;; OK
     :user.status/active
+    ;; disabled but not cancelled
     :user.status/inactive
-    :user.status/cancelled})
+    ;; terminated, killed, banned
+    :user.status/cancelled
+    ;; temporary user that should register at some point in time
+    :user.status/unregistered})
 
 (spec/def :user/status statuses)
 

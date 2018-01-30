@@ -199,4 +199,5 @@
  :frontend.profile.addresses
  {:name ::page
   :url ["addresses"]
-  :component page})
+  :component page
+  :init-fx [::session/require-identity]})

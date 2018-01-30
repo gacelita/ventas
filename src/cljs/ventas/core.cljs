@@ -45,7 +45,7 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::events/session.start]
+   {:dispatch-n [[::events/users.session]
                  [::events/users.favorites.list]]}))
 
 (defn page []

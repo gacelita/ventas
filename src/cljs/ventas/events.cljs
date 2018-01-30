@@ -113,28 +113,49 @@
          (assoc db :cultures))))
 
 (rf/reg-event-fx
- ::session.start
+ ::users.register
+ (fn [_ [_ {:keys [name email password]}]]
+   {:dispatch [::backend/users.register
+               {:params {:name name
+                         :email email
+                         :password password}
+                :success ::session.start}]}))
+
+(rf/reg-event-fx
+  ::users.login
+  (fn [_ [_ {:keys [email password]}]]
+    {:dispatch [::backend/users.login
+                {:params {:email email
+                          :password password}
+                 :success ::session.start}]}))
+
+(rf/reg-event-fx
+ ::users.session
  [(rf/inject-cofx :local-storage)]
  (fn [{:keys [db local-storage]} [_]]
    (let [token (:token local-storage)]
-     (if (seq token)
-       {:dispatch [::backend/users.session
-                   {:params {:token token}
-                    :success #(if (seq %)
-                                (rf/dispatch [::session.start.next %])
-                                (rf/dispatch [::session.start.error]))
-                    :error ::session.start.error}]}
-       {:dispatch [::session.start.error]}))))
+     {:dispatch [::backend/users.session
+                 {:params {:token token}
+                  :success ::session.start
+                  :error ::session.error}]})))
 
 (rf/reg-event-fx
- ::session.start.next
- (fn [cofx [_ data]]
-   {:dispatch [::db [:session] data]}))
+ ::users.logout
+ (fn [_ _]
+   {:dispatch [::backend/users.logout
+               {:success ::session.stop}]}))
 
 (rf/reg-event-fx
- ::session.start.error
- (fn [cofx [_]]
-   {:dispatch [::db [:session] ::error]}))
+ ::session.start
+ [(rf/inject-cofx :local-storage)]
+ (fn [{:keys [db local-storage]} [_ {:keys [user token]}]]
+   (merge
+    {:db (assoc-in db [:session :identity] user)}
+    (when token
+      {:local-storage (assoc local-storage :token token)})
+    (when-not (= (:status user) :user.status/unregistered)
+      {:dispatch [:ventas.components.notificator/add
+                  {:message (i18n ::session-started)}]}))))
 
 (rf/reg-event-fx
  ::session.stop
@@ -144,42 +165,15 @@
     :local-storage (dissoc local-storage :token)}))
 
 (rf/reg-event-fx
-  ::users.login
-  (fn [_ [_ {:keys [email password]}]]
-    {:dispatch [::backend/users.login
-                {:params {:email email
-                          :password password}
-                 :success ::users.login.next}]}))
-
-(rf/reg-event-fx
- ::users.logout
- (fn [_ _]
-   {:dispatch [::backend/users.logout
-               {:success ::session.stop}]}))
-
-(rf/reg-event-fx
-  ::users.login.next
-  [(rf/inject-cofx :local-storage)]
-  (fn [{:keys [db local-storage]} [_ {:keys [user token]}]]
-    {:db (assoc db :session user)
-     :local-storage (assoc local-storage :token token)
-     :dispatch [:ventas.components.notificator/add
-                {:message (i18n ::session-started)}]}))
-
-(rf/reg-event-fx
-  ::users.register
-  (fn [_ [_ {:keys [name email password]}]]
-    {:dispatch [::backend/users.register
-                {:params {:name name
-                          :email email
-                          :password password}
-                 :success ::users.login.next}]}))
+ ::session.error
+ (fn [cofx [_]]
+   {:dispatch [::db [:session] ::error]}))
 
 (rf/reg-event-fx
  ::users.addresses
  (fn [cofx [_ options]]
    {:forward-events {:register ::users.addresses.listener
-                     :events #{::session.start.next}
+                     :events #{::session.start}
                      :dispatch-to [::users.addresses.next options]}}))
 
 (rf/reg-event-fx

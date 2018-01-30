@@ -22,4 +22,5 @@
  :frontend.profile.orders
  {:name ::page
   :url ["orders"]
-  :component page})
+  :component page
+  :init-fx [::session/require-identity]})
