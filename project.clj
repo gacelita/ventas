@@ -142,6 +142,7 @@
             [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
             [lein-auto "0.1.3"]
             [lein-ancient "0.6.14"]
+            [lein-cloverage "1.0.7-SNAPSHOT"]
             [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
 
   :min-lein-version "2.6.1"

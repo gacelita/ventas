@@ -33,3 +33,7 @@ deploy:
   script: "./.travis/deploy.sh"
   on:
     branch: master
+
+after_success:
+- CLOVERAGE_VERSION=1.0.7-SNAPSHOT lein cloverage --codecov
+- bash <(curl -s https://codecov.io/bash)
