@@ -106,7 +106,8 @@
                " " (get-in product-variation [:price :currency :symbol]))]]
     [:div.cart-page__price
      [:h4 (str (i18n ::total) ": "
-               (utils.formatting/format-number (get-in product-variation [:price :value]))
+               (* quantity
+                  (utils.formatting/format-number (get-in product-variation [:price :value])))
                " " (get-in product-variation [:price :currency :symbol]))]]
     [:table.cart-page__terms
      [:tbody
