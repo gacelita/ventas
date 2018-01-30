@@ -3,10 +3,14 @@
 .cart-page__content {
     display: flex;
     flex-direction: row;
+    margin-bottom: 50px;
 }
 
 .cart-page__sidebar {
     width: 300px;
+}
+
+.cart-page__sidebar-inner {
     border: solid 1px #ccc;
 }
 
@@ -32,6 +36,7 @@
     border: solid 1px #ccc;
     display: flex;
     padding: 15px;
+    margin-bottom: 15px;
 }
 
 .cart-page__line-thumbnail {
@@ -116,4 +121,16 @@
 
 .cart-page__actions {
     margin-top: 15px;
+}
+
+.cart-page__term {
+    margin: 4px 0px;
+    p {
+        display: inline-block;
+        margin: 0px;
+        margin-right: 5px;
+    }
+    > * {
+        vertical-align: middle;
+    }
 }

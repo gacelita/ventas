@@ -2,13 +2,15 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [ventas.entities.product :as entities.product]))
 
 (defn- get-amount [{:order/keys [lines]}]
   (->> lines
        (map entity/find)
        (map (fn [{:order.line/keys [product-variation quantity]}]
-              (let [{:product/keys [price]} (entity/find product-variation)
+              (let [{:product/keys [price]} (entities.product/normalize-variation product-variation)
+                    _ (assert price ::variation-has-no-price)
                     {:amount/keys [value]} (entity/find price)]
                 (* value quantity))))
        (reduce +)))

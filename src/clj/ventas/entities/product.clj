@@ -325,3 +325,11 @@
         default
         (find-variation* ref terms))
       (find-variation* ref terms))))
+
+(defn normalize-variation
+  "Merges a variation with its parent product"
+  [id]
+  (let [{:product.variation/keys [parent terms] :schema/keys [type]} (entity/find id)
+        _ (assert (= type :schema.type/product.variation))
+        product (entity/find parent)]
+    (merge product {:product/variation-terms terms})))

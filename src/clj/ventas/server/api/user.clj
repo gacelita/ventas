@@ -79,7 +79,8 @@
          (entity/update* {:db/id (:db/id cart)
                           :order/lines {:schema/type :schema.type/order.line
                                         :order.line/product-variation id
-                                        :order.line/quantity 1}}))
+                                        :order.line/quantity 1}}
+                         :append? true))
        (entity/find-json (:db/id cart) {:culture (api/get-culture session)})))))
 
 (register-user-endpoint!
