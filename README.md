@@ -77,6 +77,8 @@ Then, create the database, apply the schema and create the fixtures:
 
 Now you can open `localhost:3450` to see the frontend!
 
+You will get HTTP 500 errors when the frontend tries to request the images for the demo products, because they are not included in this repo. To see the images, you should clone [ventas-demo-images](https://github.com/JoelSanchez/ventas-demo-images) inside the `storage` directory.
+
 The backoffice's URL is `localhost:3450/admin`:
 
 ```
