@@ -25,8 +25,7 @@
 (rf/reg-event-fx
  ::checkout
  (fn [cofx event]
-   ;; @TODO
-   ))
+   {:go-to [:frontend.checkout]}))
 
 (rf/reg-sub
  ::line-count
@@ -41,7 +40,8 @@
    (rf/subscribe [::cart/main]))
  (fn [{:keys [lines]}]
    (reduce +
-           (map #(get-in % [:product-variation :price :value])
+           (map #(* (:quantity %)
+                    (get-in % [:product-variation :price :value]))
                 lines))))
 
 (rf/reg-sub

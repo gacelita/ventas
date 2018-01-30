@@ -133,11 +133,12 @@
  ::users.session
  [(rf/inject-cofx :local-storage)]
  (fn [{:keys [db local-storage]} [_]]
-   (let [token (:token local-storage)]
-     {:dispatch [::backend/users.session
-                 {:params {:token token}
-                  :success ::session.start
-                  :error ::session.error}]})))
+   (when-not (:session db)
+     (let [token (:token local-storage)]
+       {:dispatch [::backend/users.session
+                   {:params {:token token}
+                    :success ::session.start
+                    :error ::session.error}]}))))
 
 (rf/reg-event-fx
  ::users.logout

@@ -3,9 +3,11 @@
 @import "./components/header";
 @import "./components/footer";
 @import "./components/skeleton";
+
+@import "./pages/cart";
+@import "./pages/category";
+@import "./pages/checkout";
 @import "./pages/frontend";
 @import "./pages/login";
-@import "./pages/category";
 @import "./pages/product";
-@import "./pages/cart";
 @import "./pages/profile";

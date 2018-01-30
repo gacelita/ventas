@@ -20,6 +20,7 @@
    [ventas.themes.clothing.pages.frontend.privacy-policy]
    [ventas.themes.clothing.pages.frontend.login]
    [ventas.themes.clothing.pages.frontend.cart]
+   [ventas.themes.clothing.pages.frontend.checkout]
    [ventas.themes.clothing.pages.frontend.profile]
    [ventas.utils :as util]
    [ventas.components.base :as base]
