@@ -11,10 +11,10 @@
                        (%)))
 
 (deftest products-aggregations
-  (testing "works without passing params"
-    (is (= {:data {:can-load-more? false :items [] :taxonomies []}
+  (testing "spec does not fail when not passing params"
+    (is (= {:data "Elasticsearch error: "
             :id nil
-            :success true
+            :success false
             :type :response}
            (server.ws/call-request-handler {:name :products.aggregations}
                                                   {})))))
