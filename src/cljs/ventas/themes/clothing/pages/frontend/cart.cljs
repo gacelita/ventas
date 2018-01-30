@@ -12,7 +12,8 @@
    [ventas.events.backend :as backend]
    [ventas.utils :as utils]
    [ventas.utils.formatting :as utils.formatting]
-   [ventas.components.product-filters :as product-filters]))
+   [ventas.components.product-filters :as product-filters]
+   [ventas.components.image :as image]))
 
 (rf/reg-event-fx
  ::add-voucher
@@ -97,7 +98,7 @@
 (defn cart-line-view [{:keys [product-variation quantity]}]
   [:div.cart-page__line
    [:div.cart-page__line-thumbnail
-    [:img {:src (str "/images/" (-> product-variation :images first :id) "/resize/cart-page-line")}]]
+    [image/image (-> product-variation :images first :id) :cart-page-line]]
    [:div.cart-page__line-content
     [:div.cart-page__name
      [:h4 (:name product-variation)]]
