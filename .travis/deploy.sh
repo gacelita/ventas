@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-ssh travis@kazer.es 'bash -s' < .travis/ssh_script.sh
+ssh deploy@ventas2.kazer.es 'bash -s' < .travis/ssh_script.sh

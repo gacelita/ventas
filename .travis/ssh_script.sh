@@ -1,6 +1,12 @@
 #!/bin/bash
 
 set -e
+
+##
+## Script assumes ventas is installed and only needs to be updated,
+## since the server needs to be provisioned anyway
+##
+
 cd ventas
 
 echo "Pulling from github"
