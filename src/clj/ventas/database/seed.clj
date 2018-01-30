@@ -69,8 +69,9 @@
   "Migrates the database and transacts the fixtures.
    Options:
      recreate? - removes the db and creates a new one
-     generate? - seeds the database with randomly generated entities"
-  [& {:keys [recreate? generate?]}]
+     generate? - seeds the database with randomly generated entities
+     minimal?  - seeds only the entity fixtures, ignoring plugin and theme fixtures"
+  [& {:keys [recreate? generate? minimal?]}]
 
   (schema/migrate :recreate? recreate?)
   (info "Migrations done!")
@@ -79,12 +80,13 @@
     (info "Seeding type " type)
     (seed-type type (if generate? (entity/seed-number type) 0)))
 
-  (doseq [theme-kw (theme/all)]
-    (info "Installing theme " theme-kw)
-    (doseq [fixture (theme/fixtures theme-kw)]
-      (create* fixture)))
+  (when-not minimal?
+    (doseq [theme-kw (theme/all)]
+      (info "Installing theme " theme-kw)
+      (doseq [fixture (theme/fixtures theme-kw)]
+        (create* fixture)))
 
-  (doseq [plugin-kw (plugin/all)]
-    (info "Installing plugin " plugin-kw)
-    (doseq [fixture (plugin/fixtures plugin-kw)]
-      (create* fixture))))
+    (doseq [plugin-kw (plugin/all)]
+      (info "Installing plugin " plugin-kw)
+      (doseq [fixture (plugin/fixtures plugin-kw)]
+        (create* fixture)))))
