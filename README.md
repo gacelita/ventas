@@ -225,7 +225,9 @@ That will start Datomic and Elasticsearch.
 - Heavy usage of [Semantic UI](http://react.semantic-ui.com/) components.
 
 
+### Resources
 
+[leiningen template](https://github.com/JoelSanchez/ventas-lein-template)
 
 ### Contributing
 
