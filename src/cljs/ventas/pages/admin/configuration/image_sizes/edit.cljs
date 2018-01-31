@@ -101,7 +101,7 @@
     [form]]])
 
 (routes/define-route!
- :admin.configuration.image-sizes.edit
- {:name ::page
-  :url [:id "/edit"]
-  :component page})
+  :admin.configuration.image-sizes.edit
+  {:name ::page
+   :url [:id "/edit"]
+   :component page})

@@ -51,7 +51,7 @@
                      :ventas/refEntityType :i18n}])])
 
 (defonce ^:private migrations
- (atom (initial-migrations)))
+  (atom (initial-migrations)))
 
 (defn reset-migrations! []
   (reset! migrations (initial-migrations)))

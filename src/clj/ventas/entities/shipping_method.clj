@@ -47,7 +47,6 @@
   :autoresolve? true
   :component? true})
 
-
 (spec/def :shipping-method/name ::entities.i18n/ref)
 
 (spec/def :shipping-method/default? boolean?)

@@ -1,33 +1,33 @@
 (ns ventas.components.table
   "Meant to replace re-frame-datatable"
   (:require
-    [re-frame.core :as rf]
-    [ventas.components.base :as base]
-    [ventas.i18n :refer [i18n]]
-    [ventas.events :as events]))
+   [re-frame.core :as rf]
+   [ventas.components.base :as base]
+   [ventas.i18n :refer [i18n]]
+   [ventas.events :as events]))
 
 (rf/reg-event-fx
-  ::set-state
-  (fn [{:keys [db]} [_ {:keys [state-path fetch-fx] :as config} new-state]]
-    {:dispatch-n [[::events/db state-path new-state]
-                  (when fetch-fx [fetch-fx config])]}))
+ ::set-state
+ (fn [{:keys [db]} [_ {:keys [state-path fetch-fx] :as config} new-state]]
+   {:dispatch-n [[::events/db state-path new-state]
+                 (when fetch-fx [fetch-fx config])]}))
 
 (rf/reg-event-fx
-  ::set-page
-  (fn [{:keys [db]} [_ page {:keys [state-path] :as config}]]
-    (let [state (get-in db state-path)]
-      {:dispatch [::set-state config (assoc state :page page)]})))
+ ::set-page
+ (fn [{:keys [db]} [_ page {:keys [state-path] :as config}]]
+   (let [state (get-in db state-path)]
+     {:dispatch [::set-state config (assoc state :page page)]})))
 
 (rf/reg-event-fx
-  ::sort
-  (fn [{:keys [db]} [_ {:keys [state-path] :as config} column]]
-    (let [{:keys [sort-direction sort-column] :as state} (get-in db state-path)
-          new-direction (if (not= sort-column column)
-                          :asc
-                          (if (= sort-direction :asc) :desc :asc))]
-      {:dispatch [::set-state config (merge state {:sort-direction new-direction
-                                                   :sort-column column
-                                                   :page 0})]})))
+ ::sort
+ (fn [{:keys [db]} [_ {:keys [state-path] :as config} column]]
+   (let [{:keys [sort-direction sort-column] :as state} (get-in db state-path)
+         new-direction (if (not= sort-column column)
+                         :asc
+                         (if (= sort-direction :asc) :desc :asc))]
+     {:dispatch [::set-state config (merge state {:sort-direction new-direction
+                                                  :sort-column column
+                                                  :page 0})]})))
 
 (def pagination-width 1)
 
@@ -105,16 +105,15 @@
                               :on-click #(rf/dispatch [::set-page (dec page) config])}
               [base/icon {:name "left chevron"}]]
              (map-indexed
-               (fn [idx n]
-                 (if (= ::placeholder n)
-                   [base/menu-item {:key idx} "..."]
-                   [base/menu-item
-                    {:active (= n page)
-                     :key idx
-                     :on-click #(rf/dispatch [::set-page n config])}
-                    (str (inc n))])
-                 )
-               (get-page-numbers total-pages page))
+              (fn [idx n]
+                (if (= ::placeholder n)
+                  [base/menu-item {:key idx} "..."]
+                  [base/menu-item
+                   {:active (= n page)
+                    :key idx
+                    :on-click #(rf/dispatch [::set-page n config])}
+                   (str (inc n))]))
+              (get-page-numbers total-pages page))
              [base/menu-item {:icon true
                               :disabled (= page (dec total-pages))
                               :on-click #(rf/dispatch [::set-page (inc page) config])}

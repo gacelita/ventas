@@ -16,7 +16,7 @@
    [content]])
 
 (routes/define-route!
- :frontend.privacy-policy
- {:name ::page
-  :url ["privacy-policy"]
-  :component page})
+  :frontend.privacy-policy
+  {:name ::page
+   :url ["privacy-policy"]
+   :component page})

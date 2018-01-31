@@ -31,35 +31,35 @@
 
 (spec/def :product/price
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :amount)))
+    #(entity/ref-generator :amount)))
 
 (spec/def :product/brand
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :brand)))
+    #(entity/ref-generator :brand)))
 
 (spec/def :product/tax
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :tax)))
+    #(entity/ref-generator :tax)))
 
 (spec/def :product/categories
   (spec/with-gen ::entity/refs
-                 #(entity/refs-generator :category)))
+    #(entity/refs-generator :category)))
 
 (spec/def :product/terms
   (spec/with-gen ::entity/refs
-                 #(entity/refs-generator :product.term)))
+    #(entity/refs-generator :product.term)))
 
 (spec/def :product/images
   (spec/with-gen ::entity/refs
-                 #(entity/refs-generator :product.image)))
+    #(entity/refs-generator :product.image)))
 
 (spec/def :product/variation-terms
   (spec/with-gen ::entity/refs
-                 #(entity/refs-generator :product.term)))
+    #(entity/refs-generator :product.term)))
 
 (spec/def :product/parent
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :product)))
+    #(entity/ref-generator :product)))
 
 (spec/def ::product-for-generation
   (spec/keys :req [:product/name
@@ -79,21 +79,21 @@
 
 (spec/def :schema.type/product
   (spec/with-gen
-   (spec/keys :req [:product/name
-                    :product/price]
-              :opt [:product/reference
-                    :product/ean13
-                    :product/description
-                    :product/condition
-                    :product/brand
-                    :product/tax
-                    :product/categories
-                    :product/terms
-                    :product/variation-terms
-                    :product/parent
-                    :product/keyword
-                    :product/active])
-   #(spec/gen ::product-for-generation)))
+    (spec/keys :req [:product/name
+                     :product/price]
+               :opt [:product/reference
+                     :product/ean13
+                     :product/description
+                     :product/condition
+                     :product/brand
+                     :product/tax
+                     :product/categories
+                     :product/terms
+                     :product/variation-terms
+                     :product/parent
+                     :product/keyword
+                     :product/active])
+    #(spec/gen ::product-for-generation)))
 
 (defn terms-to-json [terms]
   (->> terms
@@ -283,7 +283,6 @@
                                                 params))
           (dissoc :variation-terms)
           (assoc :id (:db/id this)))))})
-
 
 (defn add-image
   "Meant for development"

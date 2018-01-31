@@ -1,32 +1,32 @@
 (ns ventas.pages.admin.plugins
   (:require
-    [ventas.routes :as routes]
-    [ventas.i18n :refer [i18n]]
-    [ventas.pages.admin.skeleton :as admin.skeleton]
-    [ventas.components.base :as base]
-    [ventas.components.table :as table]
-    [ventas.events.backend :as backend]
-    [re-frame.core :as rf]))
+   [ventas.routes :as routes]
+   [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.components.base :as base]
+   [ventas.components.table :as table]
+   [ventas.events.backend :as backend]
+   [re-frame.core :as rf]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
-  ::fetch
-  (fn [{:keys [db]} [_ {:keys [state-path]}]]
-    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
-      {:dispatch [::backend/admin.plugins.list
-                  {:success ::fetch.next
-                   :params {:pagination {:page page
-                                         :items-per-page items-per-page}
-                            :sorting {:direction sort-direction
-                                      :field sort-column}}}]})))
+ ::fetch
+ (fn [{:keys [db]} [_ {:keys [state-path]}]]
+   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+     {:dispatch [::backend/admin.plugins.list
+                 {:success ::fetch.next
+                  :params {:pagination {:page page
+                                        :items-per-page items-per-page}
+                           :sorting {:direction sort-direction
+                                     :field sort-column}}}]})))
 
 (rf/reg-event-db
-  ::fetch.next
-  (fn [db [_ {:keys [items total]}]]
-    (-> db
-        (assoc-in [state-key :plugins] items)
-        (assoc-in [state-key :table :total] total))))
+ ::fetch.next
+ (fn [db [_ {:keys [items total]}]]
+   (-> db
+       (assoc-in [state-key :plugins] items)
+       (assoc-in [state-key :table :total] total))))
 
 (defn- content []
   [:div.admin-plugins__table
@@ -46,7 +46,7 @@
     [content]]])
 
 (routes/define-route!
- :admin.plugins
- {:name ::page
-  :url "plugins"
-  :component page})
+  :admin.plugins
+  {:name ::page
+   :url "plugins"
+   :component page})

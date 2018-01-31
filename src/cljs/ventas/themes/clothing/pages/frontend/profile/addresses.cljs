@@ -196,8 +196,8 @@
    [content (session/get-identity)]])
 
 (routes/define-route!
- :frontend.profile.addresses
- {:name ::page
-  :url ["addresses"]
-  :component page
-  :init-fx [::session/require-identity]})
+  :frontend.profile.addresses
+  {:name ::page
+   :url ["addresses"]
+   :component page
+   :init-fx [::session/require-identity]})

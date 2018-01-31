@@ -14,7 +14,7 @@
 
 (defn pprint-str [v]
   (with-out-str
-   (pprint/pprint v)))
+    (pprint/pprint v)))
 
 (rf/reg-event-fx
  ::init
@@ -135,8 +135,8 @@
       [content]]]))
 
 (routes/define-route!
- :api
- {:name "Websocket API documentation"
-  :url "api"
-  :component page
-  :init-fx [::init]})
+  :api
+  {:name "Websocket API documentation"
+   :url "api"
+   :component page
+   :init-fx [::init]})

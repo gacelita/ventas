@@ -17,11 +17,11 @@
    (register-user-endpoint! kw {} f))
   ([kw opts f]
    (api/register-endpoint!
-     kw
-     opts
-     (fn [request {:keys [session] :as state}]
-       (user-check! session)
-       (f request state)))))
+    kw
+    opts
+    (fn [request {:keys [session] :as state}]
+      (user-check! session)
+      (f request state)))))
 
 (register-user-endpoint!
  :users.addresses

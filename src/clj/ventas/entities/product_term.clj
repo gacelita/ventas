@@ -11,7 +11,7 @@
 
 (spec/def  :product.term/taxonomy
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :product.taxonomy)))
+    #(entity/ref-generator :product.taxonomy)))
 
 (spec/def :schema.type/product.term
   (spec/keys :req [:product.term/name

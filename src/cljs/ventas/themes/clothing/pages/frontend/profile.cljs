@@ -33,7 +33,7 @@
   [profile.skeleton/skeleton content])
 
 (routes/define-route!
- :frontend.profile
- {:name ::page
-  :url ["profile"]
-  :component page})
+  :frontend.profile
+  {:name ::page
+   :url ["profile"]
+   :component page})

@@ -48,7 +48,7 @@
 
 (spec/def :slider.slider/auto-speed
   (spec/with-gen integer?
-                 #(gen/choose 2000 6000)))
+    #(gen/choose 2000 6000)))
 
 (spec/def :schema.type/slider.slider
   (spec/keys :req [:slider.slider/name
@@ -102,9 +102,9 @@
                                                   :schema/type :schema.type/file}}]}])})
 
 (api/register-endpoint!
-  ::sliders.get
-  (fn [{:keys [params] :as message} {:keys [session]}]
-    (let [{:keys [keyword]} params]
-      (if-let [slider (entity/find [:slider.slider/keyword keyword])]
-        (entity/to-json slider {:culture (api/get-culture session)})
-        (throw (Error. (str "Could not find slider with keyword: " keyword)))))))
+ ::sliders.get
+ (fn [{:keys [params] :as message} {:keys [session]}]
+   (let [{:keys [keyword]} params]
+     (if-let [slider (entity/find [:slider.slider/keyword keyword])]
+       (entity/to-json slider {:culture (api/get-culture session)})
+       (throw (Error. (str "Could not find slider with keyword: " keyword)))))))

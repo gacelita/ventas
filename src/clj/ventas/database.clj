@@ -145,8 +145,8 @@
     {:e (or (ident e) e)
      :a (or (ident a) a)
      :v (or (and (= :db.type/ref (:db/valueType (entity a)))
-              (ident v))
-         v)
+                 (ident v))
+            v)
      :tx (d/tx->t tx)
      :added added}))
 
@@ -158,16 +158,16 @@
   effectively 'undoing' the transaction."
   ([] (rollback (basis-t)))
   ([t]
-    (let [tx (transaction t)
-          tx-eid   (-> tx :t d/t->tx)
-          new-datoms (->> (:data tx)
+   (let [tx (transaction t)
+         tx-eid   (-> tx :t d/t->tx)
+         new-datoms (->> (:data tx)
                           ; Remove transaction-metadata datoms
-                          (remove #(= (:e %) tx-eid))
+                         (remove #(= (:e %) tx-eid))
                           ; Invert the datoms add/retract state.
-                          (map #(do [(if (:added %) :db/retract :db/add) (:e %) (:a %) (:v %)]))
+                         (map #(do [(if (:added %) :db/retract :db/add) (:e %) (:a %) (:v %)]))
                           ; Reverse order of inverted datoms.
-                          reverse)]
-      @(transact new-datoms))))
+                         reverse)]
+     @(transact new-datoms))))
 
 (defn partitions
   "Gets the partitions of the database"
@@ -202,16 +202,16 @@
 (defn schema
   "Gets the current database schema"
   []
-  (let [system-ns #{"db" "db.alter" "db.sys" "db.type" "db.install" "db.part" 
+  (let [system-ns #{"db" "db.alter" "db.sys" "db.type" "db.install" "db.part"
                     "db.lang" "fressian" "db.unique" "db.excise" "db.cardinality" "db.fn"}]
     (map touch-eid
-      (sort (q '[:find [?ident ...]
-                 :in $ ?system-ns
-                 :where [?e :db/ident ?ident]
-                        [(namespace ?ident) ?ns]
-                        [((comp not contains?) ?system-ns ?ns)]
-                        [_ :db.install/attribute ?e]]
-               [system-ns])))))
+         (sort (q '[:find [?ident ...]
+                    :in $ ?system-ns
+                    :where [?e :db/ident ?ident]
+                           [(namespace ?ident) ?ns]
+                           [((comp not contains?) ?system-ns ?ns)]
+                           [_ :db.install/attribute ?e]]
+                  [system-ns])))))
 
 (defn attributes
   "Gets all attributes. This is a superset of the schema."
@@ -231,9 +231,9 @@
              (q '[:find ?ident
                   :in $ ?enum
                   :where [?id :db/ident ?ident]
-                  [(name ?ident) ?value]
-                  [(namespace ?ident) ?ns]
-                  [(= ?ns ?enum)]]
+                         [(name ?ident) ?value]
+                         [(namespace ?ident) ?ns]
+                         [(= ?ns ?enum)]]
                 [enum]))))
 
 (defn read-changes
@@ -302,9 +302,9 @@
 
 (spec/def ::lookup-ref
   (spec/with-gen
-   (spec/tuple keyword? some?)
-   #(gen/tuple (db.generators/keyword-generator)
-               (db.generators/keyword-generator))))
+    (spec/tuple keyword? some?)
+    #(gen/tuple (db.generators/keyword-generator)
+                (db.generators/keyword-generator))))
 
 (defn lookup-ref? [v]
   (spec/valid? ::lookup-ref v))

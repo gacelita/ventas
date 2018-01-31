@@ -8,7 +8,7 @@
    "Nothing here for the moment!"])
 
 (routes/define-route!
- :admin.configuration
- {:name ::page
-  :url "configuration"
-  :component page})
+  :admin.configuration
+  {:name ::page
+   :url "configuration"
+   :component page})

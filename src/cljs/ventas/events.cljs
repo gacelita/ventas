@@ -97,20 +97,20 @@
    (update db :entities #(dissoc eid))))
 
 (rf/reg-event-fx
-  ::i18n.cultures.list
-  (fn [_ _]
-    {:dispatch [::backend/i18n.cultures.list
-                {:success ::i18n.cultures.list.next}]}))
+ ::i18n.cultures.list
+ (fn [_ _]
+   {:dispatch [::backend/i18n.cultures.list
+               {:success ::i18n.cultures.list.next}]}))
 
 (rf/reg-event-db
-  ::i18n.cultures.list.next
-  (fn [db [_ cultures]]
-    (->> cultures
-         (map (fn [culture]
-                {:text (:name culture)
-                 :value (:id culture)
-                 :keyword (:keyword culture)}))
-         (assoc db :cultures))))
+ ::i18n.cultures.list.next
+ (fn [db [_ cultures]]
+   (->> cultures
+        (map (fn [culture]
+               {:text (:name culture)
+                :value (:id culture)
+                :keyword (:keyword culture)}))
+        (assoc db :cultures))))
 
 (rf/reg-event-fx
  ::users.register
@@ -122,12 +122,12 @@
                 :success ::session.start}]}))
 
 (rf/reg-event-fx
-  ::users.login
-  (fn [_ [_ {:keys [email password]}]]
-    {:dispatch [::backend/users.login
-                {:params {:email email
-                          :password password}
-                 :success ::session.start}]}))
+ ::users.login
+ (fn [_ [_ {:keys [email password]}]]
+   {:dispatch [::backend/users.login
+               {:params {:email email
+                         :password password}
+                :success ::session.start}]}))
 
 (rf/reg-event-fx
  ::users.session
@@ -218,7 +218,6 @@
  (fn [_]
    (rf/subscribe [::main]))
  (fn [state]))
-
 
 (rf/reg-event-fx
  ::admin.taxes.list

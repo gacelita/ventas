@@ -20,7 +20,7 @@
  ::add-voucher
  (fn [cofx event]
    ;; @TODO
-   ))
+))
 
 (rf/reg-event-fx
  ::checkout
@@ -153,8 +153,8 @@
    {:dispatch [::cart/get]}))
 
 (routes/define-route!
- :frontend.cart
- {:name ::page
-  :url ["cart"]
-  :component page
-  :init-fx [::init]})
+  :frontend.cart
+  {:name ::page
+   :url ["cart"]
+   :component page
+   :init-fx [::init]})

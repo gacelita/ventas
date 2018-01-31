@@ -20,7 +20,7 @@
     :ventas.components.product-filters/category "Category"
 
     :ventas.events/session-started "Welcome!"
-    
+
     :ventas.page/not-found "404"
 
     :ventas.pages.admin.configuration.image-sizes/actions "Actions"
@@ -135,7 +135,7 @@
     :ventas.pages.admin.users/email "Email"
     :ventas.pages.admin.users/actions "Actions"
 
-    :ventas.pages.admin.users.edit/first-name "First name" 
+    :ventas.pages.admin.users.edit/first-name "First name"
     :ventas.pages.admin.users.edit/last-name "Last name"
     :ventas.pages.admin.users.edit/company "Company"
     :ventas.pages.admin.users.edit/phone "Phone"

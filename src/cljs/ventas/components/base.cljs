@@ -161,8 +161,8 @@
 
 (defn segment [{:keys [title color] :as opts} & children]
   [sa/Segment (if-not title
-                  opts
-                  (update opts :class #(str % "segment--with-title")))
+                opts
+                (update opts :class #(str % "segment--with-title")))
    (when title
      [:div.segment-title {:style {:background-color (semantic->css-color color)}}
       title])

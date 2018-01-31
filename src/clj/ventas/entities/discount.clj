@@ -58,7 +58,6 @@
   :dependencies
   #{:i18n :discount.action}})
 
-
 (spec/def :discount.action/free-shipping? boolean?)
 
 (spec/def :discount.action/product
@@ -70,7 +69,6 @@
 (spec/def :discount.action/amount.tax-included? boolean?)
 
 (spec/def :discount.action/amount.kind #{})
-
 
 (spec/def :schema.type/discount.action
   (spec/keys :opt [:discount.action/free-shipping?

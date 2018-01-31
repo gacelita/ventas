@@ -30,7 +30,6 @@
      {:country/name (entities.i18n/get-i18n-entity {:en_US "United States"
                                                     :es_ES "Estados Unidos"})}])})
 
-
 (spec/def :schema.type/country.group
   (spec/keys :req [:country.group/name]))
 

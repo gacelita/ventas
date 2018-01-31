@@ -1,4 +1,4 @@
-(defproject ventas "0.0.2-SNAPSHOT"
+(defproject ventas "0.0.1"
   :description "The Ventas eCommerce platform"
 
   :url "https://github.com/JoelSanchez/ventas"
@@ -138,12 +138,15 @@
                  ;; Devcards itself
                  [devcards "0.2.4" :exclusions [cljsjs/react]]]
 
-  :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
+  :plugins [[lein-ancient "0.6.14"]
             [lein-auto "0.1.3"]
-            [lein-ancient "0.6.14"]
+            [lein-cljfmt "0.5.6"]
+            [lein-cljsbuild "1.1.7"]
             [lein-cloverage "1.0.7-SNAPSHOT"]
+            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
             [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
+
+  :cljfmt {:file-pattern #"(src|test)\/.*?\.clj[sx]?$"}
 
   :min-lein-version "2.6.1"
 
@@ -168,6 +171,8 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
+            "release-deploy" ["with-profile" "release" "deploy clojars"]
+            "release-install" ["with-profile" "release" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
 
   :cljsbuild {:builds
@@ -229,6 +234,9 @@
                              [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
                              [refactor-nrepl "2.4.0-SNAPSHOT"]]
                    :source-paths ["dev"]}
+
+             :release {:aot :all
+                       :hooks [leiningen.sassc]}
 
              :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                        :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
