@@ -7,8 +7,6 @@
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
    [ventas.session :as session]))
 
-
-
 (defn content [identity]
   [:div.login-page
    (let [session @(rf/subscribe [::events/db [:session]])]
@@ -19,8 +17,8 @@
    [content (session/get-identity)]])
 
 (routes/define-route!
- :frontend.profile.orders
- {:name ::page
-  :url ["orders"]
-  :component page
-  :init-fx [::session/require-identity]})
+  :frontend.profile.orders
+  {:name ::page
+   :url ["orders"]
+   :component page
+   :init-fx [::session/require-identity]})

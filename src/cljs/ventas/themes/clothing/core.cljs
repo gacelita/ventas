@@ -116,6 +116,4 @@
 
    :ventas.themes.clothing.components.preheader/support-and-orders "Support and orders:"
    :ventas.themes.clothing.components.preheader/schedule "Schedule:"
-   :ventas.themes.clothing.components.preheader/schedule-info "Monday to Friday, 9am - 5pm"
-
-   }})
+   :ventas.themes.clothing.components.preheader/schedule-info "Monday to Friday, 9am - 5pm"}})

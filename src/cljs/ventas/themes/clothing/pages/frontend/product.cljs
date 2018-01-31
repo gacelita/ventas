@@ -235,8 +235,8 @@
    [content]])
 
 (routes/define-route!
- :frontend.product
- {:name ::page
-  :url ["product/" :id]
-  :component page
-  :init-fx [::init]})
+  :frontend.product
+  {:name ::page
+   :url ["product/" :id]
+   :component page
+   :init-fx [::init]})

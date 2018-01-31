@@ -39,8 +39,8 @@
      [plugins.featured-categories/featured-categories]]]])
 
 (routes/define-route!
- :frontend
- {:name ::page
-  :url ""
-  :component page})
+  :frontend
+  {:name ::page
+   :url ""
+   :component page})
 

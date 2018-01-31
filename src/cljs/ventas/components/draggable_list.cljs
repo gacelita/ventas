@@ -35,7 +35,7 @@
              :draggable true
              :on-drag-start #(rf/dispatch [::events/db [state-key id :drag-index] idx])
              :on-drag-over (utils.ui/with-handler
-                            #(rf/dispatch [::on-drag-over id order position]))
+                             #(rf/dispatch [::on-drag-over id order position]))
              :on-drag-end (fn []
                             (rf/dispatch [::events/db [state-key id] {}])
                             (when on-reorder

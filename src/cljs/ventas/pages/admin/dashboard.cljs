@@ -43,7 +43,7 @@
     [content]]])
 
 (routes/define-route!
- :admin.dashboard
- {:name ::page
-  :url "dashboard"
-  :component page})
+  :admin.dashboard
+  {:name ::page
+   :url "dashboard"
+   :component page})

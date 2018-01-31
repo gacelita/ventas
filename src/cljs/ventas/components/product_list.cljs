@@ -31,10 +31,10 @@
                                    "heart"
                                    "empty heart")
                            :on-click (utils.ui/with-handler
-                                      #(rf/dispatch [::events/users.favorites.toggle id]))}]
+                                       #(rf/dispatch [::events/users.favorites.toggle id]))}]
                [base/icon {:name "shopping bag"
                            :on-click (utils.ui/with-handler
-                                      #(rf/dispatch [::cart/add id]))}]]]
+                                       #(rf/dispatch [::cart/add id]))}]]]
              [:a.product-list__content {:href (routes/path-for :frontend.product :id id)}
               [:span.product-list__name
                name]

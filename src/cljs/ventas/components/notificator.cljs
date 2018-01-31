@@ -8,7 +8,8 @@
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
-(rf/reg-event-db ::add
+(rf/reg-event-db
+ ::add
  (fn [db [_ notification]]
    (let [sym (gensym)
          notification (assoc notification :sym sym)]
@@ -19,9 +20,10 @@
        (update db :notifications #(conj % notification))
        (assoc db :notifications [notification])))))
 
-(rf/reg-event-db ::remove
-  (fn [db [_ sym]]
-    (update db :notifications #(remove (fn [item] (= (:sym item) sym)) %))))
+(rf/reg-event-db
+ ::remove
+ (fn [db [_ sym]]
+   (update db :notifications #(remove (fn [item] (= (:sym item) sym)) %))))
 
 (defn notificator
   "Displays notifications"

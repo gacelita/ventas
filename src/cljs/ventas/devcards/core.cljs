@@ -15,4 +15,4 @@
   [:div [:h1 "This is your first devcard!"]])
 
 (defcard-rg text-input-1
- component)
+  component)

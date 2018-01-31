@@ -78,16 +78,16 @@
 (def state-key ::state)
 
 (rf/reg-event-fx
-  ::login
-  (fn [{:keys [db]} _]
-    (let [{:keys [email password]} (get db state-key)]
-      {:dispatch [::events/users.login {:email email
-                                        :password password}]})))
+ ::login
+ (fn [{:keys [db]} _]
+   (let [{:keys [email password]} (get db state-key)]
+     {:dispatch [::events/users.login {:email email
+                                       :password password}]})))
 
 (rf/reg-event-db
-  ::set-field
-  (fn [db [_ k v]]
-    (assoc-in db [state-key k] v)))
+ ::set-field
+ (fn [db [_ k v]]
+   (assoc-in db [state-key k] v)))
 
 (defn- login []
   [:div.admin__login-wrapper

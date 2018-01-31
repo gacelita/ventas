@@ -11,19 +11,19 @@
 
 (defn dequalify-keywords [m]
   (into {}
-    (for [[k v] m]
-      [(keyword (name k)) v])))
+        (for [[k v] m]
+          [(keyword (name k)) v])))
 
 (defn qualify-keyword [kw ns]
   (keyword (name ns) (name kw)))
 
 (defn qualify-map-keywords
-	"Qualifies the keywords used as keys in a map.
+  "Qualifies the keywords used as keys in a map.
 	 Accepts a map with keywords as keys and a namespace represented as keyword."
   [ks ns]
-	(into {}
-		(for [[k v] ks]
-			[(qualify-keyword k ns) v])))
+  (into {}
+        (for [[k v] ks]
+          [(qualify-keyword k ns) v])))
 
 (defn find-files*
   "Find files in `path` by `pred`."

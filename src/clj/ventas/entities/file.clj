@@ -1,16 +1,16 @@
 (ns ventas.entities.file
   (:require
-    [clojure.java.io :as io]
-    [clojure.spec.alpha :as spec]
-    [clojure.test.check.generators :as gen]
-    [ventas.config :as config]
-    [ventas.database :as db]
-    [ventas.database.entity :as entity]
-    [ventas.paths :as paths]
-    [ventas.utils :as utils]
-    [ventas.utils.jar :as utils.jar]
-    [ventas.database.generators :as generators]
-    [pantomime.mime :as mime]))
+   [clojure.java.io :as io]
+   [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [ventas.config :as config]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.paths :as paths]
+   [ventas.utils :as utils]
+   [ventas.utils.jar :as utils.jar]
+   [ventas.database.generators :as generators]
+   [pantomime.mime :as mime]))
 
 (defn identifier [entity]
   {:pre [(:db/id entity)]}
@@ -44,8 +44,8 @@
         entity (entity/create :file {:extension extension})
         target-path (str (paths/resolve paths/storage) "/" (:db/id entity) "." extension)]
     (.renameTo
-      (clojure.java.io/file source-path)
-      (clojure.java.io/file target-path))
+     (clojure.java.io/file source-path)
+     (clojure.java.io/file target-path))
     entity))
 
 (spec/def :file/extension

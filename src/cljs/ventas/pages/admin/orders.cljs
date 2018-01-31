@@ -36,27 +36,27 @@
    (i18n ::create)])
 
 (rf/reg-event-fx
-  ::fetch
-  (fn [{:keys [db]} [_ {:keys [state-path]}]]
-    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
-      {:dispatch [::backend/admin.orders.list
-                  {:success ::fetch.next
-                   :params {:pagination {:page page
-                                         :items-per-page items-per-page}
-                            :sorting {:direction sort-direction
-                                      :field sort-column}}}]})))
+ ::fetch
+ (fn [{:keys [db]} [_ {:keys [state-path]}]]
+   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+     {:dispatch [::backend/admin.orders.list
+                 {:success ::fetch.next
+                  :params {:pagination {:page page
+                                        :items-per-page items-per-page}
+                           :sorting {:direction sort-direction
+                                     :field sort-column}}}]})))
 
 (rf/reg-event-fx
-  ::fetch.next
-  (fn [{:keys [db]} [_ {:keys [items total]}]]
-    (let [users (map :user items)]
-      {:dispatch-n (for [user users]
-                     [::backend/admin.entities.find-json
-                      {:params {:id user}
-                       :success [::events/db [state-key :users user]]}])
-       :db (-> db
-               (assoc-in [state-key :orders] items)
-               (assoc-in [state-key :table :total] total))})))
+ ::fetch.next
+ (fn [{:keys [db]} [_ {:keys [items total]}]]
+   (let [users (map :user items)]
+     {:dispatch-n (for [user users]
+                    [::backend/admin.entities.find-json
+                     {:params {:id user}
+                      :success [::events/db [state-key :users user]]}])
+      :db (-> db
+              (assoc-in [state-key :orders] items)
+              (assoc-in [state-key :table :total] total))})))
 
 (defn- user-column [{:keys [user id]}]
   (when-let [data @(rf/subscribe [::events/db [state-key :users user]])]
@@ -93,7 +93,7 @@
     [content]]])
 
 (routes/define-route!
- :admin.orders
- {:name ::page
-  :url "orders"
-  :component page})
+  :admin.orders
+  {:name ::page
+   :url "orders"
+   :component page})

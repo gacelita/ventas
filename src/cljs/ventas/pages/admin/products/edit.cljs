@@ -72,11 +72,11 @@
      [base/image {:src (str "/images/" id "/resize/admin-products-edit")
                   :size "small"
                   :on-click (utils.ui/with-handler
-                             #(rf/dispatch [::image-modal.open id]))}]
+                              #(rf/dispatch [::image-modal.open id]))}]
      [base/button {:icon true
                    :size "mini"
                    :on-click (utils.ui/with-handler
-                              #(rf/dispatch [::remove-image id]))}
+                               #(rf/dispatch [::remove-image id]))}
       [base/icon {:name "remove"}]]]))
 
 (defmulti set-field-filter (fn [field _] field))
@@ -324,7 +324,7 @@
     [product-form]]])
 
 (routes/define-route!
- :admin.products.edit
- {:name ::page
-  :url [:id "/edit"]
-  :component page})
+  :admin.products.edit
+  {:name ::page
+   :url [:id "/edit"]
+   :component page})

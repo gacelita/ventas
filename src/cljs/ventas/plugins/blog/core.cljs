@@ -17,7 +17,7 @@
           [:li (:name item)])]])))
 
 (routes/define-route!
- :blog
- {:name "Blog"
-  :url "blog"
-  :component page})
+  :blog
+  {:name "Blog"
+   :url "blog"
+   :component page})

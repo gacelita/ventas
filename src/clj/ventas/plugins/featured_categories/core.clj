@@ -29,7 +29,7 @@
    :db/cardinality :db.cardinality/one}])
 
 (api/register-endpoint!
-  ::featured-categories.list
-  (fn [{:keys [params] :as message} {:keys [session]}]
-    (->> (entity/query :category {:featured true})
-         (map #(entity/to-json % {:culture (api/get-culture session)})))))
+ ::featured-categories.list
+ (fn [{:keys [params] :as message} {:keys [session]}]
+   (->> (entity/query :category {:featured true})
+        (map #(entity/to-json % {:culture (api/get-culture session)})))))

@@ -33,7 +33,6 @@
               :auto-speed auto-speed
               :keyword keyword})))
 
-
 (defn slider* [{:keys [keyword auto auto-speed]}]
   (let [state-path [state-key keyword]]
     (when auto

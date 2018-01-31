@@ -22,7 +22,7 @@
 
 (spec/def ::bigdec
   (spec/with-gen
-   (spec/and utils/bigdec? pos?)
-   (fn []
-     (gen/fmap #(-> % (str) (BigDecimal.))
-               (gen/double* {:NaN? false :min 0 :max 999})))))
+    (spec/and utils/bigdec? pos?)
+    (fn []
+      (gen/fmap #(-> % (str) (BigDecimal.))
+                (gen/double* {:NaN? false :min 0 :max 999})))))

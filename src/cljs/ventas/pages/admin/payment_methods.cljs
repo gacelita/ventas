@@ -16,20 +16,20 @@
 (def state-key ::state)
 
 (rf/reg-event-fx
-  ::remove
-  (fn [cofx [_ id]]
-    {:dispatch [::backend/admin.entities.remove
-                {:params {:id id}
-                 :success [::remove.next id]}]}))
+ ::remove
+ (fn [cofx [_ id]]
+   {:dispatch [::backend/admin.entities.remove
+               {:params {:id id}
+                :success [::remove.next id]}]}))
 
 (rf/reg-event-db
-  ::remove.next
-  (fn [db [_ id]]
-    (update-in db
-               [state-key :items]
-               (fn [items]
-                 (remove #(= (:id %) id)
-                         items)))))
+ ::remove.next
+ (fn [db [_ id]]
+   (update-in db
+              [state-key :items]
+              (fn [items]
+                (remove #(= (:id %) id)
+                        items)))))
 
 (defn- action-column [{:keys [id]}]
   [:div
@@ -45,22 +45,22 @@
    (i18n ::create)])
 
 (rf/reg-event-fx
-  ::fetch
-  (fn [{:keys [db]} [_ {:keys [state-path]}]]
-    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
-      {:dispatch [::backend/admin.payment-methods.list
-                  {:success ::fetch.next
-                   :params {:pagination {:page page
-                                         :items-per-page items-per-page}
-                            :sorting {:direction sort-direction
-                                      :field sort-column}}}]})))
+ ::fetch
+ (fn [{:keys [db]} [_ {:keys [state-path]}]]
+   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+     {:dispatch [::backend/admin.payment-methods.list
+                 {:success ::fetch.next
+                  :params {:pagination {:page page
+                                        :items-per-page items-per-page}
+                           :sorting {:direction sort-direction
+                                     :field sort-column}}}]})))
 
 (rf/reg-event-db
-  ::fetch.next
-  (fn [db [_ {:keys [items total]}]]
-    (-> db
-        (assoc-in [state-key :items] items)
-        (assoc-in [state-key :table :total] total))))
+ ::fetch.next
+ (fn [db [_ {:keys [items total]}]]
+   (-> db
+       (assoc-in [state-key :items] items)
+       (assoc-in [state-key :table :total] total))))
 
 (defn- name-column [{:keys [name id]}]
   [:a {:href (routes/path-for :admin.payment-methods.edit :id id)}
@@ -90,7 +90,7 @@
     [content action-column]]])
 
 (routes/define-route!
- :admin.payment-methods
- {:name ::page
-  :url "payment-methods"
-  :component page})
+  :admin.payment-methods
+  {:name ::page
+   :url "payment-methods"
+   :component page})

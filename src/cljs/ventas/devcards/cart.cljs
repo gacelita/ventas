@@ -19,8 +19,7 @@
      [base/button
       {:on-click #(reset! visible (not @visible))}
       "Toggle cart hover"]
-     [debug/pprint-sub (rf/subscribe [:ventas.components.cart/main])]
-     ]))
+     [debug/pprint-sub (rf/subscribe [:ventas.components.cart/main])]]))
 
 (defcard-rg cart
   "Regular cart"

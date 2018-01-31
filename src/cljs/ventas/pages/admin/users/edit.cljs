@@ -30,9 +30,9 @@
     :go-to [:admin.users]}))
 
 (rf/reg-event-db
-  ::set-field
-  (fn [db [_ k v]]
-    (assoc-in db [state-key :user k] v)))
+ ::set-field
+ (fn [db [_ k v]]
+   (assoc-in db [state-key :user k] v)))
 
 (defn user-form []
   (rf/dispatch [::backend/entities.find (routes/ref-from-param :id)
@@ -117,7 +117,7 @@
     [user-form]]])
 
 (routes/define-route!
- :admin.users.edit
- {:name ::page
-  :url [:id "/edit"]
-  :component page})
+  :admin.users.edit
+  {:name ::page
+   :url [:id "/edit"]
+   :component page})

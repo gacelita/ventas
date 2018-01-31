@@ -18,25 +18,25 @@
    (register-admin-endpoint! kw {} f))
   ([kw opts f]
    (api/register-endpoint!
-     kw
-     opts
-     (fn [request {:keys [session] :as state}]
-       (admin-check! session)
-       (f request state)))))
+    kw
+    opts
+    (fn [request {:keys [session] :as state}]
+      (admin-check! session)
+      (f request state)))))
 
 (register-admin-endpoint!
-  :admin.brands.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ {:keys [session]}]
-    (map #(entity/to-json % {:culture (api/get-culture session)})
-         (entity/query :brand))))
+ :admin.brands.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :brand))))
 
 (register-admin-endpoint!
-  :admin.entities.remove
-  {:spec {:id ::api/id}}
-  (fn [{{:keys [id]} :params} state]
-    (entity/delete id)))
+ :admin.entities.remove
+ {:spec {:id ::api/id}}
+ (fn [{{:keys [id]} :params} state]
+   (entity/delete id)))
 
 (register-admin-endpoint!
  :admin.currencies.list
@@ -47,27 +47,27 @@
         (entity/query :currency))))
 
 (register-admin-endpoint!
-  :admin.taxes.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ {:keys [session]}]
-    (map #(entity/to-json % {:culture (api/get-culture session)})
-         (entity/query :tax))))
+ :admin.taxes.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :tax))))
 
 (register-admin-endpoint!
-  :admin.taxes.save
-  {:spec ::entity/entity}
-  (fn [{tax :params} state]
-    (entity/upsert :tax (-> tax
-                            (update :amount float)))))
+ :admin.taxes.save
+ {:spec ::entity/entity}
+ (fn [{tax :params} state]
+   (entity/upsert :tax (-> tax
+                           (update :amount float)))))
 
 (register-admin-endpoint!
-  :admin.users.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ {:keys [session]}]
-    (->> (entity/query :user)
-         (map #(entity/to-json % {:culture (api/get-culture session)})))))
+ :admin.users.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (->> (entity/query :user)
+        (map #(entity/to-json % {:culture (api/get-culture session)})))))
 
 (register-admin-endpoint!
  :admin.users.addresses.list
@@ -77,18 +77,18 @@
         (entity/query :address {:user user}))))
 
 (register-admin-endpoint!
-  :admin.users.save
-  {:spec ::entity/entity}
-  (fn [{user :params} state]
-    (entity/upsert :user user)))
+ :admin.users.save
+ {:spec ::entity/entity}
+ (fn [{user :params} state]
+   (entity/upsert :user user)))
 
 (register-admin-endpoint!
-  :admin.image-sizes.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ {:keys [session]}]
-    (map #(entity/to-json % {:culture (api/get-culture session)})
-         (entity/query :image-size))))
+ :admin.image-sizes.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :image-size))))
 
 (register-admin-endpoint!
  :admin.image-sizes.entities.list
@@ -96,10 +96,10 @@
    entities.image-size/entities))
 
 (register-admin-endpoint!
-  :admin.entities.find
-  {:spec {:id ::api/id}}
-  (fn [{{:keys [id]} :params} _]
-    (entity/find id)))
+ :admin.entities.find
+ {:spec {:id ::api/id}}
+ (fn [{{:keys [id]} :params} _]
+   (entity/find id)))
 
 (register-admin-endpoint!
  :admin.entities.find-json
@@ -114,14 +114,14 @@
    (db/pull '[*] id)))
 
 (register-admin-endpoint!
-  :admin.events.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ _]
-    (->> (db/transaction-log)
-         (take-last 10)
-         (db/explain-txs)
-         (filter :entity-id))))
+ :admin.events.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ _]
+   (->> (db/transaction-log)
+        (take-last 10)
+        (db/explain-txs)
+        (filter :entity-id))))
 
 (register-admin-endpoint!
  :admin.orders.get
@@ -158,19 +158,19 @@
         (entity/query :product.term))))
 
 (register-admin-endpoint!
-  :admin.datadmin.datoms
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ _]
-    (->> (db/datoms :eavt)
-         (map db/datom->map))))
+ :admin.datadmin.datoms
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ _]
+   (->> (db/datoms :eavt)
+        (map db/datom->map))))
 
 (register-admin-endpoint!
-  :admin.plugins.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]}
-  (fn [_ _]
-    (->> (plugin/all)
-         (map plugin/plugin)
-         (map (fn [plugin]
-                (select-keys plugin #{:version :name}))))))
+ :admin.plugins.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ _]
+   (->> (plugin/all)
+        (map plugin/plugin)
+        (map (fn [plugin]
+               (select-keys plugin #{:version :name}))))))

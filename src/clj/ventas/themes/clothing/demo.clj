@@ -132,8 +132,6 @@
          :brand/keyword :terrible-brand
          :brand/description (entities.i18n/get-i18n-entity {:en_US "A terrible brand"})}]))
 
-
-
 (defn- process-category [[kw i18n & children] & [parent-kw]]
   (let [kw (keyword (str (when parent-kw
                            (str (name parent-kw) "."))
@@ -148,24 +146,24 @@
 
 (defn categories []
   (mapcat process-category
-       [[:men {:en_US "Men" :es_ES "Hombre"}
-         [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
-         [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
-         [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
-         [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
-         [:pants {:en_US "Pants" :es_ES "Pantalones"}]
-         [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
-         [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
-        [:women {:en_US "Women" :es_ES "Mujer"}
-         [:dresses {:en_US "Dresses" :es_ES "Vestidos"}]
-         [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
-         [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
-         [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
-         [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
-         [:pants {:en_US "Pants" :es_ES "Pantalones"}]
-         [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
-         [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
-        [:children {:en_US "Children" :es_ES "Niños"}]]))
+          [[:men {:en_US "Men" :es_ES "Hombre"}
+            [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
+            [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
+            [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
+            [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
+            [:pants {:en_US "Pants" :es_ES "Pantalones"}]
+            [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
+            [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
+           [:women {:en_US "Women" :es_ES "Mujer"}
+            [:dresses {:en_US "Dresses" :es_ES "Vestidos"}]
+            [:jackets {:en_US "Jackets" :es_ES "Chaquetas"}]
+            [:hoodies {:en_US "Hoodies" :es_ES "Sudaderas"}]
+            [:sweaters {:en_US "Sweaters" :es_ES "Jerséis"}]
+            [:jeans {:en_US "Jeans" :es_ES "Vaqueros"}]
+            [:pants {:en_US "Pants" :es_ES "Pantalones"}]
+            [:shirts {:en_US "Shirts" :es_ES "Camisetas"}]
+            [:shoes {:en_US "Shoes" :es_ES "Calzado"}]]
+           [:children {:en_US "Children" :es_ES "Niños"}]]))
 
 (defn files []
   (map #(assoc % :schema/type :schema.type/file)
