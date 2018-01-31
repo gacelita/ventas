@@ -1,4 +1,4 @@
-(defproject ventas "0.0.2-SNAPSHOT"
+(defproject ventas "0.0.1"
   :description "The Ventas eCommerce platform"
 
   :url "https://github.com/JoelSanchez/ventas"
@@ -171,7 +171,8 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            "release" ["with-profile" "release" "install"]
+            "release-deploy" ["with-profile" "release" "deploy clojars"]
+            "release-install" ["with-profile" "release" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
 
   :cljsbuild {:builds
