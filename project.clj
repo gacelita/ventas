@@ -1,4 +1,4 @@
-(defproject ventas "0.0.1"
+(defproject ventas "0.0.2-SNAPSHOT"
   :description "The Ventas eCommerce platform"
 
   :url "https://github.com/JoelSanchez/ventas"
