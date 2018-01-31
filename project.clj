@@ -171,6 +171,7 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
+            "release" ["with-profile" "release" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
 
   :cljsbuild {:builds
@@ -232,6 +233,9 @@
                              [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
                              [refactor-nrepl "2.4.0-SNAPSHOT"]]
                    :source-paths ["dev"]}
+
+             :release {:aot :all
+                       :hooks [leiningen.sassc]}
 
              :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                        :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
