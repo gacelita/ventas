@@ -31,7 +31,7 @@
    :success false
    :data (or (.getMessage e) (str e))})
 
-(defn call-request-handler [{:keys [id] :as message} state]
+(defn call-request-handler [{:keys [id] :as message} & [state]]
   (try
     (let [response (handle-request message state)]
       {:type :response
@@ -128,4 +128,4 @@
   {:pre [(entity/entity? user)]}
   (call-request-handler {:name name
                          :params params}
-                        {:session (atom {:user user})}))
+                        {:session (atom {:user (:db/id user)})}))
