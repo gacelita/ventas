@@ -1,14 +1,14 @@
 (ns ventas.pages.admin.activity-log
   (:require
-    [ventas.routes :as routes]
-    [ventas.i18n :refer [i18n]]
-    [ventas.pages.admin.skeleton :as admin.skeleton]
-    [re-frame.core :as rf]
-    [ventas.components.base :as base]
-    [ventas.events.backend :as backend]
-    [ventas.events :as events]
-    [ventas.components.table :as table]
-    [clojure.string :as str]))
+   [ventas.routes :as routes]
+   [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [re-frame.core :as rf]
+   [ventas.components.base :as base]
+   [ventas.events.backend :as backend]
+   [ventas.events :as events]
+   [ventas.components.table :as table]
+   [clojure.string :as str]))
 
 (def state-key ::state)
 
@@ -18,22 +18,22 @@
     [base/icon {:name "edit"}]]])
 
 (rf/reg-event-fx
-  ::fetch
-  (fn [{:keys [db]} [_ {:keys [state-path]}]]
-    (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
-      {:dispatch [::backend/admin.events.list
-                  {:success ::fetch.next
-                   :params {:pagination {:page page
-                                         :items-per-page items-per-page}
-                            :sorting {:direction sort-direction
-                                      :field sort-column}}}]})))
+ ::fetch
+ (fn [{:keys [db]} [_ {:keys [state-path]}]]
+   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+     {:dispatch [::backend/admin.events.list
+                 {:success ::fetch.next
+                  :params {:pagination {:page page
+                                        :items-per-page items-per-page}
+                           :sorting {:direction sort-direction
+                                     :field sort-column}}}]})))
 
 (rf/reg-event-db
-  ::fetch.next
-  (fn [db [_ {:keys [items total]}]]
-    (-> db
-        (assoc-in [state-key :events] items)
-        (assoc-in [state-key :table :total] total))))
+ ::fetch.next
+ (fn [db [_ {:keys [items total]}]]
+   (-> db
+       (assoc-in [state-key :events] items)
+       (assoc-in [state-key :table :total] total))))
 
 (defn- type-column [{:keys [type]}]
   [:span (i18n type)])
@@ -63,7 +63,7 @@
     [content]]])
 
 (routes/define-route!
- :admin.activity-log
- {:name ::page
-  :url "activity-log"
-  :component page})
+  :admin.activity-log
+  {:name ::page
+   :url "activity-log"
+   :component page})

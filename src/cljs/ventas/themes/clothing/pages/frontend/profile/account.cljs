@@ -49,15 +49,12 @@
 
     [base/form-group
      [base/form-field {:width 16}
-      [forms/text-input form-config ::company]]]
+      [forms/text-input form-config ::company]]] [base/form-group
+                                                  [base/form-field {:width 8}
+                                                   [forms/text-input form-config ::email]]
 
-
-    [base/form-group
-     [base/form-field {:width 8}
-      [forms/text-input form-config ::email]]
-
-     [base/form-field {:width 8}
-      [forms/text-input form-config ::phone]]]
+                                                  [base/form-field {:width 8}
+                                                   [forms/text-input form-config ::phone]]]
 
     [base/form-group
      (let [field ::privacy-policy
@@ -85,8 +82,8 @@
    {:dispatch [::session/require-identity]}))
 
 (routes/define-route!
- :frontend.profile.account
- {:name ::page
-  :url ["account"]
-  :component page
-  :init-fx [::init]})
+  :frontend.profile.account
+  {:name ::page
+   :url ["account"]
+   :component page
+   :init-fx [::init]})

@@ -66,8 +66,8 @@
        {:go-to [:frontend.profile]}))))
 
 (routes/define-route!
- :frontend.login
- {:name ::page
-  :url ["login"]
-  :component page
-  :init-fx [::init]})
+  :frontend.login
+  {:name ::page
+   :url ["login"]
+   :component page
+   :init-fx [::init]})

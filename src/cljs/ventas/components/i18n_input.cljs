@@ -26,8 +26,8 @@
   [base/form-input {:label label}
    [:div.i18n-input__culture
     (let [culture-data (->> @(rf/subscribe [::events/db :cultures])
-                              (filter #(= (:value %) culture))
-                              first)]
+                            (filter #(= (:value %) culture))
+                            first)]
       [:span (when culture-data (name (:keyword culture-data)))])]
    [(or control :input)
     {:default-value (get translations culture)

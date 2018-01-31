@@ -20,8 +20,8 @@
    {:dispatch [::cart/get]}))
 
 (routes/define-route!
- :frontend.checkout
- {:name ::page
-  :url ["checkout"]
-  :component page
-  :init-fx [::init]})
+  :frontend.checkout
+  {:name ::page
+   :url ["checkout"]
+   :component page
+   :init-fx [::init]})

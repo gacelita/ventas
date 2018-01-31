@@ -50,21 +50,19 @@
    (on-change cofx k v)))
 
 (rf/reg-event-fx
-  ::set-field
-  (fn [{:keys [db]} [_ k v]]
-    (merge
-     {:db (assoc-in db [state-key :order k] v)}
-     (when v
-       {:dispatch [::on-change k v]}))))
+ ::set-field
+ (fn [{:keys [db]} [_ k v]]
+   (merge
+    {:db (assoc-in db [state-key :order k] v)}
+    (when v
+      {:dispatch [::on-change k v]}))))
 
 (rf/reg-event-fx
  ::line-init
  (fn [{:keys [db]} [_ line]]
    (when line
      (let [{:keys [initiated?]} (get-in db [state-key :lines line])]
-       (when (not initiated?)
-
-         )))))
+       (when (not initiated?))))))
 
 (defn- image-column [row]
   (when-let [image (first (get-in row [:product-variation :images]))]
@@ -227,7 +225,7 @@
     [content]]])
 
 (routes/define-route!
- :admin.orders.edit
- {:name ::page
-  :url [:id "/edit"]
-  :component page})
+  :admin.orders.edit
+  {:name ::page
+   :url [:id "/edit"]
+   :component page})

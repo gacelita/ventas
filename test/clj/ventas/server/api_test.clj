@@ -17,10 +17,10 @@
             :success false
             :type :response}
            (server.ws/call-request-handler {:name :products.aggregations}
-                                                  {})))))
+                                           {})))))
 
 (deftest products-list
   (testing "works without passing params"
     (is (= {:data [] :id nil :success true :type :response}
            (server.ws/call-request-handler {:name :products.list}
-                                                  {})))))
+                                           {})))))

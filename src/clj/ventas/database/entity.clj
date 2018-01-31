@@ -77,8 +77,8 @@
 (defn- call-type-fn [kw entity & args]
   (let [type-properties (type-properties (type entity))
         type-fn (if (kw type-properties)
-                   (kw type-properties)
-                   (kw default-type))]
+                  (kw type-properties)
+                  (kw default-type))]
     (apply type-fn entity args)))
 
 (defn to-json
@@ -283,9 +283,11 @@
                          value
                          (cond
                            (spec/valid? (spec/coll-of number?) value)
-                             (map #(autoresolve-ref % options) value)
+                           (map #(autoresolve-ref % options) value)
+
                            (spec/valid? number? value)
-                             (autoresolve-ref value options)
+                           (autoresolve-ref value options)
+
                            :else value))]))
          (into {}))))
 

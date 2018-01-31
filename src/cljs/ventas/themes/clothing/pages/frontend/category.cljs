@@ -124,9 +124,9 @@
       (if (and items (empty? items))
         [error/no-data]
         [components.product-list/product-list items])
-        [scroll/infinite-scroll
-         {:can-show-more? can-load-more?
-          :load-fn #(rf/dispatch [::next-page])}]]]))
+      [scroll/infinite-scroll
+       {:can-show-more? can-load-more?
+        :load-fn #(rf/dispatch [::next-page])}]]]))
 
 (defn- page []
   [skeleton [content]])
@@ -141,15 +141,15 @@
          (i18n ::search)))))
 
 (routes/define-route!
- :frontend.category
- {:name [::title]
-  :url ["category/" :id]
-  :component page
-  :init-fx [::init]})
+  :frontend.category
+  {:name [::title]
+   :url ["category/" :id]
+   :component page
+   :init-fx [::init]})
 
 (routes/define-route!
- :frontend.search
- {:name [::title]
-  :url ["search/" :search]
-  :component page
-  :init-fx [::init]})
+  :frontend.search
+  {:name [::title]
+   :url ["search/" :search]
+   :component page
+   :init-fx [::init]})

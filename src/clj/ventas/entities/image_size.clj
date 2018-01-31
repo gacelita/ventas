@@ -13,10 +13,11 @@
 
 (spec/def :image-size/width
   (spec/with-gen number?
-                 #(gen/choose 100 400)))
+    #(gen/choose 100 400)))
+
 (spec/def :image-size/height
   (spec/with-gen number?
-                 #(gen/choose 100 400)))
+    #(gen/choose 100 400)))
 
 (def algorithms
   #{:image-size.algorithm/resize-only-if-over-maximum
@@ -27,11 +28,11 @@
 
 (spec/def :image-size/quality
   (spec/with-gen number?
-                 #(gen/double*
-                   {:infinite? false
-                    :NaN? false
-                    :min 0.0
-                    :max 1.0})))
+    #(gen/double*
+      {:infinite? false
+       :NaN? false
+       :min 0.0
+       :max 1.0})))
 
 (def entities
   #{:schema.type/brand
@@ -106,10 +107,10 @@
              :progressive true
              :resize {:width width
                       :height height}}
-            (= "resize-only-if-over-maximum" algorithm)
-              (assoc-in [:resize :allow-smaller?] true)
-            (= "crop-and-resize" algorithm)
-              (assoc :crop {:relation (/ width height)}))))
+      (= "resize-only-if-over-maximum" algorithm)
+      (assoc-in [:resize :allow-smaller?] true)
+      (= "crop-and-resize" algorithm)
+      (assoc :crop {:relation (/ width height)}))))
 
 (defn transform
   "Transforms a :file entity representing an image, using the configuration

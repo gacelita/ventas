@@ -49,10 +49,10 @@
   (let [routes (prepare-routes routes)
         indexed-urls (index-urls routes)]
     ["" (-> (reduce (fn [acc item]
-                       (reducer acc item indexed-urls))
-                     {}
-                     routes)
-             (assoc true :not-found))]))
+                      (reducer acc item indexed-urls))
+                    {}
+                    routes)
+            (assoc true :not-found))]))
 
 (def ^:private route-data
   (atom []))

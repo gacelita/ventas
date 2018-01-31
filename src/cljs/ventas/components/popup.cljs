@@ -14,11 +14,11 @@
 
 (rf/reg-event-db
  ::show
-  (fn [db [_ title message]]
-    (let [data {:open true :message message :title title}]
-      (if (seq (get db data-key))
-        (update db data-key conj data)
-        (assoc db data-key [data])))))
+ (fn [db [_ title message]]
+   (let [data {:open true :message message :title title}]
+     (if (seq (get db data-key))
+       (update db data-key conj data)
+       (assoc db data-key [data])))))
 
 (defn popup
   "A popup, useful for displaying messages to the user"

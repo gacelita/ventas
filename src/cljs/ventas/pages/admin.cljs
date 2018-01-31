@@ -22,7 +22,7 @@
     (i18n ::nothing-here)]])
 
 (routes/define-route!
- :admin
- {:name ::page
-  :url "admin"
-  :component page})
+  :admin
+  {:name ::page
+   :url "admin"
+   :component page})

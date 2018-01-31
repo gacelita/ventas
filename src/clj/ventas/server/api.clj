@@ -68,55 +68,55 @@
     :gen (db.generators/keyword-generator)}))
 
 (register-endpoint!
-  :categories.get
-  {:spec {:id (spec/or :eid number?
-                       :keyword-ref ::keyword)}}
-  (fn [{{:keys [id]} :params} {:keys [session]}]
-    (let [category (-> (cond
-                         (number? id) id
-                         (keyword? id) [:category/keyword id])
-                       (entity/find))]
-      (when-not category
-        (throw (Exception. "Category not found")))
-      (entity/to-json category {:culture (get-culture session)}))))
+ :categories.get
+ {:spec {:id (spec/or :eid number?
+                      :keyword-ref ::keyword)}}
+ (fn [{{:keys [id]} :params} {:keys [session]}]
+   (let [category (-> (cond
+                        (number? id) id
+                        (keyword? id) [:category/keyword id])
+                      (entity/find))]
+     (when-not category
+       (throw (Exception. "Category not found")))
+     (entity/to-json category {:culture (get-culture session)}))))
 
 (register-endpoint!
-  :categories.list
-  (fn [_ {:keys [session]}]
-    (map #(entity/to-json % {:culture (get-culture session)})
-         (entity/query :category))))
+ :categories.list
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (get-culture session)})
+        (entity/query :category))))
 
 (register-endpoint!
-  :configuration.get
-  {:spec {:keyword ::keyword}}
-  (fn [{{:keys [keyword]} :params} {:keys [session]}]
-    (if-let [value (first (entity/query :configuration {:keyword keyword}))]
-      (entity/to-json value {:culture (get-culture session)})
-      (throw (Error. (str "Could not find configuration with keyword: " keyword))))))
+ :configuration.get
+ {:spec {:keyword ::keyword}}
+ (fn [{{:keys [keyword]} :params} {:keys [session]}]
+   (if-let [value (first (entity/query :configuration {:keyword keyword}))]
+     (entity/to-json value {:culture (get-culture session)})
+     (throw (Error. (str "Could not find configuration with keyword: " keyword))))))
 
 (register-endpoint!
-  :entities.find
-  {:spec {:id ::id}}
-  (fn [{{:keys [id]} :params} {:keys [session]}]
-    (let [entity (entity/find id)]
-      (when-not entity
-        (throw (Exception. (str "Unable to find entity: " id))))
-      (entity/to-json entity {:culture (get-culture session)}))))
+ :entities.find
+ {:spec {:id ::id}}
+ (fn [{{:keys [id]} :params} {:keys [session]}]
+   (let [entity (entity/find id)]
+     (when-not entity
+       (throw (Exception. (str "Unable to find entity: " id))))
+     (entity/to-json entity {:culture (get-culture session)}))))
 
 (register-endpoint!
-  :enums.get
-  {:spec {:type ::keyword}}
-  (fn [{{:keys [type]} :params} _]
-    (db/enum-values (name type))))
+ :enums.get
+ {:spec {:type ::keyword}}
+ (fn [{{:keys [type]} :params} _]
+   (db/enum-values (name type))))
 
 (register-endpoint!
-  :i18n.cultures.list
-  (fn [_ _]
-    (->> (entity/query :i18n.culture)
-         (map (fn [{:i18n.culture/keys [keyword name] :db/keys [id]}]
-                {:keyword keyword
-                 :name name
-                 :id id})))))
+ :i18n.cultures.list
+ (fn [_ _]
+   (->> (entity/query :i18n.culture)
+        (map (fn [{:i18n.culture/keys [keyword name] :db/keys [id]}]
+               {:keyword keyword
+                :name name
+                :id id})))))
 
 (register-endpoint!
  :image-sizes.list
@@ -126,62 +126,35 @@
         (common.utils/index-by :keyword))))
 
 (register-endpoint!
-  :products.get
-  {:spec {:id (spec/or :eid number?
-                       :keyword-ref ::keyword)
-          (opt :terms) (maybe [::id])}}
-  (fn [{{:keys [id terms]} :params} {:keys [session]}]
-    (-> (cond
-          (number? id) id
-          (keyword? id) [:product/keyword id])
-        (entities.product/find-variation terms)
-        (entity/to-json {:culture (get-culture session)}))))
+ :products.get
+ {:spec {:id (spec/or :eid number?
+                      :keyword-ref ::keyword)
+         (opt :terms) (maybe [::id])}}
+ (fn [{{:keys [id terms]} :params} {:keys [session]}]
+   (-> (cond
+         (number? id) id
+         (keyword? id) [:product/keyword id])
+       (entities.product/find-variation terms)
+       (entity/to-json {:culture (get-culture session)}))))
 
 (register-endpoint!
-  :products.list
-  {:middlewares [pagination/wrap-sort
-                 pagination/wrap-paginate]
-   :spec (maybe {(opt :filters) {(opt :terms) [::id]
-                                 (opt :price) {(opt :min) number?
-                                               (opt :max) number?}}})}
-  (fn [{{{:keys [terms price]} :filters} :params} {:keys [session]}]
-    (let [wheres
-          (as-> (entity/filters->wheres :product {:terms (set terms)}) wheres
-                (if (seq price)
-                  (let [{:keys [min max] :or {min '?price max '?price}} price]
-                    (concat wheres [['?id :product/price '?price]
-                                    [[<= min '?price max]]]))
-                  wheres))]
-      (map #(entity/find-json (:id %) {:culture (get-culture session)})
-           (db/nice-query {:find '[?id]
-                           :where wheres})))))
-
-(defn- term-counts []
-  (->> (db/q '[:find (count ?product-eid)
-               ?term-eid
-               ?term-translation-value
-               ?term-taxonomy
-               ?tax-translation-value
-               ?tax-keyword
-               :where
-               [?product-eid :product/terms ?term-eid]
-               [?term-eid :product.term/name ?term-name]
-               [?term-eid :product.term/taxonomy ?term-taxonomy]
-               [?term-name :i18n/translations ?term-translation]
-               [?term-translation :i18n.translation/value ?term-translation-value]
-               [?term-translation :i18n.translation/culture [:i18n.culture/keyword :en_US]]
-               [?term-taxonomy :product.taxonomy/name ?tax-name]
-               [?term-taxonomy :product.taxonomy/keyword ?tax-keyword]
-               [?tax-name :i18n/translations ?tax-translation]
-               [?tax-translation :i18n.translation/value ?tax-translation-value]
-               [?tax-translation :i18n.translation/culture [:i18n.culture/keyword :en_US]]])
-       (map (fn [[count term-id term-name tax-id tax-name tax-keyword]]
-              {:count count
-               :id term-id
-               :name term-name
-               :taxonomy {:id tax-id
-                          :name tax-name
-                          :keyword tax-keyword}}))))
+ :products.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]
+  :spec (maybe {(opt :filters) {(opt :terms) [::id]
+                                (opt :price) {(opt :min) number?
+                                              (opt :max) number?}}})}
+ (fn [{{{:keys [terms price]} :filters} :params} {:keys [session]}]
+   (let [wheres
+         (as-> (entity/filters->wheres :product {:terms (set terms)}) wheres
+               (if (seq price)
+                 (let [{:keys [min max] :or {min '?price max '?price}} price]
+                   (concat wheres [['?id :product/price '?price]
+                                   [[<= min '?price max]]]))
+                 wheres))]
+     (map #(entity/find-json (:id %) {:culture (get-culture session)})
+          (db/nice-query {:find '[?id]
+                          :where wheres})))))
 
 (defn- prices []
   (let [[min max]
@@ -278,32 +251,32 @@
                  (map #(entity/find-json % {:culture culture})))}))
 
 (register-endpoint!
-  :products.aggregations
-  {:spec
-   (maybe {(opt :filters) {(opt :categories) [(spec/or :id ::id
-                                                       :slug string?)]
-                           (opt :price) {(opt :min) number?
-                                         (opt :max) number?}
-                           (opt :terms) [::id]
-                           (opt :name) (maybe string?)}
-           (opt :pagination) ::pagination/pagination})
-   :doc
-   "Returns:
+ :products.aggregations
+ {:spec
+  (maybe {(opt :filters) {(opt :categories) [(spec/or :id ::id
+                                                      :slug string?)]
+                          (opt :price) {(opt :min) number?
+                                        (opt :max) number?}
+                          (opt :terms) [::id]
+                          (opt :name) (maybe string?)}
+          (opt :pagination) ::pagination/pagination})
+  :doc
+  "Returns:
      - Products filtered by category, price, terms and name
      - Aggregated product terms and categories for the given category"}
-  (fn [{{:keys [filters pagination]} :params} {:keys [session]}]
-    (let [culture (get-culture session)
-          {:keys [items can-load-more?]} (search-products filters pagination culture)]
-      {:items items
-       :can-load-more? can-load-more?
-       :taxonomies (aggregate-products (:categories filters) culture)})))
+ (fn [{{:keys [filters pagination]} :params} {:keys [session]}]
+   (let [culture (get-culture session)
+         {:keys [items can-load-more?]} (search-products filters pagination culture)]
+     {:items items
+      :can-load-more? can-load-more?
+      :taxonomies (aggregate-products (:categories filters) culture)})))
 
 (register-endpoint!
-  :states.list
-  {:middlewares [pagination/wrap-paginate]}
-  (fn [_ {:keys [session]}]
-    (map #(entity/to-json % {:culture (get-culture session)})
-         (entity/query :state))))
+ :states.list
+ {:middlewares [pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (get-culture session)})
+        (entity/query :state))))
 
 (defn- create-unregistered-user
   "Unauthenticated users can be able to add favorite products and create
@@ -335,86 +308,86 @@
       :token token})))
 
 (register-endpoint!
-  :users.login
-  {:spec {:email string?
-          :password string?}}
-  (fn [{{:keys [email password]} :params} {:keys [session]}]
-    (when (or (empty? email) (empty? password))
-      (throw (Exception. "Email and password are required and can't be empty")))
-    (let [user (entity/query-one :user {:email email})]
-      (when-not user
-        (throw (Exception. "User not found")))
-      (when-not (hashers/check password (:user/password user))
-        (throw (Exception. "Invalid credentials")))
-      (let [token (auth/user->token user)]
-        (set-user session user)
-        {:user (entity/to-json user)
-         :token token}))))
+ :users.login
+ {:spec {:email string?
+         :password string?}}
+ (fn [{{:keys [email password]} :params} {:keys [session]}]
+   (when (or (empty? email) (empty? password))
+     (throw (Exception. "Email and password are required and can't be empty")))
+   (let [user (entity/query-one :user {:email email})]
+     (when-not user
+       (throw (Exception. "User not found")))
+     (when-not (hashers/check password (:user/password user))
+       (throw (Exception. "Invalid credentials")))
+     (let [token (auth/user->token user)]
+       (set-user session user)
+       {:user (entity/to-json user)
+        :token token}))))
 
 (register-endpoint!
-  :users.session
-  {:spec {(opt :token) (maybe string?)}}
-  (fn [{:keys [params]} {:keys [session]}]
-    (if-let [user (get-user session)]
-      {:user (entity/to-json user)}
-      (if-let [token (:token params)]
-        (let [user (auth/token->user token)]
-          (when-not user
-            (throw (Exception. "Invalid token")))
-          (set-user session user)
-          {:user (entity/to-json user)})
-        (let [{:keys [user token]} (create-unregistered-user)]
-          (set-user session user)
-          {:user (entity/to-json user)
-           :token token})))))
+ :users.session
+ {:spec {(opt :token) (maybe string?)}}
+ (fn [{:keys [params]} {:keys [session]}]
+   (if-let [user (get-user session)]
+     {:user (entity/to-json user)}
+     (if-let [token (:token params)]
+       (let [user (auth/token->user token)]
+         (when-not user
+           (throw (Exception. "Invalid token")))
+         (set-user session user)
+         {:user (entity/to-json user)})
+       (let [{:keys [user token]} (create-unregistered-user)]
+         (set-user session user)
+         {:user (entity/to-json user)
+          :token token})))))
 
 (register-endpoint!
-  :users.logout
-  (fn [_ {:keys [session]}]
-    (swap! session dissoc :user)
-    true))
+ :users.logout
+ (fn [_ {:keys [session]}]
+   (swap! session dissoc :user)
+   true))
 
 (register-endpoint!
-  :search
-  {:spec {:search string?}}
-  (fn [{{:keys [search]} :params} {:keys [session]}]
-    (let [culture (get-culture session)
-          {culture-kw :i18n.culture/keyword} (entity/find culture)
-          shoulds (for [attr [:product/name
-                              :category/name
-                              :brand/name]]
-                    {:match {(keyword (namespace attr)
-                                      (str (name attr) "__" (name culture-kw)))
-                             search}})
-          hits (-> (search/search {:query {:bool {:should shoulds}}
-                                   :_source false})
-                   (get-in [:body :hits :hits]))]
-      (->> hits
-           (map :_id)
-           (map (fn [v] (Long/parseLong v)))
-           (map #(entity/find-json % {:culture culture
-                                      :keep-type? true}))
-           (map (fn [{:keys [images] :as result}]
-                  (let [result (if images
-                                 (assoc result :image (first images))
-                                 result)]
-                    (select-keys result [:id :type :name :images :image]))))))))
+ :search
+ {:spec {:search string?}}
+ (fn [{{:keys [search]} :params} {:keys [session]}]
+   (let [culture (get-culture session)
+         {culture-kw :i18n.culture/keyword} (entity/find culture)
+         shoulds (for [attr [:product/name
+                             :category/name
+                             :brand/name]]
+                   {:match {(keyword (namespace attr)
+                                     (str (name attr) "__" (name culture-kw)))
+                            search}})
+         hits (-> (search/search {:query {:bool {:should shoulds}}
+                                  :_source false})
+                  (get-in [:body :hits :hits]))]
+     (->> hits
+          (map :_id)
+          (map (fn [v] (Long/parseLong v)))
+          (map #(entity/find-json % {:culture culture
+                                     :keep-type? true}))
+          (map (fn [{:keys [images] :as result}]
+                 (let [result (if images
+                                (assoc result :image (first images))
+                                result)]
+                   (select-keys result [:id :type :name :images :image]))))))))
 
 (register-endpoint!
-  :upload
-  {:binary? true
-   :spec {:is-first boolean?
-          :is-last boolean?
-          (opt :file-id) some?}}
-  (fn [{:keys [params]} state]
-    (let [{:keys [bytes is-first is-last file-id]} params
-          file-id (if is-first (gensym "temp-file") file-id)
-          path (str (paths/resolve paths/storage) "/" file-id)]
-      (with-open [r (bytes/to-input-stream bytes)
-                  w (-> (clojure.java.io/file path)
-                        (clojure.java.io/output-stream :append (not is-first)))]
-        (clojure.java.io/copy r w))
-      (cond
-        is-last (entities.file/create-from-file! path)
-        is-first file-id
-        :default true))))
+ :upload
+ {:binary? true
+  :spec {:is-first boolean?
+         :is-last boolean?
+         (opt :file-id) some?}}
+ (fn [{:keys [params]} state]
+   (let [{:keys [bytes is-first is-last file-id]} params
+         file-id (if is-first (gensym "temp-file") file-id)
+         path (str (paths/resolve paths/storage) "/" file-id)]
+     (with-open [r (bytes/to-input-stream bytes)
+                 w (-> (clojure.java.io/file path)
+                       (clojure.java.io/output-stream :append (not is-first)))]
+       (clojure.java.io/copy r w))
+     (cond
+       is-last (entities.file/create-from-file! path)
+       is-first file-id
+       :default true))))

@@ -60,12 +60,12 @@
       (assoc
        entity
        :ventas/slug
-        (let [slug (utils.slugs/slugify-i18n source)]
-          (if-let [parent (:category/parent entity)]
-            (entities.i18n/merge-i18ns-with #(str/join "-" [%1 %2])
-                                            (get-parent-slug parent)
-                                            slug)
-            slug)))
+       (let [slug (utils.slugs/slugify-i18n source)]
+         (if-let [parent (:category/parent entity)]
+           (entities.i18n/merge-i18ns-with #(str/join "-" [%1 %2])
+                                           (get-parent-slug parent)
+                                           slug)
+           slug)))
       entity)))
 
 (entity/register-type!

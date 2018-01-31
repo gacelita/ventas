@@ -32,8 +32,8 @@
         key (atom nil)]
     (rf/dispatch [::backend/entities.find (routes/ref-from-param :id)
                   {:success (fn [entity]
-                                 (reset! data entity)
-                                 (reset! key (hash entity)))}])
+                              (reset! data entity)
+                              (reset! key (hash entity)))}])
     (rf/dispatch [::events/enums.get :tax.kind])
     (fn []
       ^{:key @key}
@@ -69,7 +69,7 @@
     [form]]])
 
 (routes/define-route!
- :admin.taxes.edit
- {:name ::page
-  :url [:id "/edit"]
-  :component page})
+  :admin.taxes.edit
+  {:name ::page
+   :url [:id "/edit"]
+   :component page})

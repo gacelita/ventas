@@ -44,18 +44,18 @@
         output-channel (if binary? (output-binary-channel) (output-json-channel))]
     (swap! request-channels assoc request-id request-channel)
     (go
-     (>! output-channel
-         {:type :request
-          :id request-id
-          :name request-name
-          :params params})
-     (loop []
-       (let [message (<! request-channel)]
-         (callback message)
-         (if realtime?
-           (recur)
-           (do (close! request-channel)
-               (swap! request-channels dissoc request-id))))))))
+      (>! output-channel
+          {:type :request
+           :id request-id
+           :name request-name
+           :params params})
+      (loop []
+        (let [message (<! request-channel)]
+          (callback message)
+          (if realtime?
+            (recur)
+            (do (close! request-channel)
+                (swap! request-channels dissoc request-id))))))))
 
 (defn- ws-response-dispatch
   "Puts a response into its corresponding channel"
@@ -96,12 +96,12 @@
   "Receives messages from output-channel and send them to the server"
   [output-channel websocket-channel format]
   (go-loop []
-   (let [message (<! output-channel)
-         message (if (= format :json)
-                   (common.utils/process-output-message message)
-                   message)]
-     (>! websocket-channel message)
-     (recur))))
+    (let [message (<! output-channel)
+          message (if (= format :json)
+                    (common.utils/process-output-message message)
+                    message)]
+      (>! websocket-channel message)
+      (recur))))
 
 (defn- websocket-url [format]
   (str (if (= "https:" (-> js/document .-location .-protocol))
@@ -114,17 +114,17 @@
   {:pre [(#{:fressian :json} format)]}
   (let [channel (chan)]
     (go
-     (let [url (websocket-url format)
-           {:keys [ws-channel] ws-error :error} (<! (chord/ws-ch url {:format format}))]
-       (if ws-error
-         (do
-           (log/error "Error connecting to the " format " websocket: " ws-error)
-           (>! channel false))
-         (do
-           (swap! output-channels assoc format (doto (chan)
-                                                 (send-messages! ws-channel format)))
-           (receive-messages! ws-channel format)
-           (>! channel true)))))
+      (let [url (websocket-url format)
+            {:keys [ws-channel] ws-error :error} (<! (chord/ws-ch url {:format format}))]
+        (if ws-error
+          (do
+            (log/error "Error connecting to the " format " websocket: " ws-error)
+            (>! channel false))
+          (do
+            (swap! output-channels assoc format (doto (chan)
+                                                  (send-messages! ws-channel format)))
+            (receive-messages! ws-channel format)
+            (>! channel true)))))
     channel))
 
 (defn init
@@ -164,7 +164,6 @@
                 (call error data)))
             success
             (call success data)))}))))
-
 
 (defn- effect-ws-upload-request
   [{:keys [name upload-data params upload-key success] :as request} & [file-id start]]

@@ -23,9 +23,9 @@
     :db/cardinality :db.cardinality/one}]})
 
 (api/register-endpoint!
-  :blog.post.create
-  (fn [{:keys [params] :as message} state]
-    (entity/upsert :blog.post params)))
+ :blog.post.create
+ (fn [{:keys [params] :as message} state]
+   (entity/upsert :blog.post params)))
 
 (api/register-endpoint!
  :blog.list

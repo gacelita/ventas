@@ -138,12 +138,15 @@
                  ;; Devcards itself
                  [devcards "0.2.4" :exclusions [cljsjs/react]]]
 
-  :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
+  :plugins [[lein-ancient "0.6.14"]
             [lein-auto "0.1.3"]
-            [lein-ancient "0.6.14"]
+            [lein-cljfmt "0.5.6"]
+            [lein-cljsbuild "1.1.7"]
             [lein-cloverage "1.0.7-SNAPSHOT"]
+            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
             [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
+
+  :cljfmt {:file-pattern #"(src|test)\/.*?\.clj[sx]?$"}
 
   :min-lein-version "2.6.1"
 

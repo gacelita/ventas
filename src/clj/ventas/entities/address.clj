@@ -22,15 +22,15 @@
 
 (spec/def :address/country
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :country)))
+    #(entity/ref-generator :country)))
 
 (spec/def :address/state
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :state)))
+    #(entity/ref-generator :state)))
 
 (spec/def :address/user
   (spec/with-gen ::entity/ref
-                 #(entity/ref-generator :user)))
+    #(entity/ref-generator :user)))
 
 (spec/def :schema.type/address
   (spec/keys :req [:address/first-name

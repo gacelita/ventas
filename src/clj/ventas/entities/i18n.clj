@@ -45,7 +45,6 @@
   :seed-number 0
   :autoresolve? true})
 
-
 (spec/def :i18n.translation/value ::generators/string)
 
 (spec/def :i18n.translation/culture
@@ -88,7 +87,7 @@
 
 (spec/def :i18n/translations
   (spec/with-gen ::entity/refs
-                 translations-generator))
+    translations-generator))
 
 (spec/def :schema.type/i18n
   (spec/keys :req [:i18n/translations]))
@@ -123,10 +122,9 @@
            (into {}))
       (-> (db/q '[:find ?translated
                   :in $ ?this-eid ?culture
-                  :where
-                  [?this-eid :i18n/translations ?term-translation]
-                  [?term-translation :i18n.translation/value ?translated]
-                  [?term-translation :i18n.translation/culture ?culture]]
+                  :where [?this-eid :i18n/translations ?term-translation]
+                         [?term-translation :i18n.translation/value ?translated]
+                         [?term-translation :i18n.translation/culture ?culture]]
                 [(:db/id this) culture])
           (first)
           (first))))
