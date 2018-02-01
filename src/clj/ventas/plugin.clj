@@ -6,13 +6,13 @@
 
 (spec/def ::name string?)
 
-(spec/def :attrs
+(spec/def ::attrs
   (spec/keys :req-un [::name]))
 
 (defonce plugins (atom {}))
 
 (defn register! [kw {:keys [migrations] :as attrs}]
-  {:pre [(keyword? kw) (utils/check :attrs attrs)]}
+  {:pre [(keyword? kw) (utils/check ::attrs attrs)]}
   (swap! plugins assoc kw attrs)
   (doseq [migration migrations]
     (schema/register-migration! migration)))

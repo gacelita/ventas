@@ -18,15 +18,13 @@
     (->> (entity/query :category)
          (take 4)
          (map #(assoc % :category/featured true))
-         (map #(dissoc % :db/id))))})
+         (map #(dissoc % :db/id))))
+  :migrations
+  [[{:db/ident :category/featured
+     :db/valueType :db.type/boolean
+     :db/cardinality :db.cardinality/one}]]})
 
 (spec/def :category/featured boolean?)
-
-(plugin/register-migration!
- plugin-kw
- [{:db/ident :category/featured
-   :db/valueType :db.type/boolean
-   :db/cardinality :db.cardinality/one}])
 
 (api/register-endpoint!
  ::featured-categories.list

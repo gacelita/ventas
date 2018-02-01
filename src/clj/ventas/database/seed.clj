@@ -83,7 +83,7 @@
   (when-not minimal?
     (doseq [theme-kw (theme/all)]
       (info "Installing theme " theme-kw)
-      (doseq [fixture (theme/fixtures theme-kw)]
+      (doseq [fixture (plugin/fixtures theme-kw)]
         (create* fixture)))
 
     (doseq [plugin-kw (plugin/all)]

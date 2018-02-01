@@ -18,15 +18,13 @@
                          :where '[[?id :product/images _]]})
          (map (comp entity/find :id))
          (map #(assoc % :product/featured true))
-         (map #(dissoc % :db/id))))})
+         (map #(dissoc % :db/id))))
+  :migrations
+  [[{:db/ident :product/featured
+     :db/valueType :db.type/boolean
+     :db/cardinality :db.cardinality/one}]]})
 
 (spec/def :product/featured boolean?)
-
-(plugin/register-migration!
- plugin-kw
- [{:db/ident :product/featured
-   :db/valueType :db.type/boolean
-   :db/cardinality :db.cardinality/one}])
 
 (api/register-endpoint!
  ::featured-products.list
