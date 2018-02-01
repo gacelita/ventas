@@ -27,8 +27,6 @@
    'utils 'ventas.utils
    'ws 'ventas.server.ws})
 
-dfggfd
-
 (defn deinit-aliases []
   (doseq [[from to] aliases]
     (ns-unalias 'repl from)))
