@@ -17,7 +17,6 @@
    [ventas.plugins.core]
    [ventas.plugins.api.core]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.core]
    [ventas.utils.logging :refer [debug info]]
    [ventas.ws :as ws])
   (:require-macros

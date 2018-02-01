@@ -2,21 +2,21 @@
   (:require
    [ventas.utils :as utils]
    [clojure.spec.alpha :as spec]
-   [ventas.database.schema :as schema]))
-
-(spec/def ::version string?)
+   [ventas.database.schema :as schema]
+   [ventas.entities.configuration :as entities.configuration]))
 
 (spec/def ::name string?)
 
 (spec/def ::attrs
-  (spec/keys :req-un [::version
-                      ::name]))
+  (spec/keys :req-un [::name]))
 
 (defonce themes (atom {}))
 
-(defn register! [kw attrs]
+(defn register! [kw {:keys [migrations] :as attrs}]
   {:pre [(keyword? kw) (utils/check ::attrs attrs)]}
-  (swap! themes assoc kw attrs))
+  (swap! themes assoc kw attrs)
+  (doseq [migration migrations]
+    (schema/register-migration! migration)))
 
 (defn theme [kw]
   {:pre [(keyword? kw)]}
@@ -37,9 +37,7 @@
   (when-let [fixtures-fn (:fixtures (theme kw))]
     (fixtures-fn)))
 
-(defn register-migration!
-  "Registers database attributes for this theme."
-  [theme-kw attrs]
-  {:pre [(check! theme-kw) (coll? attrs)]}
-  (schema/register-migration! attrs))
-
+(defn current []
+  (theme
+   (or (entities.configuration/get :current-theme)
+       (first (all)))))

@@ -22,6 +22,7 @@
    [ventas.entities.file :as entities.file]
    [ventas.paths :as paths]
    [ventas.server.ws :as server.ws]
+   [ventas.theme :as theme]
    [ventas.logging]
    [ventas.entities.image-size :as entities.image-size]
    [ventas.plugin :as plugin])
@@ -63,7 +64,8 @@
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body (-> (slurp (io/resource "public/index.html"))
-             (str/replace "{{current-theme}}" "ventas.themes.clothing.core"))})
+             (str/replace "{{current-theme-main-ns}}"
+                          (str (:cljs-ns (theme/current)))))})
 
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler

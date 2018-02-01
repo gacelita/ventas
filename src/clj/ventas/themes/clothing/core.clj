@@ -12,10 +12,12 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.themes.clothing.demo :as demo]))
 
+(spec/def :product.term/color ::generators/string)
+
 (theme/register!
  :clothing
- {:version "0.1"
-  :name "Clothing"
+ {:name "Clothing"
+  :cljs-ns 'ventas.themes.clothing.core
   :fixtures
   (fn []
     (concat
@@ -102,15 +104,11 @@
                                                               :es_ES "Tipo de cordones"})
        :product.taxonomy/keyword :lace-type}]
 
-     (demo/demo-data)))})
+     (demo/demo-data)))
 
-;; Extends the default terms with colors, which is something that
-;; other themes may not care about (think of a seafood store)
-
-(spec/def :product.term/color ::generators/string)
-
-(theme/register-migration!
- :clothing
- [{:db/ident :product.term/color
-   :db/valueType :db.type/string
-   :db/cardinality :db.cardinality/one}])
+  :migrations
+  [;; Extends the default terms with colors, which is something that
+   ;; other themes may not care about (think of a seafood store)
+   [{:db/ident :product.term/color
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one}]]})

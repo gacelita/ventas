@@ -15,8 +15,8 @@ For now, just read the [README](../README.md).
 - [Endpoints - adding them, using them](./Endpoints.md)
 - [Frontend development - components, routes, events, effects...](./Frontend_development.md)
 - [Entity types - easily extending the database](./Entity_types.md)
-- TODO: Plugin system
-- TODO: Theme system
+- [Plugins](./Plugins.md)
+- [Themes](./Themes.md)
 
 ### Using ventas
 

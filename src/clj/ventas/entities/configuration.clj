@@ -1,4 +1,5 @@
 (ns ventas.entities.configuration
+  (:refer-clojure :exclude [get])
   (:require
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
@@ -29,3 +30,7 @@
   (fn []
     [{:configuration/keyword :site.title
       :configuration/value "Ventas Dev Store"}])})
+
+(defn get [k]
+  (-> (entity/find [:configuration/keyword k])
+      :configuration/value))
