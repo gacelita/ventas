@@ -8,15 +8,15 @@ For now, just read the [README](../README.md).
 
 ### Developing ventas
 
-- TODO: Generic development workflow, gotchas, etc.
+- [Development workflow](./Development_workflow.md)
 
 ### Extending ventas
 
 - [Endpoints - adding them, using them](./Endpoints.md)
-- TODO: Components
+- [Frontend development - components, routes, events, effects...](./Frontend_development.md)
 - TODO: Entity types
-- TODO: Plugins
-- TODO: Themes
+- TODO: Plugin system
+- TODO: Theme system
 
 ### Using ventas
 

@@ -110,3 +110,4 @@ This operation is quite common, so there's a function for it:
   (ventas.database.entity/query-one :user))
 ```
 
+You can also use the Swagger-like API tool, which is usually under `/api `.
