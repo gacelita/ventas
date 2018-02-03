@@ -1,5 +1,7 @@
 ## Themes
 
+**Warning**: this is a draft, don't actually use these instructions for now.
+
 Themes are used for choosing between different frontends for your store. They don't need to be third-party provided, although they might be. They don't need to follow any concrete structure.
 
 Themes can be registered using the `ventas.theme/register!`  fn:
