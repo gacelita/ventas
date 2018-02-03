@@ -63,9 +63,13 @@
 (defn- handle-spa []
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (-> (slurp (io/resource "public/index.html"))
-             (str/replace "{{current-theme-main-ns}}"
-                          (str (:cljs-ns (theme/current)))))})
+   :body (let [theme-name (theme/current)
+               {:keys [cljs-ns]} (plugin/plugin theme-name)]
+           (-> (slurp (io/resource "public/index.html"))
+               (str/replace "{{theme}}"
+                            (name theme-name))
+               (str/replace "{{theme-main-ns}}"
+                            (str cljs-ns))))})
 
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler

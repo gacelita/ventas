@@ -17,6 +17,5 @@
        (keys)))
 
 (defn current []
-  (plugin/plugin
-   (or (entities.configuration/get :current-theme)
-       (first (all)))))
+  (or (keyword (entities.configuration/get :current-theme))
+      (first (all))))

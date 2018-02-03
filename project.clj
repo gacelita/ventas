@@ -218,6 +218,16 @@
   :sassc [{:src "src/scss/main.scss"
            :output-to "resources/public/files/css/style.css"
            :style "nested"
+           :import-path "src/scss"}
+
+          ;; Included themes need their own separate build
+          {:src "src/scss/themes/blank/core.scss"
+           :output-to "resources/public/files/css/themes/blank.css"
+           :style "nested"
+           :import-path "src/scss"}
+          {:src "src/scss/themes/clothing/core.scss"
+           :output-to "resources/public/files/css/themes/clothing.css"
+           :style "nested"
            :import-path "src/scss"}]
 
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
