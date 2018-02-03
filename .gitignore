@@ -9,7 +9,7 @@
 /log/
 /out/
 /target/
-figwheel_server.log
+*.log
 pom.xml
 pom.xml.asc
 /*.iml

@@ -226,7 +226,11 @@
   :profiles {:dev {:dependencies [[figwheel "0.5.14"]
                                   [figwheel-sidecar "0.5.14"]
                                   [com.cemerick/piggieback "0.2.2"]
+
+                                  ; Runtime dependency resolution
                                   [com.cemerick/pomegranate "1.0.0"]
+                                  [org.codehaus.plexus/plexus-utils "3.0.15"]
+
                                   [org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.8"]]
                    :plugins [[lein-figwheel "0.5.14" :exclusions [org.clojure/clojure]]
