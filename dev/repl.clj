@@ -81,7 +81,8 @@
         :sass 'client/sass
         :db 'ventas.database/db
         :indexer 'ventas.search/indexer
-        :server 'ventas.server/server}
+        :server 'ventas.server/server
+        :config 'ventas.config/config-loader}
        kw))
 
 (defn r
