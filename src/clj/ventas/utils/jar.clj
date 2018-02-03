@@ -5,8 +5,8 @@
   "Resolves the path to the current running jar file."
   (-> :keyword class (.. getProtectionDomain getCodeSource getLocation getPath)))
 
-(defn list-resources []
-  (let [jar (java.util.jar.JarFile. running-jar)
+(defn list-resources [& [jar]]
+  (let [jar (or jar (java.util.jar.JarFile. running-jar))
         entries (.entries jar)]
     (loop [result  []]
       (if (.hasMoreElements entries)

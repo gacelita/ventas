@@ -14,7 +14,6 @@
    [ventas.page :as p]
    [ventas.pages.admin]
    [ventas.pages.datadmin]
-   [ventas.plugins.core]
    [ventas.plugins.api.core]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug info]]
