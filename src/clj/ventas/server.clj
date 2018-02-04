@@ -67,9 +67,7 @@
                {:keys [cljs-ns]} (plugin/plugin theme-name)]
            (-> (slurp (io/resource "public/index.html"))
                (str/replace "{{theme}}"
-                            (name theme-name))
-               (str/replace "{{theme-main-ns}}"
-                            (str cljs-ns))))})
+                            (name theme-name))))})
 
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler

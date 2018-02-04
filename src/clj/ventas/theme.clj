@@ -1,7 +1,8 @@
 (ns ventas.theme
   (:require
    [ventas.plugin :as plugin]
-   [ventas.entities.configuration :as entities.configuration]))
+   [ventas.entities.configuration :as entities.configuration]
+   [ventas.database.entity :as entity]))
 
 (defn register! [kw attrs]
   (plugin/register! kw (merge attrs
@@ -19,3 +20,10 @@
 (defn current []
   (or (keyword (entities.configuration/get :current-theme))
       (first (all))))
+
+(defn set!
+  "Sets the current theme.
+   Use repl/set-theme! in development."
+  [theme]
+  (entity/create :configuration {:keyword :current-theme
+                                 :value (name theme)}))

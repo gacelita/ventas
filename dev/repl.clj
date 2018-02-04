@@ -3,14 +3,15 @@
    Don't add ventas.* aliases in this ns, as it conflicts with dynamic aliases
    and nonstrict classloading."
   (:require
+   [cemerick.pomegranate :as pomegranate]
+   [cemerick.pomegranate.aether :as aether]
    [clojure.core.async :refer [>! go]]
    [clojure.spec.alpha :as spec]
    [clojure.tools.namespace.repl :as tn]
    [mount.core :as mount]
    [ventas.config]
    [ventas.events]
-   [cemerick.pomegranate :as pomegranate]
-   [cemerick.pomegranate.aether :as aether]))
+   [ventas.theme]))
 
 (when (ventas.config/get :strict-classloading)
   ;; ensures all code is required - avoiding issues:
@@ -112,3 +113,8 @@
 
 (defn run-tests []
   (clojure.test/run-all-tests #"ventas.*?\-test"))
+
+(defn set-theme! [theme]
+  (ventas.theme/set! theme)
+  (mount.core/stop (ns-resolve 'repl 'client/figwheel))
+  (mount.core/start (ns-resolve 'repl 'client/figwheel)))

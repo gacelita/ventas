@@ -1,3 +1,17 @@
+
+(defn minified-build [theme]
+  (let [name (name theme)]
+    {:id (str "min-" name)
+     :source-paths ["src/cljs" "src/cljc" "custom-lib"]
+     :compiler {:main (symbol (str "ventas.themes." name ".core"))
+                :output-to (str "resources/public/files/js/compiled/" name ".js")
+                :output-dir (str "resources/public/files/js/compiled/" name)
+                :source-map-timestamp true
+                :optimizations :advanced
+                :pretty-print false
+                :externs ["externs.js"]
+                :parallel-build true}}))
+
 (defproject ventas "0.0.2-SNAPSHOT"
   :description "The Ventas eCommerce platform"
 
@@ -176,11 +190,12 @@
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
 
   :cljsbuild {:builds
-              [{:id "app"
+              [
+               ;; This build will be altered by client/dev-build, to do theme-dependent
+               ;; builds.
+               {:id "app"
                 :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "custom-lib"]
-
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
-
                 :compiler {:main ventas.core
                            :asset-path "files/js/compiled/out"
                            :closure-defines {"clairvoyant.core.devmode" true}
@@ -198,16 +213,12 @@
                            :optimizations :none
                            :parallel-build true}}
 
-               {:id "min"
-                :source-paths ["src/cljs" "src/cljc" "custom-lib"]
-                :compiler {:main ventas.core
-                           :output-to "resources/public/files/js/compiled/ventas.js"
-                           :output-dir "resources/public/files/js/compiled"
-                           :source-map-timestamp true
-                           :optimizations :advanced
-                           :pretty-print false
-                           :externs ["externs.js"]
-                           :parallel-build true}}]}
+               ;; In development, the :main and :output-to options are changed dynamically
+               ;; to change between themes.
+               ;; In production this is not an option, that's why every build needs to be
+               ;; explicitly specified.
+               ~(minified-build :clothing)
+               ~(minified-build :blank)]}
 
   :figwheel {:css-dirs ["resources/public/files/css"]
              :server-logfile "log/figwheel.log"
@@ -243,6 +254,7 @@
 
                                   [org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.8"]]
+                   :jvm-opts ["-Dprofile=dev"]
                    :plugins [[lein-figwheel "0.5.14" :exclusions [org.clojure/clojure]]
                              [lein-doo "0.1.8" :exclusions [org.clojure/clojure]]
                              [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
@@ -250,10 +262,12 @@
                    :source-paths ["dev"]}
 
              :release {:aot :all
+                       :jvm-opts ["-Dprofile=release"]
                        :hooks [leiningen.sassc]}
 
              :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
-                       :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
+                       :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
                        :hooks [leiningen.sassc]
                        :omit-source true
+                       :jvm-opts ["-Dprofile=uberjar"]
                        :aot :all}})

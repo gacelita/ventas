@@ -12,7 +12,9 @@
    [clojure.tools.namespace.dependency :as namespace.dependency]
    [clojure.tools.namespace.find :as namespace.find]
    [taoensso.timbre :refer [info]]
-   [clojure.tools.namespace.parse :as namespace.parse]))
+   [clojure.tools.namespace.parse :as namespace.parse]
+   [ventas.theme :as theme]
+   [ventas.plugin :as plugin]))
 
 ;; Figwheel
 
@@ -25,10 +27,26 @@
              sendable-files (map #(figwheel.css-watcher/make-css-file %) changed-css-files)]
          (figwheel.css-watcher/send-css-files figwheel-server sendable-files))))))
 
+(defn dev-build []
+  (let [config (->> (figwheel-sidecar.config/get-project-builds)
+                    (filter #(= (:id %) "app"))
+                    (first))
+        theme (theme/current)]
+    (-> config
+        (assoc-in [:compiler :main]
+                  (-> theme (plugin/plugin) (:cljs-ns)))
+        (assoc-in [:compiler :output-to]
+                  (str "resources/public/files/js/compiled/"
+                       (name theme)
+                       ".js")))))
+
 (defn figwheel-start []
   (when (config/get :embed-figwheel?)
-    (info "Starting Figwheel")
-    (figwheel/start-figwheel!)))
+    (let [build (dev-build)]
+      (info "Starting Figwheel, main ns:" (get-in build [:compiler :main]))
+      (figwheel/start-figwheel!
+       {:builds [build]
+        :builds-to-start ["app"]}))))
 
 (defn figwheel-stop []
   (when (config/get :embed-figwheel?)
