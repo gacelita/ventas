@@ -1,8 +1,6 @@
 ## Themes
 
-**Warning**: this is a draft, don't actually use these instructions for now.
-
-Themes are used for choosing between different frontends for your store. They don't need to be third-party provided, although they might be. They don't need to follow any concrete structure.
+Themes are used for choosing between different frontends for your store, both in production and in development.
 
 Themes can be registered using the `ventas.theme/register!`  fn:
 
@@ -24,17 +22,12 @@ Themes can be registered using the `ventas.theme/register!`  fn:
        :image-size/entities #{:schema.type/product}}])})
 ```
 
-The administrator can choose what theme to use in the administration. When your theme is selected, this is what ventas will do:
-
-- Set your theme's identifier (`:awesome`) as the value for the `current-theme` configuration key, in the database.
-- Apply your theme's migrations and fixtures.
-- In the clojurescript code, require your theme's main namespace (the one you declared in `:cljs-ns`).
-
 The most basic theme might be this one:
 
 ```clojure
 (ns my.awesome.theme.core
   (:require
+    [ventas.core] ;; very important too, sets up websockets, routes...
     [ventas.routes :as routes]))
 
 (defn page []
@@ -47,8 +40,42 @@ The most basic theme might be this one:
    :component page})
 ```
 
-When your theme is disabled, your theme's migrations and fixtures will be undone.
+For your theme to work, you need to have:
 
-You can use the [lein template](https://github.com/JoelSanchez/ventas-theme-lein-template) to begin with theme development.
+-  A minified CLJS build with your theme's main namespace as `:main`, and an output-to of `resources/public/files/js/compiled/{{theme}}.js`
+-  A `resources/public/files/css/themes/{{theme}}.css` file.
 
-@TODO Actually do that template
+You can set these up like this, in project.clj
+
+```clojure
+{:sassc {:src "src/scss/whatever/you/want.scss"
+         :output-to "resources/public/files/css/themes/awesome.css" ;; important
+         :style "nested"
+         :import-path "src/scss"}}
+```
+
+And:
+
+```clojure
+{:cljsbuild
+ {:builds [{:id "my-theme-build" ;; will be used in prep-tasks, see next section
+            :compiler {:main 'my.awesome.theme.core ;; must be equal to :cljs-ns
+                       ;; must be like this
+                       :output-to (str "resources/public/files/js/compiled/awesome.js")
+                       ;; same
+                       :output-dir (str "resources/public/files/js/compiled/awesome")
+                       :optimizations :advanced}}]}}
+```
+
+Finally, ensure that your minified build runs in production:
+
+```clojure
+{:profiles
+ {:uberjar
+  {:prep-tasks ["compile" ["cljsbuild"
+                           "once"
+                           "my-theme-build" ;; your build ID
+                           ]]}}}
+```
+
+You can use the [lein template](https://github.com/JoelSanchez/ventas-lein-template) to begin with theme development.
