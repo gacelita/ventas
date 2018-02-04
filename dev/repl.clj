@@ -47,16 +47,6 @@
    :repositories (merge aether/maven-central
                         {"clojars" "https://clojars.org/repo"})))
 
-
-(defmacro add-dependency
-  "A macro for adding a dependency via Pomegranate.
-   Usage: (add-dependency [incanter \"1.2.3\"])"
-  [dependency]
-  `(do (~'use '[cemerick.pomegranate :only (~'add-dependencies)])
-       (~'add-dependencies :coordinates '[~dependency]
-                           :repositories (~'merge cemerick.pomegranate.aether/maven-central
-                                                  {"clojars" "https://clojars.org/repo"}))))
-
 ;; Lifecycle
 (defn init []
   (in-ns 'repl)

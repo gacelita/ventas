@@ -1,4 +1,5 @@
 (ns ventas.paths-test
+  (:refer-clojure :exclude [resolve])
   (:require
    [ventas.paths :as sut]
    [clojure.test :refer [deftest is testing]]))
