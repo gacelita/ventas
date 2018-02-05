@@ -96,11 +96,7 @@
 (defn ^:export js-go-to
   "Meant for prerendering"
   [args]
-  (apply go-to (->> args
-                    (map (fn [arg]
-                           (if (and (string? arg) (str/starts-with? arg ":"))
-                             (common.utils/read-keyword arg)
-                             arg))))))
+  (apply go-to (map common.utils/process-input-message args)))
 
 (defn current
   "Returns the current route"

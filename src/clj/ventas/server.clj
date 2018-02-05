@@ -63,7 +63,10 @@
       (compojure.route/not-found ""))))
 
 (defn- get-rendered [path]
-  (let [file (io/as-file (str (paths/resolve ::paths/rendered) path ".html"))]
+  (let [path (if (= path "/")
+               "/index"
+               path)
+        file (io/as-file (str (paths/resolve ::paths/rendered) path ".html"))]
     (if (.exists file)
       (slurp file)
       "")))
