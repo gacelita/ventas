@@ -43,4 +43,3 @@
   {:name ::page
    :url ""
    :component page})
-

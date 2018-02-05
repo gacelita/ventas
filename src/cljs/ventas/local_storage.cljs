@@ -77,4 +77,3 @@
 (spec/fdef persist-db
            :args (spec/cat :store-key keyword?
                            :db-key keyword?))
-

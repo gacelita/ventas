@@ -44,4 +44,3 @@
    :url ""
    :component page
    :init-fx [::init]})
-

@@ -153,6 +153,7 @@
                  [devcards "0.2.4" :exclusions [cljsjs/react]]]
 
   :plugins [[lein-ancient "0.6.14"]
+            [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
             [lein-auto "0.1.3"]
             [lein-cljfmt "0.5.6"]
             [lein-cljsbuild "1.1.7"]

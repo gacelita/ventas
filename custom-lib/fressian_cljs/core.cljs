@@ -83,4 +83,3 @@
       (write-footer writer))
     (-> (js/Int8Array. (:buffer @writer))
         (.subarray 0 (:index @writer)))))
-

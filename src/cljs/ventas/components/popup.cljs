@@ -40,4 +40,3 @@
                        :on-click #(rf/dispatch [::close])}
           [base/icon {:name "checkmark"}]
           "OK"]]]))])
-

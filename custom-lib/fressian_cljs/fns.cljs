@@ -82,4 +82,3 @@
             (recur (inc string-pos) (+ buffer-pos encoding-size)))
           [string-pos buffer-pos]))
       [string-pos buffer-pos])))
-

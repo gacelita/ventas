@@ -31,4 +31,3 @@
 
 (defn error [& data]
   (log :error data))
-

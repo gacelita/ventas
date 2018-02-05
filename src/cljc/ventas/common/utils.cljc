@@ -178,4 +178,3 @@
     (set? message)
       (vec (concat [set-identifier] (map process-output-message message)))
     :default message))
-
