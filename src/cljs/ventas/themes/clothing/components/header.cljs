@@ -85,12 +85,12 @@
 
         [:button {:on-click #(routes/go-to :frontend.cart)}
          [base/icon {:name "add to cart"}]
-         (i18n ::my-cart)]
+         [:span (i18n ::my-cart)]]
 
         [:button {:on-click #(routes/go-to :frontend.login)
                   :on-blur #(rf/dispatch [::close])}
          [base/icon {:name "user"}]
-         (i18n ::my-account)
+         [:span (i18n ::my-account)]
          [base/icon {:name "caret down"
                      :on-click (fn [e] (-> e (.stopPropagation))
                                  (rf/dispatch [::toggle]))}]
