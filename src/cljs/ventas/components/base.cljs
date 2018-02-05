@@ -1,10 +1,10 @@
 (ns ventas.components.base
+  (:refer-clojure :exclude [comment list])
   (:require
    [reagent.core :as reagent]
    [soda-ash.core :as sa]
-   [ventas.i18n :refer [i18n]]
-   [ventas.common.utils :as common.utils])
-  (:refer-clojure :exclude [list comment]))
+   [ventas.common.utils :as common.utils]
+   [ventas.i18n :refer [i18n]]))
 
 (def accordion sa/Accordion)
 (def accordion-content sa/AccordionContent)

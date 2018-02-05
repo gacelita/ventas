@@ -1,17 +1,17 @@
 (ns ventas.pages.admin.taxes
   (:require
-   [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
+   [reagent.core :as reagent :refer [atom]]
+   [ventas.components.base :as base]
+   [ventas.components.table :as table]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
+   [ventas.i18n :refer [i18n]]
    [ventas.page :refer [pages]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.routes :as routes]
-   [ventas.components.base :as base]
    [ventas.pages.admin.taxes.edit]
-   [ventas.utils.formatting :as formatting]
-   [ventas.i18n :refer [i18n]]
-   [ventas.events.backend :as backend]
-   [ventas.components.table :as table]
-   [ventas.events :as events]))
+   [ventas.routes :as routes]
+   [ventas.utils.formatting :as formatting]))
 
 (def state-key ::state)
 

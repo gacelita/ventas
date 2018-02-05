@@ -1,12 +1,12 @@
 (ns ventas.events
   "Application-wide events"
   (:require
-   [re-frame.core :as rf]
-   [ventas.i18n :refer [i18n]]
    [day8.re-frame.forward-events-fx]
+   [re-frame.core :as rf]
+   [ventas.events.backend :as backend]
+   [ventas.i18n :refer [i18n]]
    [ventas.utils.formatting :as formatting]
-   [ventas.utils.logging :refer [debug]]
-   [ventas.events.backend :as backend]))
+   [ventas.utils.logging :refer [debug]]))
 
 (defn- normalize-where [where]
   (if (keyword? where)

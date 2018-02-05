@@ -1,11 +1,11 @@
 (ns ventas.devcards.cart
   (:require
-   [reagent.core :as reagent]
    [devcards.core]
-   [ventas.components.cart :as cart]
+   [re-frame.core :as rf]
+   [reagent.core :as reagent]
    [ventas.components.base :as base]
-   [ventas.utils.debug :as debug]
-   [re-frame.core :as rf])
+   [ventas.components.cart :as cart]
+   [ventas.utils.debug :as debug])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))
 

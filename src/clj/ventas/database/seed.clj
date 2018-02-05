@@ -1,12 +1,12 @@
 (ns ventas.database.seed
   (:require
+   [clojure.set :as set]
+   [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [taoensso.timbre :as timbre :refer [info]]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
-   [taoensso.timbre :as timbre :refer [info]]
-   [clojure.test.check.generators :as gen]
-   [clojure.spec.alpha :as spec]
-   [clojure.set :as set]
    [ventas.plugin :as plugin]
    [ventas.theme :as theme]))
 

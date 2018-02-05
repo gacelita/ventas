@@ -1,7 +1,7 @@
 (ns ventas.database
   (:require
    [buddy.hashers :as hashers]
-   [clojure.core.async :refer [chan <! >! go go-loop]]
+   [clojure.core.async :refer [<! >! chan go go-loop]]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.pprint :as p]
@@ -19,8 +19,9 @@
    [ventas.config :as config]
    [ventas.database.generators :as db.generators]
    [ventas.utils :as utils])
-  (:import [java.io File]
-           [java.util.concurrent ExecutionException]))
+  (:import
+   [java.io File]
+   [java.util.concurrent ExecutionException]))
 
 (defn start-db! []
   (let [url (config/get :database :url)]

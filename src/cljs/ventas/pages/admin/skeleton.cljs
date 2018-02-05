@@ -1,15 +1,15 @@
 (ns ventas.pages.admin.skeleton
   (:require
-   [ventas.routes :as routes]
+   [re-frame.core :as rf]
+   [ventas.components.base :as base]
+   [ventas.components.notificator :as ventas.notificator]
+   [ventas.components.popup :as ventas.popup]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [re-frame.core :as rf]
-   [ventas.components.base :as base]
+   [ventas.routes :as routes]
    [ventas.utils.ui :as utils.ui]
-   [ventas.ws :as ws]
-   [ventas.components.notificator :as ventas.notificator]
-   [ventas.components.popup :as ventas.popup]))
+   [ventas.ws :as ws]))
 
 (def configuration-items
   [{:route :admin.configuration.image-sizes

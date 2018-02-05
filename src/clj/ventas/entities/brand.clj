@@ -2,9 +2,9 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
-   [ventas.database.generators :as generators]
    [ventas.utils.slugs :as utils.slugs]))
 
 (spec/def :brand/name ::entities.i18n/ref)

@@ -154,6 +154,7 @@
 
   :plugins [[lein-ancient "0.6.14"]
             [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
+            [com.gfredericks/how-to-ns "0.1.8"]
             [lein-auto "0.1.3"]
             [lein-cljfmt "0.5.6"]
             [lein-cljsbuild "1.1.7"]
@@ -162,6 +163,13 @@
             [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
 
   :cljfmt {:file-pattern #"(src|test)\/.*?\.clj[sx]?$"}
+
+  :how-to-ns {:require-docstring?      false
+              :sort-clauses?           true
+              :allow-refer-all?        false
+              :allow-extra-clauses?    false
+              :align-clauses?          false
+              :import-square-brackets? true}
 
   :min-lein-version "2.6.1"
 

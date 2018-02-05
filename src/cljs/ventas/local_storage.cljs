@@ -1,9 +1,9 @@
 (ns ventas.local-storage
   "Slightly modified version of https://github.com/akiroz/re-frame-storage"
   (:require
-   [re-frame.core :refer [reg-fx reg-cofx ->interceptor]]
    [alandipert.storage-atom :refer [local-storage]]
-   [cljs.spec.alpha :as spec]))
+   [cljs.spec.alpha :as spec]
+   [re-frame.core :refer [->interceptor reg-cofx reg-fx]]))
 
 (spec/def ::cljs-data
   (spec/or :nil      nil?

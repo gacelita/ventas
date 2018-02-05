@@ -1,18 +1,18 @@
 (ns ventas.themes.clothing.pages.frontend.profile.account
   (:require
+   [re-frame.core :as rf]
+   [reagent.core :as reagent]
+   [ventas.common.utils :as common.utils]
+   [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
+   [ventas.session :as session]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [re-frame.core :as rf]
-   [ventas.components.base :as base]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.sidebar]
-   [ventas.utils :as utils :include-macros true]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
-   [reagent.core :as reagent]
-   [ventas.utils.validation :as validation]
+   [ventas.utils :as utils :include-macros true]
    [ventas.utils.forms :as forms]
-   [ventas.common.utils :as common.utils]
-   [ventas.session :as session]))
+   [ventas.utils.validation :as validation]))
 
 (def regular-length-validator [::length-error validation/length-validator {:max 30}])
 

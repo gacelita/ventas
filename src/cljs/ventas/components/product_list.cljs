@@ -2,13 +2,13 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.components.image :as image]
    [ventas.components.cart :as cart]
+   [ventas.components.image :as image]
    [ventas.events :as events]
    [ventas.routes :as routes]
    [ventas.utils :as utils]
-   [ventas.utils.ui :as utils.ui]
-   [ventas.utils.formatting :as formatting]))
+   [ventas.utils.formatting :as formatting]
+   [ventas.utils.ui :as utils.ui]))
 
 (defn product-list [products]
   [:div.product-list

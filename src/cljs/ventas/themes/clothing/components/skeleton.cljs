@@ -1,19 +1,19 @@
 (ns ventas.themes.clothing.components.skeleton
   (:require
-   [reagent.core :refer [atom]]
    [re-frame.core :as rf]
-   [ventas.components.notificator :as ventas.notificator]
-   [ventas.components.popup :as ventas.popup]
+   [reagent.core :refer [atom]]
+   [ventas.components.base :as base]
+   [ventas.components.breadcrumbs :as ventas.breadcrumbs]
    [ventas.components.cookies :as ventas.cookies]
    [ventas.components.menu :as ventas.menu]
-   [ventas.components.breadcrumbs :as ventas.breadcrumbs]
+   [ventas.components.notificator :as ventas.notificator]
+   [ventas.components.popup :as ventas.popup]
+   [ventas.i18n :refer [i18n]]
+   [ventas.routes :as routes]
+   [ventas.themes.clothing.components.footer :refer [footer]]
    [ventas.themes.clothing.components.header :refer [header]]
    [ventas.themes.clothing.components.menu :as menu]
-   [ventas.themes.clothing.components.footer :refer [footer]]
-   [ventas.themes.clothing.components.preheader :refer [preheader]]
-   [ventas.routes :as routes]
-   [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.themes.clothing.components.preheader :refer [preheader]]))
 
 (defn skeleton [contents]
   [:div.root

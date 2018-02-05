@@ -1,8 +1,8 @@
 (ns ventas.theme
   (:require
-   [ventas.plugin :as plugin]
+   [ventas.database.entity :as entity]
    [ventas.entities.configuration :as entities.configuration]
-   [ventas.database.entity :as entity]))
+   [ventas.plugin :as plugin]))
 
 (defn register! [kw attrs]
   (plugin/register! kw (merge attrs

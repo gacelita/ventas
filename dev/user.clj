@@ -1,5 +1,7 @@
 (ns user
-  "Configuration"
+  "Development env configuration.
+   Don't add ventas.* aliases in this ns, as it conflicts with dynamic aliases
+   and nonstrict classloading."
   (:require
    [figwheel-sidecar.repl-api :as figwheel]
    [clojure.tools.namespace.repl :as tn]
@@ -7,8 +9,7 @@
    [clojure.repl :refer :all]
    [clojure.core.async :refer [>! go]]
    [repl]
-   [ventas.config] ;; don't use :as - problematic
-))
+   [ventas.config]))
 
 ;; Let Clojure warn you when it needs to reflect on types.
 ;; Type annotations should be added in such cases to prevent degraded performance.

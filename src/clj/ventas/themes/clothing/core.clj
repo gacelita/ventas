@@ -5,11 +5,11 @@
    Includes demo data to ease development (although ventas is perfectly fine generating
    entities for you, they tend to be not `real world enough` for development)"
   (:require
+   [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.theme :as theme]
-   [clojure.spec.alpha :as spec]
    [ventas.entities.i18n :as entities.i18n]
+   [ventas.theme :as theme]
    [ventas.themes.clothing.demo :as demo]))
 
 (spec/def :product.term/color ::generators/string)

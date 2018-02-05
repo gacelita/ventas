@@ -1,15 +1,15 @@
 (ns ventas.database.schema
   (:require
-   [io.rkn.conformity :as conformity]
-   [ventas.config :as config]
-   [ventas.database :as db :refer [db]]
-   [clojure.java.io :as io]
-   [clojure.edn :as edn]
    [clj-time.core :as time]
    [clj-time.format :as time-format]
-   [ventas.utils :as utils]
-   [taoensso.timbre :as timbre :refer (trace debug info warn error)]
-   [ventas.common.utils :as common.utils]))
+   [clojure.edn :as edn]
+   [clojure.java.io :as io]
+   [io.rkn.conformity :as conformity]
+   [taoensso.timbre :as timbre :refer [debug error info trace warn]]
+   [ventas.common.utils :as common.utils]
+   [ventas.config :as config]
+   [ventas.database :as db :refer [db]]
+   [ventas.utils :as utils]))
 
 (defn- make-migration [attrs]
   {(keyword (str "hash-" (hash attrs))) attrs})

@@ -1,11 +1,11 @@
 (ns ventas.plugins.slider.core
   (:require
-   [ventas.plugins.slider.api :as slider.backend]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
+   [ventas.components.slider :as components.slider]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.components.slider :as components.slider]))
+   [ventas.plugins.slider.api :as slider.backend]))
 
 (def state-key ::state)
 

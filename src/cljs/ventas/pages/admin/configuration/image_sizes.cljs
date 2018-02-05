@@ -1,16 +1,16 @@
 (ns ventas.pages.admin.configuration.image-sizes
   (:require
-   [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
-   [ventas.page :refer [pages]]
-   [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.routes :as routes]
+   [reagent.core :as reagent :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.events.backend :as backend]
    [ventas.components.table :as table]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
+   [ventas.page :refer [pages]]
    [ventas.pages.admin.configuration.image-sizes.edit]
-   [ventas.events :as events]))
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

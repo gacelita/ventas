@@ -1,10 +1,10 @@
 (ns ventas.plugins.blog.core
   (:require
-   [ventas.routes :as routes]
    [re-frame.core :as rf]
-   [ventas.utils.ui :as utils.ui]
+   [ventas.events :as events]
    [ventas.plugins.blog.api :as blog.api]
-   [ventas.events :as events]))
+   [ventas.routes :as routes]
+   [ventas.utils.ui :as utils.ui]))
 
 (defn page []
   (let [sub-key :blog.core]

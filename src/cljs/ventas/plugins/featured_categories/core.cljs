@@ -1,9 +1,9 @@
 (ns ventas.plugins.featured-categories.core
   (:require
-   [ventas.plugins.featured-categories.api :as backend]
-   [ventas.components.category-list :as components.category-list]
    [re-frame.core :as rf]
-   [ventas.events :as events]))
+   [ventas.components.category-list :as components.category-list]
+   [ventas.events :as events]
+   [ventas.plugins.featured-categories.api :as backend]))
 
 (rf/reg-event-fx
  ::featured-categories.list

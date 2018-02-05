@@ -1,16 +1,16 @@
 (ns ventas.ws
   "Requests and responses, abstracted over websocket communication"
   (:require
-   [ventas.utils.logging :as log]
-   [cljs.core.async :refer [<! >! close! chan]]
    [chord.client :as chord]
    [chord.format.fressian]
+   [cljs.core.async :refer [<! >! chan close!]]
+   [re-frame.core :as rf]
+   [reagent.core :as reagent]
+   [reagent.ratom :as ratom]
    [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
-   [re-frame.core :as rf]
-   [reagent.core :as reagent]
-   [reagent.ratom :as ratom])
+   [ventas.utils.logging :as log])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
 

@@ -1,11 +1,11 @@
 (ns ventas.plugins.featured-categories.core
   (:require
-   [ventas.plugin :as plugin]
-   [ventas.server.api :as api]
-   [ventas.database.entity :as entity]
    [clojure.spec.alpha :as spec]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
    [ventas.database.seed :as seed]
-   [ventas.database :as db]))
+   [ventas.plugin :as plugin]
+   [ventas.server.api :as api]))
 
 (def plugin-kw :featured-categories)
 

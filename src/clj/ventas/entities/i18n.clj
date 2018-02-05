@@ -1,12 +1,12 @@
 (ns ventas.entities.i18n
   (:require
    [clojure.spec.alpha :as spec]
-   [ventas.database.entity :as entity]
-   [ventas.utils :as utils]
    [clojure.test.check.generators :as gen]
-   [ventas.database.generators :as generators]
+   [ventas.common.utils :as common.utils]
    [ventas.database :as db]
-   [ventas.common.utils :as common.utils]))
+   [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]
+   [ventas.utils :as utils]))
 
 (spec/def :i18n.culture/keyword ::generators/keyword)
 

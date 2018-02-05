@@ -1,18 +1,18 @@
 (ns ventas.pages.admin.users.edit
   (:require
-   [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
-   [ventas.utils.logging :refer [trace debug info warn error]]
-   [ventas.components.base :as base]
-   [ventas.page :refer [pages]]
-   [ventas.routes :as routes]
-   [ventas.utils.ui :as utils.ui]
-   [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.i18n :refer [i18n]]
+   [reagent.core :as reagent :refer [atom]]
    [ventas.common.utils :as common.utils]
+   [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
+   [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.events :as events]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.page :refer [pages]]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.routes :as routes]
+   [ventas.utils.logging :refer [debug error info trace warn]]
+   [ventas.utils.ui :as utils.ui]))
 
 (def state-key ::state)
 

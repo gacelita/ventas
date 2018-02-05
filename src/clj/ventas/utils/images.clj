@@ -1,10 +1,10 @@
 (ns ventas.utils.images
   (:require
-   [fivetonine.collage.util :as util]
-   [fivetonine.collage.core :as collage]
    [clojure.java.io :as io]
-   [ventas.utils.files :as utils.files]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [fivetonine.collage.core :as collage]
+   [fivetonine.collage.util :as util]
+   [ventas.utils.files :as utils.files]))
 
 (defn- path-with-metadata [path options]
   (str (utils.files/basename path) "-" (hash options) "." (utils.files/extension path)))

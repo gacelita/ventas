@@ -3,8 +3,8 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [ventas.i18n :refer [i18n]]))
 
 (rf/reg-event-fx
  ::set-state

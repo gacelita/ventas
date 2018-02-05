@@ -1,17 +1,17 @@
 (ns ventas.pages.datadmin
   "Underdeveloped idea; don't use, don't read, etc."
   (:require
-   [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
-   [ventas.utils.logging :refer [trace debug info warn error]]
-   [ventas.page :refer [pages]]
+   [reagent.core :as reagent :refer [atom]]
+   [ventas.components.base :as base]
+   [ventas.components.cart :as cart]
    [ventas.components.notificator]
    [ventas.components.popup]
-   [ventas.components.cart :as cart]
-   [ventas.utils :as util]
-   [ventas.components.base :as base]
+   [ventas.events :as events]
+   [ventas.page :refer [pages]]
    [ventas.routes :as routes]
-   [ventas.events :as events]))
+   [ventas.utils :as util]
+   [ventas.utils.logging :refer [debug error info trace warn]]))
 
 (def state-key ::state)
 

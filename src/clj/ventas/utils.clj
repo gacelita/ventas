@@ -1,10 +1,11 @@
 (ns ventas.utils
   (:require
+   [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
-   [expound.alpha :as expound]
-   [clojure.core.async :as core.async :refer [go-loop go <! >! chan]])
-  (:import [java.io File]))
+   [expound.alpha :as expound])
+  (:import
+   [java.io File]))
 
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))

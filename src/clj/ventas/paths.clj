@@ -1,8 +1,8 @@
 (ns ventas.paths
   (:refer-clojure :exclude [resolve])
   (:require
-   [clojure.string :as str]
-   [clojure.java.io :as io]))
+   [clojure.java.io :as io]
+   [clojure.string :as str]))
 
 (def project-resources
   "A path for project-wide resources, like the configuration"

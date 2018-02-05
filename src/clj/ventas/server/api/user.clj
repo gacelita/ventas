@@ -1,11 +1,11 @@
 (ns ventas.server.api.user
   (:require
-   [ventas.server.api :as api]
+   [clojure.spec.alpha :as spec]
+   [clojure.string :as str]
+   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.user :as entities.user]
-   [ventas.database :as db]
-   [clojure.string :as str]
-   [clojure.spec.alpha :as spec]))
+   [ventas.server.api :as api]))
 
 (defn- user-check! [session]
   (let [{:db/keys [id]} (api/get-user session)]

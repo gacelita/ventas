@@ -1,12 +1,12 @@
 (ns ventas.plugins.slider.core
   (:require
-   [ventas.plugin :as plugin]
-   [ventas.server.api :as api]
-   [ventas.database.entity :as entity]
-   [ventas.entities.i18n :as entities.i18n]
-   [ventas.entities.file :as entities.file]
    [clojure.spec.alpha :as spec]
-   [clojure.test.check.generators :as gen]))
+   [clojure.test.check.generators :as gen]
+   [ventas.database.entity :as entity]
+   [ventas.entities.file :as entities.file]
+   [ventas.entities.i18n :as entities.i18n]
+   [ventas.plugin :as plugin]
+   [ventas.server.api :as api]))
 
 (plugin/register!
  :slider

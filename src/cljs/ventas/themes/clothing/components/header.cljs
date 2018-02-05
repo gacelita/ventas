@@ -1,13 +1,13 @@
 (ns ventas.themes.clothing.components.header
   (:require
-   [reagent.core :as reagent]
    [re-frame.core :as rf]
-   [ventas.routes :as routes]
+   [reagent.core :as reagent]
    [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]
-   [ventas.utils :as utils :include-macros true]
+   [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.events :as events]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.routes :as routes]
+   [ventas.utils :as utils :include-macros true]))
 
 (def state-key ::state)
 

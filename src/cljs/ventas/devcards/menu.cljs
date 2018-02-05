@@ -1,8 +1,8 @@
 (ns ventas.devcards.menu
   (:require
-   [reagent.core :as reagent]
    [devcards.core]
    [re-frame.core :as rf]
+   [reagent.core :as reagent]
    [ventas.components.menu :as components.menu])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))

@@ -3,8 +3,8 @@
    [cljs.core.async :refer [<! timeout]]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.events.backend :as backend]
-   [ventas.events :as events])
+   [ventas.events :as events]
+   [ventas.events.backend :as backend])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 

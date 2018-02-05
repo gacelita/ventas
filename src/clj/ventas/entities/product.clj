@@ -1,16 +1,16 @@
 (ns ventas.entities.product
   (:require
+   [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
-   [ventas.database.generators :as generators]
+   [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]
+   [ventas.entities.file :as entities.file]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
-   [ventas.entities.file :as entities.file]
-   [ventas.common.utils :as common.utils]
-   [clojure.java.io :as io]
    [ventas.utils.slugs :as utils.slugs]))
 
 (spec/def :product/name ::entities.i18n/ref)

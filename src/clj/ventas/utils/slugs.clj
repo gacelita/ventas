@@ -1,11 +1,11 @@
 (ns ventas.utils.slugs
   (:require
-   [cuerdas.core :as cuerdas]
-   [ventas.database.entity :as entity]
-   [ventas.common.utils :as common.utils]
-   [ventas.entities.i18n :as entities.i18n]
    [clojure.string :as str]
-   [ventas.database :as db]))
+   [cuerdas.core :as cuerdas]
+   [ventas.common.utils :as common.utils]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (defn slug [s]
   ;; cuerdas is just an implementation detail, that's why we're wrapping it

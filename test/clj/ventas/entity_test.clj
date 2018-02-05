@@ -1,8 +1,8 @@
 (ns ventas.entity-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.database.entity :as sut]
    [ventas.database :as db]
+   [ventas.database.entity :as sut]
    [ventas.database.seed :as seed]
    [ventas.test-tools :as test-tools]))
 

@@ -1,9 +1,9 @@
 (ns ventas.database.generators
   "More user-friendly generators"
   (:require
-   [clojure.test.check.generators :as gen]
-   [clojure.string :as str]
    [clojure.spec.alpha :as spec]
+   [clojure.string :as str]
+   [clojure.test.check.generators :as gen]
    [ventas.utils :as utils]))
 
 (defn string-generator []

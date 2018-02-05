@@ -1,18 +1,18 @@
 (ns ventas.themes.clothing.pages.frontend.login
   (:require
-   [reagent.core :as reagent :refer [atom]]
    [re-frame.core :as rf]
-   [ventas.utils.logging :refer [trace debug info warn error]]
-   [ventas.page :refer [pages]]
-   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.i18n :refer [i18n]]
+   [reagent.core :as reagent :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.utils :as utils]
    [ventas.components.notificator :as notificator]
    [ventas.components.sidebar :as sidebar]
-   [ventas.routes :as routes]
+   [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.events :as events]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.page :refer [pages]]
+   [ventas.routes :as routes]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
+   [ventas.utils :as utils]
+   [ventas.utils.logging :refer [debug error info trace warn]]))
 
 (defn- login []
   (reagent/with-let [data (atom {})]

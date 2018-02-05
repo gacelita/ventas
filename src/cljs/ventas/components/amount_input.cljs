@@ -1,9 +1,9 @@
 (ns ventas.components.amount-input
   (:require
+   [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
-   [re-frame.core :as rf]))
+   [ventas.events.backend :as backend]))
 
 (def state-key ::state)
 

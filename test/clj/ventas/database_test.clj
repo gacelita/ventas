@@ -1,6 +1,6 @@
 (ns ventas.database-test
   (:require
-   [clojure.test :refer [deftest testing is]]
+   [clojure.test :refer [deftest is testing]]
    [ventas.core]
    [ventas.database :as sut]
    [ventas.database.entity :as entity]

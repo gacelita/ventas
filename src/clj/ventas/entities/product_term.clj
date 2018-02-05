@@ -2,8 +2,8 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
-   [ventas.entities.i18n :as entities.i18n]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (spec/def :product.term/name ::entities.i18n/ref)
 

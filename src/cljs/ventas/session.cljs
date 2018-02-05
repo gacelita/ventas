@@ -1,10 +1,10 @@
 (ns ventas.session
   (:require
    [re-frame.core :as rf]
-   [ventas.routes :as routes]
+   [ventas.components.notificator :as notificator]
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
-   [ventas.components.notificator :as notificator]))
+   [ventas.routes :as routes]))
 
 (defn get-identity []
   @(rf/subscribe [::events/db [:session :identity]]))

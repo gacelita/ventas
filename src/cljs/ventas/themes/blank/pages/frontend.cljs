@@ -2,9 +2,9 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.routes :as routes]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]))
+   [ventas.events.backend :as backend]
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

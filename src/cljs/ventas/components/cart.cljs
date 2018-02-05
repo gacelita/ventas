@@ -1,18 +1,18 @@
 (ns ventas.components.cart
   (:require
-   [ventas.utils :as util]
+   [clojure.string :as s]
    [re-frame.core :as rf]
    [reagent.core :as reagent]
-   [clojure.string :as s]
+   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
    [ventas.components.image :as image]
-   [ventas.utils.ui :refer [with-handler]]
-   [ventas.common.utils :as common.utils]
    [ventas.components.notificator :as notificator]
+   [ventas.components.term :as term]
    [ventas.events.backend :as backend]
-   [ventas.utils.formatting :as formatting]
    [ventas.i18n :refer [i18n]]
-   [ventas.components.term :as term]))
+   [ventas.utils :as util]
+   [ventas.utils.formatting :as formatting]
+   [ventas.utils.ui :refer [with-handler]]))
 
 (rf/reg-sub
  ::main

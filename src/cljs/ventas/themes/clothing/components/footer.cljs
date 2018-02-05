@@ -1,10 +1,10 @@
 (ns ventas.themes.clothing.components.footer
   (:require
-   [reagent.core :as reagent]
    [re-frame.core :as rf]
-   [ventas.routes :as routes]
+   [reagent.core :as reagent]
+   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
-   [ventas.events :as events]))
+   [ventas.routes :as routes]))
 
 (defn footer []
   (fn []

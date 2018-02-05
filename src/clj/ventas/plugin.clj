@@ -1,8 +1,8 @@
 (ns ventas.plugin
   (:require
-   [ventas.utils :as utils]
    [clojure.spec.alpha :as spec]
-   [ventas.database.schema :as schema]))
+   [ventas.database.schema :as schema]
+   [ventas.utils :as utils]))
 
 (spec/def ::name string?)
 

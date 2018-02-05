@@ -1,14 +1,14 @@
 (ns ventas.entities.user
   (:require
-   [clojure.spec.alpha :as spec]
    [buddy.hashers :as hashers]
+   [clojure.spec.alpha :as spec]
+   [clojure.string :as str]
    [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as chuck]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.utils :as utils]
-   [clojure.string :as str]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [ventas.utils :as utils]))
 
 (spec/def :user/first-name ::generators/string)
 

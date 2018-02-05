@@ -1,11 +1,11 @@
 (ns ventas.server.ws
   (:require
-   [clojure.core.async :as core.async :refer [<! >! go go-loop chan]]
-   [ventas.common.utils :as common.utils]
-   [ventas.utils :as utils]
-   [taoensso.timbre :refer [debug]]
    [clj-uuid :as uuid]
-   [ventas.database.entity :as entity]))
+   [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
+   [taoensso.timbre :refer [debug]]
+   [ventas.common.utils :as common.utils]
+   [ventas.database.entity :as entity]
+   [ventas.utils :as utils]))
 
 (def ^:private shared-hub
   (atom nil))

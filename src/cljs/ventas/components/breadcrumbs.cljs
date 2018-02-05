@@ -1,9 +1,9 @@
 (ns ventas.components.breadcrumbs
   (:require
    [re-frame.core :as rf]
-   [ventas.utils :as util]
+   [ventas.components.base :as base]
    [ventas.routes :as routes]
-   [ventas.components.base :as base]))
+   [ventas.utils :as util]))
 
 (defn- breadcrumb-data [handler params]
   (map (fn [route] {:url (apply routes/path-for route (first (seq params)))

@@ -1,13 +1,13 @@
 (ns ventas.utils
   "Random utilities"
   (:require
-   [re-frame.core :as rf]
-   [ventas.utils.logging :refer [trace debug info warn error]]
-   [ventas.utils.formatting :as utils.formatting]
    [cljs.spec.alpha :as spec]
    [expound.alpha :as expound]
+   [re-frame.core :as rf]
+   [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.events :as events])
+   [ventas.utils.formatting :as utils.formatting]
+   [ventas.utils.logging :refer [debug error info trace warn]])
   (:require-macros
    [ventas.utils]))
 

@@ -1,10 +1,10 @@
 (ns ventas.themes.clothing.pages.frontend.privacy-policy
   (:require
-   [ventas.page :refer [pages]]
-   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.routes :as routes]
+   [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
-   [ventas.components.base :as base]))
+   [ventas.page :refer [pages]]
+   [ventas.routes :as routes]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]))
 
 (defn content []
   [base/container

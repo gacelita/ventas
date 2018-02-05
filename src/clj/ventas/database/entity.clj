@@ -2,17 +2,17 @@
   (:refer-clojure :exclude [find type update])
   (:require
    [clojure.core :as clj]
-   [clojure.core.async :refer [go <! go-loop]]
+   [clojure.core.async :refer [<! go go-loop]]
    [clojure.set :as set]
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [datomic.api :as d]
    [taoensso.timbre :as timbre]
+   [ventas.common.utils :as common.utils]
    [ventas.database :as db]
-   [ventas.database.schema :as schema]
    [ventas.database.generators :as db.generators]
-   [ventas.utils :as utils]
-   [ventas.common.utils :as common.utils]))
+   [ventas.database.schema :as schema]
+   [ventas.utils :as utils]))
 
 (spec/def :schema/type ::db.generators/keyword)
 

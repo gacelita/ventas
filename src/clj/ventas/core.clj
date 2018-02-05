@@ -1,7 +1,6 @@
 (ns ventas.core
-  (:gen-class)
   (:require
-   [clojure.core.async :refer [go >!]]
+   [clojure.core.async :refer [>! go]]
    [clojure.tools.nrepl.server :as nrepl]
    [mount.core :as mount]
    [taoensso.timbre :as timbre]
@@ -20,9 +19,9 @@
    [ventas.entities.i18n]
    [ventas.entities.image-size]
    [ventas.entities.order]
+   [ventas.entities.product]
    [ventas.entities.product-taxonomy]
    [ventas.entities.product-term]
-   [ventas.entities.product]
    [ventas.entities.shipping-method]
    [ventas.entities.state]
    [ventas.entities.tax]
@@ -34,12 +33,13 @@
    [ventas.plugins.featured-products.core]
    [ventas.plugins.slider.core]
    [ventas.search :as search]
+   [ventas.server]
+   [ventas.server.api]
    [ventas.server.api.admin]
    [ventas.server.api.description]
    [ventas.server.api.user]
-   [ventas.server.api]
-   [ventas.server]
-   [ventas.themes.clothing.core]))
+   [ventas.themes.clothing.core])
+  (:gen-class))
 
 (defn -main [& args]
   (mount/start)

@@ -1,7 +1,7 @@
 (ns ventas.entities.discount
   (:require
-   [ventas.database.entity :as entity]
    [clojure.spec.alpha :as spec]
+   [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]))
 

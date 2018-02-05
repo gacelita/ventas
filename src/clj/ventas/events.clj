@@ -1,6 +1,6 @@
 (ns ventas.events
   (:require
-   [clojure.core.async :as core.async :refer [<! >! go-loop chan]]
+   [clojure.core.async :as core.async :refer [<! >! chan go-loop]]
    [taoensso.timbre :refer [debug]]))
 
 (defonce events (atom {}))

@@ -1,9 +1,9 @@
 (ns ventas.plugins.featured-products.core
   (:require
-   [ventas.plugins.featured-products.api :as backend]
-   [ventas.components.product-list :as components.product-list]
    [re-frame.core :as rf]
-   [ventas.events :as events]))
+   [ventas.components.product-list :as components.product-list]
+   [ventas.events :as events]
+   [ventas.plugins.featured-products.api :as backend]))
 
 (rf/reg-event-fx
  ::featured-products.list

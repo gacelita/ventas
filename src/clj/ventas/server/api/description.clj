@@ -1,16 +1,16 @@
 (ns ventas.server.api.description
   (:require
-   [ventas.common.utils :as common.utils]
+   [clojure.set :as set]
    [clojure.spec.alpha :as spec]
    [clojure.string :as str]
-   [ventas.server.api :as api]
    [clojure.test.check.generators :as gen]
+   [spec-tools.core :as st]
    [spec-tools.data-spec :as data-spec]
-   [spec-tools.visitor :as visitor]
-   [spec-tools.parse :as parse]
    [spec-tools.impl :as impl]
-   [clojure.set :as set]
-   [spec-tools.core :as st]))
+   [spec-tools.parse :as parse]
+   [spec-tools.visitor :as visitor]
+   [ventas.common.utils :as common.utils]
+   [ventas.server.api :as api]))
 
 (defn- only-entry? [key a-map] (= [key] (keys a-map)))
 

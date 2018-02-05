@@ -3,12 +3,12 @@
    [cljs.pprint :as pprint]
    [cljs.reader :as reader]
    [re-frame.core :as rf]
+   [reagent.core :as reagent]
    [ventas.components.base :as base]
    [ventas.events :as events]
    [ventas.plugins.api.backend :as backend]
    [ventas.routes :as routes]
-   [ventas.utils :as utils]
-   [reagent.core :as reagent]))
+   [ventas.utils :as utils]))
 
 (def state-key ::state)
 

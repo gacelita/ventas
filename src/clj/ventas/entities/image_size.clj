@@ -5,9 +5,9 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils.images :as utils.images]
    [ventas.entities.file :as entities.file]
-   [ventas.paths :as paths]))
+   [ventas.paths :as paths]
+   [ventas.utils.images :as utils.images]))
 
 (spec/def :image-size/keyword ::generators/keyword)
 

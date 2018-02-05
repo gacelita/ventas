@@ -1,12 +1,12 @@
 (ns ventas.utils.forms
   (:require
-   [re-frame.core :as rf]
-   [ventas.utils :as utils]
-   [ventas.utils.validation :as validation]
-   [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]
    [clojure.set :as set]
-   [ventas.events :as events]))
+   [re-frame.core :as rf]
+   [ventas.components.base :as base]
+   [ventas.events :as events]
+   [ventas.i18n :refer [i18n]]
+   [ventas.utils :as utils]
+   [ventas.utils.validation :as validation]))
 
 (defn- set-field! [db {::keys [state-key validators]} field value]
   (let [{:keys [valid? infractions]} (validation/validate validators field value)]

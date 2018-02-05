@@ -1,7 +1,7 @@
 (ns ventas.components.error
   (:require
-   [ventas.i18n :refer [i18n]]
-   [ventas.components.base :as base]))
+   [ventas.components.base :as base]
+   [ventas.i18n :refer [i18n]]))
 
 (defn no-data []
   [:div.error.error--no-data

@@ -1,12 +1,12 @@
 (ns ventas.themes.clothing.pages.frontend.profile.skeleton
   (:require
+   [re-frame.core :as rf]
    [ventas.components.sidebar :as sidebar]
+   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [re-frame.core :as rf]
-   [ventas.utils :as utils]
    [ventas.themes.clothing.components.skeleton :as ventas.skeleton]
-   [ventas.events :as events]))
+   [ventas.utils :as utils]))
 
 (defn sidebar []
   [sidebar/sidebar

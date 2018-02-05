@@ -18,16 +18,17 @@
    [taoensso.timbre :as timbre :refer [debug info]]
    [ventas.config :as config]
    [ventas.database.entity :as entity]
-   [ventas.utils :as utils]
    [ventas.entities.file :as entities.file]
+   [ventas.entities.image-size :as entities.image-size]
+   [ventas.logging]
    [ventas.paths :as paths]
+   [ventas.plugin :as plugin]
    [ventas.server.ws :as server.ws]
    [ventas.theme :as theme]
-   [ventas.logging]
-   [ventas.entities.image-size :as entities.image-size]
-   [ventas.plugin :as plugin])
-  (:gen-class)
-  (:import [clojure.lang Keyword]))
+   [ventas.utils :as utils])
+  (:import
+   [clojure.lang Keyword])
+  (:gen-class))
 
 (cheshire.generate/add-encoder Keyword cheshire.generate/encode-str)
 

@@ -1,9 +1,9 @@
 (ns ventas.plugins.blog.core
   (:require
-   [ventas.plugin :as plugin]
-   [ventas.server.api :as api]
+   [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
-   [clojure.spec.alpha :as spec]))
+   [ventas.plugin :as plugin]
+   [ventas.server.api :as api]))
 
 (plugin/register!
  :blog

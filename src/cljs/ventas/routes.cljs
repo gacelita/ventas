@@ -6,10 +6,10 @@
    [clojure.string :as str]
    [re-frame.core :as rf]
    [reagent.ratom :as ratom]
+   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.page :as page]
    [ventas.utils :as utils]
-   [ventas.events :as events]
    [ventas.utils.logging :as log]))
 
 (defn route-parents

@@ -3,8 +3,8 @@
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [ventas.database.entity :as entity]
-   [ventas.entities.i18n :as entities.i18n]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (spec/def :address/first-name ::generators/string)
 

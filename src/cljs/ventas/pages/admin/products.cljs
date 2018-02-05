@@ -1,18 +1,18 @@
 (ns ventas.pages.admin.products
   (:require
-   [reagent.core :as reagent :refer [atom]]
-   [re-frame.core :as rf]
    [day8.re-frame.forward-events-fx]
+   [re-frame.core :as rf]
+   [reagent.core :as reagent :refer [atom]]
+   [ventas.components.base :as base]
+   [ventas.components.table :as table]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
+   [ventas.i18n :refer [i18n]]
    [ventas.page :refer [pages]]
-   [ventas.utils :as utils]
-   [ventas.utils.ui :as utils.ui]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
-   [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]
-   [ventas.events.backend :as backend]
-   [ventas.events :as events]
-   [ventas.components.table :as table]))
+   [ventas.utils :as utils]
+   [ventas.utils.ui :as utils.ui]))
 
 (def state-key ::state-cat)
 

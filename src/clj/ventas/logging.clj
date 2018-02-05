@@ -1,9 +1,9 @@
 (ns ventas.logging
   (:require
-   [clojure.string :as str]
-   [taoensso.timbre :as timbre]
    [clojure.pprint :as pprint]
-   [io.aviso.ansi :as clansi]))
+   [clojure.string :as str]
+   [io.aviso.ansi :as clansi]
+   [taoensso.timbre :as timbre]))
 
 (defn- timbre-logger
   ([data]

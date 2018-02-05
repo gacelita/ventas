@@ -1,7 +1,7 @@
 (ns ventas.components.draggable-list
   (:require
-   [ventas.events :as events]
    [re-frame.core :as rf]
+   [ventas.events :as events]
    [ventas.utils.ui :as utils.ui]))
 
 (def state-key ::state)

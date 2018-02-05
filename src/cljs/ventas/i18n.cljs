@@ -4,8 +4,8 @@
    somewhere else"
   (:require
    [tongue.core :as tongue]
-   [ventas.utils.goog :as utils.goog]
-   [ventas.common.utils :as common.utils]))
+   [ventas.common.utils :as common.utils]
+   [ventas.utils.goog :as utils.goog]))
 
 (def ^:private base-dicts
   {:en_US

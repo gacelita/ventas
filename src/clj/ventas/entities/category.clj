@@ -1,13 +1,13 @@
 (ns ventas.entities.category
   (:require
    [clojure.spec.alpha :as spec]
+   [clojure.string :as str]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
-   [ventas.utils.slugs :as utils.slugs]
-   [ventas.database.generators :as generators]
-   [clojure.string :as str]))
+   [ventas.utils.slugs :as utils.slugs]))
 
 (spec/def :category/name ::entities.i18n/ref)
 

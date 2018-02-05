@@ -1,8 +1,8 @@
 (ns ventas.paths-test
   (:refer-clojure :exclude [resolve])
   (:require
-   [ventas.paths :as sut]
-   [clojure.test :refer [deftest is testing]]))
+   [clojure.test :refer [deftest is testing]]
+   [ventas.paths :as sut]))
 
 (deftest resolve
   (testing "resolve single path"

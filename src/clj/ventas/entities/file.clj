@@ -3,14 +3,14 @@
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
+   [pantomime.mime :as mime]
    [ventas.config :as config]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
+   [ventas.database.generators :as generators]
    [ventas.paths :as paths]
    [ventas.utils :as utils]
-   [ventas.utils.jar :as utils.jar]
-   [ventas.database.generators :as generators]
-   [pantomime.mime :as mime]))
+   [ventas.utils.jar :as utils.jar]))
 
 (defn identifier [entity]
   {:pre [(:db/id entity)]}

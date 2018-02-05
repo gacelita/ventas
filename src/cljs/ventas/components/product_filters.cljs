@@ -1,15 +1,15 @@
 (ns ventas.components.product-filters
   (:require
+   [re-frame.core :as rf]
+   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
    [ventas.components.sidebar :as sidebar]
    [ventas.components.term :as term]
    [ventas.events :as events]
-   [ventas.utils :as utils :include-macros true]
-   [ventas.i18n :refer [i18n]]
-   [re-frame.core :as rf]
    [ventas.events.backend :as backend]
-   [ventas.common.utils :as common.utils]
-   [ventas.routes :as routes]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.routes :as routes]
+   [ventas.utils :as utils :include-macros true]))
 
 (defmulti product-term* (fn [taxonomy-kw _] taxonomy-kw))
 

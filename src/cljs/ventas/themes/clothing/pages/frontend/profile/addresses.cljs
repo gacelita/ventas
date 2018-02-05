@@ -1,19 +1,19 @@
 (ns ventas.themes.clothing.pages.frontend.profile.addresses
   (:require
+   [re-frame.core :as rf]
+   [reagent.core :as reagent]
+   [ventas.common.utils :as common.utils]
+   [ventas.components.base :as base]
+   [ventas.components.notificator :as notificator]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [re-frame.core :as rf]
+   [ventas.session :as session]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
-   [ventas.utils.validation :as validation]
    [ventas.utils :as utils :include-macros true]
    [ventas.utils.forms :as forms]
-   [ventas.components.base :as base]
-   [reagent.core :as reagent]
-   [ventas.components.notificator :as notificator]
-   [ventas.common.utils :as common.utils]
-   [ventas.events.backend :as backend]
-   [ventas.session :as session]
-   [ventas.events :as events]))
+   [ventas.utils.validation :as validation]))
 
 (def addresses-key ::addresses)
 

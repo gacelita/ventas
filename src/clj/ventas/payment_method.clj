@@ -13,10 +13,10 @@
      - Register Ring handlers: use ventas.plugin's :http-handler
      - Make HTTP requests: `clj-http` is included as a dependency"
   (:require
-   [ventas.utils :as utils]
    [clojure.spec.alpha :as spec]
+   [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.database.entity :as entity]))
+   [ventas.utils :as utils]))
 
 ;; Used only in the backoffice
 (spec/def ::name ::entities.i18n/ref)

@@ -1,8 +1,8 @@
 (ns ventas.entities.country
   (:require
    [clojure.spec.alpha :as spec]
-   [ventas.entities.i18n :as entities.i18n]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (spec/def :country/name ::entities.i18n/ref)
 

@@ -1,14 +1,14 @@
 (ns ventas.pages.admin.activity-log
   (:require
-   [ventas.routes :as routes]
-   [ventas.i18n :refer [i18n]]
-   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.events.backend :as backend]
-   [ventas.events :as events]
    [ventas.components.table :as table]
-   [clojure.string :as str]))
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
+   [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

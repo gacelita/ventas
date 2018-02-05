@@ -1,8 +1,8 @@
 (ns ventas.themes.clothing.components.menu
   (:require
+   [ventas.components.menu :as ventas.menu]
    [ventas.i18n :refer [i18n]]
-   [ventas.routes :as routes]
-   [ventas.components.menu :as ventas.menu]))
+   [ventas.routes :as routes]))
 
 (defn menu []
   [ventas.menu/menu
