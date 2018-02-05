@@ -163,7 +163,7 @@
              (first))]
     {:min min :max max}))
 
-(defn- resolve-ref
+(defn resolve-ref
   "A ref is an identifier that refers to an entity.
    The possibilities are:
      - A keyword, like :category/keyword

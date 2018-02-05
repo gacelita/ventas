@@ -25,7 +25,8 @@
    [ventas.plugin :as plugin]
    [ventas.server.ws :as server.ws]
    [ventas.theme :as theme]
-   [ventas.utils :as utils])
+   [ventas.utils :as utils]
+   [ventas.server.api :as api])
   (:import
    [clojure.lang Keyword])
   (:gen-class))
@@ -61,14 +62,36 @@
       (add-mime-type response path)
       (compojure.route/not-found ""))))
 
-(defn- handle-spa []
+(defn- get-rendered [path]
+  (let [file (io/as-file (str (paths/resolve ::paths/rendered) path ".html"))]
+    (if (.exists file)
+      (slurp file)
+      "")))
+
+(defn- rendered [uri]
+  (let [parts (-> (subs uri 1) (str/split #"/"))]
+    (cond
+      (= "category" (first parts))
+      (let [ref (api/resolve-ref (second parts) :category/keyword)]
+        (get-rendered (str "/category/" ref)))
+
+      (= "product" (first parts))
+      (let [ref (api/resolve-ref (second parts) :product/keyword)]
+        (get-rendered (str "/product/" ref)))
+
+      :default (get-rendered uri))))
+
+(defn- handle-spa [{:keys [uri]}]
+  (debug "Handling SPA" uri)
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body (let [theme-name (theme/current)
                {:keys [cljs-ns]} (plugin/plugin theme-name)]
            (-> (slurp (io/resource "public/index.html"))
                (str/replace "{{theme}}"
-                            (name theme-name))))})
+                            (name theme-name))
+               (str/replace "{{rendered}}"
+                            (rendered uri))))})
 
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler
@@ -101,7 +124,7 @@
   (GET "/plugins/:plugin/*" {{path :* plugin :plugin} :route-params}
     (plugin/handle-request (keyword plugin) path))
   (GET "/*" _
-    (handle-spa)))
+    handle-spa))
 
 (def http-handler
   (-> routes

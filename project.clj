@@ -146,6 +146,9 @@
                  ;; Elasticsearch
                  [cc.qbits/spandex "0.5.5"]
 
+                 ;; Server-side prerendering
+                 [etaoin "0.2.5"]
+
                  ; Error reporting for Ring
                  [prone "1.2.0"]
 
@@ -182,7 +185,10 @@
              "-Dapple.awt.UIElement=true" ;; Disable empty/useless menu item in OSX
              ]
 
-  :clean-targets ^{:protect false} [:target-path :compile-path "resources/public/files/js"]
+  :clean-targets ^{:protect false} [:target-path
+                                    :compile-path
+                                    "resources/public/files/js"
+                                    "resources/rendered"]
 
   :uberjar-name "ventas.jar"
 

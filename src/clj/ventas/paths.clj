@@ -8,6 +8,10 @@
   "A path for project-wide resources, like the configuration"
   ::project-resources)
 
+(def rendered
+  "Rendered HTML fragments"
+  ::rendered)
+
 (def public
   "Files accessible via HTTP"
   ::public)
@@ -30,16 +34,19 @@
 
 (def ^:private paths
   {project-resources "resources"
+   rendered [project-resources "/rendered"]
    public [project-resources "/public"]
    public-files [public "/files"]
    storage "storage"
    resized-images [storage "/resized-images"]})
 
 (defn- resolve-path [v]
-  (let [path (get paths v)]
-    (if (string? path)
-      path
-      (apply str (map resolve-path path)))))
+  (if (string? v)
+    v
+    (let [path (get paths v)]
+      (if (string? path)
+        path
+        (apply str (map resolve-path path))))))
 
 (defn resolve
   "Resolves a path, makes sure it exists and returns it"

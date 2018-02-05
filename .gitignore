@@ -34,6 +34,7 @@ pom.xml.asc
 /resources/*.pem
 /resources/config.edn
 /resources/demo
+/resources/rendered
 
 /storage/*
 !/storage/logo.png

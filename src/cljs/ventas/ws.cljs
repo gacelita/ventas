@@ -189,6 +189,11 @@
                                               end)))}
      :binary? true)))
 
+(defn ^:export js-pending-requests
+  "Meant for prerendering"
+  []
+  (boolean (seq @pending-requests)))
+
 (rf/reg-fx
  :document-title
  (fn [title]
