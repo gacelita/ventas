@@ -55,9 +55,11 @@
   (info "Rendering...")
   (rf/dispatch [::init])
   (let [session @(rf/subscribe [::events/db [:session]])]
-    (if-not session
-      [base/loading]
-      [p/pages (routes/handler)])))
+    (if (js/document.querySelector "#app > *")
+      [p/pages (routes/handler)]
+      (if-not session
+        [base/loading]
+        [p/pages (routes/handler)]))))
 
 (defn app-element []
   (js/document.getElementById "app"))
