@@ -194,11 +194,6 @@
   []
   (boolean (seq @pending-requests)))
 
-(rf/reg-fx
- :document-title
- (fn [title]
-   (set! js/document.title title)))
-
 (rf/reg-fx :ws-request effect-ws-request)
 
 (rf/reg-fx

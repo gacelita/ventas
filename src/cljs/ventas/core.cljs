@@ -46,6 +46,11 @@
    {:dispatch-n [[::events/users.session]
                  [::events/users.favorites.list]]}))
 
+(rf/reg-fx
+ :document-title
+ (fn [title]
+   (set! js/document.title title)))
+
 (defn page []
   (info "Rendering...")
   (rf/dispatch [::init])
