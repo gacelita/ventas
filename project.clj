@@ -12,6 +12,10 @@
                 :externs ["externs.js"]
                 :parallel-build true}}))
 
+(def aot-namespaces
+  ['clojure.tools.logging.impl
+   'ventas.core])
+
 (defproject ventas "0.0.2-SNAPSHOT"
   :description "The Ventas eCommerce platform"
 
@@ -276,7 +280,7 @@
                              [refactor-nrepl "2.4.0-SNAPSHOT"]]
                    :source-paths ["dev"]}
 
-             :release {:aot :all
+             :release {:aot ~aot-namespaces
                        :jvm-opts ["-Dprofile=release"]
                        :hooks [leiningen.sassc]}
 
@@ -285,4 +289,4 @@
                        :hooks [leiningen.sassc]
                        :omit-source true
                        :jvm-opts ["-Dprofile=uberjar"]
-                       :aot :all}})
+                       :aot ~aot-namespaces}})
