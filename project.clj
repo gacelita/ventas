@@ -186,13 +186,13 @@
 
   :jvm-opts ["-Xverify:none"
              "-XX:-OmitStackTraceInFastThrow"
-             "-Dapple.awt.UIElement=true" ;; Disable empty/useless menu item in OSX
-             ]
+             ;; Disable empty/useless menu item in OSX
+             "-Dapple.awt.UIElement=true"]
 
   :clean-targets ^{:protect false} [:target-path
                                     :compile-path
                                     "resources/public/files/js"
-                                    "resources/rendered"]
+                                    "storage/rendered"]
 
   :uberjar-name "ventas.jar"
 
@@ -273,7 +273,6 @@
 
                                   [org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.8"]]
-                   :jvm-opts ["-Dprofile=dev"]
                    :plugins [[lein-figwheel "0.5.14" :exclusions [org.clojure/clojure]]
                              [lein-doo "0.1.8" :exclusions [org.clojure/clojure]]
                              [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
@@ -281,12 +280,10 @@
                    :source-paths ["dev"]}
 
              :release {:aot ~aot-namespaces
-                       :jvm-opts ["-Dprofile=release"]
                        :hooks [leiningen.sassc]}
 
              :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                        :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
                        :hooks [leiningen.sassc]
                        :omit-source true
-                       :jvm-opts ["-Dprofile=uberjar"]
                        :aot ~aot-namespaces}})
