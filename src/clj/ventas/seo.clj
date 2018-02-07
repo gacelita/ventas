@@ -46,8 +46,8 @@
          (recur)))))
 
 (defn- server-uri []
-  (let [{:keys [port host]} (config/get :server)]
-    (str "http://" host ":" port)))
+  (let [{:keys [port host docker-host]} (config/get :server)]
+    (str "http://" (or docker-host host) ":" port)))
 
 (defn url->path [url extension]
   (str (paths/resolve ::paths/rendered)
