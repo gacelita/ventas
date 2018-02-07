@@ -12,7 +12,13 @@
          :host "localhost"}
  :debug true
  :cljs-port 3001
+
+ ;; used for JWTs
  :auth-secret "CHANGEME"
+
+ ;; used for prerendering
+ :chrome-headless {:host "chrome"
+                   :port 4444}
 
  ;; current leiningen profile
  :profile "unset"
