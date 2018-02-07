@@ -37,6 +37,14 @@ services:
     ports:
       - 9200:9200
 
+  chrome:
+    image: robcherry/docker-chromedriver:latest
+    ports:
+      - 4444:4444
+    environment:
+      - "CHROMEDRIVER_WHITELISTED_IPS=''"
+    privileged: true
+
 volumes:
   elasticsearch:
     driver: local
