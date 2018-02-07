@@ -21,8 +21,8 @@
     (timbre/info "Starting prerendering driver")
     (if-not (and host port)
       (etaoin/chrome-headless)
-      (-> (etaoin/create-driver :chrome (-> (config/get :chrome-headless)
-                                            (select-keys #{:host :port})))
+      (-> (etaoin/create-driver :chrome {:host host
+                                         :port port})
           (etaoin/connect-driver))))
   :stop
   (do
