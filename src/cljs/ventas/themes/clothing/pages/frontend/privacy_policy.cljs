@@ -2,7 +2,6 @@
   (:require
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
-   [ventas.page :refer [pages]]
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]))
 

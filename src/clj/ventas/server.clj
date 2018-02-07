@@ -1,5 +1,6 @@
 (ns ventas.server
   (:require
+   [cheshire.core :as cheshire]
    [chord.format.fressian]
    [chord.http-kit]
    [clojure.java.io :as io]
@@ -62,27 +63,22 @@
       (add-mime-type response path)
       (compojure.route/not-found ""))))
 
-(defn- get-rendered [path]
+(defn rendered-file [path extension]
   (let [path (if (= path "/")
                "/index"
                path)
-        file (io/as-file (str (paths/resolve ::paths/rendered) path ".html"))]
+        file (io/as-file (str (paths/resolve ::paths/rendered) path "." extension))]
     (if (.exists file)
       (slurp file)
       "")))
 
-(defn- rendered [uri]
-  (let [parts (-> (subs uri 1) (str/split #"/"))]
-    (cond
-      (= "category" (first parts))
-      (let [ref (api/resolve-ref (second parts) :category/keyword)]
-        (get-rendered (str "/category/" ref)))
-
-      (= "product" (first parts))
-      (let [ref (api/resolve-ref (second parts) :product/keyword)]
-        (get-rendered (str "/product/" ref)))
-
-      :default (get-rendered uri))))
+(defn rendered-db-script [path]
+  (let [edn-str (rendered-file path "edn")]
+    (if (empty? edn-str)
+      ""
+      (str "<script>window.__rendered_db="
+           (cheshire/encode edn-str)
+           "</script>"))))
 
 (defn- handle-spa [{:keys [uri]}]
   (debug "Handling SPA" uri)
@@ -93,8 +89,10 @@
            (-> (slurp (io/resource "public/index.html"))
                (str/replace "{{theme}}"
                             (name theme-name))
-               (str/replace "{{rendered}}"
-                            (rendered uri))))})
+               (str/replace "{{rendered-html}}"
+                            (rendered-file uri "html"))
+               (str/replace "{{rendered-db-script}}"
+                            (rendered-db-script uri))))})
 
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler

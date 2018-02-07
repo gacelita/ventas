@@ -11,14 +11,16 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.local-storage :as storage]
-   [ventas.page :as p]
+   [ventas.page :as page]
    [ventas.pages.admin]
    [ventas.pages.datadmin]
    [ventas.plugins.api.core]
    [ventas.routes :as routes]
-   [ventas.seo]
+   [ventas.seo :as seo]
    [ventas.utils.logging :refer [debug info]]
-   [ventas.ws :as ws])
+   [ventas.ws :as ws]
+   [cljs.reader :as reader]
+   [ventas.utils.logging :as log])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
@@ -41,26 +43,40 @@
  {:fx :local-storage
   :cofx :local-storage})
 
-(rf/reg-event-fx
- ::init
- (fn [_ _]
-   {:dispatch-n [[::events/users.session]
-                 [::events/users.favorites.list]]}))
-
 (rf/reg-fx
  :document-title
  (fn [title]
    (set! js/document.title title)))
 
+(rf/reg-fx
+ :aset
+ (fn [args]
+   (log/debug :aset args)
+   (apply aset args)))
+
+(rf/reg-event-fx
+ ::rendered-db
+ (fn [{:keys [db]} _]
+   (when-let [rendered (aget js/window "__rendered_db")]
+     {:db (reader/read-string rendered)
+      :aset [js/window "__rendered_db" nil]})))
+
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::rendered-db]
+                 [::events/users.session]
+                 [::events/users.favorites.list]]}))
+
 (defn page []
   (info "Rendering...")
   (rf/dispatch [::init])
   (let [session @(rf/subscribe [::events/db [:session]])]
-    (if (js/document.querySelector "#app > *")
-      [p/pages (routes/handler)]
+    (if (seo/rendered?)
+      [page/main (routes/handler)]
       (if-not session
         [base/loading]
-        [p/pages (routes/handler)]))))
+        [page/main (routes/handler)]))))
 
 (defn app-element []
   (js/document.getElementById "app"))

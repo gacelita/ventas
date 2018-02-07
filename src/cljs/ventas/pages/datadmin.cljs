@@ -8,7 +8,6 @@
    [ventas.components.notificator]
    [ventas.components.popup]
    [ventas.events :as events]
-   [ventas.page :refer [pages]]
    [ventas.routes :as routes]
    [ventas.utils :as util]
    [ventas.utils.logging :refer [debug error info trace warn]]))
@@ -17,10 +16,10 @@
 
 (defn skeleton [contents]
   (let [handler (routes/handler)]
-    [:div.ventas.root
+    [:div.root
      [ventas.components.notificator/notificator]
      [ventas.components.popup/popup]
-     [:div.ventas.wrapper
+     [:div.wrapper
       [base/container {:class "bu main"}
        [base/divider]
        ^{:key handler} contents]]]))

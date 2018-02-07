@@ -62,6 +62,20 @@
                    :eid number?)
     :description "Either a Datomic lookup ref or an entity ID"}))
 
+(defn resolve-ref
+  "A ref is an identifier that refers to an entity.
+   The possibilities are:
+     - A keyword, like :category/keyword
+     - A slug
+     - An eid"
+  [ref kw-ident]
+  {:pre [(or (number? ref) (string? ref) (keyword? ref))
+         (keyword? kw-ident)]}
+  (cond
+    (number? ref) ref
+    (keyword? ref) (:db/id (db/entity [kw-ident ref]))
+    (string? ref) (entity/resolve-by-slug ref)))
+
 (spec/def ::keyword
   (spec-tools.core/create-spec
    {:spec keyword?
@@ -127,13 +141,11 @@
 
 (register-endpoint!
  :products.get
- {:spec {:id (spec/or :eid number?
-                      :keyword-ref ::keyword)
+ {:spec {:id (spec/or :id ::id
+                      :slug string?)
          (opt :terms) (maybe [::id])}}
  (fn [{{:keys [id terms]} :params} {:keys [session]}]
-   (-> (cond
-         (number? id) id
-         (keyword? id) [:product/keyword id])
+   (-> (resolve-ref id :product/keyword)
        (entities.product/find-variation terms)
        (entity/to-json {:culture (get-culture session)}))))
 
@@ -162,20 +174,6 @@
                      :where [_ :product/price ?price]])
              (first))]
     {:min min :max max}))
-
-(defn resolve-ref
-  "A ref is an identifier that refers to an entity.
-   The possibilities are:
-     - A keyword, like :category/keyword
-     - A slug
-     - An eid"
-  [ref kw-ident]
-  {:pre [(or (number? ref) (string? ref) (keyword? ref))
-         (keyword? kw-ident)]}
-  (cond
-    (number? ref) ref
-    (keyword? ref) (:db/id (db/entity [kw-ident ref]))
-    (string? ref) (entity/resolve-by-slug ref)))
 
 (defn- get-product-category-filter [categories]
   (mapcat (fn [category-ref]

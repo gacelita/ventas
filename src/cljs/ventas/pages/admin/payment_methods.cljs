@@ -7,7 +7,6 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.page :refer [pages]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.pages.admin.taxes.edit]
    [ventas.routes :as routes]

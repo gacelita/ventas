@@ -35,10 +35,3 @@
 
 (defn get [& ks]
   (get-in @config ks))
-
-(defn dev?
-  []
-  (= :dev (get :profile)))
-
-(defn prod? []
-  (not (dev?)))

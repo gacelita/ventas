@@ -9,6 +9,7 @@
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]
+   [ventas.seo :as seo]
    [ventas.theme :as theme]
    [ventas.themes.clothing.demo :as demo]))
 
@@ -18,6 +19,18 @@
  :clothing
  {:name "Clothing"
   :cljs-ns 'ventas.themes.clothing.core
+  :prerendered-routes
+  (fn []
+    (concat
+     [[:frontend]
+      [:frontend.privacy-policy]
+      [:frontend.login]]
+     (->> (seo/type->slugs :schema.type/category)
+          (map (fn [{:keys [slug-value]}]
+                 [:frontend.category :id slug-value])))
+     (->> (seo/type->slugs :schema.type/product)
+          (map (fn [{:keys [slug-value]}]
+                 [:frontend.product :id slug-value])))))
   :fixtures
   (fn []
     (concat

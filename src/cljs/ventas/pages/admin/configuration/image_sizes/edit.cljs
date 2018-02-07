@@ -8,7 +8,6 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.page :refer [pages]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]

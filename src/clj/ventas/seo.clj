@@ -1,34 +1,46 @@
 (ns ventas.seo
   "Prerendering"
   (:require
+   [cheshire.core :as cheshire]
+   [clojure.core.async :as core.async :refer [go <! go-loop]]
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [etaoin.api :as etaoin]
    [mount.core :refer [defstate]]
    [taoensso.timbre :as timbre]
-   [clojure.core.async :as core.async :refer [go <! go-loop]]
-   [etaoin.api :as etaoin]
-   [ventas.database.entity :as entity]
-   [clojure.string :as str]
-   [cheshire.core :as cheshire]
-   [clojure.java.io :as io]
    [ventas.config :as config]
-   [ventas.paths :as paths]))
+   [ventas.database.entity :as entity]
+   [ventas.paths :as paths]
+   [ventas.database :as db]
+   [ventas.theme :as theme]
+   [ventas.plugin :as plugin]))
 
-(defn- get-routes []
-  (concat
-   [[:frontend]
-    [:frontend.privacy-policy]
-    [:frontend.login]]
-   (->> (entity/query :product)
-        (map :db/id)
-        (map (fn [id]
-               [:frontend.product :id id])))
-   (->> (entity/query :category)
-        (map :db/id)
-        (map (fn [id]
-               [:frontend.category :id id])))))
+(defstate driver
+  :start
+  (let [{:keys [host port]} (config/get :chrome-headless)]
+    (timbre/info "Starting prerendering driver")
+    (if-not (and host port)
+      (etaoin/chrome-headless)
+      (-> (etaoin/create-driver :chrome (-> (config/get :chrome-headless)
+                                            (select-keys #{:host :port})))
+          (etaoin/connect-driver))))
+  :stop
+  (do
+    (timbre/info "Stopping prerendering driver")
+    (etaoin/quit driver)))
 
-(defn- no-pending-requests-async [driver]
+(defn type->slugs [type]
+  (db/nice-query
+   {:find '[?slug-value]
+    :in {'?type type}
+    :where '[[?entity :schema/type ?type]
+             [?entity :ventas/slug ?slug]
+             [?slug :i18n/translations ?translations]
+             [?translations :i18n.translation/value ?slug-value]]}))
+
+(defn- frontend-ready? [driver]
   (go-loop []
-   (if-not (etaoin/js-execute driver "return ventas.ws.js_pending_requests();")
+   (if (etaoin/js-execute driver "return ventas.seo.ready_QMARK_();")
      true
      (do (<! (core.async/timeout 400))
          (recur)))))
@@ -37,30 +49,33 @@
   (let [{:keys [port host]} (config/get :server)]
     (str "http://" host ":" port)))
 
-(defn prerender [route & [driver]]
+(defn url->path [url extension]
+  (str (paths/resolve ::paths/rendered)
+       "/"
+       (if (empty? url) "index" url)
+       "."
+       extension))
+
+(defn prerender [route & {:keys [skip-init?]}]
   (timbre/debug "Prerendering route" route)
   (go
-    (let [driver (or driver (doto (etaoin/chrome-headless)
-                              (etaoin/go (server-uri))))]
-      (etaoin/js-execute driver (str "ventas.routes.js_go_to("
-                                     (cheshire/encode route)
-                                     ");"))
-      (let [pending-ch (no-pending-requests-async driver)
-            [message ch] (core.async/alts! [pending-ch
-                                            (core.async/timeout 4000)])
-            url (subs (etaoin/js-execute driver "return document.location.pathname;") 1)
-            path (str (paths/resolve ::paths/rendered)
-                      "/"
-                      (if (empty? url) "index" url)
-                      ".html")]
-        (io/make-parents path)
-        (spit path
-              (etaoin/js-execute driver "return document.getElementById('app').innerHTML;"))))))
+    (when-not skip-init?
+      (etaoin/go driver (server-uri)))
+    (etaoin/js-execute driver (str "ventas.seo.go_to(" (cheshire/encode route) ");"))
+    (let [ready-ch (frontend-ready? driver)
+          [message ch] (core.async/alts! [ready-ch
+                                          (core.async/timeout 4000)])
+          url (subs (etaoin/js-execute driver "return document.location.pathname;") 1)]
+      (let [html-path (url->path url "html")]
+        (io/make-parents html-path)
+        (spit html-path (etaoin/js-execute driver "return document.getElementById('app').innerHTML;")))
+      (spit (url->path url "edn") (etaoin/js-execute driver "return ventas.seo.dump_db();")))))
 
 (defn prerender-all []
-  (let [driver (doto (etaoin/chrome-headless)
-                 (etaoin/go (server-uri)))]
-    (go
-      (doseq [route (get-routes)]
-        (<! (prerender route driver)))
-      (etaoin/quit driver))))
+  (etaoin/go driver (server-uri))
+  (go
+    (when-let [prerendered-fn (-> (theme/current)
+                                  plugin/plugin
+                                  :prerendered-routes)]
+      (doseq [route (prerendered-fn)]
+        (<! (prerender route :skip-init? true))))))

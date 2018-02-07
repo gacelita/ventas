@@ -8,7 +8,6 @@
    [ventas.components.notificator :as ventas.notificator]
    [ventas.components.popup :as ventas.popup]
    [ventas.i18n :refer [i18n]]
-   [ventas.page :refer [pages]]
    [ventas.plugins.featured-categories.core :as plugins.featured-categories]
    [ventas.plugins.featured-products.core :as plugins.featured-products]
    [ventas.plugins.slider.core :as plugins.slider]
