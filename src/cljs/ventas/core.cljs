@@ -16,6 +16,7 @@
    [ventas.pages.datadmin]
    [ventas.plugins.api.core]
    [ventas.routes :as routes]
+   [ventas.seo]
    [ventas.utils.logging :refer [debug info]]
    [ventas.ws :as ws])
   (:require-macros

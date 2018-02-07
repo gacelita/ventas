@@ -10,8 +10,7 @@
    [ventas.i18n :refer [i18n]]
    [ventas.page :as page]
    [ventas.utils :as utils]
-   [ventas.utils.logging :as log]
-   [ventas.common.utils :as common.utils]))
+   [ventas.utils.logging :as log]))
 
 (defn route-parents
   ":admin.users.something -> [:admin :admin.users :admin.users.something]"
@@ -92,11 +91,6 @@
 (defn go-to [& args]
   (when-let [path (apply path-for args)]
     (accountant/navigate! path)))
-
-(defn ^:export js-go-to
-  "Meant for prerendering"
-  [args]
-  (apply go-to (map common.utils/process-input-message args)))
 
 (defn current
   "Returns the current route"

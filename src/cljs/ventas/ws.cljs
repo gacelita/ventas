@@ -189,9 +189,7 @@
                                               end)))}
      :binary? true)))
 
-(defn ^:export js-pending-requests
-  "Meant for prerendering"
-  []
+(defn requests-pending? []
   (boolean (seq @pending-requests)))
 
 (rf/reg-fx :ws-request effect-ws-request)
