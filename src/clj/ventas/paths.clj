@@ -34,11 +34,11 @@
 
 (def ^:private paths
   {project-resources "resources"
-   rendered [project-resources "/rendered"]
    public [project-resources "/public"]
    public-files [public "/files"]
    storage "storage"
-   resized-images [storage "/resized-images"]})
+   resized-images [storage "/resized-images"]
+   rendered [storage "/rendered"]})
 
 (defn- resolve-path [v]
   (if (string? v)

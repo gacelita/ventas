@@ -8,7 +8,7 @@
   (testing "resolve single path"
     (is (= (sut/resolve ::sut/project-resources) "resources")))
   (testing "resolve compound path"
-    (is (= (sut/resolve ::sut/rendered) "resources/rendered"))))
+    (is (= (sut/resolve ::sut/rendered) "storage/rendered"))))
 
 (deftest path->resource
   (is (= (sut/path->resource "resources/test") "test")))
