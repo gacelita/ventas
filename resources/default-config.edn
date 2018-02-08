@@ -32,9 +32,6 @@
  :chrome-headless {:host nil
                    :port 4444}
 
- ;; current leiningen profile
- :profile "unset"
-
  ;; recommended `false` for Emacs:
  :embed-figwheel? true
 
