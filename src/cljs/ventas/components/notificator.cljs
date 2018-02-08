@@ -4,9 +4,14 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.events :as events]
-   [ventas.events.backend :as backend])
+   [ventas.events.backend :as backend]
+   [ventas.seo :as seo])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
+
+(seo/add-prerendering-hook
+ ::hook
+ #(assoc % :notifications []))
 
 (rf/reg-event-db
  ::add
