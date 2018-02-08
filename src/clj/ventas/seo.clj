@@ -2,7 +2,8 @@
   "Prerendering"
   (:require
    [cheshire.core :as cheshire]
-   [clojure.core.async :as core.async :refer [go <! go-loop]]
+   [clojure.core.async :as core.async :refer [go <! >! go-loop]]
+   [clojure.core.async.impl.protocols :refer [closed?]]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [etaoin.api :as etaoin]
@@ -38,12 +39,24 @@
              [?slug :i18n/translations ?translations]
              [?translations :i18n.translation/value ?slug-value]]}))
 
-(defn- frontend-ready? [driver]
-  (go-loop []
-   (if (etaoin/js-execute driver "return ventas.seo.ready_QMARK_();")
-     true
-     (do (<! (core.async/timeout 400))
-         (recur)))))
+(defn- poll-frontend [driver]
+  (let [ch (core.async/chan)]
+    (go-loop []
+      (if (etaoin/js-execute driver "return ventas.seo.ready_QMARK_();")
+        (>! ch true)
+        (do (<! (core.async/timeout 400))
+            (when-not (closed? ch)
+              (recur)))))
+    ch))
+
+(defn- wait-for-frontend [driver]
+  (go
+    (let [poll-ch (poll-frontend driver)
+          [message ch] (core.async/alts! [poll-ch
+                                          (core.async/timeout 4000)])]
+      (if (= ch poll-ch)
+        true
+        (core.async/close! poll-ch)))))
 
 (defn- server-uri []
   (let [{:keys [port host docker-host]} (config/get :server)]
@@ -61,15 +74,13 @@
   (go
     (when-not skip-init?
       (etaoin/go driver (server-uri)))
-    (etaoin/js-execute driver (str "ventas.seo.go_to(" (cheshire/encode route) ");"))
-    (let [ready-ch (frontend-ready? driver)
-          [message ch] (core.async/alts! [ready-ch
-                                          (core.async/timeout 4000)])
-          url (subs (etaoin/js-execute driver "return document.location.pathname;") 1)]
-      (let [html-path (url->path url "html")]
+    (etaoin/js-execute driver (str "ventas.seo.go_to(" (-> route pr-str cheshire/encode) ");"))
+    (when (<! (wait-for-frontend driver))
+      (let [url (subs (etaoin/js-execute driver "return document.location.pathname;") 1)
+            html-path (url->path url "html")]
         (io/make-parents html-path)
-        (spit html-path (etaoin/js-execute driver "return document.getElementById('app').innerHTML;")))
-      (spit (url->path url "edn") (etaoin/js-execute driver "return ventas.seo.dump_db();")))))
+        (spit html-path (etaoin/js-execute driver "return document.getElementById('app').innerHTML;"))
+        (spit (url->path url "edn") (etaoin/js-execute driver "return ventas.seo.dump_db();"))))))
 
 (defn prerender-all []
   (etaoin/go driver (server-uri))
