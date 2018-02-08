@@ -42,13 +42,13 @@
                  {:params {:search search}
                   :success [::events/db [state-key :search]]}]})))
 
-(defn- search-result-view [{:keys [id name image type]}]
+(defn- search-result-view [{:keys [id name image type slug]}]
   [:div.search-result
    (when-let [route (case type
                       :product :frontend.product
                       :category :frontend.category
                       nil)]
-     {:on-click #(routes/go-to route :id id)})
+     {:on-click #(routes/go-to route :id (or slug id))})
    (when image
      [:img {:src (str "images/" (:id image) "/resize/header-search")}])
    [:div.search-result__right

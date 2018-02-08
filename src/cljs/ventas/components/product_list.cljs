@@ -14,7 +14,7 @@
   [:div.product-list
    [base/grid
     (doall
-     (for [{:keys [id images price name]} products]
+     (for [{:keys [id images price name slug]} products]
        (do (assert id)
            [base/grid-column {:key id
                               :mobile 8
@@ -24,7 +24,7 @@
              [:div.product-list__images-wrapper
               {:class (when (empty? images) "product-list__images-wrapper--no-image")}
               (when (seq images)
-                [:a {:href (routes/path-for :frontend.product :id id)}
+                [:a {:href (routes/path-for :frontend.product :id slug)}
                  [image/image (:id (first images)) :product-listing]])
               [:div.product-list__actions
                [base/icon {:name (if @(rf/subscribe [::events/users.favorites.favorited? id])
@@ -35,7 +35,7 @@
                [base/icon {:name "shopping bag"
                            :on-click (utils.ui/with-handler
                                        #(rf/dispatch [::cart/add id]))}]]]
-             [:a.product-list__content {:href (routes/path-for :frontend.product :id id)}
+             [:a.product-list__content {:href (routes/path-for :frontend.product :id slug)}
               [:span.product-list__name
                name]
               [:div.product-list__price
