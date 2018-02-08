@@ -1,11 +1,12 @@
 (ns ventas.seo
   "Prerendering stuff"
   (:require
+   [cljs.pprint :as pprint]
    [cljs.reader :as reader]
-   [ventas.routes :as routes]
-   [ventas.ws :as ws]
+   [re-frame.core :as rf]
    [ventas.events :as events]
-   [cljs.pprint :as pprint]))
+   [ventas.routes :as routes]
+   [ventas.ws :as ws]))
 
 (defn ^:export go-to [args]
   (apply routes/go-to
@@ -20,8 +21,22 @@
    (rendered?)
    (= js/document.readyState "complete")))
 
-
-
 (defn ^:export dump-db []
   (with-out-str
    (pprint/pprint @(re-frame.core/subscribe [::events/db]))))
+
+(defonce ^:private prerendering-hooks (atom {}))
+
+(defn add-prerendering-hook [id f]
+  (swap! prerendering-hooks assoc id f))
+
+(rf/reg-event-db
+ ::execute-prerendering-hooks
+ (fn [db _]
+   (reduce (fn [db f]
+             (f db))
+           db
+           (vals @prerendering-hooks))))
+
+(defn ^:export execute-prerendering-hooks []
+  (rf/dispatch-sync [::execute-prerendering-hooks]))

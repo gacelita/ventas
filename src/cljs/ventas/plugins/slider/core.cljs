@@ -1,13 +1,27 @@
 (ns ventas.plugins.slider.core
   (:require
    [re-frame.core :as rf]
+   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
    [ventas.components.slider :as components.slider]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.plugins.slider.api :as slider.backend]))
+   [ventas.plugins.slider.api :as slider.backend]
+   [ventas.seo :as seo]))
 
 (def state-key ::state)
+
+(defn- reset-sliders [sliders]
+  (->> sliders
+       (common.utils/map-vals
+        (fn [slider]
+          (-> slider
+              (assoc :current-index 0)
+              (assoc :render-index 0))))))
+
+(seo/add-prerendering-hook
+ ::hook
+ #(update % state-key reset-sliders))
 
 (rf/reg-event-fx
  ::sliders.get

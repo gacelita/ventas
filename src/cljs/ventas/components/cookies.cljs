@@ -2,9 +2,14 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [ventas.seo :as seo]))
 
 (def state-key ::state)
+
+(seo/add-prerendering-hook
+ ::hook
+ #(assoc % state-key true))
 
 (rf/reg-event-fx
  ::get-state-from-local-storage

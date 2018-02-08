@@ -79,6 +79,7 @@
       (let [url (subs (etaoin/js-execute driver "return document.location.pathname;") 1)
             html-path (url->path url "html")]
         (io/make-parents html-path)
+        (etaoin/js-execute driver "return ventas.seo.execute_prerendering_hooks();")
         (spit html-path (etaoin/js-execute driver "return document.getElementById('app').innerHTML;"))
         (spit (url->path url "edn") (etaoin/js-execute driver "return ventas.seo.dump_db();"))))))
 
