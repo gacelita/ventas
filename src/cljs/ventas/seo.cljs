@@ -1,12 +1,15 @@
 (ns ventas.seo
   "Prerendering stuff"
   (:require
-   [cljs.pprint :as pprint]
-   [re-frame.core :as rf]
-   [ventas.common.utils :as common.utils]
-   [ventas.events :as events]
+   [cljs.reader :as reader]
    [ventas.routes :as routes]
-   [ventas.ws :as ws]))
+   [ventas.ws :as ws]
+   [ventas.events :as events]
+   [cljs.pprint :as pprint]))
+
+(defn ^:export go-to [args]
+  (apply routes/go-to
+         (reader/read-string args)))
 
 (defn rendered? []
   (js/document.querySelector "#app > #main"))
@@ -17,9 +20,7 @@
    (rendered?)
    (= js/document.readyState "complete")))
 
-(defn ^:export go-to [args]
-  (apply routes/go-to
-         (map common.utils/process-input-message args)))
+
 
 (defn ^:export dump-db []
   (with-out-str
