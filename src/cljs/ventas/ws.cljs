@@ -8,7 +8,6 @@
    [reagent.core :as reagent]
    [reagent.ratom :as ratom]
    [ventas.common.utils :as common.utils]
-   [ventas.components.notificator :as notificator]
    [ventas.events :as events]
    [ventas.utils.logging :as log])
   (:require-macros
@@ -158,7 +157,7 @@
           (cond
             (not request-succeeded?)
             (do
-              (rf/dispatch [::notificator/add {:message data :theme "warning"}])
+              (rf/dispatch [:ventas.components.notificator/add {:message data :theme "warning"}])
               (log/error "Request failed!" response)
               (when error
                 (call error data)))
