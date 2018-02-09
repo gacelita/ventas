@@ -85,6 +85,8 @@
     (resize-image* image width height)))
 
 (defn- transform-image* [source-path target-path {:keys [quality progressive crop scale resize] :as options}]
+  (when-not (.exists (io/file source-path))
+    (throw (Exception. (str "Source image does not exist: " source-path))))
   (-> (util/load-image source-path)
       (cond->
        crop (crop-image crop)
