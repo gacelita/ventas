@@ -8,11 +8,6 @@
    [ventas.plugin :as plugin]
    [ventas.server.api :as api]))
 
-(plugin/register!
- :slider
- {:version "0.1"
-  :name "Slider"})
-
 (spec/def :slider.slide/name ::entities.i18n/ref)
 
 (spec/def :slider.slide/file ::entities.file/ref)
@@ -108,3 +103,10 @@
      (if-let [slider (entity/find [:slider.slider/keyword keyword])]
        (entity/to-json slider {:culture (api/get-culture session)})
        (throw (Error. (str "Could not find slider with keyword: " keyword)))))))
+
+(plugin/register!
+ :slider
+ {:name "Slider"
+  :endpoints [::sliders.get]
+  :entity-types [:slider.slide
+                 :slider.slider]})

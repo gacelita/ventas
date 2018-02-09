@@ -173,4 +173,4 @@
    (->> (plugin/all)
         (map plugin/plugin)
         (map (fn [plugin]
-               (select-keys plugin #{:version :name}))))))
+               (select-keys plugin #{:name}))))))

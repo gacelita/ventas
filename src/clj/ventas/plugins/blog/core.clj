@@ -5,11 +5,6 @@
    [ventas.plugin :as plugin]
    [ventas.server.api :as api]))
 
-(plugin/register!
- :blog
- {:version "0.1"
-  :name "Blog"})
-
 (spec/def :blog.post/name string?)
 
 (spec/def :schema.type/blog.post
@@ -32,3 +27,10 @@
  (fn [{:keys [params] :as message} {:keys [session]}]
    (map #(entity/to-json % {:culture (api/get-culture session)})
         (entity/query :blog.post))))
+
+(plugin/register!
+ :blog
+ {:name "Blog"
+  :entity-types [:blog.post]
+  :endpoints [:blog.post.create
+              :blog.list]})
