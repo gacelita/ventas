@@ -23,19 +23,22 @@
    [:a {:href (routes/path-for :admin.users.edit :id id)}
     [:p (str/join " " [first-name last-name])]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::backend/admin.users.list
+               {:success [::events/db [state-key :users]]}]}))
+
 (defn- content []
-  (rf/dispatch [::backend/admin.users.list
-                {:success [::events/db [state-key :users]]}])
-  (fn []
-    (let [{:keys [users]} @(rf/subscribe [::events/db [state-key]])]
-      [base/grid {:stackable true :columns 2}
-       [segment {:label (i18n ::traffic-statistics)}]
-       [segment {:label (i18n ::pending-orders)}]
-       [segment {:label (i18n ::latest-users)}
-        [:ul.admin-dashboard__users
-         (for [user users]
-           ^{:key (:id user)} [user-view user])]]
-       [segment {:label (i18n ::unread-messages)}]])))
+  (let [{:keys [users]} @(rf/subscribe [::events/db [state-key]])]
+    [base/grid {:stackable true :columns 2}
+     [segment {:label (i18n ::traffic-statistics)}]
+     [segment {:label (i18n ::pending-orders)}]
+     [segment {:label (i18n ::latest-users)}
+      [:ul.admin-dashboard__users
+       (for [user users]
+         ^{:key (:id user)} [user-view user])]]
+     [segment {:label (i18n ::unread-messages)}]]))
 
 (defn- page []
   [admin.skeleton/skeleton
@@ -46,4 +49,5 @@
   :admin.dashboard
   {:name ::page
    :url "dashboard"
-   :component page})
+   :component page
+   :init-fx [::init]})

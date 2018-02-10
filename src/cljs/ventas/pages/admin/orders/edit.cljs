@@ -123,99 +123,102 @@
            :value (:id address)})
         addresses)))
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::init (routes/ref-from-param :id)]
+                 [::events/enums.get :order.status]
+                 [::backend/admin.users.list
+                  {:success [::events/db [state-key :users]]}]]}))
+
 (defn- content []
-  (rf/dispatch [::init (routes/ref-from-param :id)])
-  (rf/dispatch [::events/enums.get :order.status])
-  (rf/dispatch [::backend/admin.users.list
-                {:success [::events/db [state-key :users]]}])
-  (fn []
-    (let [{:keys [order]} @(rf/subscribe [::events/db state-key])]
+  (let [{:keys [order]} @(rf/subscribe [::events/db state-key])]
 
-      [base/form {:key (:db/id order)
-                  :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+    [base/form {:key (:db/id order)
+                :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-       [base/segment {:color "orange"
-                      :title (i18n ::order)}
+     [base/segment {:color "orange"
+                    :title (i18n ::order)}
 
-        (let [field :order/user]
-          [base/form-field
-           [:label (i18n ::user)]
-           [base/dropdown
-            {:fluid true
-             :selection true
-             :options (->> @(rf/subscribe [::events/db [state-key :users]])
-                           (map (fn [{:keys [id first-name last-name]}]
-                                  {:value id
-                                   :text (str first-name
-                                              (when last-name
-                                                (str " " last-name)))})))
-             :default-value (get order field)
-             :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
+      (let [field :order/user]
+        [base/form-field
+         [:label (i18n ::user)]
+         [base/dropdown
+          {:fluid true
+           :selection true
+           :options (->> @(rf/subscribe [::events/db [state-key :users]])
+                         (map (fn [{:keys [id first-name last-name]}]
+                                {:value id
+                                 :text (str first-name
+                                            (when last-name
+                                              (str " " last-name)))})))
+           :default-value (get order field)
+           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
 
-        (let [field :order/status]
-          [base/form-field
-           [:label (i18n ::status)]
-           [base/dropdown
-            {:options @(rf/subscribe [::events/db [:enums :order.status]])
-             :selection true
-             :default-value (get order field)
-             :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
+      (let [field :order/status]
+        [base/form-field
+         [:label (i18n ::status)]
+         [base/dropdown
+          {:options @(rf/subscribe [::events/db [:enums :order.status]])
+           :selection true
+           :default-value (get order field)
+           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
 
-       [base/segment {:color "orange"
-                      :title (i18n ::billing)}
-        (let [field :order/payment-method]
-          [base/form-input
-           {:label (i18n ::payment-method)
-            :default-value (get order field)
-            :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
+     [base/segment {:color "orange"
+                    :title (i18n ::billing)}
+      (let [field :order/payment-method]
+        [base/form-input
+         {:label (i18n ::payment-method)
+          :default-value (get order field)
+          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
 
-        (let [field :order/billing-address]
-          [base/form-field
-           [:label (i18n ::billing-address)]
-           [base/dropdown
-            {:options @(rf/subscribe [::user-addresses])
-             :selection true
-             :default-value (get order field)
-             :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
+      (let [field :order/billing-address]
+        [base/form-field
+         [:label (i18n ::billing-address)]
+         [base/dropdown
+          {:options @(rf/subscribe [::user-addresses])
+           :selection true
+           :default-value (get order field)
+           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
 
-        (let [field :order/payment-reference]
-          [base/form-input
-           {:label (i18n ::payment-reference)
-            :default-value (get order field)
-            :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])]
+      (let [field :order/payment-reference]
+        [base/form-input
+         {:label (i18n ::payment-reference)
+          :default-value (get order field)
+          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])]
 
-       [base/divider {:hidden true}]
+     [base/divider {:hidden true}]
 
-       [base/segment {:color "orange"
-                      :title (i18n ::shipping)}
-        (let [field :order/shipping-method]
-          [base/form-input
-           {:label (i18n ::shipping-method)
-            :default-value (get order field)
-            :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
+     [base/segment {:color "orange"
+                    :title (i18n ::shipping)}
+      (let [field :order/shipping-method]
+        [base/form-input
+         {:label (i18n ::shipping-method)
+          :default-value (get order field)
+          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
 
-        (let [field :order/shipping-address]
-          [base/form-field
-           [:label (i18n ::shipping-address)]
-           [base/dropdown
-            {:options @(rf/subscribe [::user-addresses])
-             :selection true
-             :default-value (get order field)
-             :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
+      (let [field :order/shipping-address]
+        [base/form-field
+         [:label (i18n ::shipping-address)]
+         [base/dropdown
+          {:options @(rf/subscribe [::user-addresses])
+           :selection true
+           :default-value (get order field)
+           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
 
-        (let [field :order/shipping-comments]
-          [base/form-textarea
-           {:label (i18n ::shipping-comments)
-            :default-value (get order field)
-            :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])]
+      (let [field :order/shipping-comments]
+        [base/form-textarea
+         {:label (i18n ::shipping-comments)
+          :default-value (get order field)
+          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])]
 
-       [base/divider {:hidden true}]
+     [base/divider {:hidden true}]
 
-       [base/segment {:color "orange"
-                      :title (i18n ::lines)}
-        [lines-table]]
+     [base/segment {:color "orange"
+                    :title (i18n ::lines)}
+      [lines-table]]
 
-       [base/form-button {:type "submit"} (i18n ::submit)]])))
+     [base/form-button {:type "submit"} (i18n ::submit)]]))
 
 (defn page []
   [admin.skeleton/skeleton
@@ -226,4 +229,5 @@
   :admin.orders.edit
   {:name ::page
    :url [:id "/edit"]
-   :component page})
+   :component page
+   :init-fx [::init]})

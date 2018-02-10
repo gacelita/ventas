@@ -4,6 +4,7 @@
    [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
+   [ventas.components.form :as form]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
@@ -12,62 +13,58 @@
    [ventas.utils.logging :refer [debug error info trace warn]]
    [ventas.utils.ui :as utils.ui]))
 
-(def form-data-key ::form-data)
-
-(def form-hash-key ::form-key)
-
-(def image-size-entities-key ::image-size-entities)
+(def state-key ::state)
 
 (rf/reg-event-fx
  ::submit
- (fn [cofx [_ data]]
+ (fn [_ [_ data]]
    {:dispatch [::backend/admin.image-sizes.save
                {:params data
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next
- (fn [cofx [_ data]]
+ (fn [_ _]
    {:dispatch [::notificator/add {:message (i18n ::saved-notification)
                                   :theme "success"}]
     :go-to [:admin.configuration.image-sizes]}))
 
-(rf/reg-event-db
- ::set-field
- (fn [db [_ field value]]
-   (let [field (if-not (sequential? field)
-                 [field]
-                 field)]
-     (assoc-in db (concat [form-data-key] field) value))))
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::backend/entities.find (routes/ref-from-param :id)
+                  {:success [::form/populate state-key]}]
+                 [::backend/admin.image-sizes.entities.list
+                  {:success [::events/db [state-key :image-sizes]]}]
+                 [::events/enums.get :image-size.algorithm]]}))
 
 (defn form []
-  (rf/dispatch [::backend/entities.find (routes/ref-from-param :id)
-                {:success (fn [entity-data]
-                            (rf/dispatch [::events/db form-data-key entity-data])
-                            (rf/dispatch [::events/db form-hash-key (hash entity-data)]))}])
-  (rf/dispatch [::backend/admin.image-sizes.entities.list
-                {:success [::events/db image-size-entities-key]}])
-  (rf/dispatch [::events/enums.get :image-size.algorithm])
-  (fn []
-    (let [form-data @(rf/subscribe [::events/db [form-data-key]])
-          form-hash @(rf/subscribe [::events/db [form-hash-key]])]
-      [base/form {:key form-hash
-                  :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+  (let [{:keys [form form-hash]} @(rf/subscribe [::events/db state-key])]
+    ^{:key form-hash}
+    [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-       [base/segment {:color "orange"
-                      :title "Image size"}
+     [base/segment {:color "orange"
+                    :title "Image size"}
+
+      (let [field :keyword]
         [base/form-input
          {:label (i18n ::keyword)
-          :default-value (:keyword form-data)
-          :on-change #(rf/dispatch [::set-field :keyword (-> % .-target .-value)])}]
+          :default-value (get form field)
+          :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}])
+
+      (let [field :width]
         [base/form-input
          {:label (i18n ::width)
-          :default-value (:width form-data)
-          :on-change #(rf/dispatch [::set-field :width (-> % .-target .-value)])}]
+          :default-value (get form field)
+          :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}])
+
+      (let [field :height]
         [base/form-input
          {:label (i18n ::height)
-          :default-value (:height form-data)
-          :on-change #(rf/dispatch [::set-field :height (-> % .-target .-value)])}]
+          :default-value (get form field)
+          :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}])
+
+      (let [field :algorithm]
         [base/form-field
          [:label (i18n ::algorithm)]
          [base/dropdown
@@ -75,8 +72,10 @@
            :selection true
            :options (map #(update % :value str)
                          @(rf/subscribe [::events/db [:enums :image-size.algorithm]]))
-           :default-value (str (:algorithm form-data))
-           :on-change #(rf/dispatch [::set-field :algorithm (-> % .-target .-value)])}]]
+           :default-value (str (get form field))
+           :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}]])
+
+      (let [field :entities]
         [base/form-field
          [:label (i18n ::entities)]
          [base/dropdown
@@ -85,13 +84,13 @@
            :options (map (fn [entity]
                            {:text (i18n entity)
                             :value (str entity)})
-                         @(rf/subscribe [::events/db image-size-entities-key]))
-           :default-value (:entities form-data)
-           :on-change #(rf/dispatch [::set-field :entities (set (.-value %2))])}]]]
+                         @(rf/subscribe [::events/db :image-sizes]))
+           :default-value (get form field)
+           :on-change #(rf/dispatch [::form/set-field field (set (.-value %2))])}]])]
 
-       [base/divider {:hidden true}]
+     [base/divider {:hidden true}]
 
-       [base/form-button {:type "submit"} (i18n ::submit)]])))
+     [base/form-button {:type "submit"} (i18n ::submit)]]))
 
 (defn page []
   [admin.skeleton/skeleton
@@ -102,4 +101,5 @@
   :admin.configuration.image-sizes.edit
   {:name ::page
    :url [:id "/edit"]
-   :component page})
+   :component page
+   :init-fx [::init]})
