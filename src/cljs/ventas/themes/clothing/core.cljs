@@ -49,6 +49,7 @@
    :ventas.themes.clothing.pages.frontend.cart/payment "Payment"
    :ventas.themes.clothing.pages.frontend.cart/checkout "Checkout"
    :ventas.themes.clothing.pages.frontend.cart/free "Free"
+   :ventas.themes.clothing.pages.frontend.cart/no-items "Your cart is empty"
 
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"

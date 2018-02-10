@@ -10,7 +10,8 @@
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.utils :as utils]
-   [ventas.utils.formatting :as utils.formatting]))
+   [ventas.utils.formatting :as utils.formatting]
+   [ventas.components.error :as error]))
 
 (rf/reg-event-fx
  ::add-voucher
@@ -131,17 +132,22 @@
                    :options (clj->js (for [n (range 1 16)]
                                        {:value n :text (str n)}))}]]]])
 
+(defn- no-items []
+  [error/no-data :message (i18n ::no-items)])
+
 (defn page []
   [skeleton
    [base/container
-    [:div.cart-page
-     [:h2 (i18n ::cart)]
-     [:div.cart-page__content
-      [:div.cart-page__lines
-       (let [{:keys [lines]} @(rf/subscribe [::cart/main])]
-         (for [line lines]
-           [cart-line-view line]))]
-      [cart-sidebar]]]]])
+    (let [{:keys [lines]} @(rf/subscribe [::cart/main])]
+      [:div.cart-page
+       [:h2 (i18n ::cart)]
+       (if-not (seq lines)
+         [no-items]
+         [:div.cart-page__content
+          [:div.cart-page__lines
+           (for [line lines]
+             [cart-line-view line])]
+          [cart-sidebar]])])]])
 
 (rf/reg-event-fx
  ::init
