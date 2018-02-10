@@ -701,14 +701,13 @@
          :discount/active? true
          :discount/max-uses-per-customer 2
          :discount/max-uses 3
-         :discount/action {:schema/type :schema.type/discount.action
-                           :discount.action/free-shipping? true
-                           :discount.action/amount.tax-included? false
-                           :discount.action/amount.kind :discount.action.amount.kind/percentage
-                           :discount.action/amount {:schema/type :schema.type/amount
-                                                    :amount/value 15M
-                                                    :amount/keyword :amount-1
-                                                    :amount/currency [:currency/keyword :eur]}}}]))
+         :discount/free-shipping? true
+         :discount/amount.tax-included? false
+         :discount/amount.kind :discount.amount.kind/percentage
+         :discount/amount {:schema/type :schema.type/amount
+                                  :amount/value 15M
+                                  :amount/keyword :amount-1
+                                  :amount/currency [:currency/keyword :eur]}}]))
 
 (defn demo-data []
   (concat (product-terms)
