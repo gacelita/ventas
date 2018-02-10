@@ -2,9 +2,11 @@
   (:require
    [clj-uuid :as uuid]
    [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
+   [clojure.core.async.impl.protocols :as core.async.protocols]
    [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.utils :as utils]))
 
 (def ^:private shared-hub
   (atom nil))
@@ -36,24 +38,32 @@
       {:type :response
        :id id
        :success true
-       :data response})
+       :data response
+       :realtime? (utils/chan? response)})
     (catch Exception e
       (error-response message e))
     (catch Error e
       (error-response message e))))
 
-(defn send-response [response channel]
-  (go (>! channel (common.utils/process-output-message response))))
-
-(defn send-event [response channel]
-  (go (>! channel response)))
+(defn send-message [{:keys [data] :as message} channel]
+  (if (utils/chan? data)
+    (go-loop []
+      (->> (assoc message :data (<! data))
+           common.utils/process-output-message
+           (>! channel))
+      (when-not (core.async.protocols/closed? data)
+        (recur)))
+    (go
+      (->> message
+           common.utils/process-output-message
+           (>! channel)))))
 
 (defn handle-message [{:keys [type] :as message} {:keys [client-id session channel request] :as state}]
   (case type
     :event (-> (handle-event message state)
-               (send-event channel))
+               (send-message channel))
     :request (-> (call-request-handler message state)
-                 (send-response channel))
+                 (send-message channel))
     :else (timbre/debug "Unhandled message: " message)))
 
 (defn get-shared-channel []

@@ -31,12 +31,11 @@
 
 (defn send-request!
   "Sends a request and calls the callback with the response"
-  [{:keys [params callback] request-name :name} & {:keys [binary? realtime?]}]
+  [{:keys [params callback] request-name :name} & {:keys [binary?]}]
   (log/debug ::send-request!
              {:name request-name
               :params params
-              :binary? binary?
-              :realtime? realtime?})
+              :binary? binary?})
   (let [request-channel (chan)
         request-id (str (gensym (str "request-" (name request-name) "-")))
         output-channel (if binary? (output-binary-channel) (output-json-channel))]
@@ -48,7 +47,7 @@
            :name request-name
            :params params})
       (loop []
-        (let [message (<! request-channel)]
+        (let [{:keys [realtime?] :as message} (<! request-channel)]
           (callback message)
           (if realtime?
             (recur)

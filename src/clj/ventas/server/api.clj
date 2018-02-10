@@ -2,6 +2,7 @@
   (:require
    [buddy.hashers :as hashers]
    [byte-streams :as bytes]
+   [clojure.core.async :as core.async]
    [clojure.spec.alpha :as spec]
    [clojure.string :as str]
    [clojure.java.io :as io]
@@ -147,6 +148,18 @@
    (-> (resolve-ref id :product/keyword)
        (entities.product/find-variation terms)
        (entity/to-json {:culture (get-culture session)}))))
+
+(register-endpoint!
+  :realtime-test
+  {:doc "A very simple test for realtime capabilities.
+         Will send (inc n) every two seconds."}
+  (fn [_ _]
+    (let [ch (core.async/chan)]
+      (core.async/go-loop [n 0]
+        (core.async/<! (core.async/timeout 2000))
+        (core.async/>! ch n)
+        (recur (inc n)))
+      ch)))
 
 (register-endpoint!
  :products.list
