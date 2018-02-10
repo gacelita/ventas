@@ -8,6 +8,10 @@
   "A path for project-wide resources, like the configuration"
   ::project-resources)
 
+(def sites
+  "Directory where the site configurations live"
+  ::sites)
+
 (def rendered
   "Rendered HTML fragments"
   ::rendered)
@@ -34,6 +38,7 @@
 
 (def ^:private paths
   {project-resources "resources"
+   sites [project-resources "/sites"]
    public [project-resources "/public"]
    public-files [public "/files"]
    storage "storage"

@@ -16,7 +16,7 @@
            (when custom-config
              [:merge [custom-config]]))))
 
-(defonce ^:private config (atom (load-config)))
+(defonce ^:dynamic config (atom (load-config)))
 
 (defstate config-loader
   :start

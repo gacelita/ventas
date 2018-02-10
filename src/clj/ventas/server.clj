@@ -27,7 +27,8 @@
    [ventas.server.ws :as server.ws]
    [ventas.theme :as theme]
    [ventas.utils :as utils]
-   [ventas.server.api :as api])
+   [ventas.server.api :as api]
+   [ventas.site :as site])
   (:import
    [clojure.lang Keyword])
   (:gen-class))
@@ -130,6 +131,7 @@
 (def http-handler
   (-> routes
       (wrap-prone)
+      (site/wrap-multisite)
       (ring.session/wrap-session)
       (ring.params/wrap-params)
       (ring.defaults/wrap-defaults ring.defaults/site-defaults)

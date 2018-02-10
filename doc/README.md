@@ -15,9 +15,11 @@ For now, just read the [README](../README.md).
 - [Endpoints - adding them, using them](./Endpoints.md)
 - [Frontend development - components, routes, events, effects...](./Frontend_development.md)
 - [Entity types - easily extending the database](./Entity_types.md)
-- [Plugins](./Plugins.md)
-- [Themes](./Themes.md)
+- [Plugins - conditionally loading features](./Plugins.md)
+- [Themes - switching between frontends](./Themes.md)
+- [Sites - basic multitenancy](./Sites.md)
 
 ### Using ventas
 
 - TODO: Production usage, link to ansible repo, explain lein template
+

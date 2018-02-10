@@ -1,20 +1,15 @@
 (ns client
   "Client defstates"
   (:require
-   [clojure.java.io :as io]
-   [figwheel-sidecar.repl-api :as figwheel]
-   [figwheel-sidecar.components.css-watcher :as figwheel.css-watcher]
-   [ventas.utils :as utils]
-   [ventas.config :as config]
    [clojure.java.shell]
+   [figwheel-sidecar.components.css-watcher :as figwheel.css-watcher]
+   [figwheel-sidecar.repl-api :as figwheel]
    [me.raynes.conch.low-level :as sh]
-   [mount.core :as mount :refer [defstate]]
-   [clojure.tools.namespace.dependency :as namespace.dependency]
-   [clojure.tools.namespace.find :as namespace.find]
+   [mount.core :refer [defstate]]
    [taoensso.timbre :refer [info]]
-   [clojure.tools.namespace.parse :as namespace.parse]
-   [ventas.theme :as theme]
-   [ventas.plugin :as plugin]))
+   [ventas.config :as config]
+   [ventas.plugin :as plugin]
+   [ventas.theme :as theme]))
 
 ;; Figwheel
 

@@ -32,5 +32,7 @@
       :configuration/value "Ventas Dev Store"}])})
 
 (defn get [k]
-  (-> (entity/find [:configuration/keyword k])
-      :configuration/value))
+  (try
+    (-> (entity/find [:configuration/keyword k])
+        :configuration/value)
+    (catch Throwable e)))

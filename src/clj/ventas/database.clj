@@ -23,6 +23,8 @@
    [java.io File]
    [java.util.concurrent ExecutionException]))
 
+(def ^:dynamic db)
+
 (defn start-db! []
   (let [url (config/get :database :url)]
     (info (str "Starting database, URL: " url))

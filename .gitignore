@@ -33,6 +33,7 @@ pom.xml.asc
 /resources/generation/images
 /resources/*.pem
 /resources/config.edn
+/resources/sites
 /resources/demo
 
 /storage/*

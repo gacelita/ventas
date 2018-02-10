@@ -29,6 +29,7 @@
    'search 'ventas.search
    'seed 'ventas.database.seed
    'server 'ventas.server
+   'site 'ventas.site
    'utils 'ventas.utils
    'ws 'ventas.server.ws})
 
@@ -73,7 +74,8 @@
         :db 'ventas.database/db
         :indexer 'ventas.search/indexer
         :server 'ventas.server/server
-        :config 'ventas.config/config-loader}
+        :config 'ventas.config/config-loader
+        :sites 'ventas.site/sites}
        kw))
 
 (defn r
@@ -87,8 +89,11 @@
   (when (= (ns-name *ns*) 'repl)
     (deinit-aliases))
   (let [states (->> states
-                    (map keyword->state)
-                    (map #(ns-resolve 'repl %)))
+                    (map (fn [kw]
+                           (let [state (keyword->state kw)]
+                             (when-not state
+                               (throw (Exception. (str "State " kw " does not exist"))))
+                             (ns-resolve 'repl state)))))
         _ (when (seq states)
             (apply mount/stop states))
         result (tn/refresh)]

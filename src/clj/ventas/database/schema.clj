@@ -9,7 +9,8 @@
    [ventas.common.utils :as common.utils]
    [ventas.config :as config]
    [ventas.database :as db :refer [db]]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.site :as site]))
 
 (defn- make-migration [attrs]
   {(keyword (str "hash-" (hash attrs))) attrs})
@@ -90,9 +91,12 @@
   "Migrates the database."
   [& {:keys [recreate?]}]
   (when recreate?
-    (mount.core/stop #'db/db)
-    (db/recreate)
-    (mount.core/start #'db/db))
+    (let [v (if (string? site/current)
+              #'site/sites
+              #'db/db)]
+      (mount.core/stop v)
+      (db/recreate)
+      (mount.core/start v)))
   (let [migrations (get-migrations)]
     (info "Running migrations")
     (doseq [migration migrations]
