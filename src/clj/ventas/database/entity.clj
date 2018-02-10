@@ -130,7 +130,7 @@
   {:pre [(entity? entity)]}
   (call-type-fn :after-delete entity))
 
-(defn spec
+(defn spec!
   "Checks that an entity complies with its spec"
   [entity]
   {:pre [(type-exists? (type entity))]}
@@ -189,7 +189,8 @@
 (defn create*
   "Creates an entity"
   [attrs]
-  {:pre [(do (timbre/debug attrs) (spec attrs))]}
+  (timbre/debug attrs)
+  (spec! attrs)
   (before-create attrs)
   (let [tempid (d/tempid :db.part/user)
         pre-entity (prepare-creation-attrs attrs tempid)
