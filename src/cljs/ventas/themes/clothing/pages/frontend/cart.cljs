@@ -111,8 +111,9 @@
     [:div.cart-page__terms
      (let [variation-data (get product-variation :variation)]
        (for [{:keys [taxonomy selected]} variation-data]
-         [:div.cart-page__term
-          [term/term-view (:keyword taxonomy) selected {:active? true}]]))]
+         (when selected
+           [:div.cart-page__term
+            [term/term-view (:keyword taxonomy) selected {:active? true}]])))]
 
     [:div.cart-page__actions
      [base/button {:icon true

@@ -42,8 +42,8 @@
    {:dispatch [::backend/users.cart.add {:success [::add.next eid]
                                          :params {:id eid}}]}))
 
-(defn- notification-view [{:keys [id quantity product-variation] :as line}]
-  (let [{:keys [images name price variation]} product-variation]
+(defn- notification-view [{:keys [product-variation]}]
+  (let [{:keys [images price variation]} product-variation]
     [:div
      [:h3 (i18n ::product-added)]
      [:div.cart-notification__inner
@@ -56,8 +56,9 @@
 
        [:div.cart-notification__terms
         (for [{:keys [taxonomy selected]} variation]
-          [:div.cart-notification__term
-           [term/term-view (:keyword taxonomy) selected {:active? true}]])]]]]))
+          (when selected
+            [:div.cart-notification__term
+             [term/term-view (:keyword taxonomy) selected {:active? true}]]))]]]]))
 
 (rf/reg-event-fx
  ::add.next
