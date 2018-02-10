@@ -94,6 +94,15 @@
                (str/replace "{{rendered-db-script}}"
                             (rendered-db-script uri))))})
 
+(defn- handle-devcards [_]
+  {:status 200
+   :headers {"Content-Type" "text/html; charset=utf-8"}
+   :body (let [theme-name (theme/current)
+               {:keys [cljs-ns]} (plugin/plugin theme-name)]
+           (-> (slurp (io/resource "public/devcards.html"))
+               (str/replace "{{theme}}"
+                            (name theme-name))))})
+
 (defn- handle-websocket [format]
   (chord.http-kit/wrap-websocket-handler
    (partial server.ws/handle-messages format)
@@ -124,6 +133,8 @@
     (handle-image (utils/->number image) :size (keyword size)))
   (GET "/plugins/:plugin/*" {{path :* plugin :plugin} :route-params}
     (plugin/handle-request (keyword plugin) path))
+  (GET "/devcards" _
+    handle-devcards)
   (GET "/*" _
     handle-spa))
 
