@@ -2,7 +2,6 @@
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent :refer [atom]]
-   [ventas.common.utils :as common.utils]
    [ventas.components.amount-input :as amount-input]
    [ventas.components.base :as base]
    [ventas.components.draggable-list :as draggable-list]

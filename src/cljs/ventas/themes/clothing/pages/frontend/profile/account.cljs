@@ -8,7 +8,6 @@
    [ventas.routes :as routes]
    [ventas.session :as session]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.sidebar]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
    [ventas.utils :as utils :include-macros true]
    [ventas.utils.forms :as forms]

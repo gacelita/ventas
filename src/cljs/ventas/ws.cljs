@@ -8,7 +8,6 @@
    [reagent.core :as reagent]
    [reagent.ratom :as ratom]
    [ventas.common.utils :as common.utils]
-   [ventas.events :as events]
    [ventas.utils.logging :as log])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))

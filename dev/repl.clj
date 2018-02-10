@@ -6,6 +6,7 @@
    [cemerick.pomegranate :as pomegranate]
    [cemerick.pomegranate.aether :as aether]
    [clojure.core.async :refer [>! go]]
+   ;; kept for REPL usage
    [clojure.spec.alpha :as spec]
    [clojure.tools.namespace.repl :as tn]
    [mount.core :as mount]

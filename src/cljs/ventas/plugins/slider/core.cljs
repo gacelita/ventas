@@ -5,7 +5,6 @@
    [ventas.components.base :as base]
    [ventas.components.slider :as components.slider]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
    [ventas.plugins.slider.api :as slider.backend]
    [ventas.seo :as seo]))
 

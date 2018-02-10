@@ -3,9 +3,7 @@
    [buddy.hashers :as hashers]
    [clojure.spec.alpha :as spec]
    [clojure.string :as str]
-   [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as chuck]
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.utils :as utils]))

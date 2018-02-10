@@ -1,6 +1,5 @@
 (ns ventas.components.category-list
   (:require
-   [re-frame.core :as rf]
    [ventas.routes :as routes]))
 
 (defn category-list [categories]

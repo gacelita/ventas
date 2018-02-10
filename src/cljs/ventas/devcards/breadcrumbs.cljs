@@ -1,7 +1,6 @@
 (ns ventas.devcards.breadcrumbs
   (:require
    [devcards.core]
-   [reagent.core :as reagent]
    [ventas.components.breadcrumbs :as components.breadcrumbs])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))

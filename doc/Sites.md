@@ -2,7 +2,7 @@
 
 Sites are used to use a different ElasticSearch index and Datomic database depending on the host that makes the request.
 
-To add a site, add a file in this way: `resources/sites/SITE_NAME.edn`. That file must contain a subset of the `default-config.edn` file. Currently only `:database :url` and `:elasticsearch :index` are supported.
+To add a site, add a file in this way: `storage/sites/SITE_NAME.edn`. That file must contain a subset of the `default-config.edn` file. Currently only `:database :url` and `:elasticsearch :index` are supported.
 
 ```clojure
 {:database {:url "datomic:dev://localhost:4334/otherdatabase"}

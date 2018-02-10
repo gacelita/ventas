@@ -1,6 +1,4 @@
 (ns ventas.utils.files
-  (:require
-   [clojure.java.io :as io])
   (:import
    [org.apache.commons.io FilenameUtils]))
 

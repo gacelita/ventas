@@ -1,8 +1,5 @@
 (ns ventas.themes.clothing.components.footer
   (:require
-   [re-frame.core :as rf]
-   [reagent.core :as reagent]
-   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]))
 

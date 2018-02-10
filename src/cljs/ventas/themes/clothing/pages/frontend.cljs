@@ -1,12 +1,8 @@
 (ns ventas.themes.clothing.pages.frontend
   (:require
-   [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.components.cart :as ventas.cart]
    [ventas.components.category-list :refer [category-list]]
-   [ventas.components.notificator :as ventas.notificator]
-   [ventas.components.popup :as ventas.popup]
    [ventas.i18n :refer [i18n]]
    [ventas.plugins.featured-categories.core :as plugins.featured-categories]
    [ventas.plugins.featured-products.core :as plugins.featured-products]
@@ -23,7 +19,6 @@
    [ventas.themes.clothing.pages.frontend.privacy-policy]
    [ventas.themes.clothing.pages.frontend.product]
    [ventas.themes.clothing.pages.frontend.profile]
-   [ventas.utils :as util]
    [ventas.utils.logging :refer [debug error info trace warn]]))
 
 (defn page []

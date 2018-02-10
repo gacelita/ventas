@@ -3,16 +3,14 @@
    [clojure.string :as str]
    [day8.re-frame.forward-events-fx]
    [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.table :as table]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.routes :as routes]
-   [ventas.utils :as utils]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

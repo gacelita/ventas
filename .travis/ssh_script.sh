@@ -26,7 +26,7 @@ docker-compose up -d &&
 echo "Deploy done, executing REPL commands..." &&
 sleep 60 &&
 CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ventas_ventas_1); \
-lein repl :connect $CONTAINER_IP:4001 << ENDREPL
+lein repl :connect ${CONTAINER_IP}:4001 << ENDREPL
 (ventas.database.seed/seed :recreate? true)
 (mount.core/stop #'ventas.search/indexer)
 (mount.core/start #'ventas.search/indexer)

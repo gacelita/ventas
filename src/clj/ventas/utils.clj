@@ -74,7 +74,7 @@
 (defn bigdec?
   "Return true if x is a BigDecimal.
    This function was already in 1.9 alphas but it was removed :("
-  [x] (instance? java.math.BigDecimal x))
+  [x] (instance? BigDecimal x))
 
 (defn ->number [v]
   (try

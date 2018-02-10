@@ -1,15 +1,8 @@
 (ns ventas.database.schema
   (:require
-   [clj-time.core :as time]
-   [clj-time.format :as time-format]
-   [clojure.edn :as edn]
-   [clojure.java.io :as io]
-   [io.rkn.conformity :as conformity]
-   [taoensso.timbre :as timbre :refer [debug error info trace warn]]
+   [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
-   [ventas.config :as config]
    [ventas.database :as db :refer [db]]
-   [ventas.utils :as utils]
    [ventas.site :as site]))
 
 (defn- make-migration [attrs]
@@ -80,7 +73,7 @@
     (if-let [migration (get-migration key)]
       (do
         (when (not= migration pair)
-          (warn "Replacing migration with key" key))
+          (timbre/warn "Replacing migration with key" key))
         (swap! migrations assoc (migration-index key) pair))
       (swap! migrations conj pair))))
 
@@ -98,8 +91,8 @@
       (db/recreate)
       (mount.core/start v)))
   (let [migrations (get-migrations)]
-    (info "Running migrations")
+    (timbre/info "Running migrations")
     (doseq [migration migrations]
       (doseq [[k v] migration]
-        (info "Migration " k)
+        (timbre/info "Migration " k)
         (db/ensure-conforms k v)))))

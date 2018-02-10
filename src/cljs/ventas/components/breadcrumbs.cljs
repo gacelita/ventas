@@ -1,6 +1,5 @@
 (ns ventas.components.breadcrumbs
   (:require
-   [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.routes :as routes]
    [ventas.utils :as util]))

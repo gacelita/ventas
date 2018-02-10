@@ -3,7 +3,6 @@
    [clojure.string :as str]
    [re-frame.core :as rf]
    [reagent.core :as reagent :refer [atom]]
-   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.components.table :as table]

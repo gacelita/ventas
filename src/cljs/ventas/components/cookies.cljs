@@ -2,7 +2,6 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.events :as events]
    [ventas.seo :as seo]))
 
 (def state-key ::state)

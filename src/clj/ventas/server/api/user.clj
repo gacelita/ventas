@@ -1,7 +1,5 @@
 (ns ventas.server.api.user
   (:require
-   [clojure.spec.alpha :as spec]
-   [clojure.string :as str]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.user :as entities.user]

@@ -4,7 +4,6 @@
    [re-frame.core :as rf]
    [reagent.core :as reagent]
    [ventas.components.base :as base]
-   [ventas.components.cart :as cart]
    [ventas.utils.debug :as debug])
   (:require-macros
    [devcards.core :refer [defcard-rg]]))

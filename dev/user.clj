@@ -4,8 +4,8 @@
    and nonstrict classloading."
   (:require
    [figwheel-sidecar.repl-api :as figwheel]
+   ;; kept for REPL usage
    [clojure.tools.namespace.repl :as tn]
-   [clojure.stacktrace :as st :refer [print-stack-trace]]
    [clojure.repl :refer :all]
    [clojure.core.async :refer [>! go]]
    [repl]

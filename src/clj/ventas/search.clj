@@ -2,7 +2,7 @@
   (:require
    [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.string :as str]
-   [mount.core :as mount :refer [defstate]]
+   [mount.core :refer [defstate]]
    [qbits.spandex :as spandex]
    [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
@@ -10,8 +10,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.category :as entities.category]
-   [ventas.events :as events]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils])
+  (:import [clojure.lang ExceptionInfo]))
 
 (defstate elasticsearch
   :start
@@ -256,7 +256,7 @@
                 (index-document doc :channel response-ch))
               (doseq [doc message]
                 (let [result (<! response-ch)]
-                  (when (instance? clojure.lang.ExceptionInfo result)
+                  (when (instance? ExceptionInfo result)
                     (taoensso.timbre/error (get-in (ex-data result)
                                                    [:body :error])))))))
           (when-not (nil? message)

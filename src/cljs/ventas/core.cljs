@@ -9,7 +9,7 @@
    [ventas.components.base :as base]
    [ventas.devcards.core]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.events.backend]
    [ventas.local-storage :as storage]
    [ventas.page :as page]
    [ventas.pages.admin]

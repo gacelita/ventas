@@ -38,10 +38,10 @@
 
 (def ^:private paths
   {project-resources "resources"
-   sites [project-resources "/sites"]
    public [project-resources "/public"]
    public-files [public "/files"]
    storage "storage"
+   sites [storage "/sites"]
    resized-images [storage "/resized-images"]
    rendered [storage "/rendered"]})
 
@@ -57,7 +57,7 @@
   "Resolves a path, makes sure it exists and returns it"
   [kw]
   (let [path (resolve-path kw)]
-    (io/make-parents path)
+    (io/make-parents (str path "/."))
     path))
 
 (defn path->resource [path]

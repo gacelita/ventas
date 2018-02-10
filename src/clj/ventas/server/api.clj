@@ -4,8 +4,8 @@
    [byte-streams :as bytes]
    [clojure.spec.alpha :as spec]
    [clojure.string :as str]
+   [clojure.java.io :as io]
    [spec-tools.data-spec :as data-spec :refer [maybe opt]]
-   [spec-tools.json-schema :as json-schema]
    [ventas.auth :as auth]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
@@ -13,7 +13,6 @@
    [ventas.database.generators :as db.generators]
    [ventas.entities.file :as entities.file]
    [ventas.entities.product :as entities.product]
-   [ventas.entities.user :as entities.user]
    [ventas.paths :as paths]
    [ventas.search :as search]
    [ventas.server.pagination :as pagination]
@@ -382,9 +381,9 @@
          file-id (if is-first (gensym "temp-file") file-id)
          path (str (paths/resolve paths/storage) "/" file-id)]
      (with-open [r (bytes/to-input-stream bytes)
-                 w (-> (clojure.java.io/file path)
-                       (clojure.java.io/output-stream :append (not is-first)))]
-       (clojure.java.io/copy r w))
+                 w (-> (io/file path)
+                       (io/output-stream :append (not is-first)))]
+       (io/copy r w))
      (cond
        is-last (entities.file/create-from-file! path)
        is-first file-id

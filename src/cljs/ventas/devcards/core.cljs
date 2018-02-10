@@ -1,7 +1,6 @@
 (ns ventas.devcards.core
   (:require
    [devcards.core]
-   [reagent.core :as reagent]
    [ventas.devcards.breadcrumbs]
    [ventas.devcards.cart]
    [ventas.devcards.category-list]

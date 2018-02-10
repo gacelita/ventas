@@ -3,8 +3,7 @@
    [re-frame.core :as rf]
    [ventas.events :as events]
    [ventas.plugins.blog.api :as blog.api]
-   [ventas.routes :as routes]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.routes :as routes]))
 
 (defn page []
   (let [sub-key :blog.core]

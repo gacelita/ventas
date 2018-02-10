@@ -3,7 +3,6 @@
    [clojure.test :refer [deftest is testing use-fixtures]]
    [ventas.database :as db]
    [ventas.database.entity :as sut]
-   [ventas.database.seed :as seed]
    [ventas.test-tools :as test-tools]))
 
 (deftest entity?

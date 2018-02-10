@@ -3,8 +3,7 @@
    [re-frame.core :as rf]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
-   [ventas.i18n :refer [i18n]]
-   [ventas.routes :as routes]))
+   [ventas.i18n :refer [i18n]]))
 
 (defn get-identity []
   @(rf/subscribe [::events/db [:session :identity]]))

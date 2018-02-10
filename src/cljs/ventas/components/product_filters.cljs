@@ -6,7 +6,6 @@
    [ventas.components.sidebar :as sidebar]
    [ventas.components.term :as term]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.utils :as utils :include-macros true]))

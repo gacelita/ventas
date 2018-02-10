@@ -4,15 +4,11 @@
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.components.image :as image]
-   [ventas.components.product-filters :as product-filters]
    [ventas.components.term :as term]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.components.heading :as theme.heading]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.utils :as util]
    [ventas.utils :as utils]
    [ventas.utils.formatting :as utils.formatting]))
 

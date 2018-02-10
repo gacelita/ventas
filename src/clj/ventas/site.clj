@@ -3,6 +3,7 @@
    [mount.core :refer [defstate]]
    [ventas.paths :as paths]
    [ventas.database :as db]
+   [clojure.java.io :as io]
    [clojure.string :as str]
    [ventas.common.utils :as common.utils]
    [taoensso.timbre :as timbre]))
@@ -11,7 +12,7 @@
 
 (defn get-sites []
   (->> (paths/resolve ::paths/sites)
-       (clojure.java.io/file)
+       (io/file)
        (file-seq)
        (remove #(.isDirectory %))
        (map (fn [file]
@@ -29,7 +30,7 @@
                    (merge
                     {#'ventas.config/config config
                      #'current site}
-                    (when-let [db-url (get-in site [:database :url])]
+                    (when (get-in site [:database :url])
                       {#'ventas.database/db (db/start-db!)}))))]))
        (into {})))
 

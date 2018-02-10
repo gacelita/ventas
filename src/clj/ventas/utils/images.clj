@@ -1,7 +1,6 @@
 (ns ventas.utils.images
   (:require
    [clojure.java.io :as io]
-   [clojure.set :as set]
    [fivetonine.collage.core :as collage]
    [fivetonine.collage.util :as util]
    [ventas.utils.files :as utils.files]))

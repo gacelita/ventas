@@ -1,12 +1,10 @@
 (ns ventas.themes.clothing.pages.frontend.product
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
-   [ventas.common.utils :as common.utils]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.components.image :as image]
-   [ventas.components.product-filters :as product-filters]
    [ventas.components.slider :as components.slider]
    [ventas.components.term :as term]
    [ventas.events :as events]

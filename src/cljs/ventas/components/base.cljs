@@ -1,7 +1,6 @@
 (ns ventas.components.base
   (:refer-clojure :exclude [comment list])
   (:require
-   [reagent.core :as reagent]
    [soda-ash.core :as sa]
    [ventas.common.utils :as common.utils]
    [ventas.i18n :refer [i18n]]))

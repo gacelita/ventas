@@ -1,7 +1,6 @@
 (ns ventas.config
   (:refer-clojure :exclude [get set])
   (:require
-   [clojure.core :as clj]
    [cprop.core :as cprop]
    [cprop.source]
    [mount.core :refer [defstate]]

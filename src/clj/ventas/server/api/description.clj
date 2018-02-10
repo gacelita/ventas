@@ -2,14 +2,12 @@
   (:require
    [clojure.set :as set]
    [clojure.spec.alpha :as spec]
-   [clojure.string :as str]
    [clojure.test.check.generators :as gen]
    [spec-tools.core :as st]
    [spec-tools.data-spec :as data-spec]
    [spec-tools.impl :as impl]
    [spec-tools.parse :as parse]
    [spec-tools.visitor :as visitor]
-   [ventas.common.utils :as common.utils]
    [ventas.server.api :as api]))
 
 (defn- only-entry? [key a-map] (= [key] (keys a-map)))

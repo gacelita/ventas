@@ -7,7 +7,7 @@
    [clojure.string :as str]
    [compojure.core :refer [GET defroutes]]
    [compojure.route]
-   [mount.core :as mount :refer [defstate]]
+   [mount.core :refer [defstate]]
    [org.httpkit.server :as http-kit]
    [prone.middleware :as prone]
    [ring.middleware.defaults :as ring.defaults]
@@ -16,7 +16,7 @@
    [ring.middleware.session :as ring.session]
    [ring.util.mime-type :as ring.mime-type]
    [ring.util.response :as ring.response]
-   [taoensso.timbre :as timbre :refer [debug info]]
+   [taoensso.timbre :as timbre]
    [ventas.config :as config]
    [ventas.database.entity :as entity]
    [ventas.entities.file :as entities.file]
@@ -27,7 +27,6 @@
    [ventas.server.ws :as server.ws]
    [ventas.theme :as theme]
    [ventas.utils :as utils]
-   [ventas.server.api :as api]
    [ventas.site :as site])
   (:import
    [clojure.lang Keyword])
@@ -82,7 +81,7 @@
            "</script>"))))
 
 (defn- handle-spa [{:keys [uri]}]
-  (debug "Handling SPA" uri)
+  (timbre/debug "Handling SPA" uri)
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body (let [theme-name (theme/current)
@@ -138,18 +137,18 @@
       (ring.gzip/wrap-gzip)))
 
 (defn stop-server! [stop-fn]
-  (info "Stopping server")
+  (timbre/info "Stopping server")
   (when (ifn? stop-fn)
     (try
       (stop-fn)
       (catch Exception e
         ;; Avoids occasional ConcurrentModificationException, which is a bug in httpkit
-        (info ::stop-server! " - Caught exception while stopping the server:" (pr-str e))))))
+        (timbre/info ::stop-server! " - Caught exception while stopping the server:" (pr-str e))))))
 
 (defn start-server! []
-  (info "Starting server")
+  (timbre/info "Starting server")
   (let [{:keys [host port]} (config/get :server)]
-    (info "Starting server on" (str host ":" port))
+    (timbre/info "Starting server on" (str host ":" port))
     (http-kit/run-server http-handler
                          {:ip host
                           :port port

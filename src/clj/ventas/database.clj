@@ -1,33 +1,26 @@
 (ns ventas.database
   (:require
-   [buddy.hashers :as hashers]
    [clojure.core.async :refer [<! >! chan go go-loop]]
-   [clojure.data.json :as json]
-   [clojure.java.io :as io]
-   [clojure.pprint :as p]
    [clojure.spec.alpha :as spec]
-   [clojure.spec.test.alpha :as stest]
    [clojure.string]
    [clojure.test.check.generators :as gen]
-   [clojure.tools.logging :as log]
-   [clojure.walk :as walk]
    [datomic.api :as d]
    [io.rkn.conformity :as conformity]
-   [mount.core :as mount :refer [defstate]]
+   [mount.core :refer [defstate]]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre :refer [info]]
+   [taoensso.timbre :as timbre]
    [ventas.config :as config]
-   [ventas.database.generators :as db.generators]
-   [ventas.utils :as utils])
+   [ventas.database.generators :as db.generators])
   (:import
-   [java.io File]
-   [java.util.concurrent ExecutionException]))
+   [java.util.concurrent ExecutionException]
+   [datomic Datom]
+   [datomic.query EntityMap]))
 
 (def ^:dynamic db)
 
 (defn start-db! []
   (let [url (config/get :database :url)]
-    (info (str "Starting database, URL: " url))
+    (timbre/info (str "Starting database, URL: " url))
     (try
       (d/create-database url)
       (d/connect url)
@@ -35,7 +28,7 @@
         (throw (ex-info "Error connecting (database offline?)" {}))))))
 
 (defn stop-db! [db]
-  (info "Stopping database"))
+  (timbre/info "Stopping database"))
 
 (defstate db :start (start-db!) :stop (stop-db! db))
 
@@ -139,7 +132,7 @@
     :default ref))
 
 (defn datom->map
-  [^datomic.Datom datom]
+  [^Datom datom]
   (let [e  (.e datom)
         a  (.a datom)
         v  (.v datom)
@@ -185,10 +178,10 @@
   (into {}
         (for [[k v] m]
           [k (cond
-               (instance? datomic.query.EntityMap v) (:db/id v)
+               (instance? EntityMap v) (:db/id v)
                (set? v)
                (cond
-                 (instance? datomic.query.EntityMap (first v)) (map :db/id v)
+                 (instance? EntityMap (first v)) (map :db/id v)
                  :else v)
                :else v)])))
 
@@ -292,9 +285,9 @@
   "Recreates the database"
   []
   (let [url (config/get :database :url)]
-    (info "Deleting database " url)
+    (timbre/info "Deleting database " url)
     (d/delete-database url)
-    (info "Creating database " url)
+    (timbre/info "Creating database " url)
     (d/create-database url)))
 
 (defn ensure-conforms

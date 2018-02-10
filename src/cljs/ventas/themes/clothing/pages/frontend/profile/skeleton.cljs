@@ -5,8 +5,7 @@
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.components.skeleton :as ventas.skeleton]
-   [ventas.utils :as utils]))
+   [ventas.themes.clothing.components.skeleton :as ventas.skeleton]))
 
 (defn sidebar []
   [sidebar/sidebar

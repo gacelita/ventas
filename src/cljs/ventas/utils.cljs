@@ -3,10 +3,6 @@
   (:require
    [cljs.spec.alpha :as spec]
    [expound.alpha :as expound]
-   [re-frame.core :as rf]
-   [ventas.events :as events]
-   [ventas.events.backend :as backend]
-   [ventas.utils.formatting :as utils.formatting]
    [ventas.utils.logging :refer [debug error info trace warn]])
   (:require-macros
    [ventas.utils]))

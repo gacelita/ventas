@@ -1,9 +1,7 @@
 (ns ventas.database.seed
   (:require
    [clojure.set :as set]
-   [clojure.spec.alpha :as spec]
-   [clojure.test.check.generators :as gen]
-   [taoensso.timbre :as timbre :refer [info]]
+   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
@@ -31,7 +29,7 @@
   (let [deps (entity/dependencies type)]
     (doseq [dep deps]
       (seed-type-with-deps dep 1))
-    (info "Seeding type:" type)
+    (timbre/info "Seeding type:" type)
     (seed-type type n)))
 
 (defn- get-sorted-types*
@@ -74,19 +72,19 @@
   [& {:keys [recreate? generate? minimal?]}]
 
   (schema/migrate :recreate? recreate?)
-  (info "Migrations done!")
+  (timbre/info "Migrations done!")
 
   (doseq [type (get-sorted-types)]
-    (info "Seeding type " type)
+    (timbre/info "Seeding type " type)
     (seed-type type (if generate? (entity/seed-number type) 0)))
 
   (when-not minimal?
     (doseq [theme-kw (theme/all)]
-      (info "Installing theme " theme-kw)
+      (timbre/info "Installing theme " theme-kw)
       (doseq [fixture (plugin/fixtures theme-kw)]
         (create* fixture)))
 
     (doseq [plugin-kw (plugin/all)]
-      (info "Installing plugin " plugin-kw)
+      (timbre/info "Installing plugin " plugin-kw)
       (doseq [fixture (plugin/fixtures plugin-kw)]
         (create* fixture)))))

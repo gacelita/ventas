@@ -1,16 +1,13 @@
 (ns ventas.themes.clothing.pages.frontend.profile
   (:require
-   [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.components.sidebar :as sidebar]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.pages.frontend.profile.account]
    [ventas.themes.clothing.pages.frontend.profile.addresses]
    [ventas.themes.clothing.pages.frontend.profile.orders]
-   [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
-   [ventas.utils :as utils]))
+   [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]))
 
 (defn content [identity]
   [:div.profile-page

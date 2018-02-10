@@ -1,7 +1,6 @@
 (ns ventas.themes.clothing.pages.frontend.profile.addresses
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent]
    [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]

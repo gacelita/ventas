@@ -1,7 +1,6 @@
 (ns ventas.database.entity
   (:refer-clojure :exclude [find type update])
   (:require
-   [clojure.core :as clj]
    [clojure.core.async :refer [<! go go-loop]]
    [clojure.set :as set]
    [clojure.spec.alpha :as spec]

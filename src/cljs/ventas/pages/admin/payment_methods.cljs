@@ -1,16 +1,14 @@
 (ns ventas.pages.admin.payment-methods
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.table :as table]
-   [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.pages.admin.taxes.edit]
-   [ventas.routes :as routes]
-   [ventas.utils.formatting :as formatting]))
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

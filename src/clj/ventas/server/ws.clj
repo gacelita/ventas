@@ -2,10 +2,9 @@
   (:require
    [clj-uuid :as uuid]
    [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
-   [taoensso.timbre :refer [debug]]
+   [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
-   [ventas.database.entity :as entity]
-   [ventas.utils :as utils]))
+   [ventas.database.entity :as entity]))
 
 (def ^:private shared-hub
   (atom nil))
@@ -55,7 +54,7 @@
                (send-event channel))
     :request (-> (call-request-handler message state)
                  (send-response channel))
-    :else (debug "Unhandled message: " message)))
+    :else (timbre/debug "Unhandled message: " message)))
 
 (defn get-shared-channel []
   (let [ch (chan)]
@@ -103,7 +102,7 @@
   (let [client-id (uuid/v4)]
     (go-loop []
       (when-let [{{:keys [id] :as message} :message} (<! channel)]
-        (debug "Received binary message" message)
+        (timbre/debug "Received binary message" message)
         (let [response (handle-binary-request
                         message
                         {:client-id client-id

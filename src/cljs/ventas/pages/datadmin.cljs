@@ -2,14 +2,12 @@
   "Underdeveloped idea; don't use, don't read, etc."
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.components.cart :as cart]
    [ventas.components.notificator]
    [ventas.components.popup]
    [ventas.events :as events]
    [ventas.routes :as routes]
-   [ventas.utils :as util]
    [ventas.utils.logging :refer [debug error info trace warn]]))
 
 (def state-key ::state)

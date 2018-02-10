@@ -6,7 +6,6 @@
    entities for you, they tend to be not `real world enough` for development)"
   (:require
    [clojure.spec.alpha :as spec]
-   [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.seo :as seo]

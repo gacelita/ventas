@@ -1,8 +1,7 @@
 (ns ventas.pages.admin.taxes.edit
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
-   [ventas.common.utils :as common.utils]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]

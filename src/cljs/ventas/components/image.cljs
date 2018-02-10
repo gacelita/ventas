@@ -1,7 +1,6 @@
 (ns ventas.components.image
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent]
    [ventas.components.base :as base]
    [ventas.events :as events]))
 
