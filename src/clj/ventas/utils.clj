@@ -10,6 +10,13 @@
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))
 
+(defn spec-exists? [v]
+  (try
+    (spec/form v)
+    true
+    (catch Throwable e
+      false)))
+
 (defn dequalify-keywords [m]
   (into {}
         (for [[k v] m]
@@ -48,13 +55,6 @@
     true
     (do
       (throw (Exception. (with-out-str (apply expound/expound args)))))))
-
-(defn spec-exists? [kw]
-  (try
-    (spec/describe kw)
-    true
-    (catch Exception e
-      false)))
 
 (defn update-if-exists [thing kw update-fn]
   (if (get thing kw)
