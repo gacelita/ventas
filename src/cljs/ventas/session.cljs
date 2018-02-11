@@ -8,6 +8,11 @@
 (defn get-identity []
   @(rf/subscribe [::events/db [:session :identity]]))
 
+(defn valid-identity? []
+  (let [{:keys [id status]} (get-identity)]
+    (and id
+         (not= :user.status/unregistered status))))
+
 (rf/reg-event-fx
  ::require-identity
  (fn [_ _]

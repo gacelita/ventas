@@ -6,6 +6,7 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
+   [ventas.session :as session]
    [ventas.routes :as routes]
    [ventas.utils :as utils :include-macros true]))
 
@@ -99,5 +100,6 @@
                                  (if @(rf/subscribe [::opened])
                                    "visible"
                                    "unvisible"))}
-          [base/menu-item {:on-click #(rf/dispatch [::logout])}
-           (i18n ::logout)]]]]]]]))
+          (when (session/valid-identity?)
+            [base/menu-item {:on-click #(rf/dispatch [::logout])}
+             (i18n ::logout)])]]]]]]))
