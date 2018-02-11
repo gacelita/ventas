@@ -333,10 +333,9 @@
  (fn [{:keys [params]} {:keys [session]}]
    (if-let [user (get-user session)]
      {:user (entity/to-json user)}
-     (if-let [token (:token params)]
-       (let [user (auth/token->user token)]
-         (when-not user
-           (throw (Exception. "Invalid token")))
+     (if-let [user (some->> (:token params)
+                             auth/token->user)]
+       (do
          (set-user session user)
          {:user (entity/to-json user)})
        (let [{:keys [user token]} (create-unregistered-user)]

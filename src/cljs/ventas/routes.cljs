@@ -23,7 +23,7 @@
 (defn- index-urls
   "Creates a [route -> url] map"
   [routes]
-  (reduce (fn [acc {:keys [route url] :as item}]
+  (reduce (fn [acc {:keys [route url]}]
             (assoc acc route url))
           {}
           routes))
@@ -39,7 +39,7 @@
                                    :else (vec (concat ["/"] %))))))
          routes)))
 
-(defn- reducer [acc {:keys [route url] :as item} indexed-urls]
+(defn- reducer [acc {:keys [route url]} indexed-urls]
   (let [parents (route-parents route)
         path (concat (map #(% indexed-urls) parents) [url])]
     (update-in acc path #(merge % {"" route}))))
