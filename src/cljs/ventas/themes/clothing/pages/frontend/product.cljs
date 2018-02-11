@@ -166,7 +166,7 @@
                              term])}])
 
 (defn- info-view [_]
-  (rf/dispatch [::events/users.favorites.list])
+  (rf/dispatch [::events/users.favorites.enumerate])
   (fn [{:keys [quantity product]}]
     (let [{:keys [name price description variation]} product]
       [:div.product-page__info

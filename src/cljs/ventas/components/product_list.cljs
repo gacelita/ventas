@@ -6,7 +6,6 @@
    [ventas.components.image :as image]
    [ventas.events :as events]
    [ventas.routes :as routes]
-   [ventas.utils.formatting :as formatting]
    [ventas.utils.ui :as utils.ui]
    [ventas.utils.formatting :as utils.formatting]))
 

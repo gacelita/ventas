@@ -133,9 +133,14 @@
    {:ws-request (merge {:name :users.addresses.remove} options)}))
 
 (rf/reg-event-fx
+ ::users.favorites.enumerate
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :users.favorites.enumerate} options)}))
+
+(rf/reg-event-fx
  ::users.favorites.list
  (fn [cofx [_ options]]
-   {:ws-request (merge {:name :users.favorites.list} options)}))
+    {:ws-request (merge {:name :users.favorites.list} options)}))
 
 (rf/reg-event-fx
  ::users.favorites.add

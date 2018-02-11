@@ -184,9 +184,9 @@
     :forward-events {:unregister ::users.addresses.listener}}))
 
 (rf/reg-event-fx
- ::users.favorites.list
+ ::users.favorites.enumerate
  (fn [cofx [_ db-key]]
-   {:dispatch [::backend/users.favorites.list
+   {:dispatch [::backend/users.favorites.enumerate
                {:success [::db :users.favorites]}]}))
 
 (rf/reg-event-fx

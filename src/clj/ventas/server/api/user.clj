@@ -3,7 +3,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.user :as entities.user]
-   [ventas.server.api :as api]))
+   [ventas.server.api :as api]
+   [ventas.server.pagination :as pagination]))
 
 (defn- user-check! [session]
   (let [{:db/keys [id]} (api/get-user session)]
@@ -118,10 +119,19 @@
        (throw (Exception. "No discount found with the given code"))))))
 
 (register-user-endpoint!
- :users.favorites.list
+ :users.favorites.enumerate
  (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]
      (:user/favorites user))))
+
+(register-user-endpoint!
+ :users.favorites.list
+ {:middleware [pagination/wrap-sort
+               pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (let [user (api/get-user session)]
+     (->> (:user/favorites user)
+          (map #(entity/find-json % {:culture (api/get-culture session)}))))))
 
 (defn- toggle-favorite [session product-id f]
   (when-let [user (api/get-user session)]

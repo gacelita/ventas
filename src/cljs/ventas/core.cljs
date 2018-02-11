@@ -67,7 +67,7 @@
    {:dispatch-n [[::rendered-db]
                  [::events/users.session]
                  [::events/categories.list]
-                 [::events/users.favorites.list]]}))
+                 [::events/users.favorites.enumerate]]}))
 
 (defn page []
   (info "Rendering...")
