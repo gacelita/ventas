@@ -111,6 +111,18 @@ $skeleton-header-logo-width: 60px;
 
     }
 }
+.skeleton-header__cart {
+    position: relative;
+}
+
+.skeleton-header__cart-count {
+    position: absolute;
+    font-weight: bold;
+    left: 3px;
+    top: -15px;
+    text-align: center;
+    width: 100%;
+}
 
 .ui.vertical.menu.skeleton-header__user-menu {
     position: absolute;

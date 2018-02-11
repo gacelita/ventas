@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent]
+   [ventas.components.cart :as cart]
    [ventas.components.base :as base]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
@@ -99,6 +100,8 @@
         [:span (i18n ::my-favorites)]]
        [:div.skeleton-header__cart {:on-click #(routes/go-to :frontend.cart)}
         [base/icon {:name "shopping cart"}]
-        [:span (i18n ::my-cart)]]
+        [:span (i18n ::my-cart)]
+        [:div.skeleton-header__cart-count
+         @(rf/subscribe [::cart/item-count])]]
 
        ]]]))

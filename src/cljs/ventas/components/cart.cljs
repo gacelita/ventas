@@ -18,8 +18,9 @@
  ::item-count
  (fn [_]
    (rf/subscribe [::main]))
- (fn [state]
-   (-> state :items count)))
+ (fn [{:keys [lines]}]
+   (->> (map :quantity lines)
+        (reduce +))))
 
 (rf/reg-sub
  ::items
