@@ -5,13 +5,14 @@
    [ventas.routes :as routes]
    [ventas.events :as events]
    [re-frame.core :as rf]
-   [ventas.common.utils :as common.utils]))
+   [ventas.common.utils :as common.utils]
+   [clojure.string :as str]))
 
 (def state-key ::state)
 
-(defn- category->menu-item [[{:keys [slug name id]} children]]
+(defn- category->menu-item [[{:keys [slug name]} children]]
   {:text name
-   :id id
+   :id slug
    :href (routes/path-for :frontend.category :id slug)
    :children (when children (map category->menu-item children))})
 
@@ -23,6 +24,12 @@
                :href (routes/path-for :frontend)}])))
 
 (defn menu []
-  [menu/menu
-   {:current @(rf/subscribe [::events/db [state-key :current-category]])
-    :items (get-categories)}])
+  (let [current (-> @(rf/subscribe [::events/db [state-key :current-category]])
+                    (str/split "-"))]
+    [menu/menu
+     {:current-fn (fn [{:keys [id]}]
+                    (when (= :frontend.category (routes/handler))
+                      (let [split (str/split id "-")]
+                        (= current (try (subvec split 0 (count current))
+                                        (catch :default e))))))
+      :items (get-categories)}]))

@@ -12,6 +12,7 @@
    [ventas.themes.clothing.components.preheader :refer [preheader]]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.pages.frontend.cart]
+   [ventas.themes.clothing.pages.frontend.favorites]
    [ventas.themes.clothing.pages.frontend.category]
    [ventas.themes.clothing.pages.frontend.checkout]
    [ventas.themes.clothing.pages.frontend.login]

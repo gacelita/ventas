@@ -28,10 +28,13 @@
         text-decoration: none !important;
     }
 
-    &:hover {
+    &.menu__item--active, &:hover {
         > a {
             color: #888;
         }
+    }
+
+    &:hover {
         .menu__overlay {
             display: block;
         }
