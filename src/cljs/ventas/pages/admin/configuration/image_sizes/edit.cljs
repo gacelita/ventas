@@ -49,19 +49,19 @@
         [base/form-input
          {:label (i18n ::keyword)
           :default-value (get form field)
-          :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}])
+          :on-change #(rf/dispatch [::form/set-field [state-key] field (-> % .-target .-value)])}])
 
       (let [field :width]
         [base/form-input
          {:label (i18n ::width)
           :default-value (get form field)
-          :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}])
+          :on-change #(rf/dispatch [::form/set-field [state-key] field (-> % .-target .-value)])}])
 
       (let [field :height]
         [base/form-input
          {:label (i18n ::height)
           :default-value (get form field)
-          :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}])
+          :on-change #(rf/dispatch [::form/set-field [state-key] field (-> % .-target .-value)])}])
 
       (let [field :algorithm]
         [base/form-field
@@ -72,7 +72,7 @@
            :options (map #(update % :value str)
                          @(rf/subscribe [::events/db [:enums :image-size.algorithm]]))
            :default-value (str (get form field))
-           :on-change #(rf/dispatch [::form/set-field field (-> % .-target .-value)])}]])
+           :on-change #(rf/dispatch [::form/set-field [state-key] field (-> % .-target .-value)])}]])
 
       (let [field :entities]
         [base/form-field
@@ -85,7 +85,7 @@
                             :value (str entity)})
                          @(rf/subscribe [::events/db :image-sizes]))
            :default-value (get form field)
-           :on-change #(rf/dispatch [::form/set-field field (set (.-value %2))])}]])]
+           :on-change #(rf/dispatch [::form/set-field [state-key] field (set (.-value %2))])}]])]
 
      [base/divider {:hidden true}]
 

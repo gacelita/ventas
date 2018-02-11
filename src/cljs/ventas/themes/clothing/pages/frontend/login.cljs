@@ -1,8 +1,9 @@
 (ns ventas.themes.clothing.pages.frontend.login
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
+   [ventas.components.form :as form]
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
@@ -10,41 +11,48 @@
    [ventas.utils :as utils]
    [ventas.utils.logging :refer [debug error info trace warn]]))
 
+(def state-key ::state)
+
 (defn- login []
-  (reagent/with-let [data (atom {})]
+  (let [{:keys [form]} @(rf/subscribe [::events/db [state-key :login]])]
     [base/segment {:class "login-page__segment"}
      [:h3 (i18n ::login)]
      [base/form
       [base/form-field
        [:input {:placeholder (i18n ::email)
-                :on-change (utils/value-handler #(swap! data assoc :email %))}]]
+                :on-change (utils/value-handler
+                            #(rf/dispatch [::form/set-field [state-key :login] :email %]))}]]
       [base/form-field
        [:input {:placeholder (i18n ::password)
                 :type "password"
-                :on-change (utils/value-handler #(swap! data assoc :password %))}]]
+                :on-change (utils/value-handler
+                            #(rf/dispatch [::form/set-field [state-key :login] :password %]))}]]
       [:a.login-page__forgot-password {:href "/"}
        (i18n ::forgot-password)]
       [base/button {:type "button"
-                    :on-click #(rf/dispatch [::events/users.login @data])}
+                    :on-click #(rf/dispatch [::events/users.login form])}
        (i18n ::login)]]]))
 
 (defn- register []
-  (reagent/with-let [data (atom {})]
+  (let [{:keys [form]} @(rf/subscribe [::events/db [state-key :register]])]
     [base/segment {:class "login-page__segment"}
      [:h3 (i18n ::register)]
      [base/form
       [base/form-field
        [:input {:placeholder (i18n ::full-name)
-                :on-change (utils/value-handler #(swap! data assoc :name %))}]]
+                :on-change (utils/value-handler
+                            #(rf/dispatch [::form/set-field [state-key :register] :name %]))}]]
       [base/form-field
        [:input {:placeholder (i18n ::email)
-                :on-change (utils/value-handler #(swap! data assoc :email %))}]]
+                :on-change (utils/value-handler
+                            #(rf/dispatch [::form/set-field [state-key :register] :email %]))}]]
       [base/form-field
        [:input {:placeholder (i18n ::password)
                 :type "password"
-                :on-change (utils/value-handler #(swap! data assoc :password %))}]]
+                :on-change (utils/value-handler
+                            #(rf/dispatch [::form/set-field [state-key :register] :password %]))}]]
       [base/button {:type "button"
-                    :on-click #(rf/dispatch [::events/users.register @data])}
+                    :on-click #(rf/dispatch [::events/users.register form])}
        (i18n ::register)]]]))
 
 (defn page []
