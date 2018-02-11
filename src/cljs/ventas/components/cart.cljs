@@ -7,7 +7,8 @@
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.formatting :as formatting]
-   [ventas.utils.ui :refer [with-handler]]))
+   [ventas.utils.ui :refer [with-handler]]
+   [ventas.utils.formatting :as utils.formatting]))
 
 (rf/reg-sub
  ::main
@@ -51,8 +52,7 @@
        [:img {:src (str "/images/" (:id (first images)) "/resize/product-listing")}]]
       [:div.cart-notification__info
        [:h4 (:name product-variation)]
-       (let [{:keys [value currency]} price]
-         [:h4 (str (formatting/format-number value) " " (:symbol currency))])
+       [:h4 (utils.formatting/amount->str price)]
 
        [:div.cart-notification__terms
         (for [{:keys [taxonomy selected]} variation]

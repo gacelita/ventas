@@ -101,13 +101,13 @@
     [:div.cart-page__name
      [:h4 (:name product-variation)]]
     [:div.cart-page__price
-     [:h4 (str (utils.formatting/format-number (get-in product-variation [:price :value]))
-               " " (get-in product-variation [:price :currency :symbol]))]]
+     [:h4 (utils.formatting/amount->str (:price product-variation))]]
     [:div.cart-page__price
      [:h4 (str (i18n ::total) ": "
-               (* quantity
-                  (utils.formatting/format-number (get-in product-variation [:price :value])))
-               " " (get-in product-variation [:price :currency :symbol]))]]
+               (let [{:keys [currency value]} (:price product-variation)]
+                 (utils.formatting/amount->str
+                  {:currency currency
+                   :value (* quantity value)})))]]
     [:div.cart-page__terms
      (let [variation-data (get product-variation :variation)]
        (for [{:keys [taxonomy selected]} variation-data]

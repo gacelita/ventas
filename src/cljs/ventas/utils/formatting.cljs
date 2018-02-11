@@ -6,3 +6,8 @@
 (defn format-number [n]
   (when n
     (utils.goog/format (str "%.2f") n)))
+
+(defn amount->str [{:keys [value currency]}]
+  (str (format-number value)
+       " "
+       (:symbol currency)))

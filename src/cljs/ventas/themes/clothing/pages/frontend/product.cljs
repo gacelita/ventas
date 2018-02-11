@@ -12,7 +12,7 @@
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.utils.formatting :as formatting]))
+   [ventas.utils.formatting :as utils.formatting]))
 
 (def state-key ::state)
 
@@ -175,8 +175,7 @@
        [:p.product-page__description description]
 
        [:h2.product-page__price
-        (let [{:keys [value currency]} price]
-          (str (formatting/format-number value) " " (:symbol currency)))]
+        (utils.formatting/amount->str price)]
 
        [:div.product-page__terms-section
         (for [{:keys [taxonomy terms selected]} variation]
