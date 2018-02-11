@@ -10,7 +10,8 @@
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.components.skeleton :refer [skeleton]]))
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
+   [ventas.themes.clothing.components.menu :as menu]))
 
 (def state-key ::state)
 
@@ -23,7 +24,9 @@
                      (assoc-in [state-key :filters] {})
                      (assoc-in [state-key :pagination] {}))]
           (cond
-            ref (assoc-in db [state-key :filters :categories] [ref])
+            ref (-> db
+                    (assoc-in [state-key :filters :categories] [ref])
+                    (assoc-in [menu/state-key :current-category] ref))
             search (assoc-in db [state-key :filters :name] search)
             :default db))
     :dispatch [::fetch]}))
@@ -108,7 +111,7 @@
 
 (defn content []
   (let [{:keys [filters taxonomies items can-load-more?]} @(rf/subscribe [::events/db [state-key]])]
-    [:div.category-page.ui.container
+    [base/container {:class "category-page"}
      [:div.category-page__sidebar
       [components.product-filters/product-filters
        {:filters filters
@@ -130,7 +133,7 @@
 (rf/reg-sub
  ::title
  (fn [db _]
-   (let [{:keys [categories brand]} (get-in db [state-key :filters])
+   (let [{:keys [categories]} (get-in db [state-key :filters])
          category (find-category (first categories))]
      (or (:name category)
          (:brand category)
