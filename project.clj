@@ -212,6 +212,9 @@
               [
                ;; This build will be altered by client/dev-build, to do theme-dependent
                ;; builds.
+               ;; The default `:main` in here is ventas.themes.clothing.core for compatibility
+               ;; with the :embed-figwheel? option, but bear in mind that repl/set-theme!
+               ;; won't work if you take that path.
                {:id "app"
                 :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "custom-lib"]
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
