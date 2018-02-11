@@ -101,7 +101,7 @@
        [:div.skeleton-header__cart {:on-click #(routes/go-to :frontend.cart)}
         [base/icon {:name "shopping cart"}]
         [:span (i18n ::my-cart)]
-        [:div.skeleton-header__cart-count
-         @(rf/subscribe [::cart/item-count])]]
-
-       ]]]))
+        (let [count @(rf/subscribe [::cart/item-count])]
+          (when (pos? count)
+            [:div.skeleton-header__cart-count
+             @(rf/subscribe [::cart/item-count])]))]]]]))
