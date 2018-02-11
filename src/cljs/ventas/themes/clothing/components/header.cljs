@@ -71,6 +71,7 @@
        [:div.skeleton-header__search
         [base/dropdown {:placeholder (i18n ::search)
                         :selection true
+                        :icon "search"
                         :on-key-down (fn [e] (when (= (.-key e) "Enter")
                                                (routes/go-to :frontend.search
                                                              :search

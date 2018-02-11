@@ -1,7 +1,6 @@
 (ns ventas.themes.clothing.pages.frontend.product
   (:require
    [re-frame.core :as rf]
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.components.image :as image]

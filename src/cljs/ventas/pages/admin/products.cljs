@@ -2,7 +2,6 @@
   (:require
    [day8.re-frame.forward-events-fx]
    [re-frame.core :as rf]
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.table :as table]
    [ventas.events :as events]
@@ -28,7 +27,7 @@
 (rf/reg-event-fx
  ::fetch
  (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (get-in db state-path)]
      {:dispatch [::backend/products.list
                  {:success ::fetch.next
                   :params {:pagination {:page page

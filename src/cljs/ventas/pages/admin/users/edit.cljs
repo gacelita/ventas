@@ -1,7 +1,6 @@
 (ns ventas.pages.admin.users.edit
   (:require
    [re-frame.core :as rf]
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]

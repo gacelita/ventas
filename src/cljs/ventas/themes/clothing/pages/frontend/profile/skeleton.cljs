@@ -5,7 +5,7 @@
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.components.skeleton :as ventas.skeleton]))
+   [ventas.themes.clothing.components.skeleton :as skeleton]))
 
 (defn sidebar []
   [sidebar/sidebar
@@ -25,7 +25,7 @@
      (i18n ::logout)]]])
 
 (defn skeleton [content]
-  [ventas.skeleton/skeleton
+  [skeleton/skeleton
    [:div.ui.container.profile-skeleton
     [sidebar]
     [:div.profile-skeleton__content

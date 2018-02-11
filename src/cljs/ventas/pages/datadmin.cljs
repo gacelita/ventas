@@ -2,7 +2,6 @@
   "Underdeveloped idea; don't use, don't read, etc."
   (:require
    [re-frame.core :as rf]
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.notificator]
    [ventas.components.popup]

@@ -142,7 +142,7 @@
     (let [{:keys [lines]} @(rf/subscribe [::cart/main])]
       [:div.cart-page
        [:h2 (i18n ::cart)]
-       (if-not (seq lines)
+       (if (and lines (not (seq lines)))
          [no-items]
          [:div.cart-page__content
           [:div.cart-page__lines

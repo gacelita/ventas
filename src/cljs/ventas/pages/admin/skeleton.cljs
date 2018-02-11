@@ -2,8 +2,8 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.components.notificator :as ventas.notificator]
-   [ventas.components.popup :as ventas.popup]
+   [ventas.components.notificator :as notificator]
+   [ventas.components.popup :as popup]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
@@ -151,8 +151,8 @@
 
 (defn skeleton [content]
   [:div.root
-   [ventas.notificator/notificator]
-   [ventas.popup/popup]
+   [notificator/notificator]
+   [popup/popup]
    (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
      (if-not (contains? (set (:roles identity)) :user.role/administrator)
        [login]

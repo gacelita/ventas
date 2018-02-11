@@ -1,7 +1,6 @@
 (ns ventas.pages.admin.configuration.image-sizes.edit
   (:require
    [re-frame.core :as rf]
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.components.form :as form]

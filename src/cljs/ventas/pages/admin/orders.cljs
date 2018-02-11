@@ -3,7 +3,6 @@
    [clojure.string :as str]
    [day8.re-frame.forward-events-fx]
    [re-frame.core :as rf]
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.table :as table]
    [ventas.events :as events]

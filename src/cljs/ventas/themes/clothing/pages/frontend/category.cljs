@@ -1,7 +1,6 @@
 (ns ventas.themes.clothing.pages.frontend.category
   (:require
    [re-frame.core :as rf]
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.error :as error]
    [ventas.components.infinite-scroll :as scroll]

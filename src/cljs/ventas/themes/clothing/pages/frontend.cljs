@@ -1,6 +1,5 @@
 (ns ventas.themes.clothing.pages.frontend
   (:require
-   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.category-list :refer [category-list]]
    [ventas.i18n :refer [i18n]]
