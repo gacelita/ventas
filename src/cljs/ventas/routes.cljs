@@ -123,7 +123,8 @@
 (rf/reg-fx
  :go-to
  (fn [[route params]]
-   (go-to route params)))
+   (when route
+     (go-to route params))))
 
 (defn- ref-from-param [param-kw]
   (let [params (params)
