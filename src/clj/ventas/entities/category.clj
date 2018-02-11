@@ -90,12 +90,6 @@
     :db/cardinality :db.cardinality/one
     :db/unique :db.unique/identity}]
 
-  :fixtures
-  (fn []
-    [{:category/name (entities.i18n/get-i18n-entity {:en_US "Default"
-                                                     :es_ES "Predeterminada"})
-      :category/keyword :default}])
-
   :filter-create
 
   (fn [this]
