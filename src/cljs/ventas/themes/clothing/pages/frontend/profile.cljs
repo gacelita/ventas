@@ -7,27 +7,33 @@
    [ventas.themes.clothing.pages.frontend.profile.account]
    [ventas.themes.clothing.pages.frontend.profile.addresses]
    [ventas.themes.clothing.pages.frontend.profile.orders]
-   [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]))
+   [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
+   [ventas.session :as session]))
 
-(defn content [identity]
-  [:div.profile-page
+(defn content []
+  (let [{:keys [first-name]} (session/get-identity)]
+    [:div.profile-page
 
-   [:h2.profile-page__name (str (i18n ::welcome (:first-name identity)) "!")]
+     [:h2.profile-page__name (str (i18n ::welcome first-name) "!")]
 
-   [base/segment
-    [:h4 (i18n ::my-orders)]
-    [:p (i18n ::my-orders-explanation)]]
+     [:a.profile-page__segment {:href (routes/path-for :frontend.profile.orders)}
+      [base/segment
+       [:h4 (i18n ::my-orders)]
+       [:p (i18n ::my-orders-explanation)]]]
 
-   [base/segment
-    [:h4 (i18n ::my-addresses)]
-    [:p (i18n ::my-addresses-explanation)]]
+     [:a.profile-page__segment {:href (routes/path-for :frontend.profile.addresses)}
+      [base/segment
+       [:h4 (i18n ::my-addresses)]
+       [:p (i18n ::my-addresses-explanation)]]]
 
-   [base/segment
-    [:h4 (i18n ::my-account)]
-    [:p (i18n ::personal-data-explanation)]]])
+     [:a.profile-page__segment {:href (routes/path-for :frontend.profile.account)}
+      [base/segment
+       [:h4 (i18n ::my-account)]
+       [:p (i18n ::personal-data-explanation)]]]]))
 
 (defn page []
-  [profile.skeleton/skeleton content])
+  [profile.skeleton/skeleton
+   [content]])
 
 (routes/define-route!
   :frontend.profile

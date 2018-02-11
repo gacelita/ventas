@@ -9,8 +9,9 @@
 
 (def state-key ::state)
 
-(defn- category->menu-item [[{:keys [slug name]} children]]
+(defn- category->menu-item [[{:keys [slug name id]} children]]
   {:text name
+   :id id
    :href (routes/path-for :frontend.category :id slug)
    :children (when children (map category->menu-item children))})
 

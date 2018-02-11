@@ -66,6 +66,7 @@
  (fn [_ _]
    {:dispatch-n [[::rendered-db]
                  [::events/users.session]
+                 [::events/categories.list]
                  [::events/users.favorites.list]]}))
 
 (defn page []

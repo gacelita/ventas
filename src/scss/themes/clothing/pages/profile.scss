@@ -7,6 +7,10 @@
 .profile-skeleton__content {
     width: 100%;
     padding-left: 8px;
+
+    .ui.segment {
+        margin-top: 0px;
+    }
 }
 
 .profile-page {
@@ -15,6 +19,15 @@
         &:hover {
             background-color: #f5f5f5;
         }
+    }
+}
+
+.profile-page__segment {
+    display: block;
+    margin: 1rem 0;
+    color: inherit;
+    &:hover {
+        color: inherit;
     }
 }
 

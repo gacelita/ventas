@@ -35,8 +35,9 @@
 
 (i18n/register-translations!
  {:en_US
-  {:ventas.themes.clothing.components.header/my-cart "My cart"
-   :ventas.themes.clothing.components.header/my-account "My account"
+  {:ventas.themes.clothing.components.header/my-cart "Cart"
+   :ventas.themes.clothing.components.header/my-favorites "Favorites"
+   :ventas.themes.clothing.components.header/my-account "Profile"
    :ventas.themes.clothing.components.header/logout "Logout"
    :ventas.themes.clothing.components.header/search "Search"
    :ventas.themes.clothing.components.header/product "Product"
@@ -78,6 +79,9 @@
    :ventas.themes.clothing.pages.frontend.cart/checkout "Checkout"
    :ventas.themes.clothing.pages.frontend.cart/free "Free"
    :ventas.themes.clothing.pages.frontend.cart/no-items "Your cart is empty"
+
+   :ventas.themes.clothing.pages.frontend.favorites/page "Favorites"
+   :ventas.themes.clothing.pages.frontend.favorites/favorites "Favorites"
 
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"

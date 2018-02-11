@@ -139,10 +139,10 @@
 (defn page []
   [skeleton
    [base/container
-    (let [{:keys [lines]} @(rf/subscribe [::cart/main])]
+    (let [{:keys [lines] :as cart} @(rf/subscribe [::cart/main])]
       [:div.cart-page
        [:h2 (i18n ::cart)]
-       (if (and lines (not (seq lines)))
+       (if (and cart (not (seq lines)))
          [no-items]
          [:div.cart-page__content
           [:div.cart-page__lines

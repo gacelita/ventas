@@ -61,45 +61,44 @@
   (fn []
     [:div.skeleton-header
      [base/container
+      [:div.skeleton-header__search
+       [base/dropdown {:placeholder (i18n ::search)
+                       :selection true
+                       :icon "search"
+                       :on-key-down (fn [e] (when (= (.-key e) "Enter")
+                                              (routes/go-to :frontend.search
+                                                            :search
+                                                            @(rf/subscribe [::events/db [state-key :search-query]]))))
+                       :search (fn [options _] options)
+                       :options (->> @(rf/subscribe [::events/db [state-key :search]])
+                                     (sort-by :type)
+                                     (reverse)
+                                     (map #(reagent/as-element [search-result-view %])))
+                       :on-search-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
+
       [:div.skeleton-header__logo
        (let [title @(rf/subscribe [::events/db [:configuration :site.title]])]
          [:a {:title (:value title)
               :href (-> js/window (.-location) (.-origin))}
           [:img {:src "files/logo"}]])]
 
-      [:div.skeleton-header__right
-       [:div.skeleton-header__search
-        [base/dropdown {:placeholder (i18n ::search)
-                        :selection true
-                        :icon "search"
-                        :on-key-down (fn [e] (when (= (.-key e) "Enter")
-                                               (routes/go-to :frontend.search
-                                                             :search
-                                                             @(rf/subscribe [::events/db [state-key :search-query]]))))
-                        :search (fn [options _] options)
-                        :options (->> @(rf/subscribe [::events/db [state-key :search]])
-                                      (sort-by :type)
-                                      (reverse)
-                                      (map #(reagent/as-element [search-result-view %])))
-                        :on-search-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
+      [:div.skeleton-header__buttons
+       [:div.skeleton-header__profile
+        {:on-click #(routes/go-to :frontend.login)
+         :on-blur #(rf/dispatch [::close])}
+        [base/icon {:name "user"}]
+        [:span (i18n ::my-account)]
+        (when (session/valid-identity?)
+          [base/menu {:vertical true
+                      :class "skeleton-header__user-menu"}
+           [base/menu-item {:on-click #(rf/dispatch [::logout])}
+            (i18n ::logout)]])]
+       [:div.skeleton-header__favorites
+        {:on-click #(routes/go-to :frontend.favorites)}
+        [base/icon {:name "heart"}]
+        [:span (i18n ::my-favorites)]]
+       [:div.skeleton-header__cart {:on-click #(routes/go-to :frontend.cart)}
+        [base/icon {:name "shopping cart"}]
+        [:span (i18n ::my-cart)]]
 
-       [:div.skeleton-header__buttons
-        [:button {:on-click #(routes/go-to :frontend.cart)}
-         [base/icon {:name "add to cart"}]
-         [:span (i18n ::my-cart)]]
-
-        [:button {:on-click #(routes/go-to :frontend.login)
-                  :on-blur #(rf/dispatch [::close])}
-         [base/icon {:name "user"}]
-         [:span (i18n ::my-account)]
-         [base/icon {:name "caret down"
-                     :on-click (fn [e] (-> e (.stopPropagation))
-                                 (rf/dispatch [::toggle]))}]
-         [base/menu {:vertical true
-                     :class (str "skeleton-header__user-menu "
-                                 (if @(rf/subscribe [::opened])
-                                   "visible"
-                                   "unvisible"))}
-          (when (session/valid-identity?)
-            [base/menu-item {:on-click #(rf/dispatch [::logout])}
-             (i18n ::logout)])]]]]]]))
+       ]]]))

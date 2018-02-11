@@ -3,6 +3,11 @@
     position: relative;
 }
 
+.ui.selection.dropdown {
+    border-color: rgba(34,36,38,.35);
+    box-shadow: none;
+}
+
 body .ui.header {
     font-weight: normal;
 }

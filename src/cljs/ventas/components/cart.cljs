@@ -4,9 +4,9 @@
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.components.term :as term]
+   [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.formatting :as formatting]
    [ventas.utils.ui :refer [with-handler]]
    [ventas.utils.formatting :as utils.formatting]))
 
@@ -18,7 +18,8 @@
  ::item-count
  (fn [_]
    (rf/subscribe [::main]))
- (fn [state]))
+ (fn [state]
+   (-> state :items count)))
 
 (rf/reg-sub
  ::items
@@ -34,8 +35,9 @@
 
 (rf/reg-event-fx
  ::get
- (fn [db [_]]
-   {:dispatch [::backend/users.cart.get {:success ::cart}]}))
+ (fn [_ _]
+   {:dispatch [::backend/users.cart.get {:success ::cart
+                                         :error ::cart}]}))
 
 (rf/reg-event-fx
  ::add

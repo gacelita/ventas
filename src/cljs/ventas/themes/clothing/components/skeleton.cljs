@@ -1,5 +1,6 @@
 (ns ventas.themes.clothing.components.skeleton
   (:require
+   [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.components.breadcrumbs :as breadcrumbs]
    [ventas.components.cookies :as cookies]
@@ -20,9 +21,11 @@
     [preheader/preheader]
     [header/header]
     [menu/menu]
-    [base/container {:class "breadcrumbs-wrapper"}
-     [breadcrumbs/breadcrumbs]]
-    [base/divider]
+    (when-not (= (routes/handler) :frontend)
+      [:div
+       [base/container {:class "breadcrumbs-wrapper"}
+        [breadcrumbs/breadcrumbs]]
+       [base/divider]])
     [:div.page-wrapper
      contents]
     [footer/footer]]])

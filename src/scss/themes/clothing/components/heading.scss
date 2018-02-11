@@ -3,6 +3,7 @@
     position: relative;
     margin: 36px 0 50px;
 }
+
 .heading__line {
     position: absolute;
     left: 0;
@@ -14,9 +15,11 @@
     z-index: 0;
     background-color: #f2f4f5;
 }
+
 .heading__text {
     text-align: center;
     position: relative;
+
     h3 {
         text-transform: uppercase;
         display: inline-block;
@@ -27,5 +30,9 @@
         font-family: 'Raleway',sans-serif;
         color: #0092c5;
         background-color: #ecf0f1;
+
+        strong {
+            font-weight: bold !important;
+        }
     }
 }
