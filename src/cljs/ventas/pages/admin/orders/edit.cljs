@@ -92,14 +92,14 @@
                                               (get-in row [:product-variation :price :value]))])}]}])
 
 (rf/reg-event-fx
- ::init
+ ::fetch
  (fn [cofx [_ id]]
    {:dispatch [::backend/admin.orders.get
                {:params {:id id}
-                :success ::init.next}]}))
+                :success ::fetch.next}]}))
 
 (rf/reg-event-fx
- ::init.next
+ ::fetch.next
  (fn [{:keys [db]} [_ {:keys [order lines]}]]
    (merge
     {:db (-> db
@@ -126,7 +126,7 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::init (routes/ref-from-param :id)]
+   {:dispatch-n [[::fetch (routes/ref-from-param :id)]
                  [::events/enums.get :order.status]
                  [::backend/admin.users.list
                   {:success [::events/db [state-key :users]]}]]}))

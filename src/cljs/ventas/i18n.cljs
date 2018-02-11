@@ -60,6 +60,13 @@
 
     :ventas.pages.admin.products/page "Products"
 
+    :ventas.pages.admin.skeleton/discounts "Discounts"
+    :ventas.pages.admin.products.discounts/name "Name"
+    :ventas.pages.admin.products.discounts/code "Code"
+    :ventas.pages.admin.products.discounts/amount "Amount"
+    :ventas.pages.admin.products.discounts/actions "Actions"
+    :ventas.pages.admin.products.discounts/create "Create"
+
     :ventas.pages.admin.products.edit/active "Active"
     :ventas.pages.admin.products.edit/brand "Brand"
     :ventas.pages.admin.products.edit/description "Description"

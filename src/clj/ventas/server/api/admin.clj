@@ -158,6 +158,14 @@
         (entity/query :product.term))))
 
 (register-admin-endpoint!
+ :admin.discounts.list
+ {:middlewares [pagination/wrap-sort
+                pagination/wrap-paginate]}
+ (fn [_ {:keys [session]}]
+   (map #(entity/to-json % {:culture (api/get-culture session)})
+        (entity/query :discount))))
+
+(register-admin-endpoint!
  :admin.datadmin.datoms
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]}

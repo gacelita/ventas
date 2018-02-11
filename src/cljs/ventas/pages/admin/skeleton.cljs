@@ -22,7 +22,9 @@
 
    {:route :admin.products
     :label ::products
-    :icon "tag"}
+    :icon "tag"
+    :children [{:route :admin.products.discounts
+                :label ::discounts}]}
 
    {:route :admin.orders
     :label ::orders
@@ -107,14 +109,19 @@
 
      [base/form-button {:type "submit"} (i18n ::login)]]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::backend/admin.brands.list
+                  {:success [::events/db [:admin :brands]]}]
+                 [::backend/admin.taxes.list
+                  {:success [::events/db [:admin :taxes]]}]
+                 [::backend/admin.currencies.list
+                  {:success [::events/db [:admin :currencies]]}]
+                 [::events/i18n.cultures.list]]}))
+
 (defn- content-view [content]
-  (rf/dispatch [::backend/admin.brands.list
-                {:success [::events/db [:admin :brands]]}])
-  (rf/dispatch [::backend/admin.taxes.list
-                {:success [::events/db [:admin :taxes]]}])
-  (rf/dispatch [::backend/admin.currencies.list
-                {:success [::events/db [:admin :currencies]]}])
-  (rf/dispatch [::events/i18n.cultures.list])
+  (rf/dispatch [::init])
   (fn []
     [:div
      [:div.admin__userbar
