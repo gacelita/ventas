@@ -1,10 +1,11 @@
 (ns ventas.themes.clothing.components.preheader
   (:require
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.components.base :as base]))
 
 (defn preheader []
   [:div.preheader
-   [:div.ui.container
+   [base/container
     [:div.preheader__item
      [:strong (i18n ::support-and-orders)]
      [:a "666 555 444"]]

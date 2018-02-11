@@ -59,8 +59,7 @@
   (rf/dispatch [::events/configuration.get :site.title])
   (fn []
     [:div.skeleton-header
-     [:div.ui.container
-
+     [base/container
       [:div.skeleton-header__logo
        (let [title @(rf/subscribe [::events/db [:configuration :site.title]])]
          [:a {:title (:value title)
@@ -82,8 +81,8 @@
                                       (reverse)
                                       (map #(reagent/as-element [search-result-view %])))
                         :on-search-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
-       [:div.skeleton-header__buttons
 
+       [:div.skeleton-header__buttons
         [:button {:on-click #(routes/go-to :frontend.cart)}
          [base/icon {:name "add to cart"}]
          [:span (i18n ::my-cart)]]

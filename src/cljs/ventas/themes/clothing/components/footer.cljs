@@ -1,11 +1,12 @@
 (ns ventas.themes.clothing.components.footer
   (:require
    [ventas.i18n :refer [i18n]]
-   [ventas.routes :as routes]))
+   [ventas.routes :as routes]
+   [ventas.components.base :as base]))
 
 (defn footer []
   [:div.footer
-   [:div.ui.container
+   [base/container
     [:div.footer__columns
 
      [:div.footer__column

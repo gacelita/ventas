@@ -84,7 +84,7 @@
          :current (first (:categories filters))
          :outside-branch? true}])]))
 
-(defn product-filters [{:keys [filters taxonomies event]}]
+(defn product-filters [_]
   (rf/dispatch [::events/categories.list])
   (fn [{:keys [filters taxonomies event]}]
     [sidebar/sidebar

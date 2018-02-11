@@ -1,6 +1,7 @@
 (ns ventas.themes.clothing.pages.frontend.profile.skeleton
   (:require
    [re-frame.core :as rf]
+   [ventas.components.base :as base]
    [ventas.components.sidebar :as sidebar]
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
@@ -26,7 +27,7 @@
 
 (defn skeleton [content]
   [skeleton/skeleton
-   [:div.ui.container.profile-skeleton
+   [base/container {:class "profile-skeleton"}
     [sidebar]
     [:div.profile-skeleton__content
      content]]])
