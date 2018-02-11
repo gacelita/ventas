@@ -49,7 +49,7 @@
   [& args]
   (try
     @(apply d/transact db args)
-    (catch Exception e
+    (catch Throwable e
       (throw+ {:type ::transact-exception :message (.getMessage e) :args args}))))
 
 (defn history

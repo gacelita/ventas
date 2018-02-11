@@ -180,13 +180,6 @@
           (db/nice-query {:find '[?id]
                           :where wheres})))))
 
-(defn- prices []
-  (let [[min max]
-        (->> (db/q '[:find (min ?price) (max ?price)
-                     :where [_ :product/price ?price]])
-             (first))]
-    {:min min :max max}))
-
 (defn- get-product-category-filter [categories]
   (mapcat (fn [category-ref]
             (let [category (resolve-ref category-ref :category/keyword)]

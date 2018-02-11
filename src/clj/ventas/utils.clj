@@ -79,7 +79,7 @@
 (defn ->number [v]
   (try
     (Long. v)
-    (catch Exception e
+    (catch Throwable e
       nil)))
 
 (defn batch [in out max-time max-count]

@@ -152,7 +152,7 @@
   (when (ifn? stop-fn)
     (try
       (stop-fn)
-      (catch Exception e
+      (catch Throwable e
         ;; Avoids occasional ConcurrentModificationException, which is a bug in httpkit
         (timbre/info ::stop-server! " - Caught exception while stopping the server:" (pr-str e))))))
 

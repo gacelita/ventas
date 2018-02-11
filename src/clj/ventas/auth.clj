@@ -10,7 +10,7 @@
 (defn- unsign [token secret]
   (try
     (buddy.jwt/unsign token secret)
-    (catch Exception e
+    (catch Throwable e
       nil)))
 
 (defn token->user [token]

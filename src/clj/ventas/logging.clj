@@ -13,7 +13,7 @@
          {:keys [level ?err msg_ ?ns-str ?file ?line]} data
          whats (try
                  (read-string (str "[" (force msg_) "]"))
-                 (catch Exception e
+                 (catch Throwable e
                    (force msg_)))
          whats (if (every? identity (map #(or (symbol? %)
                                               (boolean? %)

@@ -40,9 +40,7 @@
        :success true
        :data response
        :realtime? (utils/chan? response)})
-    (catch Exception e
-      (error-response message e))
-    (catch Error e
+    (catch Throwable e
       (error-response message e))))
 
 (defn send-message [{:keys [data] :as message} channel]
@@ -58,13 +56,13 @@
            common.utils/process-output-message
            (>! channel)))))
 
-(defn handle-message [{:keys [type] :as message} {:keys [client-id session channel request] :as state}]
+(defn handle-message [{:keys [type] :as message} {:keys [channel] :as state}]
   (case type
     :event (-> (handle-event message state)
                (send-message channel))
     :request (-> (call-request-handler message state)
                  (send-message channel))
-    :else (timbre/debug "Unhandled message: " message)))
+    (timbre/debug "Unhandled message: " message)))
 
 (defn get-shared-channel []
   (let [ch (chan)]
