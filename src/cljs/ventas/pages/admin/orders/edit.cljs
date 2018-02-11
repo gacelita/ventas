@@ -11,7 +11,8 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.utils.ui :as utils.ui]
+   [reagent.core :as reagent]))
 
 (def state-key ::state)
 
