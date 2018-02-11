@@ -9,13 +9,7 @@
                               {:type :theme})))
 
 (defn all []
-  (->> (plugin/all)
-       (map (fn [k]
-              [k (plugin/plugin k)]))
-       (filter (fn [[k v]]
-                 (= (:type v) :theme)))
-       (into {})
-       (keys)))
+  (plugin/by-type :theme))
 
 (defn current []
   (or (keyword (entities.configuration/get :current-theme))

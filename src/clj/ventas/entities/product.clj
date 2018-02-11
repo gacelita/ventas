@@ -9,7 +9,8 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
-   [ventas.utils.slugs :as utils.slugs]))
+   [ventas.utils.slugs :as utils.slugs]
+   [taoensso.timbre :as timbre]))
 
 (spec/def :product/name ::entities.i18n/ref)
 

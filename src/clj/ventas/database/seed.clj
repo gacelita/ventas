@@ -84,7 +84,7 @@
       (doseq [fixture (plugin/fixtures theme-kw)]
         (create* fixture)))
 
-    (doseq [plugin-kw (plugin/all)]
+    (doseq [plugin-kw (plugin/by-type :plugin)]
       (timbre/info "Installing plugin " plugin-kw)
       (doseq [fixture (plugin/fixtures plugin-kw)]
         (create* fixture)))))

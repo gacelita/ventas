@@ -24,6 +24,19 @@
 (defn all []
   (set (keys @plugins)))
 
+(defn by-type
+  "Returns the identifiers of the plugins with the given type"
+  [type]
+  (->> (all)
+       (map (fn [k]
+              [k (plugin k)]))
+       (filter (fn [[k v]]
+                 (if (= type :plugin)
+                   (not (:type v))
+                   (= (:type v) type))))
+       (into {})
+       (keys)))
+
 (defn check! [kw]
   {:pre [(keyword? kw)]}
   (if-not (plugin kw)
