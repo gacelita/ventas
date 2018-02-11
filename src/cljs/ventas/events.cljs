@@ -168,7 +168,7 @@
 (rf/reg-event-fx
  ::session.error
  (fn [cofx [_]]
-   {:dispatch [::db [:session] ::error]}))
+   {:dispatch [::db [:session] {}]}))
 
 (rf/reg-event-fx
  ::users.addresses

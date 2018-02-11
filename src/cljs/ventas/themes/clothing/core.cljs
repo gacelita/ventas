@@ -1,9 +1,37 @@
 (ns ventas.themes.clothing.core
   "See the docstring in the server version of this file"
   (:require
+   [re-frame.core :as rf]
    [ventas.core]
-   [ventas.i18n :as i18n]
+   [ventas.events :as events]
+   [ventas.i18n :as i18n :refer [i18n]]
+   [ventas.routes :as routes]
    [ventas.themes.clothing.pages.frontend]))
+
+(rf/reg-event-fx
+ ::listen-to-events
+ (fn [_ _]
+   {:forward-events {:register ::listener
+                     :events #{::events/session.start}
+                     :dispatch-to [::handle-event]}}))
+
+(defmulti handle-event (fn [name] name))
+
+(defmethod handle-event ::events/session.start [_ {:keys [user]}]
+  (when (and (not (= (:status user) :user.status/unregistered))
+             (= (routes/handler) :frontend.login))
+    {:go-to [:frontend.profile]}))
+
+(defmethod handle-event :default [_]
+  {})
+
+(rf/reg-event-fx
+ ::handle-event
+ (fn [_ [_ evt]]
+   (or (apply handle-event evt)
+       {})))
+
+(rf/dispatch [::listen-to-events])
 
 (i18n/register-translations!
  {:en_US
