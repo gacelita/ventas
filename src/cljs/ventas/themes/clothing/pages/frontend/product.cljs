@@ -5,6 +5,7 @@
    [ventas.components.cart :as cart]
    [ventas.components.image :as image]
    [ventas.components.slider :as components.slider]
+   [ventas.components.notificator :as notificator]
    [ventas.components.term :as term]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
@@ -124,38 +125,50 @@
                            (assoc taxonomy-id term-id))]
      {:dispatch [::fetch ref (vals selection-map)]})))
 
+(defn- select-first-color [product]
+  (update product
+          :variation
+          (fn [taxonomies]
+            (->> taxonomies
+                 (map (fn [tax]
+                        (if (and (not (:selected tax))
+                                 (= :color (get-in tax [:taxonomy :keyword])))
+                          (assoc tax :selected (first (:terms tax)))
+                          tax)))))))
+
 (rf/reg-event-db
  ::populate
  (fn [db [_ {:keys [images] :as product}]]
-   (-> db
-       (assoc-in [state-key :product] product)
-       (assoc-in [state-key :slider]
-                 (let [visible-slides 3]
-                   {:slides (mapv (fn [image]
-                                    (merge image
-                                           {:width (+ 120 -6)
-                                            :height (+ 190 -6)}))
-                                  images)
-                    :orientation :vertical
-                    :render-index (dec (count images))
-                    :current-index (if (<= visible-slides (count images))
-                                     1
-                                     0)
-                    :visible-slides visible-slides}))
-       (assoc-in [state-key :mobile-slider]
-                 (let [visible-slides 2]
-                   {:slides (mapv (fn [image]
-                                    (merge image
-                                           {:width (+ 360 -6)
-                                            :height (+ 540 -6)}))
-                                  images)
-                    :orientation :horizontal
-                    :render-index (dec (count images))
-                    :current-index (if (<= visible-slides (count images))
-                                     1
-                                     0)
-                    :visible-slides visible-slides}))
-       (assoc-in [state-key :main-image] (first images)))))
+   (let [product (select-first-color product)]
+     (-> db
+         (assoc-in [state-key :product] product)
+         (assoc-in [state-key :slider]
+                   (let [visible-slides 3]
+                     {:slides (mapv (fn [image]
+                                      (merge image
+                                             {:width (+ 120 -6)
+                                              :height (+ 190 -6)}))
+                                    images)
+                      :orientation :vertical
+                      :render-index (dec (count images))
+                      :current-index (if (<= visible-slides (count images))
+                                       1
+                                       0)
+                      :visible-slides visible-slides}))
+         (assoc-in [state-key :mobile-slider]
+                   (let [visible-slides 2]
+                     {:slides (mapv (fn [image]
+                                      (merge image
+                                             {:width (+ 360 -6)
+                                              :height (+ 540 -6)}))
+                                    images)
+                      :orientation :horizontal
+                      :render-index (dec (count images))
+                      :current-index (if (<= visible-slides (count images))
+                                       1
+                                       0)
+                      :visible-slides visible-slides}))
+         (assoc-in [state-key :main-image] (first images))))))
 
 (defn term-view [taxonomy term active?]
   [term/term-view (:keyword taxonomy) term
@@ -165,9 +178,27 @@
                              taxonomy
                              term])}])
 
+(rf/reg-event-fx
+ ::add-to-cart
+ (fn [{:keys [db]} _]
+   (let [{:keys [id] :as product} (get-in db [state-key :product])
+         tax-map (->> product
+                      :variation
+                      (map (fn [tax]
+                             [(get-in tax [:taxonomy :name])
+                              (boolean (:selected tax))])))]
+     {:dispatch
+      (if (every? second tax-map)
+        [::cart/add id]
+        [::notificator/add {:message (str
+                                      (ffirst tax-map)
+                                      " "
+                                      (i18n ::is-required))
+                            :theme "warning"}])})))
+
 (defn- info-view [_]
   (rf/dispatch [::events/users.favorites.enumerate])
-  (fn [{:keys [quantity product]}]
+  (fn [{:keys [product]}]
     (let [{:keys [name price description variation]} product]
       [:div.product-page__info
        [:h1.product-page__name name]
@@ -177,13 +208,14 @@
         (utils.formatting/amount->str price)]
 
        [:div.product-page__terms-section
-        (for [{:keys [taxonomy terms selected]} variation]
-          [:div.product-page__taxonomy
-           [:h4 (str (:name taxonomy) ": "
-                     (:name selected))]
-           [:div.product-page__terms
-            (for [term terms]
-              [term-view taxonomy term (= term selected)])]])]
+        (doall
+         (for [{:keys [taxonomy terms selected]} variation]
+           [:div.product-page__taxonomy
+            [:h4 (str (:name taxonomy) ": "
+                      (:name selected))]
+            [:div.product-page__terms
+             (for [term terms]
+               [term-view taxonomy term (= term selected)])]]))]
 
        [:div.product-page__actions
         (let [favorites (set @(rf/subscribe [::events/db :users.favorites]))]
@@ -195,7 +227,7 @@
            [base/icon {:name "empty heart"}]])
         [:button.product-page__add-to-cart
          {:type "button"
-          :on-click #(rf/dispatch [::cart/add (:id product)])}
+          :on-click #(rf/dispatch [::add-to-cart])}
          [base/icon {:name "add to cart"}]
          (i18n ::add-to-cart)]]])))
 

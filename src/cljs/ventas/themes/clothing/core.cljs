@@ -98,6 +98,7 @@
    :ventas.themes.clothing.pages.frontend.product/page "Product"
    :ventas.themes.clothing.pages.frontend.product/add-to-cart "Add to cart"
    :ventas.themes.clothing.pages.frontend.product/product-details "Product details"
+   :ventas.themes.clothing.pages.frontend.product/is-required "is required"
 
    :ventas.themes.clothing.pages.frontend.profile/welcome "Welcome %s"
    :ventas.themes.clothing.pages.frontend.profile/personal-data "Personal data"
