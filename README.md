@@ -1,3 +1,7 @@
+<p align="center">
+  <img alt="ventas" title="ventas" src="./storage/logo.png" width="100">
+</p>
+
 # ventas
 
 [![Build Status](https://travis-ci.org/JoelSanchez/ventas.svg?branch=master)](https://travis-ci.org/JoelSanchez/ventas)
