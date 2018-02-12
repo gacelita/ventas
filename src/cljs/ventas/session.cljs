@@ -1,9 +1,29 @@
 (ns ventas.session
   (:require
+   [cljs.core.async :refer [chan >! go]]
    [re-frame.core :as rf]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]))
+
+(def ready
+  "A value will be put here when the session is ready"
+  (chan))
+
+(rf/reg-event-fx
+ ::listen-to-events
+ (fn [_ _]
+   {:forward-events {:register ::listener
+                     :events #{::events/session.start}
+                     :dispatch-to [::session-started]}}))
+
+(rf/dispatch [::listen-to-events])
+
+(rf/reg-event-fx
+ ::session-started
+ (fn [_ _]
+   (go (>! ready true))
+   {:forward-events {:unregister ::listener}}))
 
 (defn get-identity []
   @(rf/subscribe [::events/db [:session :identity]]))

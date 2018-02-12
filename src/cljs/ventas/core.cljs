@@ -20,7 +20,8 @@
    [ventas.utils.logging :refer [debug info]]
    [ventas.ws :as ws]
    [cljs.reader :as reader]
-   [ventas.utils.logging :as log])
+   [ventas.utils.logging :as log]
+   [ventas.session :as session])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
@@ -65,19 +66,17 @@
  ::init
  (fn [_ _]
    {:dispatch-n [[::rendered-db]
-                 [::events/users.session]
-                 [::events/categories.list]
+                 [::events/users.session]]}))
+
+(rf/reg-event-fx
+ ::fetch
+ (fn [_ _]
+   {:dispatch-n [[::events/categories.list]
                  [::events/users.favorites.enumerate]]}))
 
 (defn page []
   (info "Rendering...")
-  (rf/dispatch [::init])
-  (let [session @(rf/subscribe [::events/db [:session]])]
-    (if (seo/rendered?)
-      [page/main (routes/handler)]
-      (if-not session
-        [base/loading]
-        [page/main (routes/handler)]))))
+  [page/main (routes/handler)])
 
 (defn app-element []
   (js/document.getElementById "app"))
@@ -98,9 +97,23 @@
     (fn [path]
       (boolean (routes/match-route path)))})
   (go
-    (when (<! (ws/init))
-      (accountant/dispatch-current!)
-      (reagent/render [page] (app-element)))))
+   (when-not (seo/rendered?)
+     (reagent/render [base/loading] (app-element)))
+
+   (debug "Init stage 1 - Starting websockets")
+   (when-not (<! (ws/init))
+     (throw (js/Error. "Websocket initialization problem")))
+
+   (debug "Init stage 2- Syncing rendered db, starting WS session")
+   (rf/dispatch-sync [::init])
+
+   (when-not (<! session/ready)
+     (throw (js/Error. "Session initialization problem")))
+
+   (debug "Init stage 3 - Rendering")
+   (rf/dispatch [::fetch])
+   (accountant/dispatch-current!)
+   (reagent/render [page] (app-element))))
 
 (defn ^:export start []
   (info "Starting...")

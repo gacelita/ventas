@@ -132,13 +132,12 @@
 (rf/reg-event-fx
  ::users.session
  [(rf/inject-cofx :local-storage)]
- (fn [{:keys [db local-storage]} [_]]
-   (when-not (:session db)
-     (let [token (:token local-storage)]
-       {:dispatch [::backend/users.session
-                   {:params {:token token}
-                    :success ::session.start
-                    :error ::session.error}]}))))
+ (fn [{:keys [local-storage]} [_]]
+   (let [token (:token local-storage)]
+     {:dispatch [::backend/users.session
+                 {:params {:token token}
+                  :success ::session.start
+                  :error ::session.error}]})))
 
 (rf/reg-event-fx
  ::users.logout
@@ -169,19 +168,6 @@
  ::session.error
  (fn [cofx [_]]
    {:dispatch [::db [:session] {}]}))
-
-(rf/reg-event-fx
- ::users.addresses
- (fn [cofx [_ options]]
-   {:forward-events {:register ::users.addresses.listener
-                     :events #{::session.start}
-                     :dispatch-to [::users.addresses.next options]}}))
-
-(rf/reg-event-fx
- ::users.addresses.next
- (fn [cofx [_ options]]
-   {:dispatch [::backend/users.addresses options]
-    :forward-events {:unregister ::users.addresses.listener}}))
 
 (rf/reg-event-fx
  ::users.favorites.enumerate
