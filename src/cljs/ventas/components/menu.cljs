@@ -21,6 +21,7 @@
   [:div.menu
    [base/container
     [:ul.menu__items
-     (for [item items]
-       ^{:key (or (:id item) (hash item))}
-       [menu-item item (current-fn item)])]]])
+     (doall
+      (for [item items]
+        ^{:key (or (:id item) (hash item))}
+        [menu-item item (current-fn item)]))]]])
