@@ -4,9 +4,10 @@
 
 (defn category-list [categories]
   [:div.category-list
-   (for [{:keys [id keyword name image]} categories]
-     [:div.category-list__category {:key id
-                                    :on-click #(routes/go-to :frontend.category :id keyword)}
+   (for [{:keys [id slug name image]} categories]
+     [:div.category-list__category
+      {:key id
+       :on-click #(routes/go-to :frontend.category :id slug)}
       (if image
         [:img.category-list__image {:src (str "/images/" (:id image) "/resize/category-listing")}]
         [:div.category-list__image-placeholder])
