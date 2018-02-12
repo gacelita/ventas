@@ -67,7 +67,10 @@
                 pagination/wrap-paginate]}
  (fn [_ {:keys [session]}]
    (->> (entity/query :user)
-        (map #(entity/to-json % {:culture (api/get-culture session)})))))
+        (filter (fn [{:user/keys [status]}]
+                  (not= status :user.status/unregistered)))
+        (map #(merge (entity/to-json % {:culture (api/get-culture session)})
+                     (entity/dates (:db/id %)))))))
 
 (register-admin-endpoint!
  :admin.users.addresses.list

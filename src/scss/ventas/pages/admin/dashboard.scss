@@ -2,10 +2,25 @@
 .admin-dashboard__users {
     margin: 0;
     padding: 0;
+}
 
-    li {
-        padding: 8px 0px;
-        display: block;
-        border-bottom: solid 1px #ddd;
+.admin-dashboard__user {
+    padding: 8px 0px;
+    display: flex;
+    border-bottom: solid 1px #ddd;
+    flex-direction: row;
+
+    > a {
+        display: flex;
+        width: 100%;
+
+        p:first-child {
+            width: 100%;
+        }
+    }
+
+    p {
+        white-space: nowrap;
+        margin-bottom: 0;
     }
 }

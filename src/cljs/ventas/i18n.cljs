@@ -40,6 +40,12 @@
     :ventas.pages.admin.configuration.image-sizes.edit/submit "Submit"
     :ventas.pages.admin.configuration.image-sizes.edit/saved-notification "Saved!"
 
+    :ventas.pages.admin.dashboard/traffic-statistics "Traffic statistics"
+    :ventas.pages.admin.dashboard/latest-users "Latest users"
+    :ventas.pages.admin.dashboard/pending-orders "Pending orders"
+    :ventas.pages.admin.dashboard/unread-messages "Unread messages"
+    :ventas.pages.admin.dashboard/no-name "(No name)"
+
     :ventas.pages.admin.products/create-product "Create product"
     :ventas.pages.admin.products/name "Name"
     :ventas.pages.admin.products/price "Price"

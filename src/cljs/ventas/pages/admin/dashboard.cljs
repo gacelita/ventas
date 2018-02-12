@@ -18,10 +18,13 @@
      label]
     children]])
 
-(defn- user-view [{:keys [id first-name last-name]}]
-  [:li
+(defn- user-view [{:keys [id first-name last-name created-at]}]
+  [:li.admin-dashboard__user
    [:a {:href (routes/path-for :admin.users.edit :id id)}
-    [:p (str/join " " [first-name last-name])]]])
+    [:p (if (or first-name last-name)
+          (str/join " " [first-name last-name])
+          (i18n ::no-name))]
+    [:p created-at]]])
 
 (rf/reg-event-fx
  ::init
@@ -29,16 +32,21 @@
    {:dispatch [::backend/admin.users.list
                {:success [::events/db [state-key :users]]}]}))
 
-(defn- content []
+(defn- latest-users []
   (let [{:keys [users]} @(rf/subscribe [::events/db [state-key]])]
-    [base/grid {:stackable true :columns 2}
-     [segment {:label (i18n ::traffic-statistics)}]
-     [segment {:label (i18n ::pending-orders)}]
-     [segment {:label (i18n ::latest-users)}
-      [:ul.admin-dashboard__users
-       (for [user users]
-         ^{:key (:id user)} [user-view user])]]
-     [segment {:label (i18n ::unread-messages)}]]))
+    [:ul.admin-dashboard__users
+     (doall
+      (for [user users]
+        ^{:key (:id user)}
+        [user-view user]))]))
+
+(defn- content []
+  [base/grid {:stackable true :columns 2}
+   [segment {:label (i18n ::traffic-statistics)}]
+   [segment {:label (i18n ::pending-orders)}]
+   [segment {:label (i18n ::latest-users)}
+    [latest-users]]
+   [segment {:label (i18n ::unread-messages)}]])
 
 (defn- page []
   [admin.skeleton/skeleton
