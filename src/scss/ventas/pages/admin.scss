@@ -107,7 +107,10 @@
 
 .admin__login {
     width: 100%;
-    border-top: 2px solid hsla(204, 93%, 52%, 1) !important;
+
+    &.ui.orange.segment:not(.inverted) {
+        border-top: 2px solid hsla(204, 93%, 52%, 1) !important;
+    }
 
     .ui.form {
         margin: 10px 0px 5px;
