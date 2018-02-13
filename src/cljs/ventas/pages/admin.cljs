@@ -4,7 +4,7 @@
    [ventas.pages.admin.activity-log]
    [ventas.pages.admin.configuration]
    [ventas.pages.admin.configuration.image-sizes]
-   [ventas.pages.admin.dashboard]
+   [ventas.pages.admin.dashboard :as dashboard]
    [ventas.pages.admin.orders.edit]
    [ventas.pages.admin.orders]
    [ventas.pages.admin.payment-methods]
@@ -13,19 +13,14 @@
    [ventas.pages.admin.products]
    [ventas.pages.admin.products.discounts]
    [ventas.pages.admin.products.discounts.edit]
-   [ventas.pages.admin.skeleton :as skeleton]
    [ventas.pages.admin.taxes]
    [ventas.pages.admin.users.edit]
    [ventas.pages.admin.users]
    [ventas.routes :as routes]))
 
-(defn page []
-  [skeleton/skeleton
-   [:p.admin__default-content
-    (i18n ::nothing-here)]])
-
 (routes/define-route!
   :admin
-  {:name ::page
+  {:name ::dashboard/page
    :url "admin"
-   :component page})
+   :component dashboard/page
+   :init-fx [::dashboard/init]})

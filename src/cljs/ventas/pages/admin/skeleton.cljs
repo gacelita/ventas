@@ -16,7 +16,7 @@
     :label ::image-sizes}])
 
 (def menu-items
-  [{:route :admin.dashboard
+  [{:route :admin
     :label ::dashboard
     :icon "home"}
 

@@ -52,10 +52,3 @@
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-dashboard__page
     [content]]])
-
-(routes/define-route!
-  :admin.dashboard
-  {:name ::page
-   :url "dashboard"
-   :component page
-   :init-fx [::init]})
