@@ -99,6 +99,9 @@
                  ;; Semantic UI
                  [soda-ash "0.76.0"]
 
+                 ;; kafka
+                 [io.weft/gregor "0.6.0" :exclusions [org.slf4j/slf4j-log4j12 log4j]]
+
                  ; Routing
                  [bidi "2.1.3"]
                  [venantius/accountant "0.2.3"]
