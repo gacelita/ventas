@@ -1,7 +1,8 @@
 (ns repl
   "REPL-driven development.
    Don't add ventas.* aliases in this ns, as it conflicts with dynamic aliases
-   and nonstrict classloading."
+   and nonstrict classloading.
+   Don't depend on anything that depends on other ventas namespaces, either."
   (:require
    [cemerick.pomegranate :as pomegranate]
    [cemerick.pomegranate.aether :as aether]
@@ -11,8 +12,7 @@
    [clojure.tools.namespace.repl :as tn]
    [mount.core :as mount]
    [ventas.config]
-   [ventas.events]
-   [ventas.theme]))
+   [ventas.events]))
 
 (when (ventas.config/get :strict-classloading)
   ;; ensures all code is required - avoiding issues:
@@ -111,6 +111,6 @@
   (clojure.test/run-all-tests #"ventas.*?\-test"))
 
 (defn set-theme! [theme]
-  (ventas.theme/set! theme)
+  ((ns-resolve 'ventas.theme 'set!) theme)
   (mount.core/stop (ns-resolve 'repl 'client/figwheel))
   (mount.core/start (ns-resolve 'repl 'client/figwheel)))
