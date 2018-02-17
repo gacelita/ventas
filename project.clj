@@ -100,7 +100,7 @@
                  [soda-ash "0.76.0"]
 
                  ;; kafka
-                 [io.weft/gregor "0.6.0" :exclusions [org.slf4j/slf4j-log4j12 log4j]]
+                 [spootnik/kinsky "0.1.21"]
 
                  ; Routing
                  [bidi "2.1.3"]
@@ -118,6 +118,10 @@
                  ;; Database
                  [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.5.1"]
+
+                 ;; Charts
+                 [cljsjs/chartjs "2.7.0-0"]
+                 [cljsjs/moment "2.17.1-1"]
 
                  ;; Text colors
                  [io.aviso/pretty "0.1.34"]
