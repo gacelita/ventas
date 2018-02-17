@@ -22,29 +22,32 @@
                                               (number? %)) whats))
                  (apply str (interpose " " whats))
                  whats)]
-     (merge
-      {:level (str/upper-case (name level))
-       :where (str "[" (or ?ns-str ?file "?") ":" (or ?line "?") "]")
-       :whats whats}
-      (when-not no-stacktrace?
-        (when ?err
-          {:stacktrace (timbre/stacktrace ?err opts)}))))))
+     (when (or (not= level :debug)
+               (str/starts-with? (or ?ns-str ?file) "ventas"))
+       (merge
+        {:level (str/upper-case (name level))
+         :where (str "[" (or ?ns-str ?file "?") ":" (or ?line "?") "]")
+         :whats whats}
+        (when-not no-stacktrace?
+          (when ?err
+            {:stacktrace (timbre/stacktrace ?err opts)})))))))
 
 (defn- timbre-appender-fn [{:keys [output_]}]
   (let [{:keys [level where whats]} (force output_)
         info-line (str level " " where " - ")]
-    (print (case level
-             "ERROR" (clansi/red info-line)
-             (clansi/green info-line)))
-    (if (string? whats)
-      (println whats)
-      (doseq [[idx what] (map-indexed vector whats)]
-        (-> (with-out-str (pprint/pprint what))
-            (str/replace "\n" (str "\n" (str/join (repeat (count info-line) " "))))
-            (str/trimr)
-            (println))
-        (when (not= (dec (count whats)) idx)
-          (print (str/join (repeat (count info-line) " "))))))))
+    (when whats
+      (print (case level
+               "ERROR" (clansi/red info-line)
+               (clansi/green info-line)))
+      (if (string? whats)
+        (println whats)
+        (doseq [[idx what] (map-indexed vector whats)]
+          (-> (with-out-str (pprint/pprint what))
+              (str/replace "\n" (str "\n" (str/join (repeat (count info-line) " "))))
+              (str/trimr)
+              (println))
+          (when (not= (dec (count whats)) idx)
+            (print (str/join (repeat (count info-line) " ")))))))))
 
 (timbre/merge-config!
  {:level :debug
