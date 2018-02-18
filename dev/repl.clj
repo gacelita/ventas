@@ -6,13 +6,14 @@
   (:require
    [cemerick.pomegranate :as pomegranate]
    [cemerick.pomegranate.aether :as aether]
-   [clojure.core.async :refer [>! go]]
-   ;; kept for REPL usage
-   [clojure.spec.alpha :as spec]
    [clojure.tools.namespace.repl :as tn]
    [mount.core :as mount]
    [ventas.config]
-   [ventas.events]))
+   [ventas.events]
+   ;; Aliases for REPL usage
+   [clojure.core.async :as core.async :refer [<! chan >! go]]
+   [clojure.spec.alpha :as spec]
+   [taoensso.timbre :as timbre]))
 
 (when (ventas.config/get :strict-classloading)
   ;; ensures all code is required - avoiding issues:

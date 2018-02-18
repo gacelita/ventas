@@ -70,10 +70,10 @@
                  ;; Server-side HTTP requests
                  [clj-http "3.7.0" :exclusions [riddley]]
 
-                 ; HTTP server
+                 ;; HTTP server
                  [http-kit "2.2.0"]
 
-                 ; Authentication
+                 ;; Authentication
                  [buddy "2.0.0" :exclusions [instaparse]]
 
                  ;; Ring
@@ -102,18 +102,18 @@
                  ;; kafka
                  [spootnik/kinsky "0.1.21"]
 
-                 ; Routing
+                 ;; Routing
                  [bidi "2.1.3"]
                  [venantius/accountant "0.2.3"]
 
-                 ; HTML templating
+                 ;; HTML templating
                  [selmer "1.11.5" :exclusions [cheshire joda-time]]
 
                  ;; component alternative
                  [mount "0.1.11"]
 
-                 ;; Process starting and stopping
-                 [me.raynes/conch "0.8.0"]
+                 ;; Filesystem utilities
+                 [me.raynes/fs "1.4.6"]
 
                  ;; Database
                  [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
@@ -149,6 +149,7 @@
                  ;; Image processing
                  [fivetonine/collage "0.2.1"]
 
+                 ;; Nice CLJS development tools
                  [binaryage/devtools "0.9.9"]
 
                  ;; String manipulation
@@ -160,7 +161,7 @@
                  ;; Server-side prerendering
                  [etaoin "0.2.5"]
 
-                 ; Error reporting for Ring
+                 ;; Error reporting for Ring
                  [prone "1.2.0"]
 
                  ;; Devcards itself
@@ -277,7 +278,7 @@
                                   [figwheel-sidecar "0.5.14"]
                                   [com.cemerick/piggieback "0.2.2"]
 
-                                  ; Runtime dependency resolution
+                                  ;; Runtime dependency resolution
                                   [com.cemerick/pomegranate "1.0.0"]
                                   [org.codehaus.plexus/plexus-utils "3.0.15"]
 

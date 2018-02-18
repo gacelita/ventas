@@ -2,16 +2,15 @@
   "Client defstates"
   (:require
    [clojure.java.shell]
+   [client.auto :as auto]
    [figwheel-sidecar.components.css-watcher :as figwheel.css-watcher]
    [figwheel-sidecar.repl-api :as figwheel]
-   [me.raynes.conch.low-level :as sh]
+   [figwheel-sidecar.config :as figwheel.config]
    [mount.core :refer [defstate]]
-   [taoensso.timbre :refer [info]]
+   [taoensso.timbre :as timbre]
    [ventas.config :as config]
    [ventas.plugin :as plugin]
    [ventas.theme :as theme]))
-
-;; Figwheel
 
 (alter-var-root
  #'figwheel.css-watcher/handle-css-notification
@@ -23,7 +22,7 @@
          (figwheel.css-watcher/send-css-files figwheel-server sendable-files))))))
 
 (defn- dev-build []
-  (let [build (->> (figwheel-sidecar.config/get-project-builds)
+  (let [build (->> (figwheel.config/get-project-builds)
                    (filter #(= (:id %) "app"))
                    (first))
         theme (theme/current)]
@@ -35,37 +34,34 @@
                        (name theme)
                        ".js")))))
 
-(defn- figwheel-options []
-  (-> (figwheel-sidecar.config/->lein-project-config-source)
-      (figwheel-sidecar.config/->config-data)
-      (get-in [:data :figwheel])))
+(defn- get-project []
+  (-> (figwheel.config/->lein-project-config-source)
+      (figwheel.config/->config-data)
+      :data
+      (assoc :root (.getAbsolutePath (clojure.java.io/file ".")))))
 
 (defn figwheel-start []
   (when (config/get :embed-figwheel?)
     (let [build (dev-build)]
-      (info "Starting Figwheel, main ns:" (get-in build [:compiler :main]))
+      (timbre/info "Starting Figwheel, main ns:" (get-in build [:compiler :main]))
       (figwheel/start-figwheel!
-       (merge (figwheel-options)
+       (merge (:figwheel (get-project))
               {:builds [build]
                :builds-to-start ["app"]})))))
 
 (defn figwheel-stop []
   (when (config/get :embed-figwheel?)
-    (info "Stopping Figwheel")
+    (timbre/info "Stopping Figwheel")
     (figwheel/stop-figwheel!)))
 
 (defstate figwheel :start (figwheel-start) :stop (figwheel-stop))
 
-;; Sass
-
 (defstate sass
   :start
   (do
-    (info "Starting SASS")
-    (let [process (sh/proc "lein" "auto" "sassc" "once")]
-      (future (sh/stream-to-out process :out))
-      process))
+    (timbre/info "Starting SASS")
+    (auto/auto (get-project) "sassc" "once"))
   :stop
   (do
-    (info "Stopping SASS")
-    (sh/destroy sass)))
+    (timbre/info "Stopping SASS")
+    (future-cancel sass)))
