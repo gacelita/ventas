@@ -27,7 +27,8 @@
    [ventas.server.ws :as server.ws]
    [ventas.theme :as theme]
    [ventas.utils :as utils]
-   [ventas.site :as site])
+   [ventas.site :as site]
+   [ventas.stats :as stats])
   (:import
    [clojure.lang Keyword])
   (:gen-class))
@@ -142,6 +143,7 @@
   (-> routes
       (wrap-prone)
       (site/wrap-multisite)
+      (stats/wrap-stats)
       (ring.session/wrap-session)
       (ring.params/wrap-params)
       (ring.defaults/wrap-defaults ring.defaults/site-defaults)
