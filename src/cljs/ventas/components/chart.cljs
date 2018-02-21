@@ -33,7 +33,6 @@
       (assoc-in [:data :datasets 0 :data] data)))
 
 (defn- render-chart [config id this]
-  (js/console.log :render-chart!)
   (let [context (-> (reagent/dom-node this)
                     (.querySelector "canvas")
                     (.getContext "2d"))
