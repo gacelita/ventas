@@ -65,6 +65,9 @@
                  "io.netty.*"
                  "org.apache.http.*"
                  "org.eclipse.aether.internal.impl.*"
+                 "org.apache.kafka.clients.producer.ProducerConfig"
+                 "org.apache.kafka.clients.consumer.ConsumerConfig"
+                 "org.apache.kafka.common.metrics.Metrics"
                  "org.apache.kafka.clients.NetworkClient"
                  "org.apache.kafka.clients.consumer.internals.*"]
   :appenders {:println {:enabled? false}
