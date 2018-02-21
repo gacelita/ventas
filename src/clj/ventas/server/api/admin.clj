@@ -202,9 +202,14 @@
 (defn make-interval [min max n]
   (/ (- max min) n))
 
+(defn- check-kafka! []
+  (when-not (stats/enabled?)
+    (throw (Exception. "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."))))
+
 (register-admin-endpoint!
  :admin.stats.realtime
  (fn [{{:keys [topics min max]} :params} {:keys [channel]}]
+   (check-kafka!)
    (let [ch (chan)
          realtime? (not max)
          max (or max (System/currentTimeMillis))
@@ -234,6 +239,7 @@
  :admin.stats.stream
  {:doc "Directly streams a topic from Kafka. Probably not a very good idea."}
  (fn [{{:keys [topic]} :params} {:keys [channel]}]
+   (check-kafka!)
    (let [ch (chan)]
      (go
       (let [consumer (stats/start-consumer!)]

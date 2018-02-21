@@ -45,6 +45,9 @@
 (defn poll [^KafkaConsumer consumer timeout]
   (consumer-records->data (.poll @consumer timeout)))
 
+(defn enabled? []
+  (boolean (config/get :kafka :host)))
+
 (defn kafka-url []
   (str (config/get :kafka :host)
        ":"
@@ -83,7 +86,7 @@
 
 (defstate kafka-indexer
   :start
-  (do
+  (when (enabled?)
     (timbre/info "Starting Kafka indexer")
     (start-indexer!))
   :stop
@@ -98,7 +101,7 @@
 
 (defstate producer
   :start
-  (do
+  (when (enabled?)
     (timbre/info "Starting Kafka producer")
     (start-producer!))
   :stop
@@ -107,10 +110,11 @@
     (kafka/close! producer)))
 
 (defn send! [topic value]
-  (timbre/debug :kafka-producer {:topic topic
-                                 :value value})
-  (kafka/send! producer {:topic topic
-                         :value value}))
+  (when (enabled?)
+    (timbre/debug :kafka-producer {:topic topic
+                                   :value value})
+    (kafka/send! producer {:topic topic
+                           :value value})))
 
 (defn record-http-event!
   "HTTP traffic stats"

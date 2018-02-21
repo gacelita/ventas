@@ -16,7 +16,9 @@
                  :port 9200
                  :host "127.0.0.1"}
 
- :kafka {:host "localhost"
+ ;; kafka is disabled by default.
+ ;; set the host to enable it (for example, "localhost")
+ :kafka {:host nil
          :port "9092"}
 
  :nrepl {:port 4001
