@@ -1,6 +1,6 @@
 (ns ventas.core
   (:require
-   [clojure.core.async :refer [>! go]]
+   [clojure.core.async :as core.async :refer [>! go]]
    [clojure.tools.nrepl.server :as nrepl]
    [mount.core :as mount]
    [taoensso.timbre :as timbre]
@@ -51,7 +51,7 @@
   (let [{:keys [host port]} (config/get :nrepl)]
     (timbre/info (str "Starting nREPL server on " host ":" port))
     (nrepl/start-server :port port :bind host))
-  (go (>! (events/pub :init) true)))
+  (core.async/put! (events/pub :init) true))
 
 (defn migrate-and-reindex!
   "Returns everything to its default state, removing all data"
