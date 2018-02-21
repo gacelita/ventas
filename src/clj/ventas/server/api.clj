@@ -18,7 +18,8 @@
    [ventas.search :as search]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.stats :as stats]))
 
 (defonce available-requests (atom {}))
 
@@ -353,6 +354,7 @@
  :search
  {:spec {:search string?}}
  (fn [{{:keys [search]} :params} {:keys [session]}]
+   (stats/record-search-event! search)
    (let [culture (get-culture session)
          {culture-kw :i18n.culture/keyword} (entity/find culture)
          shoulds (for [attr [:product/name
@@ -374,6 +376,16 @@
                                 (assoc result :image (first images))
                                 result)]
                    (select-keys result [:id :type :name :images :image]))))))))
+
+(register-endpoint!
+ :stats.navigation
+ (fn [{{:keys [handler params]} :params} {:keys [session]}]
+   (let [{:db/keys [id]} (get-user session)]
+     (stats/record-navigation-event!
+      {:handler handler
+       :params params
+       :user id})
+     nil)))
 
 (register-endpoint!
  :upload
