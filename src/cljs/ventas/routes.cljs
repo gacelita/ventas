@@ -140,6 +140,9 @@
  ::set
  (fn [{:keys [db]} [_ handler route-params]]
    (merge {:db (assoc db :route [handler route-params])
-           :document-title (route-name handler route-params)}
+           :document-title (route-name handler route-params)
+           :ws-request {:name :stats.navigation
+                        :params {:handler handler
+                                 :params route-params}}}
           (when-let [init-fx (:init-fx (find-route handler))]
             {:dispatch init-fx}))))
