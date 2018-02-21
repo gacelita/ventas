@@ -98,6 +98,11 @@
    {:ws-request (merge {:name :admin.users.addresses.list} options)}))
 
 (rf/reg-event-fx
+ ::admin.stats.realtime
+ (fn [cofx [_ options]]
+   {:ws-request (merge {:name :admin.stats.realtime} options)}))
+
+(rf/reg-event-fx
  ::users.login
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :users.login} options)}))

@@ -1,12 +1,18 @@
 (ns ventas.server.api.admin
   (:require
+   [clojure.core.async :as core.async :refer [chan >! <! go-loop go]]
+   [clojure.core.async.impl.protocols :as core.async.protocols]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.image-size :as entities.image-size]
    [ventas.plugin :as plugin]
    [ventas.server.api :as api]
-   [ventas.server.pagination :as pagination]))
+   [ventas.server.pagination :as pagination]
+   [ventas.search :as search]
+   [ventas.stats :as stats]
+   [kinsky.client :as kafka]
+   [taoensso.timbre :as timbre]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -185,3 +191,62 @@
         (map plugin/plugin)
         (map (fn [plugin]
                (select-keys plugin #{:name}))))))
+
+(defn time-series [topics {:keys [min max interval]}]
+  (search/search {:query {:bool {:must [{:terms {:topic topics}}
+                                        {:range {:timestamp {:gte min
+                                                             :lte max}}}]}}
+                  :aggs {:events {:histogram {:field "timestamp"
+                                              :interval interval}}}}))
+
+(defn make-interval [min max n]
+  (/ (- max min) n))
+
+(register-admin-endpoint!
+ :admin.stats.realtime
+ (fn [{{:keys [topics min max]} :params} {:keys [channel]}]
+   (let [ch (chan)
+         realtime? (not max)
+         max (or max (System/currentTimeMillis))
+         interval (make-interval min max 100.0)]
+     (go
+       (>! ch (-> (time-series topics {:min min
+                                       :max max
+                                       :interval interval})
+                  (get-in [:body :aggregations :events :buckets])))
+       (when realtime?
+         (let [consumer (stats/start-consumer!)]
+           (kafka/subscribe! consumer topics)
+           (loop []
+             (when (and (not (core.async.protocols/closed? ch))
+                        (not (core.async.protocols/closed? channel)))
+               (<! (core.async/timeout interval))
+               (let [records (->> (stats/poll consumer 50)
+                                  :by-topic
+                                  vals
+                                  (apply concat))]
+                 (>! ch [{:doc_count (count records)
+                          :key (System/currentTimeMillis)}])
+                 (recur)))))))
+     ch)))
+
+(register-admin-endpoint!
+ :admin.stats.stream
+ {:doc "Directly streams a topic from Kafka. Probably not a very good idea."}
+ (fn [{{:keys [topic]} :params} {:keys [channel]}]
+   (let [ch (chan)]
+     (go
+      (let [consumer (stats/start-consumer!)]
+        (kafka/subscribe! consumer [topic])
+        (loop []
+          (when (and (not (core.async.protocols/closed? ch))
+                     (not (core.async.protocols/closed? channel)))
+            (let [records (->> (stats/poll consumer 1000)
+                               :by-topic
+                               vals
+                               (apply concat))]
+              (when (seq records)
+                (doseq [record records]
+                  (>! ch record))))
+            (recur)))))
+     ch)))
