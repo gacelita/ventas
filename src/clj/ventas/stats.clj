@@ -1,14 +1,16 @@
 (ns ventas.stats
   "Sends stats to Kafka"
   (:require
-   [clojure.core.async :as core.async :refer [<! <!! >! >!! go chan go-loop]]
    [kinsky.client :as kafka]
    [mount.core :refer [defstate]]
-   [ventas.stats.consumer :as consumer]
    [taoensso.timbre :as timbre]
-   [ventas.search :as search])
+   [ventas.search :as search]
+   [ventas.config :as config])
   (:import [org.apache.kafka.clients.consumer ConsumerRecords ConsumerRecord KafkaConsumer]
-           [org.apache.kafka.common TopicPartition]))
+           [org.apache.kafka.common TopicPartition]
+           [org.apache.kafka.common.errors InterruptException]))
+
+(def topics ["http" "navigation" "search"])
 
 (defn- kafka->es [{:keys [offset topic] :as record}]
   (-> record
@@ -43,14 +45,25 @@
 (defn poll [^KafkaConsumer consumer timeout]
   (consumer-records->data (.poll @consumer timeout)))
 
+(defn kafka-url []
+  (str (config/get :kafka :host)
+       ":"
+       (config/get :kafka :port)))
+
+(defn start-consumer! [& {:keys [group]}]
+  (kafka/consumer {:bootstrap.servers (kafka-url)
+                   :group.id (or group (str (gensym "group")))}
+                  (kafka/keyword-deserializer)
+                  (kafka/edn-deserializer)))
+
 (defn start-indexer! []
   (future
-   (loop []
-     (when-not (Thread/interrupted)
-       (try
-         (if-not (satisfies? kafka/ConsumerDriver consumer/consumer)
-           (<!! (core.async/timeout 2000))
-           (let [records (->> (poll consumer/consumer 100)
+   (let [consumer (start-consumer!)]
+     (kafka/subscribe! consumer topics)
+     (loop []
+       (when-not (Thread/interrupted)
+         (try
+           (let [records (->> (poll consumer 100)
                               :by-topic
                               vals
                               (apply concat))]
@@ -59,12 +72,14 @@
                  (timbre/debug :kafka-indexer record)
                  (-> record
                      (kafka->es)
-                     (search/document->indexing-queue))))))
-         (catch InterruptedException _
-           (.interrupt (Thread/currentThread)))
-         (catch Throwable e
-           (timbre/error (.getMessage e))))
-       (recur)))))
+                     (search/document->indexing-queue)))))
+           (catch InterruptedException _
+             (.interrupt (Thread/currentThread)))
+           (catch InterruptException _
+             (.interrupt (Thread/currentThread)))
+           (catch Throwable e
+             (timbre/error (class e) (.getMessage e))))
+         (recur))))))
 
 (defstate kafka-indexer
   :start
@@ -77,7 +92,7 @@
     (future-cancel kafka-indexer)))
 
 (defn start-producer! []
-  (kafka/producer {:bootstrap.servers (consumer/kafka-url)}
+  (kafka/producer {:bootstrap.servers (kafka-url)}
                   (kafka/keyword-serializer)
                   (kafka/edn-serializer)))
 
