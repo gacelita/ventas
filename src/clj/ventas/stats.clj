@@ -1,0 +1,130 @@
+(ns ventas.stats
+  "Sends stats to Kafka"
+  (:require
+   [clojure.core.async :as core.async :refer [<! <!! >! >!! go chan go-loop]]
+   [kinsky.client :as kafka]
+   [mount.core :refer [defstate]]
+   [ventas.stats.consumer :as consumer]
+   [taoensso.timbre :as timbre]
+   [ventas.search :as search])
+  (:import [org.apache.kafka.clients.consumer ConsumerRecords ConsumerRecord KafkaConsumer]
+           [org.apache.kafka.common TopicPartition]))
+
+(defn- kafka->es [{:keys [offset topic] :as record}]
+  (-> record
+      (assoc "db/id" (str topic "-" offset))))
+
+(defn cr->data
+  "Yield a clojure representation of a consumer record.
+   Taken from kinsky (done for adding the timestamp field)"
+  [^ConsumerRecord cr]
+  {:key (.key cr)
+   :offset (.offset cr)
+   :partition (.partition cr)
+   :topic (.topic cr)
+   :value (.value cr)
+   :timestamp (.timestamp cr)})
+
+(defn consumer-records->data
+  "Yield the clojure representation of topic.
+   Taken from kinsky (to override cr->data)"
+  [^ConsumerRecords crs]
+  (let [->d  (fn [^TopicPartition p] [(.topic p) (.partition p)])
+        ps   (.partitions crs)
+        ts   (set (for [^TopicPartition p ps] (.topic p)))
+        by-p (into {} (for [^TopicPartition p ps] [(->d p) (mapv cr->data (.records crs p))]))
+        by-t (into {} (for [^String t ts] [t (mapv cr->data (.records crs t))]))]
+    {:partitions   (vec (for [^TopicPartition p ps] [(.topic p) (.partition p)]))
+     :topics       ts
+     :count        (.count crs)
+     :by-topic     by-t
+     :by-partition by-p}))
+
+(defn poll [^KafkaConsumer consumer timeout]
+  (consumer-records->data (.poll @consumer timeout)))
+
+(defn start-indexer! []
+  (future
+   (loop []
+     (when-not (Thread/interrupted)
+       (try
+         (if-not (satisfies? kafka/ConsumerDriver consumer/consumer)
+           (<!! (core.async/timeout 2000))
+           (let [records (->> (poll consumer/consumer 100)
+                              :by-topic
+                              vals
+                              (apply concat))]
+             (when (seq records)
+               (doseq [record records]
+                 (timbre/debug :kafka-indexer record)
+                 (-> record
+                     (kafka->es)
+                     (search/document->indexing-queue))))))
+         (catch InterruptedException _
+           (.interrupt (Thread/currentThread)))
+         (catch Throwable e
+           (timbre/error (.getMessage e))))
+       (recur)))))
+
+(defstate kafka-indexer
+  :start
+  (do
+    (timbre/info "Starting Kafka indexer")
+    (start-indexer!))
+  :stop
+  (do
+    (timbre/info "Stopping Kafka indexer")
+    (future-cancel kafka-indexer)))
+
+(defn start-producer! []
+  (kafka/producer {:bootstrap.servers (consumer/kafka-url)}
+                  (kafka/keyword-serializer)
+                  (kafka/edn-serializer)))
+
+(defstate producer
+  :start
+  (do
+    (timbre/info "Starting Kafka producer")
+    (start-producer!))
+  :stop
+  (do
+    (timbre/info "Stopping Kafka producer")
+    (kafka/close! producer)))
+
+(defn send! [topic value]
+  (timbre/debug :kafka-producer {:topic topic
+                                 :value value})
+  (kafka/send! producer {:topic topic
+                         :value value}))
+
+(defn record-http-event!
+  "HTTP traffic stats"
+  [req]
+  (send! "http"
+         {:uri (get-in req [:uri])
+          :host (get-in req [:headers :host])
+          :language (get-in req [:headers :accept-language])
+          :user-agent (get-in req [:headers :user-agent])}))
+
+(defn record-navigation-event!
+  "CLJS navigation stats"
+  [{:keys [user handler params]}]
+  (send! "navigation"
+         {:user user
+          :handler handler
+          :params params}))
+
+(defn record-search-event!
+  "Search stats"
+  [text]
+  (send! "search"
+         {:text text}))
+
+(defn wrap-stats
+  "Ring middleware for recording HTTP events"
+  [handler]
+  (fn [req]
+    (when (future? kafka-indexer)
+      (record-http-event! req))
+    (handler req)))
+
