@@ -93,8 +93,10 @@
             (recur []))
 
           (nil? message)
-          (when (seq buffer)
-            (core.async/>! out buffer))
+          (do
+            (when (seq buffer)
+              (core.async/>! out buffer))
+            (core.async/close! out))
 
           (= (count buffer) lim-1)
           (do
