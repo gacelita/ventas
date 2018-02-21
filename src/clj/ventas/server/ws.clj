@@ -45,12 +45,14 @@
 
 (defn send-message [{:keys [data] :as message} channel]
   (if (utils/chan? data)
-    (go-loop []
-      (->> (assoc message :data (<! data))
-           common.utils/process-output-message
-           (>! channel))
-      (when-not (core.async.protocols/closed? data)
-        (recur)))
+    (do
+      (go-loop []
+        (->> (assoc message :data (<! data))
+             common.utils/process-output-message
+             (>! channel))
+        (when (and (not (core.async.protocols/closed? data))
+                   (not (core.async.protocols/closed? channel)))
+          (recur))))
     (go
       (->> message
            common.utils/process-output-message
@@ -74,33 +76,30 @@
   (core.async/close! channel))
 
 (defn send-shared-message! [message]
-  (go (>! shared-hub message)))
+  (core.async/put! shared-hub message))
 
 (defmulti handle-messages
   (fn [format _]
     format))
 
-(defmethod handle-messages :json [_ {channel :ws-channel :as request}]
+(defmethod handle-messages :json [_ {:keys [ws-channel] :as request}]
   (let [shared-channel (get-shared-channel)
         client-id (uuid/v4)
-        session (atom {})]
+        session (atom {})
+        output-channel (chan)]
+    (core.async/pipe shared-channel ws-channel)
+    (core.async/pipe output-channel ws-channel)
     (go-loop []
-      (if-let [message (<! shared-channel)]
-        (do
-          (>! channel message)
-          (recur))
-        (close-shared-channel! shared-channel)))
-    (go-loop []
-      (if-let [message (<! channel)]
+      (if-let [message (<! ws-channel)]
         (do
           (handle-message
            (common.utils/process-input-message (:message message))
            {:client-id client-id
             :session session
-            :channel channel
+            :channel output-channel
             :request request})
           (recur))
-        (core.async/close! channel)))))
+        (core.async/close! output-channel)))))
 
 (defmulti handle-binary-request
   (fn [{:keys [name]} state]
