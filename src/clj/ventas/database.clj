@@ -1,6 +1,6 @@
 (ns ventas.database
   (:require
-   [clojure.core.async :refer [<! >! chan go go-loop]]
+   [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.spec.alpha :as spec]
    [clojure.string]
    [clojure.test.check.generators :as gen]
@@ -101,14 +101,6 @@
   "tx-report-queue wrapper"
   [& args]
   (apply d/tx-report-queue db args))
-
-(defonce ^:private tx-report-queue-ch
-  (chan))
-
-(defn tx-report-queue-async []
-  (go (>! tx-report-queue-ch
-          (.take (tx-report-queue))))
-  tx-report-queue-ch)
 
 (defn resolve-tempid
   "resolve-tempid wrapper"

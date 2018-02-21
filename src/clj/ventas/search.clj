@@ -1,6 +1,6 @@
 (ns ventas.search
   (:require
-   [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
+   [clojure.core.async :as core.async :refer [<! >! <!! >!! chan go go-loop]]
    [clojure.string :as str]
    [mount.core :refer [defstate]]
    [qbits.spandex :as spandex]
@@ -64,16 +64,60 @@
 
 (defn index-document [doc & {:keys [channel]}]
   {:pre [(map? doc)]}
-  (timbre/debug "Indexing document" doc)
+  (timbre/debug :es-indexer doc)
   (let [f (if-not channel request request-async)]
     (f (merge {:url (make-url "doc/" (get doc "db/id"))
                :method :put
                :body (dissoc doc "db/id")}
               (when channel
-                {:success (fn [res]
-                            (go (>! channel res)))
-                 :error (fn [ex]
-                          (go (>! channel ex)))})))))
+                {:success #(core.async/put! channel %)
+                 :error #(core.async/put! channel %)})))))
+
+(defn- indexing-loop [indexing-chan]
+  (future
+   (let [batch-output-chan (chan)]
+     (utils/batch indexing-chan
+                  batch-output-chan
+                  4000
+                  5)
+     (loop []
+       (when-not (Thread/interrupted)
+         (try
+           (let [docs (<!! batch-output-chan)]
+             (when (seq docs)
+               (let [response-ch (chan)]
+                 (doseq [doc docs]
+                   (index-document doc :channel response-ch))
+                 (doseq [doc docs]
+                   (let [result (<!! response-ch)]
+                     (when (instance? ExceptionInfo result)
+                       (timbre/error (get-in (ex-data result) [:body :error]))))))))
+           (catch InterruptedException _
+             (.interrupt (Thread/currentThread)))
+           (catch Throwable e
+             (timbre/error (class e) (.getMessage e))))
+         (recur))))))
+
+(defn start-indexer! []
+  (let [indexing-chan (chan (core.async/buffer (* 10 batch-size)))
+        indexing-future (indexing-loop indexing-chan)]
+    {:future indexing-future
+     :chan indexing-chan
+     :stop-fn #(do (future-cancel indexing-future)
+                   (core.async/close! indexing-chan))}))
+
+(defstate indexer
+  :start
+  (do
+    (timbre/info "Starting indexer")
+    (start-indexer!))
+  :stop
+  (do
+    (timbre/info "Stopping indexer")
+    ((:stop-fn indexer))))
+
+(defn document->indexing-queue [doc]
+  (core.async/put! (:chan indexer) doc))
 
 (defn search [q]
   (try
@@ -148,12 +192,6 @@
                                                                  :filter ["lowercase"
                                                                           "autocomplete_filter"]}}}}}))
 
-(def ^:private indexing-queue
-  (atom (chan (core.async/buffer (* 10 batch-size)))))
-
-(defn document->indexing-queue [doc]
-  (go (>! @indexing-queue doc)))
-
 (defn- ref->es [{:schema/keys [type] :as entity}]
   (case type
     :schema.type/i18n
@@ -188,7 +226,7 @@
                  #(keyword (namespace a)
                            (str (name a) "__" (name %))))))))
 
-(defn- index-entity [eid]
+(defn index-entity [eid]
   (let [doc (->> (entity/find eid)
                  (map (fn [[a v]]
                         [a (value->es a v)]))
@@ -221,7 +259,7 @@
            (str (name field)
                 "__" (name culture-kw))))
 
-(defn- index-report [{:keys [db-after tx-data]}]
+(defn- index-report [{:keys [tx-data]}]
   (let [types (->> (indexable-types)
                    (map name)
                    (set))
@@ -235,38 +273,25 @@
     (doseq [eid eids]
       (index-entity eid))))
 
-(defstate indexer
+(defn start-tx-report-queue-listener! []
+  (future
+   (loop []
+     (when-not (Thread/interrupted)
+       (try
+         (when-let [report (.take (db/tx-report-queue))]
+           (index-report report))
+         (catch InterruptedException _
+           (.interrupt (Thread/currentThread)))
+         (catch Throwable e
+           (timbre/error (class e) (.getMessage e))))
+       (recur)))))
+
+(defstate tx-report-queue-listener
   :start
   (do
-    (timbre/info "Starting indexer")
-    (let [indexer-ch (chan)
-          batch-ch (chan)]
-      (go-loop []
-        (let [report-ch (db/tx-report-queue-async)
-              [message ch] (core.async/alts! [indexer-ch report-ch])]
-          (when (= ch report-ch)
-            (index-report message))
-          (when-not (nil? message)
-            (recur))))
-      (go-loop []
-        (let [[message ch] (core.async/alts! [indexer-ch batch-ch])]
-          (when (and (= ch batch-ch) (seq message))
-            (let [response-ch (chan)]
-              (doseq [doc message]
-                (index-document doc :channel response-ch))
-              (doseq [doc message]
-                (let [result (<! response-ch)]
-                  (when (instance? ExceptionInfo result)
-                    (taoensso.timbre/error (get-in (ex-data result)
-                                                   [:body :error])))))))
-          (when-not (nil? message)
-            (recur))))
-      (utils/batch @indexing-queue
-                   batch-ch
-                   4000
-                   5)
-      indexer-ch))
+    (timbre/info "Starting tx-report-queue listener")
+    (start-tx-report-queue-listener!))
   :stop
   (do
-    (timbre/info "Stopping indexer")
-    (core.async/close! indexer)))
+    (timbre/info "Stopping tx-report-queue listener")
+    (future-cancel tx-report-queue-listener)))
