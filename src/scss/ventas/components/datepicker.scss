@@ -1,0 +1,16 @@
+.date-range-input {
+    position: relative;
+
+    .ui.input {
+        min-width: 190px;
+    }
+
+    .rdr-DateRange {
+        position: absolute;
+        border: solid 1px #ccc;
+        z-index: 1;
+        top: calc(100% - 5px);
+        left: 15px;
+        width: calc(281px * 2);
+    }
+}
