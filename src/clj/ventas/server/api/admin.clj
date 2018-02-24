@@ -200,7 +200,7 @@
                                               :interval interval}}}}))
 
 (defn make-interval [min max n]
-  (/ (- max min) n))
+  (/ (- max min) (* n 1.0)))
 
 (defn- check-kafka! []
   (when-not (stats/enabled?)
@@ -215,24 +215,27 @@
          max (or max (System/currentTimeMillis))
          interval (make-interval min max 100.0)]
      (go
-       (>! ch (-> (time-series topics {:min min
-                                       :max max
-                                       :interval interval})
-                  (get-in [:body :aggregations :events :buckets])))
-       (when realtime?
-         (let [consumer (stats/start-consumer!)]
-           (kafka/subscribe! consumer topics)
-           (loop []
-             (when (and (not (core.async.protocols/closed? ch))
-                        (not (core.async.protocols/closed? channel)))
-               (<! (core.async/timeout interval))
-               (let [records (->> (stats/poll consumer 50)
-                                  :by-topic
-                                  vals
-                                  (apply concat))]
-                 (>! ch [{:doc_count (count records)
-                          :key (System/currentTimeMillis)}])
-                 (recur)))))))
+       (if (<= max min)
+         (>! ch [])
+         (do
+           (>! ch (-> (time-series topics {:min min
+                                           :max max
+                                           :interval interval})
+                      (get-in [:body :aggregations :events :buckets])))
+           (when realtime?
+             (let [consumer (stats/start-consumer!)]
+               (kafka/subscribe! consumer topics)
+               (loop []
+                 (when (and (not (core.async.protocols/closed? ch))
+                            (not (core.async.protocols/closed? channel)))
+                   (<! (core.async/timeout interval))
+                   (let [records (->> (stats/poll consumer 50)
+                                      :by-topic
+                                      vals
+                                      (apply concat))]
+                     (>! ch [{:doc_count (count records)
+                              :key (System/currentTimeMillis)}])
+                     (recur)))))))))
      ch)))
 
 (register-admin-endpoint!
