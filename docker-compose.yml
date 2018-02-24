@@ -16,6 +16,9 @@ services:
         - ${LOCAL_PORT}:${SERVER__PORT}
     depends_on:
       - datomic
+      - elasticsearch
+      - kafka
+      - chrome
     env_file:
         - .env
     volumes:
@@ -27,6 +30,7 @@ services:
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
@@ -51,7 +55,9 @@ services:
       - 2181:2181
 
   kafka:
-    image: wurstmeister/kafka
+    image: wurstmeister/kafka:1.0.0
+    depends_on:
+      - zookeeper
     ports:
       - 9092:9092
     environment:
