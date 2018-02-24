@@ -14,19 +14,28 @@
     (catch Throwable _
       data)))
 
+(def blacklist
+  {:debug #{"org.apache.kafka"}})
+
+(defn- blacklisted? [level ns]
+  (let [nss (get blacklist level)]
+    (or (contains? nss ns)
+        (->> nss (map #(str/starts-with? ns %)) (filter true?) (seq)))))
+
 (defn- timbre-logger
   ([data]
    (timbre-logger nil data))
   ([opts data]
    (let [{:keys [no-stacktrace?]} opts
          {:keys [level ?err msg_ ?ns-str ?file ?line]} data]
-     (merge
-      {:level (str/upper-case (name level))
-       :where (str "[" (or ?ns-str ?file "?") ":" (or ?line "?") "]")
-       :value (try-parsing (force msg_))}
-      (when-not no-stacktrace?
-        (when ?err
-          {:stacktrace (timbre/stacktrace ?err opts)}))))))
+     (when-not (blacklisted? level ?ns-str)
+       (merge
+        {:level (str/upper-case (name level))
+         :where (str "[" (or ?ns-str ?file "?") ":" (or ?line "?") "]")
+         :value (try-parsing (force msg_))}
+        (when-not no-stacktrace?
+          (when ?err
+            {:stacktrace (timbre/stacktrace ?err opts)})))))))
 
 (defn- pad-lines [multiline-str n]
   (str
@@ -66,10 +75,7 @@
                  "org.apache.http.*"
                  "org.eclipse.aether.internal.impl.*"
                  "org.apache.kafka.clients.producer.ProducerConfig"
-                 "org.apache.kafka.clients.consumer.ConsumerConfig"
-                 "org.apache.kafka.common.metrics.Metrics"
-                 "org.apache.kafka.clients.NetworkClient"
-                 "org.apache.kafka.clients.consumer.internals.*"]
+                 "org.apache.kafka.clients.consumer.ConsumerConfig"]
   :appenders {:println {:enabled? false}
               :pprint-appender {:enabled?   true
                                 :async?     false
