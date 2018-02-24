@@ -24,3 +24,15 @@
         margin-bottom: 0;
     }
 }
+
+.admin-dashboard__traffic-statistics {
+    .ui.segment {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .ui.header {
+        width: 100%;
+        flex: 1;
+    }
+}

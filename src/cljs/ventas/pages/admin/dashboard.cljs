@@ -3,6 +3,7 @@
    [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
+   [ventas.components.datepicker :as datepicker]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
@@ -28,17 +29,28 @@
           (i18n ::no-name))]
     [:p created-at]]])
 
-(def chart (atom nil))
+(rf/reg-event-fx
+ ::fetch-stats
+ (fn [_ [_ {:keys [start end]}]]
+   (let [min (if start
+               (.valueOf start)
+               (- (.getTime (js/Date.)) 3600000))
+         max (when end (.valueOf end))]
+     {:dispatch-n [[::chart/update {:id ::chart
+                                    :data-fn (constantly [])
+                                    :labels-fn (constantly [])}]
+                   [::backend/admin.stats.realtime
+                    {:params {:topics ["navigation" "http"]
+                              :min min
+                              :max max}
+                     :success ::stats.update}]]})))
 
 (rf/reg-event-fx
  ::init
  (fn [_ _]
    {:dispatch-n [[::backend/admin.users.list
                   {:success [::events/db [state-key :users]]}]
-                 [::backend/admin.stats.realtime
-                  {:params {:topics ["navigation" "http"]
-                            :min (- (.getTime (js/Date.)) 3600000)}
-                   :success ::stats.update}]]}))
+                 [::fetch-stats]]}))
 
 (rf/reg-event-fx
  ::stats.update
@@ -75,8 +87,12 @@
 
 (defn- content []
   [base/grid {:stackable true :columns 2}
-   [segment {:label (i18n ::traffic-statistics)}
-    [traffic-stats]]
+   [base/grid-column
+    [:div.admin-dashboard__traffic-statistics
+     [segment {:label (i18n ::traffic-statistics)}
+      [datepicker/range-input {:placeholder (i18n ::datepicker-placeholder)
+                               :on-change-fx [::fetch-stats]}]
+      [traffic-stats]]]]
    [segment {:label (i18n ::pending-orders)}]
    [segment {:label (i18n ::latest-users)}
     [latest-users]]

@@ -46,6 +46,7 @@
     :ventas.pages.admin.dashboard/unread-messages "Unread messages"
     :ventas.pages.admin.dashboard/no-name "(No name)"
     :ventas.pages.admin.dashboard/page "Dashboard"
+    :ventas.pages.admin.dashboard/datepicker-placeholder "Select a date"
 
     :ventas.pages.admin.products/create-product "Create product"
     :ventas.pages.admin.products/name "Name"
