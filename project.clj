@@ -165,7 +165,10 @@
                  [prone "1.2.0"]
 
                  ;; Devcards itself
-                 [devcards "0.2.4" :exclusions [cljsjs/react]]]
+                 [devcards "0.2.4" :exclusions [cljsjs/react]]
+
+                 ;; Datepicker
+                 [cljsjs/react-date-range "0.2.4-0" :exclusions [cljsjs/react]]]
 
   :plugins [[lein-ancient "0.6.14"]
             [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
