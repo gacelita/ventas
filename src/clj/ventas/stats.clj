@@ -3,6 +3,7 @@
   (:require
    [kinsky.client :as kafka]
    [mount.core :refer [defstate]]
+   [clojure.core.async :as core.async :refer [go]]
    [taoensso.timbre :as timbre]
    [ventas.search :as search]
    [ventas.config :as config])
@@ -84,16 +85,6 @@
              (timbre/error (class e) (.getMessage e))))
          (recur))))))
 
-(defstate kafka-indexer
-  :start
-  (when (enabled?)
-    (timbre/info "Starting Kafka indexer")
-    (start-indexer!))
-  :stop
-  (do
-    (timbre/info "Stopping Kafka indexer")
-    (future-cancel kafka-indexer)))
-
 (defn start-producer! []
   (kafka/producer {:bootstrap.servers (kafka-url)}
                   (kafka/keyword-serializer)
@@ -105,7 +96,7 @@
     (timbre/info "Starting Kafka producer")
     (start-producer!))
   :stop
-  (do
+  (when (enabled?)
     (timbre/info "Stopping Kafka producer")
     (kafka/close! producer)))
 
@@ -115,6 +106,16 @@
                                    :value value})
     (kafka/send! producer {:topic topic
                            :value value})))
+
+(defstate kafka-indexer
+  :start
+  (when (enabled?)
+    (timbre/info "Starting Kafka indexer")
+    (start-indexer!))
+  :stop
+  (when (enabled?)
+    (timbre/info "Stopping Kafka indexer")
+    (future-cancel kafka-indexer)))
 
 (defn record-http-event!
   "HTTP traffic stats"
