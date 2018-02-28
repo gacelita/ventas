@@ -17,7 +17,7 @@ services:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
-      - cluster.routing.allocation.disk.watermark.high="95%"
+      - cluster.routing.allocation.disk.watermark.high=0.95
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
