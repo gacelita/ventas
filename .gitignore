@@ -40,3 +40,4 @@ pom.xml.asc
 !/storage/logo.png
 
 /docker-compose.prod.yml
+/rancher-compose.yml
