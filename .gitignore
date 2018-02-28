@@ -38,3 +38,5 @@ pom.xml.asc
 
 /storage/*
 !/storage/logo.png
+
+/docker-compose.prod.yml

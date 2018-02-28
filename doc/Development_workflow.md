@@ -3,7 +3,7 @@
 The first thing I do when I want to develop ventas, is bringing up my local environment:
 
 ```bash
-$ docker-compose -f docker-compose.dev.yml up
+$ docker-compose up
 ```
 
 Then, I open Cursive, and start a REPL (just a regular leiningen repl, but inside Cursive).

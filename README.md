@@ -144,7 +144,7 @@ To quit, type: :cljs/quit
 
 Now everything is prepared for starting your local environment. Every time you want to use (or develop) `ventas`, you can execute:
 
-`docker-compose -f docker-compose.dev.yml up` 
+`docker-compose up` 
 
 That will start Datomic and Elasticsearch.
 
