@@ -13,7 +13,7 @@ services:
   ventas:
     image: ventas
     ports:
-        - ${LOCAL_PORT}:${SERVER__PORT}
+      - ${LOCAL_PORT}:${SERVER__PORT}
     depends_on:
       - datomic
       - elasticsearch
