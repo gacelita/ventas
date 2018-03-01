@@ -16,7 +16,6 @@ jdk:
 
 addons:
   ssh_known_hosts:
-  - kazer.es
   - ventas2.kazer.es
 
 before_deploy:
