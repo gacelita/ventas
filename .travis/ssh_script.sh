@@ -17,6 +17,8 @@ bower install
 
 echo "Building Docker images"
 
+source /etc/docker.env
+
 lein uberjar &&
 docker build -t joelsanchez/ventas:latest . &&
 docker build -t joelsanchez/datomic:latest datomic &&
@@ -24,7 +26,6 @@ docker login --username joelsanchez --password DOCKER_PASSWORD &&
 docker push joelsanchez/ventas:latest && 
 docker push joelsanchez/ventas-datomic:latest &&
 echo "Restarting service" &&
-source /etc/rancher &&
 rancher-compose --env-file .env -f docker-compose.prod.yml down ventas && 
 rancher-compose --env-file .env -f docker-compose.prod.yml up -d &&
 echo "Deploy done, executing REPL commands..." &&
