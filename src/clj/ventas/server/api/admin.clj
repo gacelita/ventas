@@ -12,7 +12,8 @@
    [ventas.search :as search]
    [ventas.stats :as stats]
    [kinsky.client :as kafka]
-   [taoensso.timbre :as timbre]))
+   [taoensso.timbre :as timbre]
+   [ventas.entities.configuration :as entities.configuration]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -205,6 +206,17 @@
 (defn- check-kafka! []
   (when-not (stats/enabled?)
     (throw (Exception. "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."))))
+
+(register-admin-endpoint!
+ :admin.configuration.get
+ (fn [{ids :params} _]
+   (entities.configuration/get ids)))
+
+(register-admin-endpoint!
+ :admin.configuration.set
+ (fn [{config :params} _]
+   (doseq [[k v] config]
+     (entities.configuration/set k v))))
 
 (register-admin-endpoint!
  :admin.stats.realtime

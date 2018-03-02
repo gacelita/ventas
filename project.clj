@@ -167,6 +167,9 @@
                  ;; Devcards itself
                  [devcards "0.2.4" :exclusions [cljsjs/react]]
 
+                 ;; Email
+                 [com.draines/postal "2.0.2"]
+
                  ;; Datepicker
                  [cljsjs/react-date-range "0.2.4-0" :exclusions [cljsjs/react]]]
 

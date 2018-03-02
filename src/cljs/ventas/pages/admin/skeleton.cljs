@@ -13,7 +13,9 @@
 
 (def configuration-items
   [{:route :admin.configuration.image-sizes
-    :label ::image-sizes}])
+    :label ::image-sizes}
+   {:route :admin.configuration.email
+    :label ::email}])
 
 (def menu-items
   [{:route :admin

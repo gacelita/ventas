@@ -105,3 +105,7 @@
 
           :else
           (recur (conj buffer message)))))))
+
+(defmacro swallow [& body]
+  `(try (do ~@body)
+        (catch Throwable e# nil)))

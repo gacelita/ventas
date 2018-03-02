@@ -83,6 +83,16 @@
    {:ws-request (merge {:name :users.cart.set-quantity} options)}))
 
 (rf/reg-event-fx
+ ::admin.configuration.get
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.configuration.get} options)}))
+
+(rf/reg-event-fx
+ ::admin.configuration.set
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.configuration.set} options)}))
+
+(rf/reg-event-fx
  ::admin.discounts.list
  (fn [cofx [_ options]]
     {:ws-request (merge {:name :admin.discounts.list} options)}))

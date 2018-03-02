@@ -23,6 +23,20 @@
 
     :ventas.page/not-found "404"
 
+    :ventas.pages.admin.configuration.email/email.from "From address"
+    :ventas.pages.admin.configuration.email/email.encryption.enabled "Enable encryption?"
+    :ventas.pages.admin.configuration.email/email.encryption.type "Encryption type"
+    :ventas.pages.admin.configuration.email/email.smtp.enabled "Use SMTP server?"
+    :ventas.pages.admin.configuration.email/email.smtp.host "SMTP host"
+    :ventas.pages.admin.configuration.email/email.smtp.port "SMTP port"
+    :ventas.pages.admin.configuration.email/email.smtp.user "SMTP user"
+    :ventas.pages.admin.configuration.email/email.smtp.password "SMTP password"
+    :ventas.pages.admin.configuration.email/submit "Submit"
+    :ventas.pages.admin.configuration.email/ssl "SSL"
+    :ventas.pages.admin.configuration.email/tls "TLS"
+    :ventas.pages.admin.configuration.email/saved "Saved!"
+    :ventas.pages.admin.configuration.email/page "Email configuration"
+
     :ventas.pages.admin.configuration.image-sizes/actions "Actions"
     :ventas.pages.admin.configuration.image-sizes/create "Create image size"
     :ventas.pages.admin.configuration.image-sizes/width "Width"
