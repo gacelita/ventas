@@ -21,7 +21,7 @@ source /etc/docker.env
 
 lein uberjar &&
 docker build -t ventas . &&
-docker build -t ventas-datomic &&
+docker build -t ventas-datomic datomic &&
 echo "Restarting service" &&
 rancher-compose --env-file .env -f docker-compose.prod.yml down && 
 rancher-compose --env-file .env -f docker-compose.prod.yml rm && 
