@@ -3,14 +3,14 @@
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
    [ventas.common.utils :as common.utils]
+   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.entities.file :as entities.file]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
-   [ventas.utils.slugs :as utils.slugs]
-   [taoensso.timbre :as timbre]))
+   [ventas.utils.slugs :as utils.slugs]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -24,9 +24,11 @@
 
 (spec/def :product/keyword ::generators/keyword)
 
-(spec/def :product/condition #{:product.condition/new
-                               :product.condition/used
-                               :product.condition/refurbished})
+(spec/def :product/condition
+  (spec/or :pull-eid ::db/pull-eid
+           :condition #{:product.condition/new
+                        :product.condition/used
+                        :product.condition/refurbished}))
 
 (spec/def :product/price
   (spec/with-gen ::entity/ref

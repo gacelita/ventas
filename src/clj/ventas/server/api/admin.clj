@@ -120,8 +120,8 @@
 (register-admin-endpoint!
  :admin.entities.pull
  {:spec {:id ::api/id}}
- (fn [{{:keys [id]} :params} _]
-   (db/pull '[*] id)))
+ (fn [{{:keys [id expr]} :params} _]
+   (db/pull (or expr '[*]) id)))
 
 (register-admin-endpoint!
  :admin.events.list
@@ -157,6 +157,15 @@
    (entity/upsert* (-> product
                        (common.utils/update-in-when-some
                         [:product/price :amount/value]
+                        bigdec)))))
+
+(register-admin-endpoint!
+ :admin.discounts.save
+ {:spec ::entity/entity}
+ (fn [{discount :params} _]
+   (entity/upsert* (-> discount
+                       (common.utils/update-in-when-some
+                        [:discount/amount :amount/value]
                         bigdec)))))
 
 (register-admin-endpoint!

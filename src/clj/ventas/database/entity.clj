@@ -13,7 +13,9 @@
    [ventas.database.schema :as schema]
    [ventas.utils :as utils]))
 
-(spec/def :schema/type ::db.generators/keyword)
+(spec/def :schema/type
+  (spec/or :pull-eid ::db/pull-eid
+           :keyword ::db.generators/keyword))
 
 (spec/def ::entity
   (spec/keys :req [:schema/type]))
@@ -241,7 +243,8 @@
   ::ref
   (spec/or :eid number?
            :entity entity?
-           :lookup-ref db/lookup-ref?))
+           :lookup-ref db/lookup-ref?
+           :pull-eid ::db/pull-eid))
 
 (spec/def
   ::refs

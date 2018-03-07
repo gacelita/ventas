@@ -210,20 +210,6 @@
                          [(namespace ?ident) ?ns]
                          [_ :db.install/attribute ?e]]))))
 
-(defn enum-values
-  "Gets the values of a database enum
-   Usage: (enum-values \"schema.type\")"
-  [enum]
-  (into #{}
-        (map first
-             (q '[:find ?ident
-                  :in $ ?enum
-                  :where [?id :db/ident ?ident]
-                         [(name ?ident) ?value]
-                         [(namespace ?ident) ?ns]
-                         [(= ?ns ?enum)]]
-                [enum]))))
-
 (defn read-changes
   "Given a report from tx-report-queue and a query, gets the changes"
   [{:keys [db-after tx-data] :as report} query]
@@ -273,6 +259,17 @@
                   result)))
          (q query (vals in)))))
 
+(defn enum-values
+  "Gets the values of a database enum
+   Usage: (enum-values \"schema.type\")"
+  [enum & {:keys [eids?]}]
+  (nice-query {:find ['?ident (when eids? '?id)]
+               :in {'?enum enum}
+               :where '[[?id :db/ident ?ident]
+                        [(name ?ident) ?value]
+                        [(namespace ?ident) ?ns]
+                        [(= ?ns ?enum)]]}))
+
 (defn recreate
   "Recreates the database"
   []
@@ -287,6 +284,10 @@
   [id migration]
   {:pre [(keyword? id) (coll? migration)]}
   (conformity/ensure-conforms db {id {:txes [migration]}}))
+
+(spec/def :db/id number?)
+
+(spec/def ::pull-eid (spec/keys :req [:db/id]))
 
 (spec/def ::lookup-ref
   (spec/with-gen

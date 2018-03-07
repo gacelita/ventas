@@ -2,6 +2,7 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
+   [ventas.database :as db]
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]))
 
@@ -21,8 +22,10 @@
 
 (spec/def :discount/amount.tax-included? boolean?)
 
-(spec/def :discount/amount.kind #{:discount.amount.kind/percentage
-                                  :discount.amount.kind/amount})
+(spec/def :discount/amount.kind
+  (spec/or :pull-eid ::db/pull-eid
+           :kind #{:discount.amount.kind/percentage
+                   :discount.amount.kind/amount}))
 
 (spec/def :schema.type/discount
   (spec/keys :opt [:discount/name

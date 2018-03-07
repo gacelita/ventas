@@ -19,7 +19,8 @@
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
    [ventas.utils :as utils]
-   [ventas.stats :as stats]))
+   [ventas.stats :as stats]
+   [ventas.entities.configuration :as entities.configuration]))
 
 (defonce available-requests (atom {}))
 
@@ -103,11 +104,12 @@
 
 (register-endpoint!
  :configuration.get
- {:spec {:keyword ::keyword}}
- (fn [{{:keys [keyword]} :params} {:keys [session]}]
-   (if-let [value (first (entity/query :configuration {:keyword keyword}))]
-     (entity/to-json value {:culture (get-culture session)})
-     (throw (Error. (str "Could not find configuration with keyword: " keyword))))))
+ {:spec [::keyword]}
+ (fn [{ids :params} _]
+   (->> ids
+        (filter {:stripe.publishable-key
+                 :site.title})
+        (entities.configuration/get))))
 
 (register-endpoint!
  :entities.find
@@ -122,7 +124,7 @@
  :enums.get
  {:spec {:type ::keyword}}
  (fn [{{:keys [type]} :params} _]
-   (db/enum-values (name type))))
+   (db/enum-values (name type) :eids? true)))
 
 (register-endpoint!
  :i18n.cultures.list
@@ -353,13 +355,14 @@
 (register-endpoint!
  :search
  {:spec {:search string?}}
- (fn [{{:keys [search]} :params} {:keys [session]}]
+ (fn [{{:keys [search entity-types]} :params} {:keys [session]}]
    (stats/record-search-event! search)
    (let [culture (get-culture session)
          {culture-kw :i18n.culture/keyword} (entity/find culture)
-         shoulds (for [attr [:product/name
-                             :category/name
-                             :brand/name]]
+         shoulds (for [attr (or entity-types
+                                [:product/name
+                                 :category/name
+                                 :brand/name])]
                    {:match {(keyword (namespace attr)
                                      (str (name attr) "__" (name culture-kw)))
                             search}})
