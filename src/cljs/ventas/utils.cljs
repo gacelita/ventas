@@ -58,3 +58,8 @@
 
 (defn parse-int [n]
   (js/parseInt n 10))
+
+(defn render-with-indexes [& coll]
+  (map-indexed (fn [idx itm]
+                 (with-meta itm {:key idx}))
+               coll))
