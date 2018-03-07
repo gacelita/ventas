@@ -19,6 +19,9 @@
 
     :ventas.components.product-filters/category "Category"
 
+    :ventas.components.notificator/saved "Saved!"
+    :ventas.components.notificator/error "An error occurred."
+
     :ventas.events/session-started "Welcome!"
 
     :ventas.page/not-found "404"

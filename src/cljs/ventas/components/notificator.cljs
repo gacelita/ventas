@@ -1,6 +1,7 @@
 (ns ventas.components.notificator
   (:require
    [cljs.core.async :refer [<! timeout]]
+   [ventas.i18n :refer [i18n]]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.events :as events]
@@ -28,6 +29,20 @@
  ::remove
  (fn [db [_ sym]]
    (update db :notifications #(remove (fn [item] (= (:sym item) sym)) %))))
+
+(rf/reg-event-fx
+ ::notify-saved
+ (fn [_ [_ message]]
+   {:dispatch [::add {:message (str (i18n ::saved)
+                                    (when message (str "\n" message)))
+                      :theme "success"}]}))
+
+(rf/reg-event-fx
+ ::notify-error
+ (fn [_ [_ message]]
+   {:dispatch [::add {:message (str (i18n ::error)
+                                    (when message (str "\n" message)))
+                      :theme "error"}]}))
 
 (defn notificator
   "Displays notifications"
