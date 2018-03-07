@@ -45,10 +45,15 @@
 
 (rf/reg-event-fx
  ::configuration.get
- (fn [cofx [_ key]]
+ (fn [cofx [_ k-or-ks]]
    {:dispatch [::backend/configuration.get
-               {:params {:keyword key}
-                :success [::db [:configuration key]]}]}))
+               {:params k-or-ks
+                :success ::configuration.get.next}]}))
+
+(rf/reg-event-db
+ ::configuration.get.next
+ (fn [db [_ data]]
+   (update db :configuration #(merge % data))))
 
 (rf/reg-event-fx
  ::enums.get
@@ -58,9 +63,9 @@
                 :success
                 (fn [options]
                   (rf/dispatch [::db [:enums type]
-                                (map (fn [option]
-                                       {:text (i18n (keyword option))
-                                        :value option})
+                                (map (fn [{:keys [ident id]}]
+                                       {:text (i18n (keyword ident))
+                                        :value id})
                                      options)]))}]}))
 
 (rf/reg-event-fx
