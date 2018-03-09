@@ -9,15 +9,13 @@
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.utils.ui :as utils.ui]
-   [ventas.ws :as ws]))
+   [ventas.ws :as ws]
+   [com.rpl.specter :as specter :include-macros true]
+   [ventas.utils :as utils]))
 
-(def configuration-items
-  [{:route :admin.configuration.image-sizes
-    :label ::image-sizes}
-   {:route :admin.configuration.email
-    :label ::email}])
+(def state-key ::state)
 
-(def menu-items
+(def initial-menu-items
   [{:route :admin
     :label ::dashboard
     :icon "home"}
@@ -46,7 +44,8 @@
 
    {:route :admin.payment-methods
     :label ::payment-methods
-    :icon "payment"}
+    :icon "payment"
+    :children []}
 
    {:divider true}
 
@@ -57,14 +56,39 @@
    {:route :admin.configuration.image-sizes
     :label ::configuration
     :icon "configure"
-    :children configuration-items}])
+    :children [{:route :admin.configuration.image-sizes
+                :label ::image-sizes}
+               {:route :admin.configuration.email
+                :label ::email}]}])
+
+(defonce ^:private menu-hooks (atom {}))
+
+(defn add-menu-hook! [id f]
+  (swap! menu-hooks assoc id f))
+
+(rf/reg-event-db
+ ::execute-menu-hooks
+ (fn [db _]
+   (reduce (fn [db f]
+             (f db))
+           db
+           (vals @menu-hooks))))
+
+(defn add-menu-item! [where what]
+  (add-menu-hook!
+   (hash what)
+   (fn [db]
+     (specter/transform
+      [state-key :menu-items (specter/filterer #(= (:route %) where)) 0 :children]
+      #(conj % what)
+      db))))
 
 (defn- menu-item [{:keys [route label icon children] :as item}]
   [:li.admin__menu-item (when (= (routes/handler) route)
                           {:class "admin__menu-item--active"})
    (if (:divider item)
      [base/divider]
-     (list
+     (utils/render-with-indexes
       [:a {:href (routes/path-for route)}
        (when icon
          [base/icon {:name icon}])
@@ -72,14 +96,13 @@
       (when children
         [:ul
          (for [child children]
-           ^{:key (hash child)} [menu-item child])])))])
+           ^{:key (hash child)}
+           [menu-item child])])))])
 
 (defn- menu []
   [:ul
-   (for [item menu-items]
+   (for [item @(rf/subscribe [::events/db [state-key :menu-items]])]
      ^{:key (hash item)} [menu-item item])])
-
-(def state-key ::state)
 
 (rf/reg-event-fx
  ::login
@@ -113,14 +136,16 @@
 
 (rf/reg-event-fx
  ::init
- (fn [_ _]
+ (fn [{:keys [db]} _]
    {:dispatch-n [[::backend/admin.brands.list
                   {:success [::events/db [:admin :brands]]}]
                  [::backend/admin.taxes.list
                   {:success [::events/db [:admin :taxes]]}]
                  [::backend/admin.currencies.list
                   {:success [::events/db [:admin :currencies]]}]
-                 [::events/i18n.cultures.list]]}))
+                 [::events/i18n.cultures.list]
+                 [::execute-menu-hooks]]
+    :db (assoc-in db [state-key :menu-items] initial-menu-items)}))
 
 (defn- content-view [content]
   (rf/dispatch [::init])

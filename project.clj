@@ -170,6 +170,9 @@
                  ;; Email
                  [com.draines/postal "2.0.2"]
 
+                 ;; Collection manipulation
+                 [com.rpl/specter "1.1.0"]
+
                  ;; Datepicker
                  [cljsjs/react-date-range "0.2.4-0" :exclusions [cljsjs/react]]]
 
