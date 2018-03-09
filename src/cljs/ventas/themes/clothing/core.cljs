@@ -83,6 +83,9 @@
    :ventas.themes.clothing.pages.frontend.favorites/page "Favorites"
    :ventas.themes.clothing.pages.frontend.favorites/favorites "Favorites"
 
+   :ventas.themes.clothing.pages.frontend.checkout/checkout "Checkout"
+   :ventas.themes.clothing.pages.frontend.checkout/page "Checkout"
+
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"
    :ventas.themes.clothing.pages.frontend.login/full-name "Full name"
