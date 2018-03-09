@@ -108,6 +108,11 @@
    {:ws-request (merge {:name :admin.users.addresses.list} options)}))
 
 (rf/reg-event-fx
+ ::admin.search
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.search} options)}))
+
+(rf/reg-event-fx
  ::admin.stats.realtime
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :admin.stats.realtime} options)}))
@@ -266,3 +271,8 @@
  ::admin.orders.get
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :admin.orders.get} options)}))
+
+(rf/reg-event-fx
+ ::admin.orders.save
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.orders.save} options)}))
