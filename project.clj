@@ -93,7 +93,7 @@
 
                  ;; re-frame
                  [reagent "0.7.0"]
-                 [re-frame "0.10.2"]
+                 [re-frame "0.10.5"]
                  [day8.re-frame/forward-events-fx "0.0.5"]
 
                  ;; Semantic UI
@@ -172,6 +172,9 @@
 
                  ;; Collection manipulation
                  [com.rpl/specter "1.1.0"]
+
+                 ;; Stripe
+                 [abengoa/clj-stripe "1.0.4"]
 
                  ;; Datepicker
                  [cljsjs/react-date-range "0.2.4-0" :exclusions [cljsjs/react]]]
