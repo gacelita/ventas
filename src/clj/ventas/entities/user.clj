@@ -70,6 +70,11 @@
                    :user/status
                    :user/culture]))
 
+(defn get-name [id]
+  {:pre [id]}
+  (let [{:user/keys [first-name last-name]} (entity/find id)]
+    (str first-name " " last-name)))
+
 (entity/register-type!
  :user
  {:attributes
@@ -139,7 +144,8 @@
   (fn [this params]
     (-> ((entity/default-attr :to-json) this params)
         (dissoc :password)
-        (dissoc :favorites)))
+        (dissoc :favorites)
+        (assoc :name (get-name (:db/id this)))))
 
   :filter-create
   (fn [this]
