@@ -6,7 +6,6 @@
    [ventas.i18n :refer [i18n]]
    [cljs.reader :as reader]
    [ventas.components.base :as base]
-   [ventas.events.backend :as backend]
    [ventas.components.i18n-input :as i18n-input]
    [ventas.components.amount-input :as amount-input]))
 
@@ -85,29 +84,18 @@
 
 (def state-key ::state)
 
-(rf/reg-event-fx
- ::search
- (fn [{:keys [db]} [_ entity-types search]]
-   (if (empty? search)
-     {:db (update db state-key #(dissoc % :search))}
-     {:db (assoc-in db [state-key :search-query] search)
-      :dispatch [::backend/search
-                 {:params {:search search
-                           :entity-types entity-types}
-                  :success [::events/db [state-key :search]]}]})))
-
-(defmethod input :entity [{:keys [value db-path key entity-types]}]
+(defmethod input :entity [{:keys [value db-path key options on-search-change]}]
   [base/dropdown {:placeholder (i18n ::search)
                   :selection true
                   :default-value (if value (pr-str value) "")
                   :icon "search"
                   :search (fn [options _] options)
-                  :options (->> @(rf/subscribe [::events/db [state-key :search]])
-                                (map (fn [result]
-                                       {:text (:name result)
-                                        :value (pr-str (:id result))})))
+                  :options (map (fn [{:keys [text value]}]
+                                  {:text text
+                                   :value (pr-str value)})
+                                options)
                   :on-change #(rf/dispatch [::set-field db-path key (reader/read-string (.-value %2))])
-                  :on-search-change #(rf/dispatch [::search entity-types (-> % .-target .-value)])}])
+                  :on-search-change on-search-change}])
 
 (defmethod input :combobox [{:keys [value db-path key options] :as args}]
   [base/dropdown
