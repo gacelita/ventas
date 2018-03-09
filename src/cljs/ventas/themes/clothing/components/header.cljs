@@ -58,7 +58,7 @@
     [:p.search-result__type (i18n (utils/ns-kw type))]]])
 
 (defn header []
-  (rf/dispatch [::events/configuration.get :site.title])
+  (rf/dispatch [::events/configuration.get #{:site.title}])
   (fn []
     [:div.skeleton-header
      [base/container
@@ -79,7 +79,7 @@
 
       [:div.skeleton-header__logo
        (let [title @(rf/subscribe [::events/db [:configuration :site.title]])]
-         [:a {:title (:value title)
+         [:a {:title title
               :href (-> js/window (.-location) (.-origin))}
           [:img {:src "files/logo"}]])]
 
