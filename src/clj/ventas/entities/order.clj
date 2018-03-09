@@ -1,5 +1,6 @@
 (ns ventas.entities.order
   (:require
+   [ventas.database :as db]
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
@@ -19,12 +20,13 @@
   (spec/with-gen ::entity/ref #(entity/ref-generator :user)))
 
 (spec/def :order/status
-  #{:order.status/unpaid
-    :order.status/paid
-    :order.status/acknowledged
-    :order.status/ready
-    :order.status/shipped
-    :order.status/draft})
+  (spec/or :pull-eid ::db/pull-eid
+           :kind #{:order.status/unpaid
+                   :order.status/paid
+                   :order.status/acknowledged
+                   :order.status/ready
+                   :order.status/shipped
+                   :order.status/draft}))
 
 (spec/def :order/shipping-address
   (spec/with-gen ::entity/ref #(entity/ref-generator :address)))
