@@ -354,26 +354,17 @@
 
 (register-endpoint!
  :search
- {:spec {:search string?}}
- (fn [{{:keys [search entity-types]} :params} {:keys [session]}]
+ {:spec {:search string?}
+  :doc "Does a fulltext search for `search` in products, categories and brands"}
+ (fn [{{:keys [search]} :params} {:keys [session]}]
    (stats/record-search-event! search)
    (let [culture (get-culture session)
-         {culture-kw :i18n.culture/keyword} (entity/find culture)
-         shoulds (for [attr (or entity-types
-                                [:product/name
-                                 :category/name
-                                 :brand/name])]
-                   {:match {(keyword (namespace attr)
-                                     (str (name attr) "__" (name culture-kw)))
-                            search}})
-         hits (-> (search/search {:query {:bool {:should shoulds}}
-                                  :_source false})
-                  (get-in [:body :hits :hits]))]
-     (->> hits
-          (map :_id)
-          (map (fn [v] (Long/parseLong v)))
-          (map #(entity/find-json % {:culture culture
-                                     :keep-type? true}))
+         {culture-kw :i18n.culture/keyword} (entity/find culture)]
+     (->> (search/entities search
+                           #{:product/name
+                             :category/name
+                             :brand/name}
+                           culture-kw)
           (map (fn [{:keys [images] :as result}]
                  (let [result (if images
                                 (assoc result :image (first images))

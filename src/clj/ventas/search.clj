@@ -295,3 +295,30 @@
   (do
     (timbre/info "Stopping tx-report-queue listener")
     (future-cancel tx-report-queue-listener)))
+
+(defn- prepare-search-attrs [attrs culture-kw]
+  (for [attr attrs]
+    (let [{:ventas/keys [refEntityType]} (db/touch-eid attr)]
+      (cond
+        (= refEntityType :i18n)
+        (keyword (namespace attr)
+                 (str (name attr) "__" (name culture-kw)))
+
+        :else attr))))
+
+(defn entities
+  "Fulltext search for `search` in the given `attrs`. `culture` should be a keyword representing
+   a culture (e.g. :en_US)"
+  [text attrs culture]
+  (println {:search text :attrs attrs :culture culture})
+  (let [shoulds (for [attr (prepare-search-attrs attrs culture)]
+                  {:match {attr text}})
+        _ (println {:shoulds shoulds})
+        hits (-> (search {:query {:bool {:should shoulds}}
+                          :_source false})
+                 (get-in [:body :hits :hits]))]
+    (->> hits
+         (map :_id)
+         (map (fn [v] (Long/parseLong v)))
+         (map #(entity/find-json % {:culture culture
+                                    :keep-type? true})))))
