@@ -91,15 +91,17 @@
 
 (rf/reg-event-fx
  ::admin.entities.remove
- (fn [cofx [_ eid]]
+ (fn [_ [_ db-path eid]]
    {:dispatch [::backend/admin.entities.remove
                {:params {:id eid}
-                :success [::admin.entities.remove.next eid]}]}))
+                :success [::admin.entities.remove.next db-path eid]}]}))
 
 (rf/reg-event-db
  ::admin.entities.remove.next
- (fn [db [_ eid]]
-   (update db :entities #(dissoc eid))))
+ (fn [db [_ db-path eid]]
+   (update-in db db-path (fn [entities]
+                           (remove #(= (:id %) eid)
+                                   entities)))))
 
 (rf/reg-event-fx
  ::i18n.cultures.list
