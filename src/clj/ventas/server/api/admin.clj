@@ -13,7 +13,8 @@
    [ventas.stats :as stats]
    [kinsky.client :as kafka]
    [taoensso.timbre :as timbre]
-   [ventas.entities.configuration :as entities.configuration]))
+   [ventas.entities.configuration :as entities.configuration]
+   [ventas.entities.user :as entities.user]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -137,10 +138,25 @@
  :admin.orders.get
  {:spec {:id ::api/id}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
-   (let [order (entity/find id)]
-     {:order order
+   (let [{:order/keys [user] :as order} (entity/find id)]
+     {:order (db/pull '[*] id)
+      :user (when user
+              (let [name (entities.user/get-name user)]
+                {:text name
+                 :value user}))
       :lines (map #(entity/find-json % {:culture (api/get-culture session)})
-                  (:order/lines order))})))
+                  (-> order :order/lines))})))
+
+(register-admin-endpoint!
+ :admin.search
+ {:spec {:search string?
+         :attrs #{keyword?}}
+  :doc "Does a fulltext search for `search` in the given `attrs`"}
+ (fn [{{:keys [search attrs]} :params} {:keys [session]}]
+   (let [culture (api/get-culture session)
+         {culture-kw :i18n.culture/keyword} (entity/find culture)]
+     (search/entities search attrs culture-kw))))
+
 
 (register-admin-endpoint!
  :admin.orders.list
@@ -149,6 +165,12 @@
  (fn [_ {:keys [session]}]
    (map #(entity/to-json % {:culture (api/get-culture session)})
         (entity/query :order))))
+
+(register-admin-endpoint!
+ :admin.orders.save
+ {:spec ::entity/entity}
+ (fn [{entity :params} _]
+   (entity/upsert* entity)))
 
 (register-admin-endpoint!
  :admin.products.save
