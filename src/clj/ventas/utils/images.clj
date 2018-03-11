@@ -96,7 +96,7 @@
                  :progressive progressive)))
 
 (defn transform-image [source-path target-dir & [options]]
-  (let [options (merge-with #(if (nil? %1) %2 %1) {:quality 1} options)
+  (let [options (merge-with #(if (nil? %1) %2 %1) options {:quality 1})
         target-dir (or target-dir (utils.files/get-tmp-dir))
         target-path (str target-dir "/" (path-with-metadata source-path options))]
     (when (and (:scale options) (or (get-in options [:resize :width])
