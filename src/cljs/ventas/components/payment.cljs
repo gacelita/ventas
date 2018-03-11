@@ -1,5 +1,6 @@
 (ns ventas.components.payment
-  "Entry point to payment methods")
+  "Entry point to payment methods"
+  (:refer-clojure :exclude [methods]))
 
 (defonce ^:private methods (atom {}))
 

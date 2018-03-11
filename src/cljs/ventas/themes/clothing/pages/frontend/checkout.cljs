@@ -6,8 +6,7 @@
    [ventas.components.cart :as cart]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.plugins.stripe.core :as stripe]
-   [ventas.events :as events]
+   [ventas.plugins.stripe.core]
    [ventas.components.payment :as payment]
    [ventas.themes.clothing.components.skeleton :as theme.skeleton]))
 
@@ -21,7 +20,7 @@
      [:div.checkout-page__content
       [:div.checkout-page__payment-methods
        (doall
-        (for [{:keys [component]} (payment/get-methods)]
+        (for [[_ {:keys [component]}] (payment/get-methods)]
           [component]))]]]]])
 
 (rf/reg-event-fx
