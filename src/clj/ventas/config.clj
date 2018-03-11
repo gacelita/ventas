@@ -9,7 +9,7 @@
 (defn- load-config []
   (let [custom-config (try
                         (cprop.source/from-resource "config.edn")
-                        (catch Throwable e))]
+                        (catch Throwable _))]
     (apply cprop/load-config
            :resource "default-config.edn"
            (when custom-config
