@@ -4,6 +4,7 @@
    [ventas.database :as db]
    [ventas.database.seed :as seed]
    [ventas.server.ws :as server.ws]
+   [ventas.core]
    [ventas.test-tools :as test-tools]
    [taoensso.timbre :as timbre]))
 

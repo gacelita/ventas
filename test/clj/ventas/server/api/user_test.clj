@@ -1,14 +1,16 @@
 (ns ventas.server.api.user-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.server.ws :as server.ws]
-   [ventas.test-tools :as test-tools]
+   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.seed :as seed]
-   [ventas.utils :as utils]
    [ventas.entities.i18n :as entities.i18n]
-   [taoensso.timbre :as timbre]))
+   [ventas.server.api.user]
+   [ventas.core]
+   [ventas.server.ws :as server.ws]
+   [ventas.test-tools :as test-tools]
+   [ventas.utils :as utils]))
 
 (defn example-user []
   {:schema/type :schema.type/user
