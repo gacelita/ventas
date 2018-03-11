@@ -24,20 +24,17 @@
 
 (register-user-endpoint!
  :users.addresses
- (fn [_ {:keys [session] :as state}]
+ (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]
      (->> (entity/query :address {:user (:db/id user)})
           (map #(entity/to-json % {:culture (api/get-culture session)}))))))
 
 (register-user-endpoint!
  :users.addresses.save
- {:spec {:id ::api/id}}
- (fn [{{:keys [id] :as address} :params} {:keys [session] :as state}]
-   (let [user (api/get-user session)
-         address (entity/find id)]
-     (when-not (= (:db/id user) (:address/user address))
-       (throw (Exception. "Unauthorized")))
-     (entity/upsert :address address))))
+ (fn [{address :params} {:keys [session]}]
+   (let [user (api/get-user session)]
+     (entity/upsert :address (merge address
+                                    {:user (:db/id user)})))))
 
 (register-user-endpoint!
  :users.addresses.remove

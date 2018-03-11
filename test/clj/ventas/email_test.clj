@@ -26,3 +26,11 @@
               (merge message
                      {:from (:from test-configuration)})]
              @received-args)))))
+
+(deftest send-template!
+  (let [received-args (atom nil)]
+    (with-redefs [postal/send-message (fn [& args] (reset! received-args args))]
+      (sut/send-template! :test-template {:subject "Hey!"
+                                          :body "My message"})
+      (is (= nil
+             @received-args)))))
