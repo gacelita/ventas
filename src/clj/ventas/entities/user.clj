@@ -4,6 +4,7 @@
    [clojure.spec.alpha :as spec]
    [clojure.string :as str]
    [com.gfredericks.test.chuck.generators :as chuck]
+   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.utils :as utils]))
@@ -34,13 +35,19 @@
     ;; temporary user that should register at some point in time
     :user.status/unregistered})
 
-(spec/def :user/status statuses)
+(spec/def :user/status
+  (spec/or :pull-eid ::db/pull-eid
+           :status statuses))
 
 (def roles
   #{:user.role/administrator})
 
+(spec/def ::role
+  (spec/or :pull-eid ::db/pull-eid
+           :role roles))
+
 (spec/def :user/roles
-  (spec/coll-of roles :kind set?))
+  (spec/coll-of ::role :kind set?))
 
 (def cultures
   #{:user.culture/en_US

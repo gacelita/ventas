@@ -3,13 +3,19 @@
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
+   [ventas.database :as db]
    [ventas.entities.i18n :as entities.i18n]))
 
 (spec/def :tax/name ::entities.i18n/ref)
 
-(spec/def :tax/kind #{:tax.kind/percentage :tax.kind/amount})
+(spec/def :tax/kind
+  (spec/or :pull-eid ::db/pull-eid
+           :kind #{:tax.kind/percentage
+                   :tax.kind/amount}))
 
-(spec/def :tax/amount double?)
+(spec/def :tax/amount
+  (spec/with-gen ::entity/ref
+                 #(entity/ref-generator :amount)))
 
 (spec/def :tax/keyword ::generators/keyword)
 
@@ -34,8 +40,10 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :tax/amount
-    :db/valueType :db.type/float
-    :db/cardinality :db.cardinality/one}
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true
+    :ventas/refEntityType :amount}
 
    {:db/ident :tax/kind
     :db/valueType :db.type/ref

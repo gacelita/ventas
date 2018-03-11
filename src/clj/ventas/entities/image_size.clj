@@ -3,6 +3,7 @@
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [ventas.database.entity :as entity]
+   [ventas.database :as db]
    [ventas.database.generators :as generators]
    [ventas.entities.file :as entities.file]
    [ventas.paths :as paths]
@@ -23,7 +24,9 @@
     :image-size.algorithm/always-resize
     :image-size.algorithm/crop-and-resize})
 
-(spec/def :image-size/algorithm algorithms)
+(spec/def :image-size/algorithm
+  (spec/or :pull-eid ::db/pull-eid
+           :algorithm algorithms))
 
 (spec/def :image-size/quality
   (spec/with-gen number?
@@ -39,8 +42,12 @@
     :schema.type/product
     :schema.type/user})
 
+(spec/def ::entity
+  (spec/or :pull-eid ::db/pull-eid
+           :entity entities))
+
 (spec/def :image-size/entities
-  (spec/coll-of entities :kind set?))
+  (spec/coll-of ::entity :kind set?))
 
 (spec/def :schema.type/image-size
   (spec/keys :req [:image-size/keyword

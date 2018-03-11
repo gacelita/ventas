@@ -76,7 +76,8 @@
    {:db/ident :discount/amount
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/isComponent true
+    :ventas/refEntityType :amount}
 
    {:db/ident :discount/amount.tax-included?
     :db/valueType :db.type/boolean
