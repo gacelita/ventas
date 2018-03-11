@@ -34,5 +34,5 @@ deploy:
     branch: master
 
 after_success:
-- CLOVERAGE_VERSION=1.0.7-SNAPSHOT lein cloverage --codecov
+- CLOVERAGE_VERSION=1.0.10 lein cloverage --codecov
 - bash <(curl -s https://codecov.io/bash)

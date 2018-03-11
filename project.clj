@@ -185,7 +185,7 @@
             [lein-auto "0.1.3"]
             [lein-cljfmt "0.5.6"]
             [lein-cljsbuild "1.1.7"]
-            [lein-cloverage "1.0.7-SNAPSHOT"]
+            [lein-cloverage "1.0.10"]
             [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
             [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
 
