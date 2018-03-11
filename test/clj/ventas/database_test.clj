@@ -12,7 +12,6 @@
     (with-redefs [sut/db c]
       (seed/seed-type-with-deps :product 1)
       (let [product (first (entity/query :product))]
-        (print product)
         (is (sut/nice-query
              {:find ['?images]
               :in {'?id 17592186046637

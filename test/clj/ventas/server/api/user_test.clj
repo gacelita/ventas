@@ -7,7 +7,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.seed :as seed]
    [ventas.utils :as utils]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [taoensso.timbre :as timbre]))
 
 (defn example-user []
   {:schema/type :schema.type/user
@@ -15,8 +16,10 @@
    :user/email (str (gensym "test-user") "@test.com")})
 
 (use-fixtures :once #(with-redefs [db/db (test-tools/test-conn)]
-                       (seed/seed :minimal? true)
-                       (%)))
+                       (timbre/with-level
+                        :report
+                        (seed/seed :minimal? true)
+                        (%))))
 
 (defn example-address [user-email]
   {:schema/type :schema.type/address
@@ -75,7 +78,6 @@
     (server.ws/call-handler-with-user :users.cart.add
                                       {:id (:db/id variation)}
                                       user)
-    (println :variation variation-json)
     (is (= {:amount (get-in variation-json [:price :value])
             :lines [{:product-variation variation-json
                      :quantity 1}]

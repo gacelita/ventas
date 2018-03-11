@@ -4,11 +4,14 @@
    [ventas.database :as db]
    [ventas.database.seed :as seed]
    [ventas.server.ws :as server.ws]
-   [ventas.test-tools :as test-tools]))
+   [ventas.test-tools :as test-tools]
+   [taoensso.timbre :as timbre]))
 
 (use-fixtures :once #(with-redefs [db/db (test-tools/test-conn)]
-                       (seed/seed :minimal? true)
-                       (%)))
+                       (timbre/with-level
+                        :report
+                        (seed/seed :minimal? true)
+                        (%))))
 
 (deftest products-aggregations
   (testing "spec does not fail when not passing params"

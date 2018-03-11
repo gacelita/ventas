@@ -10,12 +10,13 @@
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))
 
+(defmacro swallow [& body]
+  `(try (do ~@body)
+        (catch Throwable e# nil)))
+
 (defn spec-exists? [v]
-  (try
-    (spec/form v)
-    true
-    (catch Throwable e
-      false)))
+  (swallow
+   (spec/form v)))
 
 (defn dequalify-keywords [m]
   (into {}
@@ -44,7 +45,9 @@
   [path pattern]
   (find-files* path #(re-matches pattern (.getName ^File %))))
 
-(defn transform [data xforms]
+(defn transform
+  "Applies the given transformation functions to `data`"
+  [data xforms]
   (let [f (apply comp (reverse xforms))]
     (f data)))
 
@@ -66,10 +69,13 @@
 
 (defmacro ns-kw
   "Takes a string or a keyword. Returns a keyword where the ns is the caller ns
-   and the name is the given string, or the name of the given keyword."
+   and the name is the given string, or the name of the given keyword.
+   **ClojureScript only**"
   [input]
-  (let [caller-ns (str (:name (:ns &env)))]
-    `(~'keyword ~caller-ns ~input)))
+  (if-not (:ns &env)
+    '(throw (Exception. "This macro is cljs-only."))
+    (let [caller-ns (str (:name (:ns &env)))]
+      `(~'keyword ~caller-ns ~input))))
 
 (defn bigdec?
   "Return true if x is a BigDecimal.
@@ -77,10 +83,7 @@
   [x] (instance? BigDecimal x))
 
 (defn ->number [v]
-  (try
-    (Long. v)
-    (catch Throwable e
-      nil)))
+  (swallow (Long. v)))
 
 (defn batch [in out max-time max-count]
   (let [lim-1 (dec max-count)]
@@ -105,7 +108,3 @@
 
           :else
           (recur (conj buffer message)))))))
-
-(defmacro swallow [& body]
-  `(try (do ~@body)
-        (catch Throwable e# nil)))
