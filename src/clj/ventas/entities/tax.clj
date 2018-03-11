@@ -4,14 +4,20 @@
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.database :as db]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [clojure.test.check.generators :as gen]))
 
 (spec/def :tax/name ::entities.i18n/ref)
 
+(def kinds
+  #{:tax.kind/percentage
+    :tax.kind/amount})
+
 (spec/def :tax/kind
-  (spec/or :pull-eid ::db/pull-eid
-           :kind #{:tax.kind/percentage
-                   :tax.kind/amount}))
+  (spec/with-gen
+   (spec/or :pull-eid ::db/pull-eid
+            :kind kinds)
+   #(gen/elements kinds)))
 
 (spec/def :tax/amount
   (spec/with-gen ::entity/ref
@@ -28,30 +34,30 @@
 (entity/register-type!
  :tax
  {:attributes
-  [{:db/ident :tax/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
+  (concat
+   [{:db/ident :tax/name
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :db/isComponent true
+     :ventas/refEntityType :i18n}
 
-   {:db/ident :tax/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :tax/keyword
+     :db/valueType :db.type/keyword
+     :db/unique :db.unique/identity
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :tax/amount
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :amount}
+    {:db/ident :tax/amount
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :db/isComponent true
+     :ventas/refEntityType :amount}
 
-   {:db/ident :tax/kind
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :enum}
+    {:db/ident :tax/kind
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :enum}]
 
-   {:db/ident :tax.kind/percentage}
-   {:db/ident :tax.kind/amount}]
+   (map #(hash-map :db/ident %) kinds))
 
   :autoresolve? true
 

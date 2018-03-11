@@ -61,4 +61,4 @@
     path))
 
 (defn path->resource [path]
-  (str/replace path (str project-resources "/") ""))
+  (str/replace path (str (resolve-path project-resources) "/") ""))

@@ -21,6 +21,6 @@
 
 (deftest products-list
   (testing "works without passing params"
-    (is (= {:data [] :id nil :success true :type :response}
+    (is (= {:data [] :id nil :success true :type :response :realtime? false}
            (server.ws/call-request-handler {:name :products.list}
                                            {})))))

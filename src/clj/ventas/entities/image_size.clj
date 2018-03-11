@@ -25,8 +25,10 @@
     :image-size.algorithm/crop-and-resize})
 
 (spec/def :image-size/algorithm
-  (spec/or :pull-eid ::db/pull-eid
-           :algorithm algorithms))
+  (spec/with-gen
+   (spec/or :pull-eid ::db/pull-eid
+            :algorithm algorithms)
+   #(gen/elements algorithms)))
 
 (spec/def :image-size/quality
   (spec/with-gen number?
@@ -43,8 +45,10 @@
     :schema.type/user})
 
 (spec/def ::entity
-  (spec/or :pull-eid ::db/pull-eid
-           :entity entities))
+  (spec/with-gen
+   (spec/or :pull-eid ::db/pull-eid
+            :entity entities)
+   #(gen/elements entities)))
 
 (spec/def :image-size/entities
   (spec/coll-of ::entity :kind set?))
@@ -60,36 +64,35 @@
 (entity/register-type!
  :image-size
  {:attributes
-  [{:db/ident :image-size/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}
+  (concat
+   [{:db/ident :image-size/keyword
+     :db/valueType :db.type/keyword
+     :db/unique :db.unique/identity
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :image-size/width
-    :db/valueType :db.type/long
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :image-size/width
+     :db/valueType :db.type/long
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :image-size/height
-    :db/valueType :db.type/long
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :image-size/height
+     :db/valueType :db.type/long
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :image-size/algorithm
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :enum}
+    {:db/ident :image-size/algorithm
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :enum}
 
-   {:db/ident :image-size.algorithm/resize-only-if-over-maximum}
-   {:db/ident :image-size.algorithm/always-resize}
-   {:db/ident :image-size.algorithm/crop-and-resize}
+    {:db/ident :image-size/quality
+     :db/valueType :db.type/float
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :image-size/quality
-    :db/valueType :db.type/float
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :image-size/entities
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many
+     :ventas/refEntityType :enum}]
 
-   {:db/ident :image-size/entities
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many
-    :ventas/refEntityType :enum}]
+   (map #(hash-map :db/ident %) algorithms))
 
   :fixtures
   (fn []

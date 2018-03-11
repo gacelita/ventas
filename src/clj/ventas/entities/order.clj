@@ -4,7 +4,8 @@
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.entities.product :as entities.product]))
+   [ventas.entities.product :as entities.product]
+   [clojure.test.check.generators :as gen]))
 
 (defn- get-amount [{:order/keys [lines]}]
   (->> lines
@@ -19,14 +20,19 @@
 (spec/def :order/user
   (spec/with-gen ::entity/ref #(entity/ref-generator :user)))
 
+(def statuses
+  #{:order.status/unpaid
+    :order.status/paid
+    :order.status/acknowledged
+    :order.status/ready
+    :order.status/shipped
+    :order.status/draft})
+
 (spec/def :order/status
-  (spec/or :pull-eid ::db/pull-eid
-           :kind #{:order.status/unpaid
-                   :order.status/paid
-                   :order.status/acknowledged
-                   :order.status/ready
-                   :order.status/shipped
-                   :order.status/draft}))
+  (spec/with-gen
+   (spec/or :pull-eid ::db/pull-eid
+            :kind statuses)
+   #(gen/elements statuses)))
 
 (spec/def :order/shipping-address
   (spec/with-gen ::entity/ref #(entity/ref-generator :address)))
@@ -62,54 +68,50 @@
 (entity/register-type!
  :order
  {:attributes
-  [{:db/ident :order/user
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+  (concat
+   [{:db/ident :order/user
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order/status
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :order/status
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order.status/draft}
-   {:db/ident :order.status/unpaid}
-   {:db/ident :order.status/paid}
-   {:db/ident :order.status/acknowledged}
-   {:db/ident :order.status/ready}
-   {:db/ident :order.status/shipped}
+    {:db/ident :order/shipping-address
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order/shipping-address
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :order/billing-address
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order/billing-address
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :order/shipping-method
+     :db/valueType :db.type/keyword
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order/shipping-method
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :order/payment-method
+     :db/valueType :db.type/keyword
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order/payment-method
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :order/shipping-comments
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order/shipping-comments
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :order/lines
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many
+     :db/isComponent true}
 
-   {:db/ident :order/lines
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many
-    :db/isComponent true}
+    {:db/ident :order/payment-reference
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order/payment-reference
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :order/payment-amount
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :db/isComponent true}]
 
-   {:db/ident :order/payment-amount
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true}]
+   (map #(hash-map :db/ident %) statuses))
 
   :dependencies
   #{:address :user :amount}

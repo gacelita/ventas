@@ -10,7 +10,8 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
-   [ventas.utils.slugs :as utils.slugs]))
+   [ventas.utils.slugs :as utils.slugs]
+   [clojure.test.check.generators :as gen]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -24,11 +25,15 @@
 
 (spec/def :product/keyword ::generators/keyword)
 
+(def conditions #{:product.condition/new
+                  :product.condition/used
+                  :product.condition/refurbished})
+
 (spec/def :product/condition
-  (spec/or :pull-eid ::db/pull-eid
-           :condition #{:product.condition/new
-                        :product.condition/used
-                        :product.condition/refurbished}))
+  (spec/with-gen
+   (spec/or :pull-eid ::db/pull-eid
+            :condition conditions)
+   #(gen/elements conditions)))
 
 (spec/def :product/price
   (spec/with-gen ::entity/ref
@@ -105,78 +110,77 @@
 (entity/register-type!
  :product
  {:attributes
-  [{:db/ident :product/price
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+  (concat
+   [{:db/ident :product/price
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :db/isComponent true}
 
-   {:db/ident :product/name
-    :db/valueType :db.type/ref
-    :db/index true
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
+    {:db/ident :product/name
+     :db/valueType :db.type/ref
+     :db/index true
+     :db/cardinality :db.cardinality/one
+     :db/isComponent true
+     :ventas/refEntityType :i18n}
 
-   {:db/ident :product/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :product/keyword
+     :db/valueType :db.type/keyword
+     :db/unique :db.unique/identity
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product/reference
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :product/reference
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product/ean13
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :product/ean13
+     :db/valueType :db.type/string
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product/active
-    :db/valueType :db.type/boolean
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :product/active
+     :db/valueType :db.type/boolean
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product/description
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
+    {:db/ident :product/description
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :db/isComponent true
+     :ventas/refEntityType :i18n}
 
-   {:db/ident :product/tax
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :product/tax
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product/brand
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    {:db/ident :product/brand
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product/condition
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :enum}
+    {:db/ident :product/condition
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :enum}
 
-   {:db/ident :product.condition/new}
-   {:db/ident :product.condition/used}
-   {:db/ident :product.condition/refurbished}
+    {:db/ident :product/categories
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many}
 
-   {:db/ident :product/categories
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    {:db/ident :product/terms
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many}
 
-   {:db/ident :product/terms
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    {:db/ident :product/images
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many
+     :db/isComponent true}
 
-   {:db/ident :product/images
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many
-    :db/isComponent true}
+    {:db/ident :product/variation-terms
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/many}
 
-   {:db/ident :product/variation-terms
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    {:db/ident :product/parent
+     :db/valueType :db.type/ref
+     :db/cardinality :db.cardinality/one}]
 
-   {:db/ident :product/parent
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+   (map #(hash-map :db/ident %) conditions))
 
   :dependencies
   #{:brand :tax :file :category :product.term :amount}

@@ -7,7 +7,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [clojure.test.check.generators :as gen]))
 
 (spec/def :user/first-name ::generators/string)
 
@@ -36,8 +37,10 @@
     :user.status/unregistered})
 
 (spec/def :user/status
-  (spec/or :pull-eid ::db/pull-eid
-           :status statuses))
+  (spec/with-gen
+   (spec/or :pull-eid ::db/pull-eid
+            :status statuses)
+   #(gen/elements statuses)))
 
 (def roles
   #{:user.role/administrator})
