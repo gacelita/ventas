@@ -347,16 +347,21 @@
     (map db/normalize-ref refs)))
 
 (defn- get-enum-retractions
-  "TODO: Document and make readable"
-  [entity new-values]
+  [old-values new-values]
   (let [relevant-attrs (filter #(contains? (set (keys new-values)) (:db/ident %))
-                               (attributes (type entity)))
+                               (attributes (type old-values)))
         enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
                                  (= (:db/valueType %) :db.type/ref))
                            relevant-attrs)
-        enum-idents (map :db/ident enum-attrs)]
+        enum-idents (map :db/ident enum-attrs)
+        enum-vals (->> (map (fn [ident]
+                              [ident (->> (get old-values ident)
+                                          (map db/normalize-ref)
+                                          (set))])
+                            enum-idents)
+                       (into {}))]
     (mapcat (fn [{:keys [ident new-val]}]
-              (let [diff (set/difference (set (get entity ident))
+              (let [diff (set/difference (get enum-vals ident)
                                          new-val)]
                 (map (fn [val-to-retract]
                        [:db/retract (:db/id new-values) ident val-to-retract])

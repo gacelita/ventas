@@ -117,12 +117,6 @@
   []
   (d/tempid :db.part/user))
 
-(defn normalize-ref [ref]
-  (cond
-    (vector? ref) (:db/id (entity ref))
-    (:db/id ref) (:db/id ref)
-    :default ref))
-
 (defn datom->map
   [^Datom datom]
   (let [e  (.e datom)
@@ -186,6 +180,17 @@
       (-> (into {} result)
           (assoc :db/id (:db/id result))
           (EntityMaps->eids)))))
+
+(defn normalize-ref
+  "Normalizes a database reference.
+   {:db/id 17592186045466} -> 123
+   :schema.type/product -> 17592186045466
+   [:product/keyword :test-product] -> 17592186045940"
+  [ref]
+  (cond
+    (or (vector? ref) (keyword? ref)) (:db/id (entity ref))
+    (:db/id ref) (:db/id ref)
+    :default ref))
 
 (defn schema
   "Gets the current database schema"
