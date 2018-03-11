@@ -9,7 +9,7 @@
 
 ventas wants to be an ecommerce platform written entirely in Clojure.
 
-For now, the project is a WIP. Although the foundation is good, there aren't many features yet (and no tests whatsoever).
+For now, the project is a WIP. Although the foundation is good, it's not possible to run a real store with it, as it lacks a checkout process, order management, email templates, and other basic stuff (for now).
 
 For any questions I'm usually available at the `#ventas` channel in [clojurians](clojurians.slack.com). You can also open an issue, or contact me by email (you'll find it in `project.clj`) .
 
