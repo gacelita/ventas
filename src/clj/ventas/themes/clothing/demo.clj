@@ -178,7 +178,9 @@
 (defn taxes []
   (map #(assoc % :schema/type :schema.type/tax)
        [{:tax/name (entities.i18n/get-i18n-entity {:en_US "Test tax"})
-         :tax/amount 21.0
+         :tax/amount {:schema/type :schema.type/amount
+                      :amount/value 21.0M
+                      :amount/currency [:currency/keyword :eur]}
          :tax/kind :tax.kind/percentage
          :tax/keyword :test-tax}]))
 
