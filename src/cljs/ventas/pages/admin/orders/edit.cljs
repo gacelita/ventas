@@ -12,22 +12,25 @@
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
    [ventas.utils.ui :as utils.ui]
-   [reagent.core :as reagent]))
+   [reagent.core :as reagent]
+   [ventas.components.form :as form]
+   [ventas.pages.admin.common :as admin.common])
+  (:require-macros
+   [ventas.utils :refer [ns-kw]]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
  ::submit
- (fn [{:keys [db]} [_ data]]
+ (fn [{:keys [db]} _]
    {:dispatch [::backend/admin.orders.save
-               {:params (get-in db [state-key :order])
+               {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next
- (fn [cofx [_ data]]
-   {:dispatch [::notificator/add {:message (i18n ::order-saved-notification)
-                                  :theme "success"}]
+ (fn [_ _]
+   {:dispatch [::notificator/notify-saved]
     :go-to [:admin.orders]}))
 
 (defn- on-user-change [user]
@@ -35,46 +38,19 @@
    {:params {:id user}
     :success [::events/db [state-key :user-addresses]]}])
 
-(defmulti on-change (fn [_ k v] k))
-
-(defmethod on-change :order/user [_ _ v]
-  {:dispatch (on-user-change v)})
-
-(defmethod on-change :default [_ _ _])
-
-(rf/reg-event-fx
- ::on-change
- (fn [cofx [_ k v]]
-   (on-change cofx k v)))
-
-(rf/reg-event-fx
- ::set-field
- (fn [{:keys [db]} [_ k v]]
-   (merge
-    {:db (assoc-in db [state-key :order k] v)}
-    (when v
-      {:dispatch [::on-change k v]}))))
-
-(rf/reg-event-fx
- ::line-init
- (fn [{:keys [db]} [_ line]]
-   (when line
-     (let [{:keys [initiated?]} (get-in db [state-key :lines line])]
-       (when (not initiated?))))))
-
 (defn- image-column [row]
   (when-let [image (first (get-in row [:product-variation :images]))]
     [:img {:key (:id image)
            :src (str "/images/" (:id image) "/resize/admin-orders-edit-line")}]))
 
-(defn- lines-table [{:keys [product-variation quantity]}]
+(defn- lines-table []
   [table/table
    {:init-state {:page 0
                  :items-per-page 5
                  :sort-column :id
                  :sort-direction :asc}
     :state-path [state-key :lines-table]
-    :data-path [state-key :order-lines]
+    :data-path [state-key :lines]
     :columns [{:id :image
                :label (i18n ::image)
                :component image-column}
@@ -90,23 +66,6 @@
                :label (i18n ::total)
                :component (fn [row] [:span (* (:quantity row)
                                               (get-in row [:product-variation :price :value]))])}]}])
-
-(rf/reg-event-fx
- ::fetch
- (fn [cofx [_ id]]
-   {:dispatch [::backend/admin.orders.get
-               {:params {:id id}
-                :success ::fetch.next}]}))
-
-(rf/reg-event-fx
- ::fetch.next
- (fn [{:keys [db]} [_ {:keys [order lines]}]]
-   (merge
-    {:db (-> db
-             (assoc-in [state-key :order] order)
-             (assoc-in [state-key :order-lines] lines))}
-    (when-let [user (:order/user order)]
-      {:dispatch (on-user-change user)}))))
 
 (rf/reg-sub
  ::user-addresses
@@ -126,99 +85,87 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::fetch (routes/ref-from-param :id)]
-                 [::events/enums.get :order.status]
-                 [::backend/admin.users.list
-                  {:success [::events/db [state-key :users]]}]]}))
+   {:dispatch-n [(let [id (routes/ref-from-param :id)]
+                   (if-not (pos? id)
+                     [::form/populate [state-key] {:schema/type :schema.type/order}]
+                     [::backend/admin.orders.get
+                      {:params {:id id}
+                       :success ::init.next}]))
+                 [::events/enums.get :order.status]]}))
+
+(rf/reg-event-fx
+ ::init.next
+ (fn [{:keys [db]} [_ {:keys [order lines]}]]
+   {:dispatch-n [[::form/populate [state-key] order]
+                 [::backend/admin.entities.find-json
+                  {:params {:id (get-in order [:order/user :db/id])}
+                   :success [::events/db [state-key :user]]}]]
+    :db (assoc-in db [state-key :lines] lines)}))
+
+(defn- field [{:keys [key] :as args}]
+  [form/field (merge args
+                     {:db-path [state-key]
+                      :label (i18n (ns-kw (if (sequential? key)
+                                            (first key)
+                                            key)))})])
 
 (defn- content []
-  (let [{:keys [order]} @(rf/subscribe [::events/db state-key])]
+  [form/form [state-key]
+   [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-    [base/form {:key (:db/id order)
-                :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+    [base/segment {:color "orange"
+                   :title (i18n ::order)}
 
-     [base/segment {:color "orange"
-                    :title (i18n ::order)}
+     [admin.common/entity-search-field
+      {:label (i18n ::user)
+       :db-path [state-key]
+       :key [:order/user :db/id]
+       :attrs #{:user/first-name
+                :user/last-name}
+       :selected-option @(rf/subscribe [::events/db [state-key :user]])}]
 
-      (let [field :order/user]
-        [base/form-field
-         [:label (i18n ::user)]
-         [base/dropdown
-          {:fluid true
-           :selection true
-           :options (->> @(rf/subscribe [::events/db [state-key :users]])
-                         (map (fn [{:keys [id first-name last-name]}]
-                                {:value id
-                                 :text (str first-name
-                                            (when last-name
-                                              (str " " last-name)))})))
-           :default-value (get order field)
-           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
+     [field {:key [:order/status :db/id]
+             :type :combobox
+             :options @(rf/subscribe [::events/db [:enums :order.status]])}]]
 
-      (let [field :order/status]
-        [base/form-field
-         [:label (i18n ::status)]
-         [base/dropdown
-          {:options @(rf/subscribe [::events/db [:enums :order.status]])
-           :selection true
-           :default-value (get order field)
-           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
+    [base/segment {:color "orange"
+                   :title (i18n ::billing)}
 
-     [base/segment {:color "orange"
-                    :title (i18n ::billing)}
-      (let [field :order/payment-method]
-        [base/form-input
-         {:label (i18n ::payment-method)
-          :default-value (get order field)
-          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
+     ;; @TODO Do this
+     [field {:key :order/payment-method
+             :type :text}]
 
-      (let [field :order/billing-address]
-        [base/form-field
-         [:label (i18n ::billing-address)]
-         [base/dropdown
-          {:options @(rf/subscribe [::user-addresses])
-           :selection true
-           :default-value (get order field)
-           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
+     [field {:key :order/billing-address
+             :type :combobox
+             :options @(rf/subscribe [::user-addresses])}]
 
-      (let [field :order/payment-reference]
-        [base/form-input
-         {:label (i18n ::payment-reference)
-          :default-value (get order field)
-          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])]
+     [field {:key :order/payment-reference
+             :type :text}]]
 
-     [base/divider {:hidden true}]
+    [base/divider {:hidden true}]
 
-     [base/segment {:color "orange"
-                    :title (i18n ::shipping)}
-      (let [field :order/shipping-method]
-        [base/form-input
-         {:label (i18n ::shipping-method)
-          :default-value (get order field)
-          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
+    [base/segment {:color "orange"
+                   :title (i18n ::shipping)}
 
-      (let [field :order/shipping-address]
-        [base/form-field
-         [:label (i18n ::shipping-address)]
-         [base/dropdown
-          {:options @(rf/subscribe [::user-addresses])
-           :selection true
-           :default-value (get order field)
-           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])
+     ;; @TODO Do this
+     [field {:key :order/shipping-method
+             :type :text}]
 
-      (let [field :order/shipping-comments]
-        [base/form-textarea
-         {:label (i18n ::shipping-comments)
-          :default-value (get order field)
-          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])]
+     [field {:key :order/shipping-address
+             :type :combobox
+             :options @(rf/subscribe [::user-addresses])}]
 
-     [base/divider {:hidden true}]
+     [field {:key :order/shipping-comments
+             :type :textarea}]]
 
-     [base/segment {:color "orange"
-                    :title (i18n ::lines)}
-      [lines-table]]
+    [base/divider {:hidden true}]
 
-     [base/form-button {:type "submit"} (i18n ::submit)]]))
+    [base/segment {:color "orange"
+                   :title (i18n ::lines)}
+
+     [lines-table]]
+
+    [base/form-button {:type "submit"} (i18n ::submit)]]])
 
 (defn page []
   [admin.skeleton/skeleton

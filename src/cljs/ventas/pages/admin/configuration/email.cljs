@@ -7,7 +7,6 @@
    [ventas.components.base :as base]
    [ventas.utils.ui :as utils.ui]
    [re-frame.core :as rf]
-   [ventas.events :as events]
    [ventas.components.form :as form]
    [ventas.events.backend :as backend]
    [ventas.components.notificator :as notificator])
@@ -43,10 +42,10 @@
        (when (:email.encryption.enabled data)
          [field {:key :email.encryption.type
                  :type :radio
-                 :options [{:id "ssl"
-                            :name (i18n ::ssl)}
-                           {:id "tls"
-                            :name (i18n ::tls)}]}])
+                 :options [{:value "ssl"
+                            :text (i18n ::ssl)}
+                           {:value "tls"
+                            :text (i18n ::tls)}]}])
 
        [field {:key :email.smtp.enabled
                :type :toggle}]

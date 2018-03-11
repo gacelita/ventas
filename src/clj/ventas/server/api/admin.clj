@@ -14,7 +14,9 @@
    [kinsky.client :as kafka]
    [taoensso.timbre :as timbre]
    [ventas.entities.configuration :as entities.configuration]
-   [ventas.entities.user :as entities.user]))
+   [ventas.entities.user :as entities.user]
+   [clojure.set :as set]
+   [ventas.utils :as utils]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -65,9 +67,11 @@
 (register-admin-endpoint!
  :admin.taxes.save
  {:spec ::entity/entity}
- (fn [{tax :params} state]
-   (entity/upsert :tax (-> tax
-                           (update :amount float)))))
+ (fn [{entity :params} state]
+   (entity/upsert* (-> entity
+                       (common.utils/update-in-when-some
+                        [:tax/amount :amount/value]
+                        bigdec)))))
 
 (register-admin-endpoint!
  :admin.users.list
@@ -104,7 +108,8 @@
 (register-admin-endpoint!
  :admin.image-sizes.entities.list
  (fn [_ _]
-   entities.image-size/entities))
+   (->> entities.image-size/entities
+        (map (comp utils/dequalify-keywords db/touch-eid)))))
 
 (register-admin-endpoint!
  :admin.entities.find
@@ -115,14 +120,20 @@
 (register-admin-endpoint!
  :admin.entities.find-json
  {:spec {:id ::api/id}}
- (fn [{{:keys [id]} :params} _]
-   (entity/find-json id)))
+ (fn [{{:keys [id]} :params} {:keys [session]}]
+   (entity/find-json id {:culture (api/get-culture session)})))
 
 (register-admin-endpoint!
  :admin.entities.pull
  {:spec {:id ::api/id}}
  (fn [{{:keys [id expr]} :params} _]
    (db/pull (or expr '[*]) id)))
+
+(register-admin-endpoint!
+ :admin.entities.save
+ {:spec ::entity/entity}
+ (fn [{entity :params} _]
+   (entity/upsert* entity)))
 
 (register-admin-endpoint!
  :admin.events.list
@@ -138,14 +149,10 @@
  :admin.orders.get
  {:spec {:id ::api/id}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
-   (let [{:order/keys [user] :as order} (entity/find id)]
+   (let [{:order/keys [lines]} (entity/find id)]
      {:order (db/pull '[*] id)
-      :user (when user
-              (let [name (entities.user/get-name user)]
-                {:text name
-                 :value user}))
       :lines (map #(entity/find-json % {:culture (api/get-culture session)})
-                  (-> order :order/lines))})))
+                  lines)})))
 
 (register-admin-endpoint!
  :admin.search

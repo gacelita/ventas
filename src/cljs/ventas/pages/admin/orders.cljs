@@ -17,14 +17,11 @@
   [:div
    [base/button {:icon true :on-click #(routes/go-to :admin.orders.edit :id id)}
     [base/icon {:name "edit"}]]
-   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove id])}
+   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :orders] id])}
     [base/icon {:name "remove"}]]])
 
 (defn- status-column [{:keys [status]}]
   [:span (i18n status)])
-
-(defn- amount-column [{:keys [amount]}]
-  [:div amount])
 
 (defn- footer []
   [base/button
@@ -34,7 +31,7 @@
 (rf/reg-event-fx
  ::fetch
  (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (get-in db state-path)]
      {:dispatch [::backend/admin.orders.list
                  {:success ::fetch.next
                   :params {:pagination {:page page
@@ -74,7 +71,7 @@
                 :component user-column}
                {:id :amount
                 :label (i18n ::amount)
-                :component amount-column}
+                :component (partial table/amount-column :amount)}
                {:id :status
                 :label (i18n ::status)
                 :component status-column}

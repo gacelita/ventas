@@ -193,11 +193,6 @@
    {:ws-request (merge {:name :admin.currencies.list} options)}))
 
 (rf/reg-event-fx
- ::admin.entities.remove
- (fn [cofx [_ options]]
-   {:ws-request (merge {:name :admin.entities.remove} options)}))
-
-(rf/reg-event-fx
  ::admin.users.save
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :admin.users.save} options)}))
@@ -206,6 +201,11 @@
  ::admin.events.list
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :admin.events.list} options)}))
+
+(rf/reg-event-fx
+ ::admin.entities.remove
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.entities.remove} options)}))
 
 (rf/reg-event-fx
  ::admin.entities.find
@@ -221,6 +221,11 @@
  ::admin.entities.find-json
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :admin.entities.find-json} options)}))
+
+(rf/reg-event-fx
+ ::admin.entities.save
+ (fn [_ [_ options]]
+    {:ws-request (merge {:name :admin.entities.save} options)}))
 
 (rf/reg-event-fx
  ::admin.i18ns.find
@@ -246,6 +251,11 @@
  ::admin.products.save
  (fn [cofx [_ options]]
    {:ws-request (merge {:name :admin.products.save} options)}))
+
+(rf/reg-event-fx
+ ::admin.discounts.save
+ (fn [cofx [_ options]]
+    {:ws-request (merge {:name :admin.discounts.save} options)}))
 
 (rf/reg-event-fx
  ::admin.product.terms.list

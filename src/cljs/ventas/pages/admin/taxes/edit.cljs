@@ -10,70 +10,69 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.utils.ui :as utils.ui])
+  (:require-macros
+   [ventas.utils :refer [ns-kw]]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
  ::submit
- (fn [_ [_ data]]
+ (fn [{:keys [db]} _]
    {:dispatch [::backend/admin.taxes.save
-               {:params data
+               {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next
  (fn [_ _]
-   {:dispatch [::notificator/add {:message (i18n ::tax-saved-notification)
-                                  :theme "success"}]
+   {:dispatch [::notificator/notify-saved]
     :go-to [:admin.taxes]}))
 
 (rf/reg-event-fx
  ::init
  (fn [_ _]
    {:dispatch-n [[::events/enums.get :tax.kind]
-                 [::backend/entities.find (routes/ref-from-param :id)
-                  {:success [::form/populate state-key]}]]}))
+                 (let [id (routes/ref-from-param :id)]
+                   (if-not (pos? id)
+                     [::form/populate [state-key] {:schema/type :schema.type/tax}]
+                     [::backend/admin.entities.pull
+                      {:params {:id id}
+                       :success [::form/populate [state-key]]}]))]}))
 
-(defn form []
-  (let [form @(rf/subscribe [::events/db [state-key :form]])
-        form-hash @(rf/subscribe [::events/db [state-key :form-hash]])]
-    ^{:key form-hash}
-    [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit form]))}
+(defn- field [{:keys [key] :as args}]
+  [form/field (merge args
+                     {:db-path [state-key]
+                      :label (i18n (ns-kw (if (sequential? key)
+                                            (first key)
+                                            key)))})])
 
-     [base/segment {:color "orange"
-                    :title "Tax"}
-      (let [field :name]
-        [base/form-input
-         {:label (i18n ::name)
-          :default-value (get form field)
-          :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
+(defn content []
+  [form/form [state-key]
+   (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
+     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-      (let [field :amount]
-        [base/form-input
-         {:label (i18n ::amount)
-          :default-value (get form field)
-          :on-change #(rf/dispatch [::set-field field (js/parseFloat (-> % .-target .-value))])}])
+      [base/segment {:color "orange"
+                     :title "Tax"}
 
-      (let [field :kind]
-        [base/form-field
-         [:label (i18n ::kind)]
-         [base/dropdown
-          {:fluid true
-           :selection true
-           :options (map #(update % :value str)
-                         @(rf/subscribe [::events/db [:enums :tax.kind]]))
-           :default-value (str (get form field))
-           :on-change #(rf/dispatch [::set-field field (.-value %2)])}]])]
+       [field {:key :tax/name
+               :type :i18n
+               :culture culture}]
 
-     [base/divider {:hidden true}]
+       [field {:key :tax/amount
+               :type :amount}]
 
-     [base/form-button {:type "submit"} (i18n ::submit)]]))
+       [field {:key [:tax/kind :db/id]
+               :type :combobox
+               :options @(rf/subscribe [::events/db [:enums :tax.kind]])}]]
+
+      [base/form-button {:type "submit"}
+       (i18n ::submit)]])])
 
 (defn page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-taxes-edit__page
-    [form]]])
+    [content]]])
 
 (routes/define-route!
   :admin.taxes.edit

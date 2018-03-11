@@ -16,7 +16,7 @@
   [:div
    [base/button {:icon true :on-click #(routes/go-to :admin.products.discounts.edit :id id)}
     [base/icon {:name "edit"}]]
-   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove id])}
+   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :discounts] id])}
     [base/icon {:name "remove"}]]])
 
 (defn- footer []
@@ -46,9 +46,6 @@
   [:a {:href (routes/path-for :admin.products.discounts.edit :id id)}
    name])
 
-(defn- amount-column [{:keys [amount]}]
-  [:p (utils.formatting/amount->str amount)])
-
 (defn- content []
   [:div.admin-discounts__table
    [table/table
@@ -66,7 +63,7 @@
                 :label (i18n ::code)}
                {:id :amount
                 :label (i18n ::amount)
-                :component amount-column}
+                :component (partial table/amount-column :amount)}
                {:id :actions
                 :label (i18n ::actions)
                 :component action-column}]

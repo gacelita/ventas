@@ -40,6 +40,7 @@
     :ventas.pages.admin.configuration.email/saved "Saved!"
     :ventas.pages.admin.configuration.email/page "Email configuration"
 
+    :ventas.pages.admin.configuration.image-sizes/page "Image sizes"
     :ventas.pages.admin.configuration.image-sizes/actions "Actions"
     :ventas.pages.admin.configuration.image-sizes/create "Create image size"
     :ventas.pages.admin.configuration.image-sizes/width "Width"
@@ -86,11 +87,25 @@
     :ventas.pages.admin.products/page "Products"
 
     :ventas.pages.admin.skeleton/discounts "Discounts"
+
     :ventas.pages.admin.products.discounts/name "Name"
     :ventas.pages.admin.products.discounts/code "Code"
     :ventas.pages.admin.products.discounts/amount "Amount"
     :ventas.pages.admin.products.discounts/actions "Actions"
     :ventas.pages.admin.products.discounts/create "Create"
+
+    :ventas.pages.admin.products.discounts.edit/name "Name"
+    :ventas.pages.admin.products.discounts.edit/page "Edit discount"
+    :ventas.pages.admin.products.discounts.edit/code "Code"
+    :ventas.pages.admin.products.discounts.edit/active? "Active"
+    :ventas.pages.admin.products.discounts.edit/max-uses-per-customer "Max uses per customer"
+    :ventas.pages.admin.products.discounts.edit/max-uses "Max uses"
+    :ventas.pages.admin.products.discounts.edit/free-shipping? "Free shipping"
+    :ventas.pages.admin.products.discounts.edit/product "Product"
+    :ventas.pages.admin.products.discounts.edit/amount "Amount"
+    :ventas.pages.admin.products.discounts.edit/amount.tax-included? "Tax included?"
+    :ventas.pages.admin.products.discounts.edit/amount.kind "Kind"
+    :ventas.pages.admin.products.discounts.edit/submit "Submit"
 
     :ventas.pages.admin.products.edit/active "Active"
     :ventas.pages.admin.products.edit/brand "Brand"
@@ -187,6 +202,9 @@
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
 
+    :discount.amount.kind/amount "Amount"
+    :discount.amount.kind/percentage "Percentage"
+
     :image-size.algorithm/always-resize "Always resize"
     :image-size.algorithm/crop-and-resize "Crop and resize"
     :image-size.algorithm/resize-only-if-over-maximum "Resize only if over maximum"
@@ -198,6 +216,7 @@
     :user.status/pending "Pending"
     :user.status/active "Active"
     :user.status/cancelled "Cancelled"
+    :user.status/unregistered "Unregistered"
 
     :order.status/draft "Draft"
     :order.status/acknowledged "Acknowledged"

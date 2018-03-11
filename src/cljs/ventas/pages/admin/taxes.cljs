@@ -73,7 +73,8 @@
                 :label (i18n ::name)
                 :component name-column}
                {:id :amount
-                :label (i18n ::amount)}
+                :label (i18n ::amount)
+                :component (partial table/amount-column :amount)}
                {:id :actions
                 :label (i18n ::actions)
                 :component action-column

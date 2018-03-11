@@ -1,35 +1,33 @@
 (ns ventas.pages.admin.products.edit
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent :refer [atom]]
-   [ventas.components.amount-input :as amount-input]
+   [reagent.core :refer [atom]]
    [ventas.components.base :as base]
    [ventas.components.form :as form]
    [ventas.components.draggable-list :as draggable-list]
-   [ventas.components.i18n-input :as i18n-input]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
-   [ventas.utils.logging :refer [debug error info trace warn]]
-   [ventas.utils.logging :as log]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.utils.ui :as utils.ui])
+  (:require-macros
+   [ventas.utils :refer [ns-kw]]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
  ::submit
- (fn [cofx [_ data]]
+ (fn [{:keys [db]} _]
    {:dispatch [::backend/admin.products.save
-               {:params data
+               {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next
  (fn [_ _]
-   {:dispatch [::notificator/add {:message (i18n ::product-saved-notification) :theme "success"}]
+   {:dispatch [::notificator/notify-saved]
     :go-to [:admin.products]}))
 
 (def image-modal-key ::image-modal)
@@ -90,7 +88,7 @@
 
 (rf/reg-event-fx
  ::upload
- (fn [cofx [_ file]]
+ (fn [_ [_ file]]
    {:dispatch [::events/upload
                {:success ::upload.next
                 :file file}]}))
@@ -100,7 +98,8 @@
  (fn [db [_ {:db/keys [id]}]]
    (let [image {:schema/type :schema.type/product.image
                 :product.image/file {:db/id id}}]
-     {:dispatch [::update-field
+     {:dispatch [::form/update-field
+                 [state-key]
                  :product/images
                  #(conj (vec %) image)]})))
 
@@ -123,175 +122,116 @@
                   {:success [::events/db [state-key :product.terms]]}]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
-                     [::form/populate state-key {:schema/type :schema.type/product}]
+                     [::form/populate [state-key] {:schema/type :schema.type/product}]
                      [::backend/admin.entities.pull
                       {:params {:id id}
-                       :success [::form/populate state-key]}]))]}))
+                       :success [::form/populate [state-key]]}]))]}))
+
+(defn- field [{:keys [key] :as args}]
+  [form/field (merge args
+                     {:db-path [state-key]
+                      :label (i18n (ns-kw (if (sequential? key)
+                                            (first key)
+                                            key)))})])
 
 (defn product-form []
-  (let [form @(rf/subscribe [::events/db [state-key :form]])
-        form-hash @(rf/subscribe [::events/db [state-key :form-hash]])
-        {{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
-    ^{:key form-hash}
-    [:div
-     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit form]))}
+  [form/form [state-key]
+   (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])
+         form @(rf/subscribe [::form/data [state-key]])]
+     [:div
+      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-      (log/debug "Current product:" form)
+       [base/segment {:color "orange"
+                      :title "Product"}
 
-      [base/segment {:color "orange"
-                     :title "Product"}
+        [field {:key :product/name
+                :type :i18n
+                :culture culture}]
 
-       (let [field :product/name]
-         [i18n-input/input
-          {:label (i18n ::name)
-           :entity (get form field)
-           :culture culture
-           :on-change #(rf/dispatch [::set-field field %])}])
-       (let [field :product/active]
-         [base/form-field
-          [:label (i18n ::active)]
-          [base/checkbox
-           {:toggle true
-            :checked (get form field)
-            :on-change #(rf/dispatch [::set-field field (.-checked %2)])}]])
-       (let [field :product/reference]
-         [base/form-input
-          {:label (i18n ::reference)
-           :default-value (get form field)
-           :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])
-       (let [field :product/ean13]
-         [base/form-input
-          {:label (i18n ::ean13)
-           :default-value (get form field)
-           :on-change #(rf/dispatch [::set-field field (-> % .-target .-value)])}])]
+        [field {:key :product/active
+                :type :toggle}]
 
-      [base/divider {:hidden true}]
+        [field {:key :product/reference}]
 
-      [base/segment {:color "orange"
-                     :title "Price"}
+        [field {:key :product/ean13}]]
 
-       (let [field :product/price]
-         [amount-input/input
-          {:label (i18n ::price)
-           :amount (get form field)
-           :on-change #(rf/dispatch [::set-field field %])}])
+       [base/divider {:hidden true}]
 
-       (let [field :product/tax]
-         [base/form-field
-          [:label (i18n ::tax)]
-          [base/dropdown
-           {:fluid true
-            :selection true
-            :options (map (fn [v] {:text (:name v) :value (:id v)})
-                          @(rf/subscribe [::events/db [:admin :taxes]]))
-            :default-value (get-in form [field :db/id])
-            :on-change #(rf/dispatch [::set-field [field :db/id] (.-value %2)])}]])]
+       [base/segment {:color "orange"
+                      :title "Price"}
 
-      [base/divider {:hidden true}]
+        [field {:key :product/price
+                :type :amount}]
 
-      [base/segment {:title "Description"
-                     :color "orange"}
+        [field {:key [:product/tax :db/id]
+                :type :combobox
+                :options (map (fn [{:keys [name id]}]
+                                {:text name
+                                 :value id})
+                              @(rf/subscribe [::events/db [:admin :taxes]]))}]]
 
-       (let [field :product/description]
+       [base/divider {:hidden true}]
 
-         [i18n-input/input
-          {:label (i18n ::description)
-           :control :textarea
-           :entity (get form field)
-           :culture culture
-           :on-change #(rf/dispatch [::set-field field %])}])
+       [base/segment {:title "Description"
+                      :color "orange"}
 
-       (let [field :product/tags]
-         [base/form-field
-          [:label (i18n ::tags)]
-          [base/dropdown
-           {:allowAdditions true
-            :multiple true
-            :fluid true
-            :search true
-            :options (map (fn [v] {:text v :value v})
-                          (get form field))
-            :selection true
-            :default-value (->> (get form field)
-                                (map :db/id)
-                                (set))
-            :on-change #(rf/dispatch [::set-field field (set (.-value %2))])}]])
+        [field {:key :product/description
+                :type :i18n-textarea
+                :culture culture}]
 
-       (let [field :product/brand]
-         [base/form-field
-          [:label (i18n ::brand)]
-          [base/dropdown
-           {:fluid true
-            :selection true
-            :options (map (fn [v] {:text (:name v) :value (:id v)})
-                          @(rf/subscribe [::events/db [:admin :brands]]))
-            :default-value (get-in form [field :db/id])
-            :on-change #(rf/dispatch [::set-field [field :db/id] (.-value %2)])}]])]
+        [field {:key [:product/brand :db/id]
+                :type :combobox
+                :options (map (fn [{:keys [name id]}]
+                                {:text name
+                                 :value id})
+                              @(rf/subscribe [::events/db [:admin :brands]]))}]]
 
-      [base/divider {:hidden true}]
+       [base/divider {:hidden true}]
 
-      [base/segment {:color "orange"
-                     :title "Images"}
+       [base/segment {:color "orange"
+                      :title "Images"}
 
-       (let [field :product/images]
-         [base/form-field {:class "admin-products-edit__images"}
-          [base/image-group
-           (let [s (reagent/atom {})]
-             [:div
-              [draggable-list/main-view
-               {:on-reorder (fn [items]
-                              (let [images (map second items)]
-                                (rf/dispatch [::set-field field images])))}
-               (for [{:db/keys [id] :as image} (get form field)]
-                 ^{:key id} [image-view image])]
-              [image-placeholder]])]])]
+        (let [field :product/images]
+          [base/form-field {:class "admin-products-edit__images"}
+           [base/image-group
+            [draggable-list/main-view
+             {:on-reorder (fn [items]
+                            (let [images (map second items)]
+                              (rf/dispatch [::form/set-field [state-key] field images])))}
+             (for [{:db/keys [id] :as image} (get form field)]
+               ^{:key id} [image-view image])]
+            [image-placeholder]]])]
 
-      [base/segment {:color "orange"
-                     :title "Terms"}
-       (let [field :product/variation-terms]
-         [base/form-field
-          [:label (i18n ::variation-terms)]
-          [base/dropdown
-           {:multiple true
-            :fluid true
-            :search true
-            :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
-                          (map (fn [v]
-                                 {:text (str (get-in v [:taxonomy :name]) ": " (:name v))
-                                  :value (:id v)}))
-                          (sort-by :text))
-            :selection true
-            :default-value (->> (get form field)
-                                (map :db/id)
-                                (set))
-            :on-change #(rf/dispatch [::set-field field (->> (.-value %2)
-                                                             (map js/parseInt)
-                                                             (set))])}]])
-       (let [field :product/terms]
-         [base/form-field
-          [:label (i18n ::terms)]
-          [base/dropdown
-           {:multiple true
-            :fluid true
-            :search true
-            :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
-                          (map (fn [v]
-                                 {:text (str (get-in v [:taxonomy :name]) ": " (:name v))
-                                  :value (:id v)}))
-                          (sort-by :text))
-            :selection true
-            :default-value (->> (get form field)
-                                (map :db/id)
-                                (set))
-            :on-change #(rf/dispatch [::set-field field (->> (.-value %2)
-                                                             (map js/parseInt)
-                                                             (set))])}]])]
+       [base/segment {:color "orange"
+                      :title "Terms"}
 
-      [base/divider {:hidden true}]
+        [field {:key :product/variation-terms
+                :type :tags
+                :xform {:in #(map :db/id %)
+                        :out #(map (fn [v] {:db/id v}) %)}
+                :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
+                              (map (fn [v]
+                                     {:value (:id v)
+                                      :text (str (get-in v [:taxonomy :name]) ": " (:name v))}))
+                              (sort-by :text))
+                :forbid-additions true}]
 
-      [base/form-button {:type "submit"} (i18n ::send)]]
+        [field {:key :product/terms
+                :type :tags
+                :xform {:in #(map :db/id %)
+                        :out #(map (fn [v] {:db/id v}) %)}
+                :forbid-additions true
+                :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
+                              (map (fn [v]
+                                     {:text (str (get-in v [:taxonomy :name]) ": " (:name v))
+                                      :value (:id v)}))
+                              (sort-by :text))}]]
 
-     [image-modal]]))
+       [base/divider {:hidden true}]
+
+       [base/form-button {:type "submit"} (i18n ::send)]]
+
+      [image-modal]])])
 
 (defn page []
   [admin.skeleton/skeleton

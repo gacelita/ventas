@@ -9,55 +9,108 @@
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
-   [ventas.utils.logging :refer [debug error info trace warn]]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.utils.ui :as utils.ui]
+   [ventas.pages.admin.common :as admin.common])
+  (:require-macros
+   [ventas.utils :refer [ns-kw]]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
  ::submit
- (fn [{:keys [db]} [_ data]]
-   {:dispatch [::backend/admin.orders.save
-               {:params (get-in db [state-key :order])
+ (fn [{:keys [db]} _]
+   {:dispatch [::backend/admin.discounts.save
+               {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
  ::submit.next
- (fn [cofx [_ data]]
-   {:dispatch [::notificator/add {:message (i18n ::order-saved-notification)
-                                  :theme "success"}]
-    :go-to [:admin.orders]}))
-
-(rf/reg-event-fx
- ::fetch
- (fn [cofx [_ id]]
-   {:dispatch [::backend/admin.entities.pull
-               {:params {:id id}
-                :success [::form/populate state-key]}]}))
+ (fn [_ _]
+   {:dispatch [::notificator/notify-saved]
+    :go-to [:admin.products.discounts]}))
 
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::fetch (routes/ref-from-param :id)]
-                 [::events/enums.get :discount.amount.kind]]}))
+   {:dispatch-n [[::events/enums.get :discount.amount.kind]
+                 (let [id (routes/ref-from-param :id)]
+                   (if-not (pos? id)
+                     [::form/populate [state-key] {:schema/type :schema.type/discount}]
+                     [::backend/admin.entities.pull
+                      {:params {:id id}
+                       :success ::init.next}]))]}))
+
+(rf/reg-event-fx
+ ::init.next
+ (fn [_ [_ data]]
+   {:dispatch-n [[::form/populate [state-key] data]
+                 [::backend/admin.entities.find-json
+                  {:params {:id (get-in data [:discount/product :db/id])}
+                   :success [::events/db [state-key :product]]}]]}))
+
+(defn- field [{:keys [key] :as args}]
+  [form/field (merge args
+                     {:db-path [state-key]
+                      :label (i18n (ns-kw (if (sequential? key)
+                                            (first key)
+                                            key)))})])
 
 (defn- content []
-  (let [{:keys [order]} @(rf/subscribe [::events/db state-key])]
+  [form/form [state-key]
+   (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])
+         data @(rf/subscribe [::form/data [state-key]])]
 
-    [base/form {:key (:db/id order)
-                :on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-     [base/segment {:color "orange"
-                    :title (i18n ::order)}]
+      [base/segment {:color "orange"
+                     :title (i18n ::page)}
 
-     [base/form-button {:type "submit"} (i18n ::submit)]]))
+       [field {:key :discount/name
+               :type :i18n
+               :culture culture}]
+
+       [field {:key :discount/code
+               :type :text}]
+
+       [field {:key :discount/active?
+               :type :toggle}]
+
+       [field {:key :discount/max-uses-per-customer
+               :type :number}]
+
+       [field {:key :discount/max-uses
+               :type :number}]
+
+       [field {:key :discount/free-shipping?
+               :type :toggle}]
+
+       [admin.common/entity-search-field
+        {:label (i18n ::product)
+         :db-path [state-key]
+         :key [:discount/product :db/id]
+         :attrs #{:product/name}
+         :selected-option @(rf/subscribe [::events/db [state-key :product]])}]
+
+       [field {:key :discount/amount
+               :type :amount}]
+
+       [field {:key :discount/amount.tax-included?
+               :type :toggle}]
+
+       [field {:key [:discount/amount.kind :db/id]
+               :type :combobox
+               :options @(rf/subscribe [::events/db [:enums :discount.amount.kind]])}]
+
+       [base/form-button {:type "submit"} (i18n ::submit)]]])])
 
 (defn page []
   [admin.skeleton/skeleton
-   [:div.admin__default-content.admin-discounts-edit__page]])
+   [:div.admin__default-content.admin-discounts-edit__page
+    [content]]])
 
 (routes/define-route!
  :admin.products.discounts.edit
  {:name ::page
   :url [:id "/edit"]
-  :component page})
+  :component page
+  :init-fx [::init]})

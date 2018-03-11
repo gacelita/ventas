@@ -1,10 +1,14 @@
 (ns ventas.components.table
-  "Meant to replace re-frame-datatable"
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.events :as events]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.utils.formatting :as utils.formatting]))
+
+(defn amount-column [key data]
+  (let [amount (get data key)]
+    [:p (utils.formatting/amount->str amount)]))
 
 (rf/reg-event-fx
  ::set-state
