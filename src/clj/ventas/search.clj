@@ -307,18 +307,17 @@
         :else attr))))
 
 (defn entities
-  "Fulltext search for `search` in the given `attrs`. `culture` should be a keyword representing
-   a culture (e.g. :en_US)"
-  [text attrs culture]
-  (println {:search text :attrs attrs :culture culture})
-  (let [shoulds (for [attr (prepare-search-attrs attrs culture)]
-                  {:match {attr text}})
-        _ (println {:shoulds shoulds})
-        hits (-> (search {:query {:bool {:should shoulds}}
-                          :_source false})
-                 (get-in [:body :hits :hits]))]
-    (->> hits
-         (map :_id)
-         (map (fn [v] (Long/parseLong v)))
-         (map #(entity/find-json % {:culture culture
-                                    :keep-type? true})))))
+  "Fulltext search for `search` in the given `attrs`"
+  [text attrs culture-id]
+  {:pre [(utils/check ::entity/ref culture-id)]}
+  (let [culture (entity/find culture-id)]
+    (let [shoulds (for [attr (prepare-search-attrs attrs (:i18n.culture/keyword culture))]
+                    {:match {attr text}})
+          hits (-> (search {:query {:bool {:should shoulds}}
+                            :_source false})
+                   (get-in [:body :hits :hits]))]
+      (->> hits
+           (map :_id)
+           (map (fn [v] (Long/parseLong v)))
+           (map #(entity/find-json % {:culture (:db/id culture)
+                                      :keep-type? true}))))))

@@ -153,9 +153,8 @@
          :attrs #{keyword?}}
   :doc "Does a fulltext search for `search` in the given `attrs`"}
  (fn [{{:keys [search attrs]} :params} {:keys [session]}]
-   (let [culture (api/get-culture session)
-         {culture-kw :i18n.culture/keyword} (entity/find culture)]
-     (search/entities search attrs culture-kw))))
+   (let [culture (api/get-culture session)]
+     (search/entities search attrs culture))))
 
 
 (register-admin-endpoint!

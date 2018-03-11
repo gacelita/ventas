@@ -358,13 +358,12 @@
   :doc "Does a fulltext search for `search` in products, categories and brands"}
  (fn [{{:keys [search]} :params} {:keys [session]}]
    (stats/record-search-event! search)
-   (let [culture (get-culture session)
-         {culture-kw :i18n.culture/keyword} (entity/find culture)]
+   (let [culture (get-culture session)]
      (->> (search/entities search
                            #{:product/name
                              :category/name
                              :brand/name}
-                           culture-kw)
+                           culture)
           (map (fn [{:keys [images] :as result}]
                  (let [result (if images
                                 (assoc result :image (first images))
