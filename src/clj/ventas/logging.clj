@@ -43,7 +43,7 @@
        (str/replace "\n" (str "\n" (str/join (repeat n " "))))
        (str/trimr))))
 
-(defn- timbre-appender-fn [{:keys [output_]}]
+(defn- timbre-appender [{:keys [output_]}]
   (let [{:keys [level where value]} (force output_)
         info-str (str level " " where " - ")]
     (when (if (string? value)
@@ -82,4 +82,4 @@
                                 :min-level  nil
                                 :rate-limit [[1 250] [10 5000]]
                                 :output-fn  :inherit
-                                :fn timbre-appender-fn}}})
+                                :fn timbre-appender}}})

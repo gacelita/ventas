@@ -7,7 +7,7 @@
    {:ventas.email/new-pending-order "New pending order"
     :ventas.i18n/test-value "Test value"}})
 
-(def translation-fn (tongue/build-translate dicts))
+(def ^:private translation-fn (tongue/build-translate dicts))
 
 (defn i18n [kw]
   (translation-fn :en_US kw))
