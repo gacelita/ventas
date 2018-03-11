@@ -9,5 +9,5 @@
   (is (= (sut/get :example) :value)))
 
 (deftest config-setting-with-vector
-  (sut/set [:example :a] :value)
-  (is (= (sut/get :example :a) :value)))
+  (sut/set [:another-example :a] :value)
+  (is (= (sut/get :another-example :a) :value)))

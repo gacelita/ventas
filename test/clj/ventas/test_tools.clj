@@ -2,7 +2,8 @@
   (:require
    [datomic.api :as d]
    [ventas.database :as db]
-   [ventas.database.schema :as schema]))
+   [ventas.database.schema :as schema]
+   [taoensso.timbre :as timbre]))
 
 (defn create-test-uri [& [id]]
   (str "datomic:mem://" (or id (gensym "test"))))
@@ -12,5 +13,6 @@
     (d/create-database uri)
     (let [c (d/connect uri)]
       (with-redefs [db/db c]
-        (schema/migrate))
+        (timbre/with-level :report
+          (schema/migrate)))
       c)))

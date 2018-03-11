@@ -2,16 +2,15 @@
   (:require
    [buddy.sign.jwt :as buddy.jwt]
    [ventas.config :as config]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.utils :as utils]))
 
 (defn user->token [user]
   (buddy.jwt/sign {:user-id (:db/id user)} (config/get :auth-secret)))
 
 (defn- unsign [token secret]
-  (try
-    (buddy.jwt/unsign token secret)
-    (catch Throwable e
-      nil)))
+  (utils/swallow
+   (buddy.jwt/unsign token secret)))
 
 (defn token->user [token]
   (when-let [{:keys [user-id]} (unsign token (config/get :auth-secret))]
