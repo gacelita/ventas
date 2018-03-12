@@ -34,7 +34,7 @@
 
 (def seeds
   "Where the files for seeding live"
-  (str project-resources "/seeds"))
+  ::seeds)
 
 (def ^:private paths
   {project-resources "resources"
@@ -43,7 +43,8 @@
    storage "storage"
    sites [storage "/sites"]
    resized-images [storage "/resized-images"]
-   rendered [storage "/rendered"]})
+   rendered [storage "/rendered"]
+   seeds [project-resources "/seeds"]})
 
 (defn- resolve-path [v]
   (if (string? v)
