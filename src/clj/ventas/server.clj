@@ -85,8 +85,7 @@
   (timbre/debug "Handling SPA" uri)
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (let [theme-name (theme/current)
-               {:keys [cljs-ns]} (plugin/plugin theme-name)]
+   :body (let [theme-name (theme/current)]
            (-> (slurp (io/resource "public/index.html"))
                (str/replace "{{theme}}"
                             (name theme-name))
@@ -98,8 +97,7 @@
 (defn- handle-devcards [_]
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (let [theme-name (theme/current)
-               {:keys [cljs-ns]} (plugin/plugin theme-name)]
+   :body (let [theme-name (theme/current)]
            (-> (slurp (io/resource "public/devcards.html"))
                (str/replace "{{theme}}"
                             (name theme-name))))})
