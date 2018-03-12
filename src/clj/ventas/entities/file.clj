@@ -38,11 +38,8 @@
   [source-path]
   (let [mime (mime/mime-type-of (io/file source-path))
         extension (subs (mime/extension-for-name mime) 1)
-        entity (entity/create :file {:extension extension})
-        target-path (str (paths/resolve paths/storage) "/" (:db/id entity) "." extension)]
-    (.renameTo
-     (io/file source-path)
-     (io/file target-path))
+        entity (entity/create :file {:extension extension})]
+    (copy-file! entity source-path)
     entity))
 
 (spec/def :file/extension
@@ -59,10 +56,14 @@
 
 (defn- get-seed-files [extension]
   (let [pattern (str ".*?\\." extension)
-        files (utils/find-files (str (paths/resolve paths/seeds) "seeds/files") (re-pattern pattern))]
+        files (utils/find-files (paths/resolve paths/seeds)
+                                (re-pattern pattern))]
     (if (seq files)
       files
-      (filter #(re-matches (re-pattern (str (paths/path->resource (paths/resolve paths/seeds)) "/files/" pattern)) %)
+      (filter #(-> (paths/path->resource (paths/resolve paths/seeds))
+                   (str "/files/" pattern)
+                   (re-pattern)
+                   (re-matches %))
               (utils.jar/list-resources)))))
 
 (entity/register-type!
