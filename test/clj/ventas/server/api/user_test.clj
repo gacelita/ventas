@@ -111,8 +111,7 @@
                                       user)
 
     (is (= {:amount (* 5 (get-in variation-json [:price :value]))
-            :lines [{:id 17592186045633
-                     :product-variation variation-json
+            :lines [{:product-variation variation-json
                      :quantity 5}]
             :status :order.status/draft
             :user (:db/id user)}
@@ -120,7 +119,8 @@
                                                  {}
                                                  user)
                :data
-               (dissoc :id))))))
+               (dissoc :id)
+               (update :lines (fn [lines] (map #(dissoc % :id) lines))))))))
 
 (deftest users-favorites
   (let [user (entity/create* (example-user))
