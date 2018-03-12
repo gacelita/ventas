@@ -25,7 +25,7 @@
              :opt [:category/image
                    :category/parent]))
 
-(defn get-image [entity params]
+(defn get-image [entity & [params]]
   (if (:category/image entity)
     (entity/find-json (:category/image entity) params)
     (when-let [image-eid
@@ -45,9 +45,11 @@
       (conj (get-parents parent) id)
       #{id})))
 
-(defn get-parent-slug [id]
-  {:pre [id]}
-  (let [slug (-> (entity/find id)
+(defn get-parent-slug [ref]
+  {:pre [ref]}
+  (let [slug (-> (if (entity/entity? ref)
+                   ref
+                   (entity/find ref))
                  (utils.slugs/add-slug-to-entity :category/name)
                  :ventas/slug)]
     (if (map? slug)
