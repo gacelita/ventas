@@ -395,6 +395,7 @@
                        (io/output-stream :append (not is-first)))]
        (io/copy r w))
      (cond
-       is-last (entities.file/create-from-file! path)
+       is-last (do (entities.file/create-from-file! path)
+                   (io/delete-file path))
        is-first file-id
        :default true))))
