@@ -6,7 +6,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.seed :as seed]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.server.api.user]
+   [ventas.server.api.user :as sut]
+   [ventas.server.api :as api]
    [ventas.core]
    [ventas.server.ws :as server.ws]
    [ventas.test-tools :as test-tools]
@@ -33,6 +34,20 @@
    :address/country (-> (entity/query :country) first :db/id)
    :address/state (-> (entity/query :state) first :db/id)
    :address/user (db/normalize-ref [:user/email user-email])})
+
+(deftest register-user-endpoint!
+  (let [user (entity/create* (example-user))]
+    (#'sut/register-user-endpoint!
+     ::test
+     (fn [_ {:keys [session]}]
+       (is (= user (api/get-user session)))))
+    (is (server.ws/call-handler-with-user ::test {} user))
+    (is (= {:data "This API request requires authentication"
+            :id nil
+            :success false
+            :type :response}
+           (server.ws/call-request-handler {:name ::test}
+                                           {:session (atom {})})))))
 
 (deftest users-addresses
   (let [user (entity/create* (example-user))
