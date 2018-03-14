@@ -120,10 +120,10 @@
 
 ;; All routes
 (defroutes routes
-  (GET "/ws/json" []
-    (handle-websocket :json))
   (GET "/ws/fressian" []
     (handle-websocket :fressian))
+  (GET "/ws/transit-json" []
+    (handle-websocket :transit-json))
   (GET "/files/*" {{path :*} :route-params}
     (handle-file path))
   (GET "/images/:image" [image]

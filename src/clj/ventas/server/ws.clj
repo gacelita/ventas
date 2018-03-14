@@ -45,18 +45,12 @@
 
 (defn send-message [{:keys [data] :as message} channel]
   (if (utils/chan? data)
-    (do
-      (go-loop []
-        (->> (assoc message :data (<! data))
-             common.utils/process-output-message
-             (>! channel))
-        (when (and (not (core.async.protocols/closed? data))
-                   (not (core.async.protocols/closed? channel)))
-          (recur))))
-    (go
-      (->> message
-           common.utils/process-output-message
-           (>! channel)))))
+    (go-loop []
+      (>! channel (assoc message :data (<! data)))
+      (when (and (not (core.async.protocols/closed? data))
+                 (not (core.async.protocols/closed? channel)))
+        (recur)))
+    (core.async/put! channel message)))
 
 (defn handle-message [{:keys [type] :as message} {:keys [channel] :as state}]
   (case type
@@ -82,7 +76,7 @@
   (fn [format _]
     format))
 
-(defmethod handle-messages :json [_ {:keys [ws-channel] :as request}]
+(defmethod handle-messages :transit-json [_ {:keys [ws-channel] :as request}]
   (let [shared-channel (get-shared-channel)
         client-id (uuid/v4)
         session (atom {})
@@ -93,7 +87,7 @@
       (if-let [message (<! ws-channel)]
         (do
           (handle-message
-           (common.utils/process-input-message (:message message))
+           (:message message)
            {:client-id client-id
             :session session
             :channel output-channel

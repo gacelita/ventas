@@ -120,61 +120,10 @@
   "Makes a keyword from a string beginning with `:`"
   (keyword (str/replace str #"\:" "")))
 
-(def ^:private set-identifier "__set")
-
-(def ^:private vector-identifier "__vector")
-
 (defn str->bigdec [v]
   #?(:clj (bigdec v))
-  #?(:cljs (transit/bigdec v)))
+  #?(:cljs (transit/bigdec (str v))))
 
 (defn bigdec->str [v]
   #?(:clj (str v))
-  #?(:cljs (reader/read-string (.-rep v))))
-
-(defn process-input-message
-  "Properly decode keywords, sets and vectors.
-   Used for json communication between client and server, to allow using keywords and sets"
-  [message]
-  (cond
-    (map? message)
-      (map-kv (fn [k v]
-                [(process-input-message k)
-                 (process-input-message v)])
-              message)
-    (string? message)
-      (cond
-        (str/starts-with? message ":")
-          (read-keyword message)
-        :else message)
-    (sequential? message)
-      (cond
-        (= (first message) set-identifier)
-        (set (map process-input-message (rest message)))
-
-        (= (first message) vector-identifier)
-        (mapv process-input-message (rest message))
-
-        :default
-        (map process-input-message message))
-    :default message))
-
-(defn process-output-message
-  "Properly encode keywords, sets and vectors.
-   Used for json communication between client and server, to allow using keywords and sets"
-  [message]
-  (cond
-    (map? message)
-      (map-kv (fn [k v]
-                [(process-output-message k)
-                 (process-output-message v)])
-              message)
-    (sequential? message)
-      (if (vector? message)
-        (concat [vector-identifier] (map process-output-message message))
-        (map process-output-message message))
-    (keyword? message)
-      (str message)
-    (set? message)
-      (vec (concat [set-identifier] (map process-output-message message)))
-    :default message))
+  #?(:cljs (when v (reader/read-string (.-rep v)))))

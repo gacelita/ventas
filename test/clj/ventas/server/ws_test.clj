@@ -35,12 +35,12 @@
     (let [read-ch (core.async/chan)
           write-ch (core.async/chan)
           ch (go
-               (sut/handle-messages :json {:ws-channel (bidi-ch read-ch write-ch)})
+               (sut/handle-messages :transit-json {:ws-channel (bidi-ch read-ch write-ch)})
                (>! read-ch {:message test-message})
-               (is (= {":data" true
-                       ":id" ":test-request"
-                       ":realtime?" false
-                       ":success" true
-                       ":type" ":response"}
+               (is (= {:data true
+                       :id :test-request
+                       :realtime? false
+                       :success true
+                       :type :response}
                       (<! write-ch))))]
       (core.async/alts!! [ch (core.async/timeout 1000)]))))

@@ -23,12 +23,6 @@
 (defonce ^:private output-channels (atom {}))
 (def ws-upload-chunk-size (* 1024 50))
 
-(defn output-binary-channel []
-  (get @output-channels :fressian))
-
-(defn output-json-channel []
-  (get @output-channels :json))
-
 (defn send-request!
   "Sends a request and calls the callback with the response"
   [{:keys [params callback] request-name :name} & {:keys [binary?]}]
@@ -38,7 +32,7 @@
               :binary? binary?})
   (let [request-channel (chan)
         request-id (str (gensym (str "request-" (name request-name) "-")))
-        output-channel (if binary? (output-binary-channel) (output-json-channel))]
+        output-channel (get @output-channels (if binary? :fressian :transit-json))]
     (swap! request-channels assoc request-id request-channel)
     (go
       (>! output-channel
@@ -76,10 +70,7 @@
 (defn receive-messages! [websocket-channel format]
   "Receives messages from the server and calls an appropiate dispatcher"
   (go-loop []
-    (let [message (:message (<! websocket-channel))
-          {:keys [type] :as message} (if (= format :json)
-                                       (common.utils/process-input-message message)
-                                       message)]
+    (let [{:keys [type] :as message} (:message (<! websocket-channel))]
       (log/debug ::receive-messages! message)
       (case type
         :event (ws-event-dispatch message)
@@ -91,12 +82,9 @@
 
 (defn- send-messages!
   "Receives messages from output-channel and send them to the server"
-  [output-channel websocket-channel format]
+  [output-channel websocket-channel]
   (go-loop []
-    (let [message (<! output-channel)
-          message (if (= format :json)
-                    (common.utils/process-output-message message)
-                    message)]
+    (let [message (<! output-channel)]
       (>! websocket-channel message)
       (recur))))
 
@@ -108,7 +96,7 @@
        "/ws/" (name format)))
 
 (defn- start-websocket [format]
-  {:pre [(#{:fressian :json} format)]}
+  {:pre [(#{:fressian :transit-json} format)]}
   (let [channel (chan)]
     (go
       (let [url (websocket-url format)
@@ -119,7 +107,7 @@
             (>! channel false))
           (do
             (swap! output-channels assoc format (doto (chan)
-                                                  (send-messages! ws-channel format)))
+                                                  (send-messages! ws-channel)))
             (receive-messages! ws-channel format)
             (>! channel true)))))
     channel))
@@ -130,9 +118,9 @@
   (let [channel (chan)]
     (go
       (log/info "Starting websockets")
-      (let [json-result (<! (start-websocket :json))
+      (let [transit-result (<! (start-websocket :transit-json))
             fressian-result (<! (start-websocket :fressian))]
-        (>! channel (and json-result fressian-result))))
+        (>! channel (and transit-result fressian-result))))
     channel))
 
 (defn- call [to-call data]
