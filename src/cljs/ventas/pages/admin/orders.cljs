@@ -32,9 +32,10 @@
  ::fetch
  (fn [{:keys [db]} [_ {:keys [state-path]}]]
    (let [{:keys [page items-per-page sort-direction sort-column]} (get-in db state-path)]
-     {:dispatch [::backend/admin.orders.list
+     {:dispatch [::backend/admin.entities.list
                  {:success ::fetch.next
-                  :params {:pagination {:page page
+                  :params {:type :order
+                           :pagination {:page page
                                         :items-per-page items-per-page}
                            :sorting {:direction sort-direction
                                      :field sort-column}}}]})))

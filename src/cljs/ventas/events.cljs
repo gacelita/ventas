@@ -45,7 +45,7 @@
 
 (rf/reg-event-fx
  ::configuration.get
- (fn [cofx [_ k-or-ks]]
+ (fn [_ [_ k-or-ks]]
    {:dispatch [::backend/configuration.get
                {:params k-or-ks
                 :success ::configuration.get.next}]}))
@@ -57,7 +57,7 @@
 
 (rf/reg-event-fx
  ::enums.get
- (fn [cofx [_ type]]
+ (fn [_ [_ type]]
    {:dispatch [::backend/enums.get
                {:params {:type type}
                 :success
@@ -70,20 +70,20 @@
 
 (rf/reg-event-fx
  ::entities.sync
- (fn [cofx [_ eid]]
+ (fn [_ [_ eid]]
    {:dispatch [::backend/entities.find eid
                {:sync true
                 :success [::db [:entities eid]]}]}))
 
 (rf/reg-event-fx
  ::image-sizes.list
- (fn [cofx [_]]
+ (fn [_ [_]]
    {:dispatch [::backend/image-sizes.list
                {:success [::db :image-sizes]}]}))
 
 (rf/reg-event-fx
  ::admin.entities.sync
- (fn [cofx [_ eid]]
+ (fn [_ [_ eid]]
    {:dispatch [::backend/admin.entities.find
                {:sync true
                 :params {:id eid}
@@ -173,12 +173,12 @@
 
 (rf/reg-event-fx
  ::session.error
- (fn [cofx [_]]
+ (fn [_ _]
    {:dispatch [::db [:session] {}]}))
 
 (rf/reg-event-fx
  ::users.favorites.enumerate
- (fn [cofx [_ db-key]]
+ (fn [_ _]
    {:dispatch [::backend/users.favorites.enumerate
                {:success [::db :users.favorites]}]}))
 
@@ -206,30 +206,9 @@
  (fn [favorites [_ id]]
    (contains? (set favorites) id)))
 
-(rf/reg-sub
- ::item-count
- (fn [_]
-   (rf/subscribe [::main]))
- (fn [state]))
-
-(rf/reg-event-fx
- ::admin.taxes.list
- (fn [cofx [_ db-key]]
-   {:dispatch [::backend/admin.taxes.list
-               {:success [::admin.taxes.list.next db-key]}]}))
-
-(rf/reg-event-db
- ::admin.taxes.list.next
- (fn [db [_ db-key data]]
-   (->> data
-        (map #(assoc % :quantity (str (formatting/format-number (:value %))
-                                      " "
-                                      (i18n (keyword "ventas.utils.formatting" (name (:kind %)))))))
-        (assoc-in db db-key))))
-
 (rf/reg-event-fx
  ::upload
- (fn [cofx [_ {:keys [success file]}]]
+ (fn [_ [_ {:keys [success file]}]]
    (let [fr (js/FileReader.)]
      (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request
                                         {:name :upload

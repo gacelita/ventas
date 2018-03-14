@@ -19,7 +19,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.discounts.save
+   {:dispatch [::backend/admin.entities.save
                {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 

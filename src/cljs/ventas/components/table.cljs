@@ -12,7 +12,7 @@
 
 (rf/reg-event-fx
  ::set-state
- (fn [{:keys [db]} [_ {:keys [state-path fetch-fx] :as config} new-state]]
+ (fn [_ [_ {:keys [state-path fetch-fx] :as config} new-state]]
    {:dispatch-n [[::events/db state-path new-state]
                  (when fetch-fx [fetch-fx config])]}))
 

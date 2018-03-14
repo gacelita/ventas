@@ -40,11 +40,9 @@
 (rf/reg-event-db
  ::fetch.next
  (fn [db [_ {:keys [items total]}]]
-   (let [items (->> items
-                    (map #(update % :price :value)))]
-     (-> db
-         (assoc-in [state-key :products] items)
-         (assoc-in [state-key :table :total] total)))))
+   (-> db
+       (assoc-in [state-key :products] items)
+       (assoc-in [state-key :table :total] total))))
 
 (defn- content []
   [:div.admin-products__table
@@ -59,7 +57,8 @@
      :columns [{:id :name
                 :label (i18n ::name)}
                {:id :price
-                :label (i18n ::price)}
+                :label (i18n ::price)
+                :component (partial table/amount-column :price)}
                {:id :actions
                 :label (i18n ::actions)
                 :component action-column}]

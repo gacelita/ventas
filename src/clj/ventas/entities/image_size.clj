@@ -51,7 +51,7 @@
    #(gen/elements entities)))
 
 (spec/def :image-size/entities
-  (spec/coll-of ::entity :kind set?))
+  (spec/coll-of ::entity))
 
 (spec/def :schema.type/image-size
   (spec/keys :req [:image-size/keyword

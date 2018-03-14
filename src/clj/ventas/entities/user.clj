@@ -50,7 +50,7 @@
            :role roles))
 
 (spec/def :user/roles
-  (spec/coll-of ::role :kind set?))
+  (spec/coll-of ::role))
 
 (def cultures
   #{:user.culture/en_US

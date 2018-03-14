@@ -137,12 +137,15 @@
 (rf/reg-event-fx
  ::init
  (fn [{:keys [db]} _]
-   {:dispatch-n [[::backend/admin.brands.list
-                  {:success [::events/db [:admin :brands]]}]
-                 [::backend/admin.taxes.list
-                  {:success [::events/db [:admin :taxes]]}]
-                 [::backend/admin.currencies.list
-                  {:success [::events/db [:admin :currencies]]}]
+   {:dispatch-n [[::backend/admin.entities.list
+                  {:params {:type :brand}
+                   :success [::events/db [:admin :brands]]}]
+                 [::backend/admin.entities.list
+                  {:params {:type :tax}
+                   :success [::events/db [:admin :taxes]]}]
+                 [::backend/admin.entities.list
+                  {:params {:type :currency}
+                   :success [::events/db [:admin :currencies]]}]
                  [::events/i18n.cultures.list]
                  [::execute-menu-hooks]]
     :db (assoc-in db [state-key :menu-items] initial-menu-items)}))

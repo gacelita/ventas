@@ -23,7 +23,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.orders.save
+   {:dispatch [::backend/admin.entities.save
                {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
@@ -34,8 +34,9 @@
     :go-to [:admin.orders]}))
 
 (defn- on-user-change [user]
-  [::backend/admin.users.addresses.list
-   {:params {:id user}
+  [::backend/admin.entities.list
+   {:params {:filters {:user user}
+             :type :address}
     :success [::events/db [state-key :user-addresses]]}])
 
 (defn- image-column [row]

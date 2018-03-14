@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [ventas.common.utils :as common.utils]))
 
 (def state-key ::state)
 
@@ -18,12 +19,12 @@
 
 (rf/reg-event-fx
  ::set-currency
- (fn [{:keys [db]} [_ id v callback]]
+ (fn [_ [_ id v callback]]
    {:dispatch [::set-field id :amount/currency v callback]}))
 
 (rf/reg-event-fx
  ::set-value
- (fn [{:keys [db]} [_ id v callback]]
+ (fn [_ [_ id v callback]]
    {:dispatch [::set-field id :amount/value v callback]}))
 
 (defn- dropdown [{:keys [currency id on-change]}]
@@ -39,7 +40,7 @@
       :default-value currency
       :on-change #(rf/dispatch [::set-currency id (js/parseFloat (.-value %2)) on-change])}]]])
 
-(defn input [{:keys [amount control label culture on-change]}]
+(defn input [{:keys [amount control label on-change]}]
   (let [id (gensym)]
     (fn []
       (let [{:amount/keys [value currency]} amount]
@@ -48,5 +49,5 @@
                     :id id
                     :on-change on-change}]
          [(or control :input)
-          {:default-value value
+          {:default-value (common.utils/bigdec->str value)
            :on-change #(rf/dispatch [::set-value id (js/parseFloat (-> % .-target .-value)) on-change])}]]))))

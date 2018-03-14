@@ -2,7 +2,6 @@
   (:require
    [clojure.core.async :as core.async :refer [chan >! <! go-loop go]]
    [clojure.core.async.impl.protocols :as core.async.protocols]
-   [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.image-size :as entities.image-size]
@@ -12,10 +11,7 @@
    [ventas.search :as search]
    [ventas.stats :as stats]
    [kinsky.client :as kafka]
-   [taoensso.timbre :as timbre]
    [ventas.entities.configuration :as entities.configuration]
-   [ventas.entities.user :as entities.user]
-   [clojure.set :as set]
    [ventas.utils :as utils]))
 
 (defn- admin-check! [session]
@@ -35,43 +31,51 @@
       (f request state)))))
 
 (register-admin-endpoint!
- :admin.brands.list
- {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :brand))))
+ :admin.entities.find-json
+ {:spec {:id ::api/id}
+  :doc "Returns a denormalized entity. Should be used for read-only access to
+        entity data."}
+ (fn [{{:keys [id]} :params} {:keys [session]}]
+   (entity/find-json id {:culture (api/get-culture session)})))
+
+(register-admin-endpoint!
+ :admin.entities.pull
+ {:spec {:id ::api/id}
+  :doc "Returns an entity by using the pull API.
+        This is the preferred way of getting entities in the administration."}
+ (fn [{{:keys [id expr]} :params} _]
+   (db/pull (or expr '[*]) id)))
+
+(register-admin-endpoint!
+ :admin.entities.save
+ {:spec ::entity/entity
+  :doc "Saves an entity, updating it if it already exists.
+        This is the preferred way of saving entities in the administration."}
+ (fn [{entity :params} _]
+   (comment
+    "@TODO Fails for bigdecs.
+     Attributes to look for:"
+    #{:product/price
+      :discount/amount
+      :tax/amount})
+   (entity/upsert* entity)))
 
 (register-admin-endpoint!
  :admin.entities.remove
- {:spec {:id ::api/id}}
- (fn [{{:keys [id]} :params} state]
+ {:spec {:id ::api/id}
+  :doc "Removes the given entity."}
+ (fn [{{:keys [id]} :params} _]
    (entity/delete id)))
 
 (register-admin-endpoint!
- :admin.currencies.list
+ :admin.entities.list
  {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :currency))))
-
-(register-admin-endpoint!
- :admin.taxes.list
- {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :tax))))
-
-(register-admin-endpoint!
- :admin.taxes.save
- {:spec ::entity/entity}
- (fn [{entity :params} state]
-   (entity/upsert* (-> entity
-                       (common.utils/update-in-when-some
-                        [:tax/amount :amount/value]
-                        bigdec)))))
+                pagination/wrap-paginate]
+  :spec {:type keyword?}
+  :doc "Returns a coll of denormalized entities with the given type."}
+ (fn [{{:keys [type filters]} :params} {:keys [session]}]
+   (->> (entity/query type filters)
+        (map #(entity/to-json % {:culture (api/get-culture session)})))))
 
 (register-admin-endpoint!
  :admin.users.list
@@ -85,60 +89,16 @@
                      (entity/dates (:db/id %)))))))
 
 (register-admin-endpoint!
- :admin.users.addresses.list
- {:spec {:user ::entity/entity}}
- (fn [{:keys [user]} {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :address {:user user}))))
-
-(register-admin-endpoint!
- :admin.users.save
- {:spec ::entity/entity}
- (fn [{user :params} state]
-   (entity/upsert :user user)))
-
-(register-admin-endpoint!
- :admin.image-sizes.list
- {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :image-size))))
-
-(register-admin-endpoint!
  :admin.image-sizes.entities.list
  (fn [_ _]
    (->> entities.image-size/entities
         (map (comp utils/dequalify-keywords db/touch-eid)))))
 
 (register-admin-endpoint!
- :admin.entities.find
- {:spec {:id ::api/id}}
- (fn [{{:keys [id]} :params} _]
-   (entity/find id)))
-
-(register-admin-endpoint!
- :admin.entities.find-json
- {:spec {:id ::api/id}}
- (fn [{{:keys [id]} :params} {:keys [session]}]
-   (entity/find-json id {:culture (api/get-culture session)})))
-
-(register-admin-endpoint!
- :admin.entities.pull
- {:spec {:id ::api/id}}
- (fn [{{:keys [id expr]} :params} _]
-   (db/pull (or expr '[*]) id)))
-
-(register-admin-endpoint!
- :admin.entities.save
- {:spec ::entity/entity}
- (fn [{entity :params} _]
-   (entity/upsert* entity)))
-
-(register-admin-endpoint!
  :admin.events.list
  {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
+                pagination/wrap-paginate]
+  :doc "Returns a coll of Datomic transactions. Meant for the activity log section."}
  (fn [_ _]
    (->> (db/transaction-log)
         (take-last 10)
@@ -147,7 +107,9 @@
 
 (register-admin-endpoint!
  :admin.orders.get
- {:spec {:id ::api/id}}
+ {:spec {:id ::api/id}
+  :doc "Like doing admin.entities.pull on an order, but also returns the lines
+        of the order, denormalized."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [{:order/keys [lines]} (entity/find id)]
      {:order (db/pull '[*] id)
@@ -163,59 +125,11 @@
    (let [culture (api/get-culture session)]
      (search/entities search attrs culture))))
 
-
-(register-admin-endpoint!
- :admin.orders.list
- {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :order))))
-
-(register-admin-endpoint!
- :admin.orders.save
- {:spec ::entity/entity}
- (fn [{entity :params} _]
-   (entity/upsert* entity)))
-
-(register-admin-endpoint!
- :admin.products.save
- {:spec ::entity/entity}
- (fn [{product :params} _]
-   (entity/upsert* (-> product
-                       (common.utils/update-in-when-some
-                        [:product/price :amount/value]
-                        bigdec)))))
-
-(register-admin-endpoint!
- :admin.discounts.save
- {:spec ::entity/entity}
- (fn [{discount :params} _]
-   (entity/upsert* (-> discount
-                       (common.utils/update-in-when-some
-                        [:discount/amount :amount/value]
-                        bigdec)))))
-
-(register-admin-endpoint!
- :admin.product.terms.list
- {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :product.term))))
-
-(register-admin-endpoint!
- :admin.discounts.list
- {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
-        (entity/query :discount))))
-
 (register-admin-endpoint!
  :admin.datadmin.datoms
  {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
+                pagination/wrap-paginate]
+  :doc "Returns Datomic datoms. Currently abandoned."}
  (fn [_ _]
    (->> (db/datoms :eavt)
         (map db/datom->map))))
@@ -223,12 +137,27 @@
 (register-admin-endpoint!
  :admin.plugins.list
  {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]}
+                pagination/wrap-paginate]
+  :doc "Returns the list of registered plugins."}
  (fn [_ _]
    (->> (plugin/all)
         (map plugin/plugin)
         (map (fn [plugin]
                (select-keys plugin #{:name}))))))
+
+(register-admin-endpoint!
+ :admin.configuration.get
+ {:doc "Accepts a set of configuration keys.
+        Returns a map of configuration values."}
+ (fn [{ids :params} _]
+   (entities.configuration/get ids)))
+
+(register-admin-endpoint!
+ :admin.configuration.set
+ {:doc "Sets the given configuration key to the given value."}
+ (fn [{config :params} _]
+   (doseq [[k v] config]
+     (entities.configuration/set k v))))
 
 (defn time-series [topics {:keys [min max interval]}]
   (search/search {:query {:bool {:must [{:terms {:topic topics}}
@@ -245,18 +174,9 @@
     (throw (Exception. "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."))))
 
 (register-admin-endpoint!
- :admin.configuration.get
- (fn [{ids :params} _]
-   (entities.configuration/get ids)))
-
-(register-admin-endpoint!
- :admin.configuration.set
- (fn [{config :params} _]
-   (doseq [[k v] config]
-     (entities.configuration/set k v))))
-
-(register-admin-endpoint!
  :admin.stats.realtime
+ {:doc "Returns Kafka messages from the given topics.
+        `min` and `max` should be millisecond timestamps."}
  (fn [{{:keys [topics min max]} :params} {:keys [channel]}]
    (check-kafka!)
    (let [ch (chan)

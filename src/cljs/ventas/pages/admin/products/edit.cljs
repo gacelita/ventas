@@ -11,7 +11,8 @@
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
-   [ventas.utils.ui :as utils.ui])
+   [ventas.utils.ui :as utils.ui]
+   [ventas.common.utils :as common.utils])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 
@@ -20,8 +21,9 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.products.save
-               {:params (get-in db [state-key :form])
+   {:dispatch [::backend/admin.entities.save
+               {:params (-> (get-in db [state-key :form])
+                            (update-in [:product/price :amount/value] common.utils/str->bigdec))
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
@@ -118,8 +120,9 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::backend/admin.product.terms.list
-                  {:success [::events/db [state-key :product.terms]]}]
+   {:dispatch-n [[::backend/admin.entities.list
+                  {:params {:type :product.term}
+                   :success [::events/db [state-key :product.terms]]}]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/product}]

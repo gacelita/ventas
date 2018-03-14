@@ -9,23 +9,27 @@
 (def state-key ::state)
 
 (defn- set-labels! [chart labels]
+  {:pre [chart]}
   (aset chart "data" "labels" (clj->js labels)))
 
 (defn- set-data! [chart n data]
+  {:pre [chart]}
   (aset chart "data" "datasets" (str n) "data" (clj->js data)))
 
 (rf/reg-event-db
  ::update
  (fn [db [_ {:keys [labels-fn data-fn id]}]]
-   (let [{:keys [labels data chart]} (get-in db [state-key id])
-         data (data-fn data)
-         labels (labels-fn labels)]
-     (set-labels! chart labels)
-     (set-data! chart 0 data)
-     (.update chart)
-     (-> db
-         (assoc-in [state-key id :labels] labels)
-         (assoc-in [state-key id :data] data)))))
+   (if-let [chart (get-in db [state-key id :chart])]
+     (let [{:keys [labels data]} (get-in db [state-key id])
+           data (data-fn data)
+           labels (labels-fn labels)]
+       (set-labels! chart labels)
+       (set-data! chart 0 data)
+       (.update chart)
+       (-> db
+           (assoc-in [state-key id :labels] labels)
+           (assoc-in [state-key id :data] data)))
+     db)))
 
 (defn- make-config [config labels data]
   (-> config
