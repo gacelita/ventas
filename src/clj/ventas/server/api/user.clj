@@ -38,7 +38,7 @@
 
 (register-user-endpoint!
  :users.addresses.remove
- {:spec {:id ::api/id}}
+ {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [user (api/get-user session)
          address (entity/find id)]
@@ -66,7 +66,7 @@
 
 (register-user-endpoint!
  :users.cart.add
- {:spec {:id ::api/id}}
+ {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (when-let [user (api/get-user session)]
      (let [cart (entities.user/get-cart user)]
@@ -81,7 +81,7 @@
 
 (register-user-endpoint!
  :users.cart.remove
- {:spec {:id ::api/id}}
+ {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (when-let [user (api/get-user session)]
      (let [cart (entities.user/get-cart user)]
@@ -91,7 +91,7 @@
 
 (register-user-endpoint!
  :users.cart.set-quantity
- {:spec {:id ::api/id
+ {:spec {:id ::api/ref
          :quantity number?}}
  (fn [{{:keys [id quantity]} :params} {:keys [session]}]
    (when-let [user (api/get-user session)]
@@ -139,12 +139,12 @@
 
 (register-user-endpoint!
  :users.favorites.add
- {:spec {:id ::api/id}}
+ {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (toggle-favorite session id conj)))
 
 (register-user-endpoint!
  :users.favorites.remove
- {:spec {:id ::api/id}}
+ {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (toggle-favorite session id disj)))

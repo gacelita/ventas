@@ -32,7 +32,7 @@
 
 (register-admin-endpoint!
  :admin.entities.find-json
- {:spec {:id ::api/id}
+ {:spec {:id ::api/ref}
   :doc "Returns a denormalized entity. Should be used for read-only access to
         entity data."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
@@ -40,7 +40,7 @@
 
 (register-admin-endpoint!
  :admin.entities.pull
- {:spec {:id ::api/id}
+ {:spec {:id ::api/ref}
   :doc "Returns an entity by using the pull API.
         This is the preferred way of getting entities in the administration."}
  (fn [{{:keys [id expr]} :params} _]
@@ -62,7 +62,7 @@
 
 (register-admin-endpoint!
  :admin.entities.remove
- {:spec {:id ::api/id}
+ {:spec {:id ::api/ref}
   :doc "Removes the given entity."}
  (fn [{{:keys [id]} :params} _]
    (entity/delete id)))
@@ -107,7 +107,7 @@
 
 (register-admin-endpoint!
  :admin.orders.get
- {:spec {:id ::api/id}
+ {:spec {:id ::api/ref}
   :doc "Like doing admin.entities.pull on an order, but also returns the lines
         of the order, denormalized."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
