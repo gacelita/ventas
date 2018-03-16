@@ -146,18 +146,11 @@
                (select-keys plugin #{:name}))))))
 
 (register-admin-endpoint!
- :admin.configuration.get
- {:doc "Accepts a set of configuration keys.
-        Returns a map of configuration values."}
- (fn [{ids :params} _]
-   (entities.configuration/get ids)))
-
-(register-admin-endpoint!
  :admin.configuration.set
  {:doc "Sets the given configuration key to the given value."}
  (fn [{config :params} _]
    (doseq [[k v] config]
-     (entities.configuration/set k v))))
+     (entities.configuration/set! k v))))
 
 (defn time-series [topics {:keys [min max interval]}]
   (search/search {:query {:bool {:must [{:terms {:topic topics}}

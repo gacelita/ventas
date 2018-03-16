@@ -62,7 +62,7 @@
   (let [data {:stripe.publishable-key "TEST-KEY"
               :site.title "TEST-TITLE"}]
     (doseq [[k v] data]
-      (entities.configuration/set k v))
+      (entities.configuration/set! k v))
     (is (= data
            (-> (server.ws/call-request-handler {:name :configuration.get
                                                 :params #{:stripe.publishable-key

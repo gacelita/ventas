@@ -26,7 +26,7 @@
 (i18n/register-translations!
  {:en_US
   {::page "Stripe"
-   ::stripe.publishable-key "Publishable key"
+   ::stripe.publishable-key "Public key"
    ::stripe.private-key "Private key"
    ::submit "Submit"
    ::pay-with-stripe "Pay with Stripe"}})
@@ -49,7 +49,7 @@
                   :title (i18n ::page)}
     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-     [field {:key :stripe.publishable-key}]
+     [field {:key :stripe.public-key}]
      [field {:key :stripe.private-key}]
 
      [base/divider {:hidden true}]
@@ -66,8 +66,8 @@
 (rf/reg-event-fx
  ::admin-init
  (fn [_ _]
-   {:dispatch-n [[::backend/admin.configuration.get
-                  {:params #{:stripe.publishable-key
+   {:dispatch-n [[::backend/configuration.get
+                  {:params #{:stripe.public-key
                              :stripe.private-key}
                    :success [::form/populate [state-key]]}]]}))
 
@@ -89,7 +89,7 @@
                     (aset "src" "https://checkout.stripe.com/checkout.js")))))
 
 (defn- stripe-mount-or-update [this _]
-  (let [key @(rf/subscribe [::events/db [:configuration :stripe.publishable-key]])
+  (let [key @(rf/subscribe [::events/db [:configuration :stripe.publickey]])
         node (.querySelector (r/dom-node this) "form")]
     (when (and node key)
       (start-stripe! node key))))
@@ -97,7 +97,7 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch [::events/configuration.get #{:stripe.publishable-key}]}))
+   {:dispatch [::events/configuration.get #{:stripe.public-key}]}))
 
 (defn stripe-checkout []
   (rf/dispatch [::init])
@@ -107,7 +107,7 @@
       :component-did-update stripe-mount-or-update
       :reagent-render
       (fn [props]
-        @(rf/subscribe [::events/db [:configuration :stripe.publishable-key]])
+        @(rf/subscribe [::events/db [:configuration :stripe.public-key]])
         [:div
          [:h2 (i18n ::pay-with-stripe)]
          [:form {:action "localhost:3450"

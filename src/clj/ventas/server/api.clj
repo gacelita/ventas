@@ -114,10 +114,7 @@
  :configuration.get
  {:spec [::keyword]}
  (fn [{ids :params} _]
-   (->> ids
-        (filter #{:stripe.publishable-key
-                  :site.title})
-        (entities.configuration/get))))
+   (entities.configuration/get ids)))
 
 (register-endpoint!
  :entities.find

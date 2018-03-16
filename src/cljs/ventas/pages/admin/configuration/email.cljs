@@ -77,7 +77,7 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch [::backend/admin.configuration.get
+   {:dispatch [::backend/configuration.get
                {:params #{:email.from
                           :email.encryption.enabled
                           :email.encryption.type

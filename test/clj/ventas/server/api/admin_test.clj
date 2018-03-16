@@ -97,7 +97,7 @@
   (let [test-data {:test1 "value1"
                    :test2 "value2"}]
     (doseq [[k v] test-data]
-      (entities.configuration/set k v))
+      (entities.configuration/set! k v))
     (is (= test-data
            (-> (server.ws/call-handler-with-user :admin.configuration.get (keys test-data) user)
                :data)))))
