@@ -16,7 +16,11 @@
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
     :db/isComponent true
-    :ventas/refEntityType :i18n}]
+    :ventas/refEntityType :i18n}
+   {:db/ident :country/keyword
+    :db/valueType :db.type/keyword
+    :db/unique :db.unique/identity
+    :db/cardinality :db.cardinality/one}]
 
   :dependencies
   #{:i18n}
@@ -25,9 +29,11 @@
 
   :fixtures
   (fn []
-    [{:country/name (entities.i18n/get-i18n-entity {:en_US "Spain"
+    [{:country/keyword :es
+      :country/name (entities.i18n/get-i18n-entity {:en_US "Spain"
                                                     :es_ES "España"})}
-     {:country/name (entities.i18n/get-i18n-entity {:en_US "United States"
+     {:country/keyword :us
+      :country/name (entities.i18n/get-i18n-entity {:en_US "United States"
                                                     :es_ES "Estados Unidos"})}])})
 
 (spec/def :schema.type/country.group

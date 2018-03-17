@@ -1,4 +1,5 @@
 (ns ventas.i18n
+  "Server-side tongue wrapper"
   (:require
    [tongue.core :as tongue]))
 
