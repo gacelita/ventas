@@ -13,8 +13,7 @@
   (spec/coll-of keyword?))
 
 (spec/def :schema.type/configuration
-  (spec/keys :req [:configuration/keyword
-                   :configuration/value]
+  (spec/keys :req [:configuration/keyword]
              :opt [:configuration/value
                    :configuration/allowed-user-roles]))
 
