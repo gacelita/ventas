@@ -9,10 +9,14 @@
 
 (spec/def :configuration/keyword ::generators/keyword)
 (spec/def :configuration/value ::generators/string)
+(spec/def :configuration/allowed-user-roles
+  (spec/coll-of keyword?))
 
 (spec/def :schema.type/configuration
   (spec/keys :req [:configuration/keyword
-                   :configuration/value]))
+                   :configuration/value]
+             :opt [:configuration/value
+                   :configuration/allowed-user-roles]))
 
 (entity/register-type!
  :configuration
@@ -24,7 +28,11 @@
 
    {:db/ident :configuration/value
     :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}]
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :configuration/allowed-user-roles
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many}]
 
   :fixtures
   (fn []
@@ -54,11 +62,13 @@
   "Registers a configuration key.
    Only needed if you want to define `allowed-user-roles`, which makes the given
    key private except for the given roles."
-  [k {:keys [allowed-user-roles]}]
+  [k & [allowed-user-roles]]
   {:pre [(or (not allowed-user-roles) (set allowed-user-roles))]}
-  (entity/create* {:schema/type :schema.type/configuration
-                   :configuration/keyword k
-                   :configuration/allowed-user-roles allowed-user-roles}))
+  (entity/create* (merge
+                   {:schema/type :schema.type/configuration
+                    :configuration/keyword k}
+                   (when allowed-user-roles
+                     {:configuration/allowed-user-roles allowed-user-roles}))))
 
 (defn set! [k v]
   "Sets to `v` the `k` configuration key."
