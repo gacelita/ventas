@@ -169,9 +169,10 @@
  {:spec {:id ::ref
          (opt :terms) (maybe [::ref])}}
  (fn [{{:keys [id terms]} :params} {:keys [session]}]
-   (-> (resolve-ref id :product/keyword)
-       (entities.product/find-variation terms)
-       (partial serialize-with-session session))))
+   (serialize-with-session
+    session
+    (-> (resolve-ref id :product/keyword)
+        (entities.product/find-variation terms)))))
 
 (register-endpoint!
   :realtime-test
