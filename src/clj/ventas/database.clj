@@ -120,13 +120,6 @@
   []
   (d/tempid :db.part/user))
 
-(defn ready?
-  "Is the database ready? (connected and with the app's schema)"
-  []
-  (and
-   (instance? Connection db)
-   (entity :schema/type)))
-
 (defn datom->map
   [^Datom datom]
   (let [e  (.e datom)
@@ -238,14 +231,6 @@
 (defn db-symbol->keyword [db-symbol]
   (keyword (subs (str db-symbol) 1)))
 
-(defn kw->type [kw]
-  {:pre [(keyword? kw)]}
-  (keyword "schema.type" (name kw)))
-
-(defn type->kw [type]
-  {:pre [(keyword? type)]}
-  (keyword (name type)))
-
 (defn map->query [m]
   (vec (concat '(:find) (:find m)
                '(:in) (:in m)
@@ -282,7 +267,8 @@
 (defn nice-query-attr
   "Returns the only attribute of the only row"
   [{:keys [find in where] :as args}]
-  (-> (nice-query-one args) first val))
+  (when-let [entry (first (nice-query-one args))]
+    (val entry)))
 
 (defn enum-values
   "Gets the values of a database enum

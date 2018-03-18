@@ -41,7 +41,7 @@
       :configuration/value "Ventas Dev Store"}])})
 
 (defn- get* [key user]
-  (when (db/ready?)
+  (when (entity/db-migrated?)
     (let [{:configuration/keys [value allowed-user-roles]} (entity/find [:configuration/keyword key])]
       (when (and (seq allowed-user-roles)
                  (not (set/subset? (set (:user/roles user))
@@ -70,7 +70,7 @@
    key private except for the given roles."
   [k & [allowed-user-roles]]
   {:pre [(or (not allowed-user-roles) (set allowed-user-roles))]}
-  (when (db/ready?)
+  (when (entity/db-migrated?)
     (entity/create* (merge
                      {:schema/type :schema.type/configuration
                       :configuration/keyword k}

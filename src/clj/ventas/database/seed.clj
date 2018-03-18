@@ -22,7 +22,7 @@
   [type n]
   (doseq [fixture (entity/fixtures type)]
     (create* fixture))
-  (doseq [attributes (entity/generate (db/kw->type type) n)]
+  (doseq [attributes (entity/generate (entity/kw->type type) n)]
     (create* attributes)))
 
 (defn seed-type-with-deps

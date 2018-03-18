@@ -11,7 +11,8 @@
    [ventas.database :as db]
    [ventas.database.generators :as db.generators]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [slingshot.slingshot :refer [throw+]]))
 
 (spec/def :schema/type
   (spec/or :pull-eid ::db/pull-eid
@@ -33,6 +34,24 @@
                       ::after-create
                       ::after-delete]))
 
+(defn kw->type [kw]
+  {:pre [(keyword? kw)]}
+  (keyword "schema.type" (name kw)))
+
+(defn type->kw [type]
+  {:pre [(keyword? type)]}
+  (keyword (name type)))
+
+(defn db-migrated? []
+  (boolean (db/entity :schema/type)))
+
+(defn check-db-migrated!
+  "Throws if (not (db-migrated?))"
+  []
+  (when-not (db-migrated?)
+    (throw+ {:type ::database-not-migrated
+             :message "The database needs to be migrated before doing this"})))
+
 (defn entity? [entity]
   (when (map? entity)
     (spec/valid? ::entity (select-keys entity #{:schema/type}))))
@@ -47,7 +66,7 @@
                            (and (map? m) (utils/check ::entity-type m)))]}
   (let [m (or m {})]
     (schema/register-migration!
-     [{:db/ident (db/kw->type kw)}])
+     [{:db/ident (kw->type kw)}])
     (schema/register-migration!
      (or (:attributes m) []))
     (swap! registered-types assoc kw m)))
@@ -183,7 +202,7 @@
                     (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
                     :else v)])
              (-> pre-entity
-                 (assoc :db/id (or initial-tempid (d/tempid :db.part/user)))
+                 (assoc :db/id (or initial-tempid (db/tempid)))
                  (filter-create)))))
 
 (defn create*
@@ -191,8 +210,9 @@
   [attrs]
   (timbre/debug attrs)
   (spec! attrs)
+  (check-db-migrated!)
   (before-create attrs)
-  (let [tempid (d/tempid :db.part/user)
+  (let [tempid (db/tempid)
         pre-entity (prepare-creation-attrs attrs tempid)
         tx (db/transact [pre-entity
                          {:db/id (d/tempid :db.part/tx)
@@ -208,7 +228,7 @@
   [type attributes]
   (let [entity
         (-> (utils/qualify-map-keywords (common.utils/remove-nil-vals attributes) type)
-            (assoc :schema/type (db/kw->type type)))]
+            (assoc :schema/type (kw->type type)))]
     (create* entity)))
 
 (defn attributes
@@ -219,7 +239,7 @@
   [type]
   (when-let [fixtures-fn (:fixtures (type-properties type))]
     (->> (fixtures-fn)
-         (map #(assoc % :schema/type (db/kw->type type))))))
+         (map #(assoc % :schema/type (kw->type type))))))
 
 (defn autoresolve?
   [type]
@@ -269,7 +289,7 @@
 
 (defn- autoresolve-ref [ref & [options]]
   (let [subentity (-> ref find)]
-    (if (and subentity (autoresolve? (db/type->kw (:schema/type subentity))))
+    (if (and subentity (autoresolve? (type->kw (:schema/type subentity))))
       (serialize subentity options)
       ref)))
 
@@ -375,6 +395,7 @@
    (update* {:db/id 1234567
              :user/first-name `Other name`})"
   [{:db/keys [id] :as attrs} & {:keys [append?]}]
+  (check-db-migrated!)
   (let [entity (find id)
         attrs (filter-update entity attrs)]
     (db/transact (concat [attrs]
@@ -461,13 +482,14 @@
                        (seq v)))
                  filters)
          (if (empty? filters)
-           {:schema/type (db/kw->type type)}
+           {:schema/type (kw->type type)}
            filters))))
 
 (defn query
   "Performs a high-level query.
    Accepts optional `wheres` clauses"
   [type & [filters]]
+  (check-db-migrated!)
   (map #(find (:id %))
        (db/nice-query {:find '[?id]
                        :where (filters->wheres type filters)})))
@@ -480,7 +502,7 @@
 (defn generate*
   "Generates one sample of a given entity type"
   [type]
-  (let [db-type (db/kw->type type)]
+  (let [db-type (kw->type type)]
     (-> (gen/generate (spec/gen db-type))
         (assoc :schema/type db-type))))
 
