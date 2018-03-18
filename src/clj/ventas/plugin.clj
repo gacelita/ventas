@@ -1,8 +1,10 @@
 (ns ventas.plugin
   (:require
    [clojure.spec.alpha :as spec]
+   [clojure.core.async :refer [go-loop <!]]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.events :as events]))
 
 (spec/def ::name string?)
 
@@ -23,6 +25,13 @@
 
 (defn all []
   (set (keys @plugins)))
+
+(go-loop []
+  (<! (events/sub :init))
+  (doseq [[_ {:keys [init]}] @plugins]
+    (when init
+      (init)))
+  (recur))
 
 (defn by-type
   "Returns the identifiers of the plugins with the given type"
