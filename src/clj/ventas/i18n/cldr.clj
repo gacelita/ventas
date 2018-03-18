@@ -60,25 +60,31 @@
                        :i18n/translations translations}})
        (db/transact)))
 
+(defn- find-root [tree kw]
+  (let [parent (get tree kw)]
+    (if parent
+      (find-root tree parent)
+      kw)))
+
 (defn- transact-states-hierarchy! [hierarchy]
-  (->> hierarchy
-       (reduce (fn [tree [keyword children]]
-                 (reduce (fn [acc child]
-                           (assoc acc child keyword))
-                         tree
-                         children))
-               {})
-       (map (fn [[keyword parent]]
-              (if-let [parent-ref (db/entity [:state/keyword parent])]
-                {:state/keyword keyword
-                 :state/parent (:db/id parent-ref)}
-                (do
-                  (println "PARENT" parent)
+  (let [inverted (reduce (fn [tree [keyword children]]
+                           (reduce (fn [acc child]
+                                     (assoc acc child keyword))
+                                   tree
+                                   children))
+                         {}
+                         hierarchy)]
+    (->> inverted
+         (map (fn [[keyword parent]]
+                (if-let [parent-ref (db/entity [:state/keyword parent])]
+                  {:state/keyword keyword
+                   :state/parent (:db/id parent-ref)
+                   :state/country [:country/keyword (find-root inverted parent)]}
                   (when-let [country-ref (db/entity [:country/keyword parent])]
                     {:state/keyword keyword
-                     :state/country (:db/id country-ref)})))))
-       (remove nil?)
-       (db/transact)))
+                     :state/country (:db/id country-ref)}))))
+         (remove nil?)
+         (db/transact))))
 
 (defn- accumulate-translation [culture-kw acc {:keys [keyword name]}]
   (update acc
