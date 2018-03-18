@@ -143,7 +143,9 @@
           (cond
             (not request-succeeded?)
             (do
-              (rf/dispatch [:ventas.components.notificator/add {:message data :theme "warning"}])
+              (rf/dispatch [:ventas.components.notificator/add
+                            {:message data
+                             :theme "warning"}])
               (log/error "Request failed!" response)
               (when error
                 (call error data)))

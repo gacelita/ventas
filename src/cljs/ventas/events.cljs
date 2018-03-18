@@ -171,10 +171,10 @@
    {:db (dissoc db :session)
     :local-storage (dissoc local-storage :token)}))
 
-(rf/reg-event-fx
+(rf/reg-event-db
  ::session.error
- (fn [_ _]
-   {:dispatch [::db [:session] {}]}))
+ (fn [db _]
+   (assoc db :session {})))
 
 (rf/reg-event-fx
  ::users.favorites.enumerate

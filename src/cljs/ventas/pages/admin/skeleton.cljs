@@ -117,22 +117,23 @@
    (assoc-in db [state-key k] v)))
 
 (defn- login []
-  [:div.admin__login-wrapper
-   [base/segment {:color "orange" :class "admin__login"}
-    [:div.admin__login-image
-     [:img {:src "/files/logo"}]]
+  [:div.centered-segment-wrapper
+   [:div.centered-segment
+    [base/segment {:color "orange" :class "admin__login"}
+     [:div.admin__login-image
+      [:img {:src "/files/logo"}]]
 
-    [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::login]))}
-     [base/form-input
-      {:placeholder (i18n ::email)
-       :on-change #(rf/dispatch [::set-field :email (-> % .-target .-value)])}]
+     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::login]))}
+      [base/form-input
+       {:placeholder (i18n ::email)
+        :on-change #(rf/dispatch [::set-field :email (-> % .-target .-value)])}]
 
-     [base/form-input
-      {:placeholder (i18n ::password)
-       :type :password
-       :on-change #(rf/dispatch [::set-field :password (-> % .-target .-value)])}]
+      [base/form-input
+       {:placeholder (i18n ::password)
+        :type :password
+        :on-change #(rf/dispatch [::set-field :password (-> % .-target .-value)])}]
 
-     [base/form-button {:type "submit"} (i18n ::login)]]]])
+      [base/form-button {:type "submit"} (i18n ::login)]]]]])
 
 (rf/reg-event-fx
  ::init

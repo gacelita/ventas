@@ -14,15 +14,16 @@
  ::listen-to-events
  (fn [_ _]
    {:forward-events {:register ::listener
-                     :events #{::events/session.start}
-                     :dispatch-to [::session-started]}}))
+                     :events #{::events/session.start ::events/session.error}
+                     :dispatch-to [::session-done]}}))
 
 (rf/dispatch [::listen-to-events])
 
 (rf/reg-event-fx
- ::session-started
- (fn [_ _]
-   (go (>! ready true))
+ ::session-done
+ (fn [_ [_ [event-kw message]]]
+   (go (>! ready {:success (= event-kw ::events/session.start)
+                  :message message}))
    {:forward-events {:unregister ::listener}}))
 
 (defn get-identity []

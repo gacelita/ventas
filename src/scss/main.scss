@@ -27,6 +27,22 @@ body {
     padding: 6px 10px;
 }
 
+.centered-segment-wrapper {
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.centered-segment {
+    width: 100%;
+    text-align: center;
+
+    .ui.segment {
+        display: inline-block;
+        text-align: left;
+    }
+}
+
 body.animating.in.dimmable, body.dimmed.dimmable {
     overflow: visible !important;
 }

@@ -21,7 +21,8 @@
    [ventas.ws :as ws]
    [cljs.reader :as reader]
    [ventas.utils.logging :as log]
-   [ventas.session :as session])
+   [ventas.session :as session]
+   [cljs.pprint :as pprint])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
@@ -74,9 +75,18 @@
    {:dispatch-n [[::events/categories.list]
                  [::events/users.favorites.enumerate]]}))
 
-(defn page []
+(defn- page []
   (info "Rendering...")
   [page/main (routes/handler)])
+
+(defn- error-view [message]
+  [:div#main
+   [:div.root
+    [:div.centered-segment-wrapper
+     [:div.centered-segment
+      [base/segment {:color "red"}
+       [:pre
+        (with-out-str (pprint/pprint message))]]]]]])
 
 (defn app-element []
   (js/document.getElementById "app"))
@@ -107,13 +117,17 @@
    (debug "Init stage 2- Syncing rendered db, starting WS session")
    (rf/dispatch-sync [::init])
 
-   (when-not (<! session/ready)
-     (throw (js/Error. "Session initialization problem")))
-
-   (debug "Init stage 3 - Rendering")
-   (rf/dispatch [::fetch])
-   (accountant/dispatch-current!)
-   (reagent/render [page] (app-element))))
+   (let [{:keys [success message]} (<! session/ready)]
+     (if-not success
+       (do
+         (js/console.error (str "Session initialization problem\n"
+                                (with-out-str (pprint/pprint message))))
+         (reagent/render [error-view message] (app-element)))
+       (do
+         (debug "Init stage 3 - Rendering")
+         (rf/dispatch [::fetch])
+         (accountant/dispatch-current!)
+         (reagent/render [page] (app-element)))))))
 
 (defn ^:export start []
   (info "Starting...")

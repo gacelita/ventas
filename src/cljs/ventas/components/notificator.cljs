@@ -5,7 +5,8 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.events :as events]
-   [ventas.seo :as seo])
+   [ventas.seo :as seo]
+   [cljs.pprint :as pprint])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
@@ -57,4 +58,7 @@
            [base/icon {:class "bu close"
                        :name icon
                        :on-click #(rf/dispatch [::remove sym])}]
-           [:p.bu.message message]])]))])
+           [:p.message
+            (if (string? message)
+              message
+              (with-out-str (pprint/pprint message)))]])]))])
