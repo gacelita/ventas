@@ -683,6 +683,17 @@
          :user/phone "4444 33 222 333"
          :user/culture [:i18n.culture/keyword :en_US]}]))
 
+(defn countries []
+  (map #(assoc % :schema/type :schema.type/country)
+       [{:country/keyword :test
+         :country/name (entities.i18n/get-i18n-entity {:en_US "Test country"})}]))
+
+(defn states []
+  (map #(assoc % :schema/type :schema.type/state)
+       [{:state/keyword :test
+         :state/country [:country/keyword :test]
+         :state/name (entities.i18n/get-i18n-entity {:en_US "Test state"})}]))
+
 (defn addresses []
   (map #(assoc % :schema/type :schema.type/address)
        [{:address/first-name "Test"
@@ -693,7 +704,7 @@
          :address/zip "67943"
          :address/city "Test City"
          :address/country (-> (entity/query :country) first :db/id)
-         :address/state (-> (entity/query :state) first :db/id)
+         :address/state [:state/keyword :test]
          :address/user [:user/email "test@test.com"]}]))
 
 (defn discounts []
@@ -721,4 +732,6 @@
           (products)
           (product-variations)
           (users)
+          (countries)
+          (states)
           (addresses)))
