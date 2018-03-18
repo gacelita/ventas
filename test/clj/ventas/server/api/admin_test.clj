@@ -33,12 +33,11 @@
    (fn [_ {:keys [session]}]
      (is (= user (api/get-user session)))))
   (is (server.ws/call-handler-with-user ::test {} user))
-  (is (= {:data "This API request requires administration privileges"
-          :id nil
-          :success false
-          :type :response}
-         (server.ws/call-request-handler {:name ::test}
-                                         {:session (atom {})}))))
+  (is (= ::sut/unauthorized
+         (-> (server.ws/call-request-handler {:name ::test}
+                                             {:session (atom {})})
+             :data
+             :type))))
 
 (def example-brand
   {:brand/name (entities.i18n/get-i18n-entity {:en_US "Example brand"})
@@ -91,15 +90,6 @@
     (is (= [{:name "Test theme"}
             {:name "Test plugin"}]
            (-> (server.ws/call-handler-with-user :admin.plugins.list {} user)
-               :data)))))
-
-(deftest admin-configuration-get
-  (let [test-data {:test1 "value1"
-                   :test2 "value2"}]
-    (doseq [[k v] test-data]
-      (entities.configuration/set! k v))
-    (is (= test-data
-           (-> (server.ws/call-handler-with-user :admin.configuration.get (keys test-data) user)
                :data)))))
 
 (deftest admin-configuration-set

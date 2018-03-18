@@ -1,19 +1,20 @@
 (ns ventas.server.api-test
   (:require
-   [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.database :as db]
-   [ventas.database.seed :as seed]
-   [ventas.server.ws :as server.ws]
-   [ventas.core]
-   [ventas.test-tools :as test-tools]
-   [taoensso.timbre :as timbre]
-   [ventas.database.entity :as entity]
-   [ventas.entities.i18n :as entities.i18n]
-   [ventas.entities.configuration :as entities.configuration]
    [clojure.set :as set]
+   [clojure.test :refer [deftest is testing use-fixtures]]
+   [taoensso.timbre :as timbre]
+   [ventas.auth :as auth]
+   [ventas.core]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.database.seed :as seed]
+   [ventas.entities.configuration :as entities.configuration]
+   [ventas.entities.i18n :as entities.i18n]
    [ventas.search :as search]
+   [ventas.server.api :as sut]
+   [ventas.server.ws :as server.ws]
    [ventas.stats :as stats]
-   [ventas.auth :as auth]))
+   [ventas.test-tools :as test-tools]))
 
 (use-fixtures :once #(with-redefs [db/db (test-tools/test-conn)]
                        (timbre/with-level
@@ -33,16 +34,18 @@
                                                 :params {:id :test-category}}
                                                {})
                :data)))
-    (is (= "Invalid ref: :DOES-NOT-EXIST"
+    (is (= ::sut/invalid-ref
            (-> (server.ws/call-request-handler {:name :categories.get
                                                 :params {:id :DOES-NOT-EXIST}}
                                                {})
-               :data)))
-    (is (= "Category not found"
+               :data
+               :type)))
+    (is (= ::sut/category-not-found
            (-> (server.ws/call-request-handler {:name :categories.get
                                                 :params {:id 1112984712}}
                                                {})
-               :data)))))
+               :data
+               :type)))))
 
 (deftest categories-list
   (doseq [entity (entity/query :category)]
@@ -85,16 +88,16 @@
     (testing "by slug"
       (let [slug (entity/serialize (entity/find (:ventas/slug category))
                                    {:culture [:i18n.culture/keyword :en_US]})]
-        (println "slug" slug)
         (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
                (-> (server.ws/call-request-handler {:name :entities.find
                                                     :params {:id slug}})
                    :data)))))
     (testing "unexistent id"
-      (is (= "Unable to find entity: 1"
+      (is (= ::sut/entity-not-found
              (-> (server.ws/call-request-handler {:name :entities.find
                                                   :params {:id 1}})
-                 :data))))))
+                 :data
+                 :type))))))
 
 (deftest enums-get
   (is (= (db/enum-values (name :order.status) :eids? true)
@@ -222,12 +225,11 @@
 
 (deftest products-aggregations
   (testing "spec does not fail when not passing params"
-    (is (= {:data "Elasticsearch error: "
-            :id nil
-            :success false
-            :type :response}
-           (server.ws/call-request-handler {:name :products.aggregations}
-                                           {}))))
+    (is (= ::search/elasticsearch-error
+           (-> (server.ws/call-request-handler {:name :products.aggregations}
+                                               {})
+               :data
+               :type))))
   (doseq [entity (concat test-taxonomies test-terms test-products test-product-variations)]
     (entity/create* entity))
   (entity/create :category {:name (entities.i18n/get-i18n-entity {:en_US "Test category"})
@@ -302,11 +304,13 @@
                @session))))
     (let [session (atom nil)]
       (testing "invalid credentials"
-        (is (= "Invalid credentials"
-               (:data (server.ws/call-request-handler {:name :users.login
-                                                       :params {:email "test2@test.com"
-                                                                :password "INVALID"}}
-                                                      {:session session}))))
+        (is (= ::sut/invalid-credentials
+               (-> (server.ws/call-request-handler {:name :users.login
+                                                    :params {:email "test2@test.com"
+                                                             :password "INVALID"}}
+                                                   {:session session})
+                   :data
+                   :type)))
         (is (= nil @session))))))
 
 (comment
@@ -370,9 +374,13 @@
 (deftest states-list
   (doseq [entity (entity/query :state)]
     (entity/delete (:db/id entity)))
-  (let [state (entity/create :state {:name (entities.i18n/get-i18n-entity {:en_US "Test state"})})]
+  (entity/create :country {:name (entities.i18n/get-i18n-entity {:en_US "Test country"})
+                           :keyword :test-country})
+  (let [state (entity/create :state {:name (entities.i18n/get-i18n-entity {:en_US "Test state"})
+                                     :country [:country/keyword :test-country]})]
     (is (= "Test state"
-           (->> (server.ws/call-request-handler {:name :states.list})
+           (->> (server.ws/call-request-handler {:name :states.list
+                                                 :params {:country :test-country}})
                 :data
                 first
                 :name)))))

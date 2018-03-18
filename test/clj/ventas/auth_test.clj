@@ -4,11 +4,14 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.auth :as sut]
-   [ventas.test-tools :as test-tools]))
+   [ventas.test-tools :as test-tools]
+   [taoensso.timbre :as timbre]))
 
 (use-fixtures :once
               #(with-redefs [db/db (test-tools/test-conn)]
-                 (%)))
+                 (timbre/with-level
+                  :report
+                  (%))))
 
 (def test-user-attrs
   {:email "email@email.com"})

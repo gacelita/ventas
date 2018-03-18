@@ -31,8 +31,12 @@
    :address/address "Test Street, 210"
    :address/zip "67943"
    :address/city "Test City"
-   :address/country (-> (entity/query :country) first :db/id)
-   :address/state (-> (entity/query :state) first :db/id)
+   :address/country {:schema/type :schema.type/country
+                     :country/name (entities.i18n/get-i18n-entity {:en_US "Test country"})
+                     :country/keyword :test-country}
+   :address/state {:schema/type :schema.type/state
+                   :state/name (entities.i18n/get-i18n-entity {:en_US "Test state"})
+                   :state/keyword :test-state}
    :address/user (db/normalize-ref [:user/email user-email])})
 
 (deftest register-user-endpoint!
@@ -42,12 +46,11 @@
      (fn [_ {:keys [session]}]
        (is (= user (api/get-user session)))))
     (is (server.ws/call-handler-with-user ::test {} user))
-    (is (= {:data "This API request requires authentication"
-            :id nil
-            :success false
-            :type :response}
-           (server.ws/call-request-handler {:name ::test}
-                                           {:session (atom {})})))))
+    (is (= ::sut/authentication-required
+           (-> (server.ws/call-request-handler {:name ::test}
+                                               {:session (atom {})})
+               :data
+               :type)))))
 
 (deftest users-addresses
   (let [user (entity/create* (example-user))
@@ -60,14 +63,15 @@
 
 (deftest users-addresses-save
   (let [user (entity/create* (example-user))]
-    (is (= (example-address (:user/email user))
+    (is (= (-> (example-address (:user/email user))
+               (dissoc :address/country :address/state))
            (-> (server.ws/call-handler-with-user :users.addresses.save
                                                  (-> (example-address (:user/email user))
                                                      (utils/dequalify-keywords)
                                                      (dissoc :type))
                                                  user)
                :data
-               (dissoc :db/id))))))
+               (dissoc :db/id :address/country :address/state))))))
 
 (deftest users-addresses-remove
   (let [user (entity/create* (example-user))
