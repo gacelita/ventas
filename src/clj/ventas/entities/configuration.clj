@@ -5,7 +5,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.utils :as utils]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [ventas.database :as db]))
 
 (spec/def :configuration/keyword ::generators/keyword)
 (spec/def :configuration/value ::generators/string)
@@ -38,6 +39,16 @@
     [{:configuration/keyword :site.title
       :configuration/value "Ventas Dev Store"}])})
 
+(defn- get* [key user]
+  (when (db/ready?)
+    (let [{:configuration/keys [value allowed-user-roles]} (entity/find [:configuration/keyword key])]
+      (when (and (seq allowed-user-roles)
+                 (not (set/subset? (set (:user/roles user))
+                                   (set allowed-user-roles))))
+        (throw (Exception. (str "Access denied to configuration key " key))))
+      (utils/swallow
+       (read-string value)))))
+
 (defn get
   "Gets a configuration key or a collection of configuration keys.
    `user` will be used for checking the roles when the configuration key has them defined."
@@ -49,13 +60,7 @@
                   [id v])))
          (remove nil?)
          (into {}))
-    (let [{:configuration/keys [value allowed-user-roles]} (entity/find [:configuration/keyword k-or-ks])]
-      (when (and (seq allowed-user-roles)
-                 (not (set/subset? (set (:user/roles user))
-                                   (set allowed-user-roles))))
-        (throw (Exception. (str "Access denied to configuration key " k-or-ks))))
-      (utils/swallow
-       (read-string value)))))
+    (get* k-or-ks user)))
 
 (defn register-key!
   "Registers a configuration key.
@@ -63,11 +68,12 @@
    key private except for the given roles."
   [k & [allowed-user-roles]]
   {:pre [(or (not allowed-user-roles) (set allowed-user-roles))]}
-  (entity/create* (merge
-                   {:schema/type :schema.type/configuration
-                    :configuration/keyword k}
-                   (when allowed-user-roles
-                     {:configuration/allowed-user-roles allowed-user-roles}))))
+  (when (db/ready?)
+    (entity/create* (merge
+                     {:schema/type :schema.type/configuration
+                      :configuration/keyword k}
+                     (when allowed-user-roles
+                       {:configuration/allowed-user-roles allowed-user-roles})))))
 
 (defn set! [k v]
   "Sets to `v` the `k` configuration key."

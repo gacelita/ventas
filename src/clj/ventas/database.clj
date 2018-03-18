@@ -14,7 +14,8 @@
   (:import
    [java.util.concurrent ExecutionException]
    [datomic Datom]
-   [datomic.query EntityMap]))
+   [datomic.query EntityMap]
+   [datomic.peer Connection]))
 
 (def ^:dynamic db)
 
@@ -116,6 +117,13 @@
   "tempid wrapper"
   []
   (d/tempid :db.part/user))
+
+(defn ready?
+  "Is the database ready? (connected and with the app's schema)"
+  []
+  (and
+   (instance? Connection db)
+   (entity :schema/type)))
 
 (defn datom->map
   [^Datom datom]
@@ -285,14 +293,25 @@
                         [(namespace ?ident) ?ns]
                         [(= ?ns ?enum)]]}))
 
-(defn recreate
-  "Recreates the database"
+(defn delete
+  "Wrapper for d/delete-database"
   []
   (let [url (config/get :database :url)]
     (timbre/info "Deleting database " url)
-    (d/delete-database url)
+    (d/delete-database url)))
+
+(defn create
+  "Wrapper for d/create-database"
+  []
+  (let [url (config/get :database :url)]
     (timbre/info "Creating database " url)
     (d/create-database url)))
+
+(defn recreate
+  "Recreates the database"
+  []
+  (delete)
+  (create))
 
 (defn ensure-conforms
   "conformity/ensure-conforms wrapper"
