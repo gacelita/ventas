@@ -151,14 +151,12 @@
 
 (defn resolve-by-slug
   [slug]
-  (-> (db/nice-query
-       {:find '[?id]
-        :in {'?slug slug}
-        :where '[[?translation :i18n.translation/value ?slug]
-                 [?i18n :i18n/translations ?translation]
-                 [?id :ventas/slug ?i18n]]})
-      first
-      :id))
+  (db/nice-query-attr
+   {:find '[?id]
+    :in {'?slug slug}
+    :where '[[?translation :i18n.translation/value ?slug]
+             [?i18n :i18n/translations ?translation]
+             [?id :ventas/slug ?i18n]]}))
 
 (defn find-by-slug
   [slug]

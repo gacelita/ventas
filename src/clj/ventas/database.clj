@@ -264,6 +264,16 @@
                   result)))
          (q query (vals in)))))
 
+(defn nice-query-one
+  "(first (nice-query))"
+  [{:keys [find in where] :as args}]
+  (first (nice-query args)))
+
+(defn nice-query-attr
+  "Returns the only attribute of the only row"
+  [{:keys [find in where] :as args}]
+  (-> (nice-query-one args) first val))
+
 (defn enum-values
   "Gets the values of a database enum
    Usage: (enum-values \"schema.type\")"

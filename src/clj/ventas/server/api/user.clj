@@ -54,14 +54,12 @@
        (entity/to-json cart {:culture (api/get-culture session)})))))
 
 (defn- find-order-line [order product-variation]
-  (when-let [id (-> (db/nice-query
-                     {:find '[?id]
-                      :in {'?order order
-                           '?variation product-variation}
-                      :where '[[?order :order/lines ?id]
-                               [?id :order.line/product-variation ?variation]]})
-                    first
-                    :id)]
+  (when-let [id (db/nice-query-attr
+                 {:find '[?id]
+                  :in {'?order order
+                       '?variation product-variation}
+                  :where '[[?order :order/lines ?id]
+                           [?id :order.line/product-variation ?variation]]})]
     (entity/find id)))
 
 (register-user-endpoint!
