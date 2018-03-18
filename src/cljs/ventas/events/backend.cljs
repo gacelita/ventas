@@ -188,9 +188,9 @@
    {:ws-request (merge {:name :admin.entities.pull} options)}))
 
 (rf/reg-event-fx
- ::admin.entities.find-json
+ ::admin.entities.find-serialize
  (fn [_ [_ options]]
-   {:ws-request (merge {:name :admin.entities.find-json} options)}))
+   {:ws-request (merge {:name :admin.entities.find-serialize} options)}))
 
 (rf/reg-event-fx
  ::admin.entities.save

@@ -27,14 +27,14 @@
 
 (defn get-image [entity & [params]]
   (if (:category/image entity)
-    (entity/find-json (:category/image entity) params)
+    (entity/find-serialize (:category/image entity) params)
     (when-let [image-eid (db/nice-query-attr
                           {:find ['?id]
                            :in {'?category (:db/id entity)}
                            :where '[[?product :product/categories ?category]
                                     [?product :product/images ?image]
                                     [?image :product.image/file ?id]]})]
-      (entity/find-json image-eid params))))
+      (entity/find-serialize image-eid params))))
 
 (defn get-parents [id]
   (let [id (db/normalize-ref id)

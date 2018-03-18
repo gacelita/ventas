@@ -247,7 +247,7 @@
 
 (defn- serialize-variation* [all-terms selected-terms params]
   (let [selected-terms (->> selected-terms
-                            (map #(entity/find-json % params))
+                            (map #(entity/find-serialize % params))
                             (common.utils/group-by-keyword :taxonomy))]
     (map (fn [{:keys [taxonomy] :as item}]
            (assoc item :selected (->> selected-terms

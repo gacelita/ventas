@@ -46,9 +46,9 @@
    :brand/keyword :example-brand
    :schema/type :schema.type/brand})
 
-(deftest admin-entities-find-json
+(deftest admin-entities-find-serialize
   (is (= (entity/serialize user {:culture [:i18n.culture/keyword :en_US]})
-         (-> (server.ws/call-handler-with-user :admin.entities.find-json {:id (:db/id user)} user)
+         (-> (server.ws/call-handler-with-user :admin.entities.find-serialize {:id (:db/id user)} user)
              :data))))
 
 (deftest admin-entities-pull

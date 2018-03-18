@@ -44,7 +44,7 @@
  ::init.next
  (fn [_ [_ data]]
    {:dispatch-n [[::form/populate [state-key] data]
-                 [::backend/admin.entities.find-json
+                 [::backend/admin.entities.find-serialize
                   {:params {:id (get-in data [:discount/product :db/id])}
                    :success [::events/db [state-key :product]]}]]}))
 

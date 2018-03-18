@@ -77,7 +77,7 @@
                                         :order.line/product-variation id
                                         :order.line/quantity 1}}
                          :append? true))
-       (entity/find-json (:db/id cart) {:culture (api/get-culture session)})))))
+       (api/find-serialize-with-session (:db/id cart) session)))))
 
 (register-user-endpoint!
  :users.cart.remove
@@ -87,7 +87,7 @@
      (let [cart (entities.user/get-cart user)]
        (when-let [line (find-order-line (:db/id cart) id)]
          (entity/delete (:db/id line)))
-       (entity/find-json (:db/id cart) {:culture (api/get-culture session)})))))
+       (api/find-serialize-with-session (:db/id cart) session)))))
 
 (register-user-endpoint!
  :users.cart.set-quantity
@@ -102,7 +102,7 @@
                           :order/lines {:schema/type :schema.type/order.line
                                         :order.line/product-variation id
                                         :order.line/quantity quantity}}))
-       (entity/find-json (:db/id cart) {:culture (api/get-culture session)})))))
+       (api/find-serialize-with-session (:db/id cart) session)))))
 
 (register-user-endpoint!
  :users.cart.add-discount
@@ -112,7 +112,7 @@
      (if-let [discount (entity/query-one :discount {:code code})]
        (let [cart (entities.user/get-cart user)]
          (entity/update* (assoc cart :discount (:db/id discount)))
-         (entity/find-json (:db/id cart) {:culture (api/get-culture session)}))
+         (api/find-serialize-with-session (:db/id cart) session))
        (throw+ {:type ::discount-not-found
                 :code code})))))
 
@@ -129,7 +129,7 @@
  (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]
      (->> (:user/favorites user)
-          (map #(entity/find-json % {:culture (api/get-culture session)}))))))
+          (map (partial api/find-serialize-with-session session))))))
 
 (defn- toggle-favorite [session product-id f]
   (when-let [user (api/get-user session)]

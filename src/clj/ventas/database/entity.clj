@@ -182,7 +182,7 @@
   (-> (resolve-by-slug slug)
       (find)))
 
-(defn find-json
+(defn find-serialize
   "Same as doing (serialize (find eid) params), which is a very common thing to do"
   [eid & [params]]
   (when-let [entity (find eid)]

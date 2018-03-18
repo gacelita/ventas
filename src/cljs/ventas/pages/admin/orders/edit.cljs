@@ -98,7 +98,7 @@
  ::init.next
  (fn [{:keys [db]} [_ {:keys [order lines]}]]
    {:dispatch-n [[::form/populate [state-key] order]
-                 [::backend/admin.entities.find-json
+                 [::backend/admin.entities.find-serialize
                   {:params {:id (get-in order [:order/user :db/id])}
                    :success [::events/db [state-key :user]]}]]
     :db (assoc-in db [state-key :lines] lines)}))

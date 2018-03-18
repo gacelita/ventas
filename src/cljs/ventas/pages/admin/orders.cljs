@@ -45,7 +45,7 @@
  (fn [{:keys [db]} [_ {:keys [items total]}]]
    (let [users (map :user items)]
      {:dispatch-n (for [user users]
-                    [::backend/admin.entities.find-json
+                    [::backend/admin.entities.find-serialize
                      {:params {:id user}
                       :success [::events/db [state-key :users user]]}])
       :db (-> db

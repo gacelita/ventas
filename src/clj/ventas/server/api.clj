@@ -45,6 +45,9 @@
 (defn serialize-with-session [session entity]
   (entity/serialize entity {:culture (get-culture session)}))
 
+(defn find-serialize-with-session [session entity]
+  (entity/find-serialize entity {:culture (get-culture session)}))
+
 (defn register-endpoint!
   ([kw f]
    (register-endpoint! kw {:binary? false} f))

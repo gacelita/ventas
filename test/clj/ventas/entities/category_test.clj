@@ -58,4 +58,4 @@
   (let [slug (:ventas/slug (#'sut/add-slug-to-category category))]
     (is slug)
     (is (= "example-parent-category-example-category"
-           (entity/find-json slug {:culture [:i18n.culture/keyword :en_US]})))))
+           (entity/find-serialize slug {:culture [:i18n.culture/keyword :en_US]})))))

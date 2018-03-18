@@ -32,12 +32,12 @@
       (f request state)))))
 
 (register-admin-endpoint!
- :admin.entities.find-json
+ :admin.entities.find-serialize
  {:spec {:id ::api/ref}
   :doc "Returns a serialized entity. Should be used for read-only access to
         entity data."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
-   (entity/find-json id {:culture (api/get-culture session)})))
+   (api/find-serialize-with-session id session)))
 
 (register-admin-endpoint!
  :admin.entities.pull
@@ -114,7 +114,7 @@
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [{:order/keys [lines]} (entity/find id)]
      {:order (db/pull '[*] id)
-      :lines (map #(entity/find-json % {:culture (api/get-culture session)})
+      :lines (map (partial api/find-serialize-with-session session)
                   lines)})))
 
 (register-admin-endpoint!

@@ -320,5 +320,5 @@
       (->> hits
            (map :_id)
            (map (fn [v] (Long/parseLong v)))
-           (map #(entity/find-json % {:culture (:db/id culture)
-                                      :keep-type? true}))))))
+           (map #(entity/find-serialize % {:culture (:db/id culture)
+                                           :keep-type? true}))))))
