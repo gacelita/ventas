@@ -7,6 +7,7 @@
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.plugins.stripe.core]
+   [ventas.plugins.wire-transfer.core]
    [ventas.components.payment :as payment]
    [ventas.themes.clothing.components.skeleton :as theme.skeleton]))
 

@@ -11,7 +11,7 @@
   (timbre/debug "Stripe payment" data))
 
 (configuration/register-key! :stripe.private-key #{:user.role/administrator})
-(configuration/register-key! :stripe.public-key #{})
+(configuration/register-key! :stripe.public-key)
 
 (plugin/register!
  :stripe
