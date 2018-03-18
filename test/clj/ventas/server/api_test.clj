@@ -28,7 +28,7 @@
 
 (deftest categories-get
   (let [category (create-test-category!)]
-    (is (= (entity/to-json category {:culture [:i18n.culture/keyword :en_US]})
+    (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
            (-> (server.ws/call-request-handler {:name :categories.get
                                                 :params {:id :test-category}}
                                                {})
@@ -49,7 +49,7 @@
     (entity/delete (:db/id entity)))
   (let [categories (mapv create-test-category! [:test-1 :test-2])]
     (is (= (->> categories
-                (map #(entity/to-json % {:culture [:i18n.culture/keyword :en_US]}))
+                (map #(entity/serialize % {:culture [:i18n.culture/keyword :en_US]}))
                 (map #(dissoc % :id))
                 (sort-by :keyword))
            (->> (server.ws/call-request-handler {:name :categories.list}
@@ -73,20 +73,20 @@
 (deftest entities-find
   (let [category (create-test-category!)]
     (testing "by eid"
-      (is (= (entity/to-json category {:culture [:i18n.culture/keyword :en_US]})
+      (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
              (-> (server.ws/call-request-handler {:name :entities.find
                                                   :params {:id (:db/id category)}})
                  :data))))
     (testing "by lookup-ref"
-      (is (= (entity/to-json category {:culture [:i18n.culture/keyword :en_US]})
+      (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
              (-> (server.ws/call-request-handler {:name :entities.find
                                                   :params {:id [:category/keyword (:category/keyword category)]}})
                  :data))))
     (testing "by slug"
-      (let [slug (entity/to-json (entity/find (:ventas/slug category))
-                                 {:culture [:i18n.culture/keyword :en_US]})]
+      (let [slug (entity/serialize (entity/find (:ventas/slug category))
+                                   {:culture [:i18n.culture/keyword :en_US]})]
         (println "slug" slug)
-        (is (= (entity/to-json category {:culture [:i18n.culture/keyword :en_US]})
+        (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
                (-> (server.ws/call-request-handler {:name :entities.find
                                                     :params {:id slug}})
                    :data)))))
@@ -120,7 +120,7 @@
                                                :keyword :test-size
                                                :height 65
                                                :width 40})]
-    (is (= {:test-size (-> (entity/to-json image-size {:culture [:i18n.culture/keyword :en_US]})
+    (is (= {:test-size (-> (entity/serialize image-size {:culture [:i18n.culture/keyword :en_US]})
                            (dissoc :keyword))}
            (:data (server.ws/call-request-handler {:name :image-sizes.list}))))))
 
@@ -315,15 +315,15 @@
   {:spec {(opt :token) (maybe ::string)}}
   (fn [{:keys [params]} {:keys [session]}]
     (if-let [user (get-user session)]
-      {:user (entity/to-json user)}
+      {:user (entity/serialize user)}
       (if-let [user (some->> (:token params)
                              auth/token->user)]
         (do
           (set-user session user)
-          {:user (entity/to-json user)})
+          {:user (entity/serialize user)})
         (let [{:keys [user token]} (create-unregistered-user)]
           (set-user session user)
-          {:user (entity/to-json user)
+          {:user (entity/serialize user)
            :token token}))))))
 
 (defn- run-temporary-user-test [token]
@@ -342,7 +342,7 @@
   (let [user (entity/create* test-user)]
     (testing "user in session"
       (let [session (atom {:user (:db/id user)})]
-        (is (= {:user (entity/to-json user)}
+        (is (= {:user (entity/serialize user)}
                (:data (server.ws/call-request-handler {:name :users.session
                                                        :params {}}
                                                       {:session session}))))
@@ -350,7 +350,7 @@
                @session))))
     (testing "user not in session but token present"
       (let [session (atom nil)]
-        (is (= {:user (entity/to-json user)}
+        (is (= {:user (entity/serialize user)}
                (:data (server.ws/call-request-handler {:name :users.session
                                                        :params {:token (auth/user->token user)}}
                                                       {:session session}))))

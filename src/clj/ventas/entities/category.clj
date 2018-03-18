@@ -102,13 +102,13 @@
   :dependencies
   #{:file :i18n}
 
-  :to-json
+  :serialize
   (fn [this params]
-    (-> ((entity/default-attr :to-json) this params)
+    (-> ((entity/default-attr :serialize) this params)
         (assoc :image (get-image this params))))
 
-  :from-json
+  :deserialize
   (fn [this]
     (-> this
         (dissoc :image)
-        ((entity/default-attr :from-json))))})
+        ((entity/default-attr :deserialize))))})

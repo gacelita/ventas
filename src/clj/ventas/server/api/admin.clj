@@ -33,7 +33,7 @@
 (register-admin-endpoint!
  :admin.entities.find-json
  {:spec {:id ::api/ref}
-  :doc "Returns a denormalized entity. Should be used for read-only access to
+  :doc "Returns a serialized entity. Should be used for read-only access to
         entity data."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (entity/find-json id {:culture (api/get-culture session)})))
@@ -72,10 +72,10 @@
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]
   :spec {:type keyword?}
-  :doc "Returns a coll of denormalized entities with the given type."}
+  :doc "Returns a coll of serialized entities with the given type."}
  (fn [{{:keys [type filters]} :params} {:keys [session]}]
    (->> (entity/query type filters)
-        (map #(entity/to-json % {:culture (api/get-culture session)})))))
+        (map (partial api/serialize-with-session session)))))
 
 (register-admin-endpoint!
  :admin.users.list
@@ -85,7 +85,7 @@
    (->> (entity/query :user)
         (filter (fn [{:user/keys [status]}]
                   (not= status :user.status/unregistered)))
-        (map #(merge (entity/to-json % {:culture (api/get-culture session)})
+        (map #(merge (api/serialize-with-session session %)
                      (entity/dates (:db/id %)))))))
 
 (register-admin-endpoint!
@@ -109,7 +109,7 @@
  :admin.orders.get
  {:spec {:id ::api/ref}
   :doc "Like doing admin.entities.pull on an order, but also returns the lines
-        of the order, denormalized."}
+        of the order, serialized."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [{:order/keys [lines]} (entity/find id)]
      {:order (db/pull '[*] id)

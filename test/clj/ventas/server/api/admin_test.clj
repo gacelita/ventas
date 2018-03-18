@@ -47,7 +47,7 @@
    :schema/type :schema.type/brand})
 
 (deftest admin-entities-find-json
-  (is (= (entity/to-json user {:culture [:i18n.culture/keyword :en_US]})
+  (is (= (entity/serialize user {:culture [:i18n.culture/keyword :en_US]})
          (-> (server.ws/call-handler-with-user :admin.entities.find-json {:id (:db/id user)} user)
              :data))))
 
@@ -77,7 +77,7 @@
 
 (deftest admin-entities-list
   (let [brand (entity/create* example-brand)]
-    (is (= [(-> (entity/to-json brand {:culture [:i18n.culture/keyword :en_US]})
+    (is (= [(-> (entity/serialize brand {:culture [:i18n.culture/keyword :en_US]})
                 (dissoc :id))]
            (->> (server.ws/call-handler-with-user :admin.entities.list {:type :brand} user)
                 :data

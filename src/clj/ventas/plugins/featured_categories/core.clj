@@ -11,7 +11,7 @@
  ::featured-categories.list
  (fn [_ {:keys [session]}]
    (->> (entity/query :category {:featured true})
-        (map #(entity/to-json % {:culture (api/get-culture session)})))))
+        (map (partial api/serialize-with-session session)))))
 
 (plugin/register!
  :featured-categories

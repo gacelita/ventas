@@ -45,5 +45,5 @@
 
 (deftest normalization
   (let [file (entity/find [:file/keyword (:file/keyword example-file)])]
-    (is (= "/files/example-file" (:url (entity/to-json file))))
-    (is (not (:file/url (entity/from-json :file (entity/to-json file)))))))
+    (is (= "/files/example-file" (:url (entity/serialize file))))
+    (is (not (:file/url (entity/deserialize :file (entity/serialize file)))))))

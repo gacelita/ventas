@@ -48,6 +48,7 @@
          (f request state))))))
 
 (defn get-user [session]
+  {:pre [(utils/atom? session)]}
   (when session
     (when-let [user (:user @session)]
       (entity/find user))))
@@ -59,6 +60,9 @@
   (let [user (get-user session)]
     (or (:user/culture user)
         (:db/id (db/entity [:i18n.culture/keyword :en_US])))))
+
+(defn serialize-with-session [session entity]
+  (entity/serialize entity {:culture (get-culture session)}))
 
 (spec/def ::keyword
   (spec-tools.core/create-spec
@@ -102,13 +106,13 @@
    (let [category (entity/find (resolve-ref id :category/keyword))]
      (when-not category
        (throw (Exception. "Category not found")))
-     (entity/to-json category {:culture (get-culture session)}))))
+     (serialize-with-session session category))))
 
 (register-endpoint!
  :categories.list
  (fn [_ {:keys [session]}]
    (->> (entity/query :category)
-        (map #(entity/to-json % {:culture (get-culture session)})))))
+        (map (partial serialize-with-session session)))))
 
 (register-endpoint!
  :configuration.get
@@ -123,7 +127,7 @@
    (let [entity (entity/find (resolve-ref id))]
      (when-not entity
        (throw (Exception. (str "Unable to find entity: " id))))
-     (entity/to-json entity {:culture (get-culture session)}))))
+     (serialize-with-session session entity))))
 
 (register-endpoint!
  :enums.get
@@ -144,7 +148,7 @@
  :image-sizes.list
  (fn [_ {:keys [session]}]
    (->> (entity/query :image-size)
-        (map #(entity/to-json % {:culture (get-culture session)}))
+        (map (partial serialize-with-session session))
         (common.utils/index-by :keyword))))
 
 (register-endpoint!
@@ -154,7 +158,7 @@
  (fn [{{:keys [id terms]} :params} {:keys [session]}]
    (-> (resolve-ref id :product/keyword)
        (entities.product/find-variation terms)
-       (entity/to-json {:culture (get-culture session)}))))
+       (partial serialize-with-session session))))
 
 (register-endpoint!
   :realtime-test
@@ -174,7 +178,7 @@
                 pagination/wrap-paginate]}
  (fn [_ {:keys [session]}]
    (->> (entity/query :product)
-        (map #(entity/to-json % {:culture (get-culture session)})))))
+        (map (partial serialize-with-session session)))))
 
 (register-endpoint!
  :products.aggregations
@@ -207,10 +211,11 @@
 
 (register-endpoint!
  :states.list
- {:middlewares [pagination/wrap-paginate]}
- (fn [_ {:keys [session]}]
-   (->> (entity/query :state)
-        (map #(entity/to-json % {:culture (get-culture session)})))))
+ {:middlewares [pagination/wrap-paginate]
+  :spec {:country ::ref}}
+ (fn [{{:keys [country]} :params} {:keys [session]}]
+   (->> (entity/query :state {:country (resolve-ref country :country/keyword)})
+        (map (partial serialize-with-session session)))))
 
 (defn- create-unregistered-user
   "Unauthenticated users can be able to add favorite products and create
@@ -236,7 +241,7 @@
                                     :password password})
          token (auth/user->token user)]
      (set-user session user)
-     {:user (entity/to-json user)
+     {:user (entity/serialize user)
       :token token})))
 
 (register-endpoint!
@@ -251,7 +256,7 @@
        (throw (Exception. "Invalid credentials")))
      (let [token (auth/user->token user)]
        (set-user session user)
-       {:user (entity/to-json user)
+       {:user (entity/serialize user)
         :token token}))))
 
 (register-endpoint!
@@ -259,15 +264,15 @@
  {:spec {(opt :token) (maybe ::string)}}
  (fn [{:keys [params]} {:keys [session]}]
    (if-let [user (get-user session)]
-     {:user (entity/to-json user)}
+     {:user (entity/serialize user)}
      (if-let [user (some->> (:token params)
                              auth/token->user)]
        (do
          (set-user session user)
-         {:user (entity/to-json user)})
+         {:user (entity/serialize user)})
        (let [{:keys [user token]} (create-unregistered-user)]
          (set-user session user)
-         {:user (entity/to-json user)
+         {:user (entity/serialize user)
           :token token})))))
 
 (register-endpoint!

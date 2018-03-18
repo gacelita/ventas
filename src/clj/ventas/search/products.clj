@@ -11,7 +11,7 @@
           categories))
 
 (defn- term-aggregation->json [{:keys [buckets]} & [json-opts taxonomy-kw]]
-  (entities.product/terms-to-json
+  (entities.product/serialize-terms
    (for [{:keys [key doc_count]} buckets]
      (let [{:keys [taxonomy] :as term} (entity/find-json key json-opts)]
        (merge (dissoc term :keyword)

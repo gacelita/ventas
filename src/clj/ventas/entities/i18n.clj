@@ -34,11 +34,11 @@
      {:i18n.culture/keyword :es_ES
       :i18n.culture/name "Español (España)"}])
 
-  :to-json
+  :serialize
   (fn [this _]
     (:db/id this))
 
-  :from-json
+  :deserialize
   (fn [this]
     (entity/find this))
 
@@ -67,7 +67,7 @@
   :dependencies
   #{:i18n.culture}
 
-  :to-json
+  :serialize
   (fn [this _]
     [(:i18n.translation/culture this)
      (:i18n.translation/value this)])
@@ -113,12 +113,12 @@
                  (utils/has-duplicates?))
         (throw (Error. "You can't add more than one translation per culture to an :i18n entity")))))
 
-  :to-json
+  :serialize
   (fn [this {:keys [culture]}]
     {:pre [(or (not culture) (utils/check ::entity/ref culture))]}
     (if-not culture
       (->> (:i18n/translations this)
-           (map (comp entity/to-json entity/find))
+           (map (comp entity/serialize entity/find))
            (into {}))
       (-> (db/q '[:find ?translated
                   :in $ ?this-eid ?culture

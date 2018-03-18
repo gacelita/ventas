@@ -36,9 +36,9 @@ Here's an example `:user` entity type:
     
     {:db/ident :user.role/administrator}])
 
-  :to-json
+  :serialize
   (fn [this params]
-    (-> ((entity/default-attr :to-json) this params)
+    (-> ((entity/default-attr :serialize) this params)
         (dissoc :password)))
 
   :filter-create
@@ -55,7 +55,7 @@ Step by step:
 
 - We call `entity/register-type!` passing the identifier for the entity type (`:user`) and a map of properties.
 - The first property we add is `:attributes`. Those are just plain old Datomic attributes, but there's a catch: their idents should have a namespace that matches the entity type identifier. Else you'll have to implement more complicated normalization and denormalization functions.
-- The next property is `:to-json`, which has a misleading name because it's meant for denormalization (i.e. preparing it to be sent to the clients). In this example, we `dissoc` the password because it would be a security issue to send it to the outside (even if it's encrypted). The `entity/default-attr` call just gets the standard denormalization function, which does most of the job for us.
+- The next property is `:serialize`, which prepares entities for sending them to the clients. In this example, we `dissoc` the password because it would be a security issue to send it to the outside (even if it's encrypted). The `entity/default-attr` call just gets the standard denormalization function, which does most of the job for us.
 - The last property is `:filter-create`. A "filter" is a function that should transform whatever is passed to it, and be side-effect free. In this case, we encrypt the user's password.
 
 Entity types are the primary way of extending the database, so you should be familiar with them.
@@ -86,9 +86,9 @@ This namespace not only allows you to register entity types: it's what makes the
 A few examples:
 
 - `(entity/find eid)`: returns the entity with the given eid.
-  There's also `(entity/find-json)` which calls `find` and then `to-json`.
+  There's also `(entity/find-serialize)` which calls `find` and then `serialize`.
 
-- `(entity/to-json an-entity)` will denormalize an entity to be sent to clients. It removes the namespace from the keys (so `:user/name` would be `:name`), it removes the entity type, and it resolves whatever entities there are inside it (as long as they are declared as `:autoresolve? true`, more on that later). So if the user has a `:user/favorites` field containing product IDs, they would be resolved and denormalized.
+- `(entity/serialize an-entity)` will prepare an entity to be sent to clients. It removes the namespace from the keys (so `:user/name` would be `:name`), it removes the entity type, and it resolves whatever entities there are inside it (as long as they are declared as `:autoresolve? true`, more on that later). So if the user has a `:user/favorites` field containing product IDs, they would be resolved and denormalized.
 
 - `(entity/query)`: allows you to explore the database, looking for entities with a certain entity type. For example, `(entity/query :user)` would get all users, and `(entity/query :user {:name "John"})` would get all users named "John".
   There's also `(entity/query-one)` which does what you'd expect.
@@ -148,7 +148,7 @@ A few examples:
                 {:user/name "Daniel"}])}
   ```
 
-- `:autoresolve?` - whether `to-json` should resolve references to entities with this entity type.
+- `:autoresolve?` - whether `serialize` should resolve references to entities with this entity type.
 
 - `:component?` - whether this entity type is meant to be used as a Datomic component. Important for search indexing: component entity types will not be indexed.
 

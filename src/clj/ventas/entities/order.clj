@@ -116,16 +116,16 @@
   :dependencies
   #{:address :user :amount}
 
-  :to-json
+  :serialize
   (fn [this params]
-    (-> ((entity/default-attr :to-json) this params)
+    (-> ((entity/default-attr :serialize) this params)
         (assoc :amount (get-amount this))))
 
-  :from-json
+  :deserialize
   (fn [this]
     (-> this
         (dissoc :amount)
-        ((entity/default-attr :from-json))))})
+        ((entity/default-attr :deserialize))))})
 
 (spec/def :order.line/product-variation
   (spec/with-gen ::entity/ref #(entity/ref-generator :product.variation)))

@@ -19,13 +19,13 @@
 
 (api/register-endpoint!
  :blog.post.create
- (fn [{:keys [params] :as message} state]
+ (fn [{:keys [params]} _]
    (entity/upsert :blog.post params)))
 
 (api/register-endpoint!
  :blog.list
- (fn [{:keys [params] :as message} {:keys [session]}]
-   (map #(entity/to-json % {:culture (api/get-culture session)})
+ (fn [_ {:keys [session]}]
+   (map (partial api/serialize-with-session session)
         (entity/query :blog.post))))
 
 (plugin/register!

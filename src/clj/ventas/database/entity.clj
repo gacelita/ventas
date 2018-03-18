@@ -22,7 +22,7 @@
 
 (spec/def ::entity-type
   (spec/keys :opt-un [::attributes
-                      ::to-json
+                      ::serialize
                       ::filter-seed
                       ::filter-create
                       ::filter-update
@@ -82,18 +82,18 @@
                   (kw default-type))]
     (apply type-fn entity args)))
 
-(defn to-json
+(defn serialize
   "Transforms an entity into a stripped map, suitable for sending to the outside"
   [entity & [options]]
   {:pre [(entity? entity)]}
-  (call-type-fn :to-json entity options))
+  (call-type-fn :serialize entity options))
 
-(defn from-json
+(defn deserialize
   [type data]
   (let [type-properties (type-properties type)
-        type-fn (if-let [f (:from-json type-properties)]
+        type-fn (if-let [f (:deserialize type-properties)]
                   f
-                  (:from-json default-type))]
+                  (:deserialize default-type))]
     (type-fn data)))
 
 (defn filter-seed [entity]
@@ -164,10 +164,10 @@
       (find)))
 
 (defn find-json
-  "Same as doing (to-json (find eid) params), which is a very common thing to do"
+  "Same as doing (serialize (find eid) params), which is a very common thing to do"
   [eid & [params]]
   (when-let [entity (find eid)]
-    (to-json entity params)))
+    (serialize entity params)))
 
 (defn transaction->entity
   "Returns an entity from a transaction"
@@ -270,7 +270,7 @@
 (defn- autoresolve-ref [ref & [options]]
   (let [subentity (-> ref find)]
     (if (and subentity (autoresolve? (db/type->kw (:schema/type subentity))))
-      (to-json subentity options)
+      (serialize subentity options)
       ref)))
 
 (defn- autoresolve
@@ -292,7 +292,7 @@
                            :else value))]))
          (into {}))))
 
-(defn default-to-json [entity & [{:keys [keep-type?] :as options}]]
+(defn default-serialize [entity & [{:keys [keep-type?] :as options}]]
   (let [result (-> (autoresolve entity options)
                    (utils/dequalify-keywords))]
     (if keep-type?
@@ -309,8 +309,8 @@
 (defn- unresolve [attrs]
   (common.utils/map-vals unresolve* attrs))
 
-(defn default-from-json
-  "Inverse of to-json"
+(defn default-deserialize
+  "Inverse of serialize"
   [attributes]
   {:pre [(map? attributes)]}
   (let [id (:id attributes)
@@ -325,8 +325,8 @@
 
 (def ^:private default-type
   {:attributes []
-   :to-json default-to-json
-   :from-json default-from-json
+   :serialize default-serialize
+   :deserialize default-deserialize
    :filter-seed identity
    :filter-create identity
    :filter-update (fn [entity data] data)

@@ -201,7 +201,7 @@ That will start Datomic and Elasticsearch.
   (register-endpoint!
     :products/get
     (fn [{:keys [params]} state]
-      (entity/to-json (entity/find (:id params)))))
+      (entity/serialize (entity/find (:id params)))))
   ```
 
 - Authentication is done with JWT tokens (provided by [buddy](https://github.com/funcool/buddy)).

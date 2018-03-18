@@ -5,10 +5,14 @@
    [clojure.spec.alpha :as spec]
    [expound.alpha :as expound])
   (:import
-   [java.io File]))
+   [java.io File]
+   [clojure.lang IAtom]))
 
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))
+
+(defn atom? [v]
+  (instance? IAtom v))
 
 (defmacro swallow [& body]
   `(try (do ~@body)

@@ -33,9 +33,9 @@
                         (with-redefs [category (entity/create* example-category)]
                           (%)))))
 
-(deftest normalization
-  (is (= "jpg" (get-in (entity/to-json category) [:image :extension])))
-  (is (not (:category/image (entity/from-json :category (entity/to-json category))))))
+(deftest serialization
+  (is (= "jpg" (get-in (entity/serialize category) [:image :extension])))
+  (is (not (:category/image (entity/deserialize :category (entity/serialize category))))))
 
 (deftest get-image
   (is (= "jpg" (:extension (sut/get-image category)))))

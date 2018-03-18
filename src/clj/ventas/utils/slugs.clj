@@ -12,7 +12,7 @@
 (defn- slugify-i18n* [i18n]
   {:pre [(entity/entity? i18n)]}
   (if (:db/id i18n)
-    (->> (entity/to-json i18n)
+    (->> (entity/serialize i18n)
          (common.utils/map-vals slug)
          (entities.i18n/get-i18n-entity))
     (update i18n

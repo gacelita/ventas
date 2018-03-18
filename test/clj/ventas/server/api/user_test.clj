@@ -52,7 +52,7 @@
 (deftest users-addresses
   (let [user (entity/create* (example-user))
         address (entity/create* (example-address (:user/email user)))]
-    (is (= [(entity/to-json address {:culture [:i18n.culture/keyword :en_US]})]
+    (is (= [(entity/serialize address {:culture [:i18n.culture/keyword :en_US]})]
            (-> (server.ws/call-handler-with-user :users.addresses
                                                  {}
                                                  user)
@@ -90,7 +90,7 @@
         product (entity/create* example-product)
         variation (entity/create :product.variation {:parent (:db/id product)
                                                      :terms #{}})
-        variation-json (entity/to-json variation {:culture [:i18n.culture/keyword :en_US]})]
+        variation-json (entity/serialize variation {:culture [:i18n.culture/keyword :en_US]})]
 
     (server.ws/call-handler-with-user :users.cart.add
                                       {:id (:db/id variation)}
@@ -142,7 +142,7 @@
         product (entity/create* example-product)
         variation (entity/create :product.variation {:parent (:db/id product)
                                                      :terms #{}})
-        variation-json (entity/to-json variation {:culture [:i18n.culture/keyword :en_US]})]
+        variation-json (entity/serialize variation {:culture [:i18n.culture/keyword :en_US]})]
 
     (server.ws/call-handler-with-user :users.favorites.add
                                       {:id (:db/id variation)}

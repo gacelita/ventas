@@ -101,7 +101,7 @@
                      :product/active])
     #(spec/gen ::product-for-generation)))
 
-(defn terms-to-json [terms]
+(defn serialize-terms [terms]
   (->> terms
        (common.utils/group-by-keyword :taxonomy)
        (map (fn [[taxonomy terms]]
@@ -195,11 +195,11 @@
   (fn [_ attrs]
     (utils.slugs/add-slug-to-entity attrs :product/name))
 
-  :to-json
+  :serialize
   (fn [this params]
-    (-> ((entity/default-attr :to-json) this params)
-        (update :terms terms-to-json)
-        (update :variation-terms terms-to-json)
+    (-> ((entity/default-attr :serialize) this params)
+        (update :terms serialize-terms)
+        (update :variation-terms serialize-terms)
         (update :images (fn [images]
                           (->> images
                                (map (fn [{:keys [file position]}]
@@ -244,7 +244,7 @@
   (spec/keys :req [:product.variation/parent
                    :product.variation/terms]))
 
-(defn- variation-to-json* [all-terms selected-terms params]
+(defn- serialize-variation* [all-terms selected-terms params]
   (let [selected-terms (->> selected-terms
                             (map #(entity/find-json % params))
                             (common.utils/group-by-keyword :taxonomy))]
@@ -274,18 +274,18 @@
   :seed-number 0
   :autoresolve? true
 
-  :to-json
+  :serialize
   (fn [this params]
     (let [product (entity/find (:product.variation/parent this))
           attrs (->> this
                      (filter (fn [[k v]]
                                (= (namespace k) "product")))
                      (into {}))
-          product-json (entity/to-json (merge product attrs) params)]
+          product-json (entity/serialize (merge product attrs) params)]
       (-> product-json
-          (assoc :variation (variation-to-json* (:variation-terms product-json)
-                                                (:product.variation/terms this)
-                                                params))
+          (assoc :variation (serialize-variation* (:variation-terms product-json)
+                                                  (:product.variation/terms this)
+                                                  params))
           (dissoc :variation-terms)
           (assoc :id (:db/id this)))))})
 

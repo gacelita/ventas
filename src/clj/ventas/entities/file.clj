@@ -85,13 +85,13 @@
 
   :autoresolve? true
 
-  :to-json
+  :serialize
   (fn [this params]
-    (-> ((entity/default-attr :to-json) this params)
+    (-> ((entity/default-attr :serialize) this params)
         (assoc :url (url this))))
 
-  :from-json
+  :deserialize
   (fn [this]
     (-> this
         (dissoc :url)
-        ((entity/default-attr :from-json))))})
+        ((entity/default-attr :deserialize))))})

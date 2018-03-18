@@ -98,10 +98,10 @@
 
 (api/register-endpoint!
  ::sliders.get
- (fn [{:keys [params] :as message} {:keys [session]}]
+ (fn [{:keys [params]} {:keys [session]}]
    (let [{:keys [keyword]} params]
      (if-let [slider (entity/find [:slider.slider/keyword keyword])]
-       (entity/to-json slider {:culture (api/get-culture session)})
+       (api/serialize-with-session session slider)
        (throw (Error. (str "Could not find slider with keyword: " keyword)))))))
 
 (plugin/register!

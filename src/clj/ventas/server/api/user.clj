@@ -27,7 +27,7 @@
  (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]
      (->> (entity/query :address {:user (:db/id user)})
-          (map #(entity/to-json % {:culture (api/get-culture session)}))))))
+          (map (partial api/serialize-with-session session))))))
 
 (register-user-endpoint!
  :users.addresses.save
@@ -51,7 +51,7 @@
  (fn [_ {:keys [session]}]
    (when-let [user (api/get-user session)]
      (let [cart (entities.user/get-cart user)]
-       (entity/to-json cart {:culture (api/get-culture session)})))))
+       (api/serialize-with-session session cart)))))
 
 (defn- find-order-line [order product-variation]
   (when-let [id (db/nice-query-attr

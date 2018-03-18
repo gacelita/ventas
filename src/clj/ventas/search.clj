@@ -195,7 +195,7 @@
 (defn- ref->es [{:schema/keys [type] :as entity}]
   (case type
     :schema.type/i18n
-    (->> (entity/to-json entity)
+    (->> (entity/serialize entity)
          (map (fn [[culture value]]
                 [(->> culture entity/find :i18n.culture/keyword)
                  value]))

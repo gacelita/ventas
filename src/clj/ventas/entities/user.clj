@@ -150,9 +150,9 @@
    (map #(hash-map :db/ident %) statuses)
    (map #(hash-map :db/ident %) roles))
 
-  :to-json
+  :serialize
   (fn [this params]
-    (-> ((entity/default-attr :to-json) this params)
+    (-> ((entity/default-attr :serialize) this params)
         (dissoc :password)
         (dissoc :favorites)
         (assoc :name (get-name (:db/id this)))))
