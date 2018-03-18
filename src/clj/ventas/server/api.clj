@@ -22,31 +22,11 @@
    [ventas.server.ws :as server.ws]
    [ventas.utils :as utils]
    [ventas.stats :as stats]
+   [ventas.i18n :refer [i18n]]
    [ventas.entities.configuration :as entities.configuration]
    [slingshot.slingshot :refer [throw+]]))
 
 (defonce available-requests (atom {}))
-
-(defn register-endpoint!
-  ([kw f]
-   (register-endpoint! kw {:binary? false} f))
-  ([kw opts f]
-   {:pre [(keyword? kw) (ifn? f) (map? opts)]}
-   (let [{:keys [binary? middlewares spec] :or {middlewares []}} opts]
-     (swap! available-requests assoc kw opts)
-     (cond
-       (not binary?)
-       (defmethod server.ws/handle-request kw [request state]
-         (when spec
-           (utils/check (data-spec/spec kw spec)
-                        (:params request)))
-         (:response (reduce (fn [acc middleware]
-                              (middleware acc))
-                            {:request request :state state :response (f request state)}
-                            middlewares)))
-       binary?
-       (defmethod server.ws/handle-binary-request kw [request state]
-         (f request state))))))
 
 (defn get-user [session]
   {:pre [(utils/atom? session)]}
@@ -64,6 +44,35 @@
 
 (defn serialize-with-session [session entity]
   (entity/serialize entity {:culture (get-culture session)}))
+
+(defn register-endpoint!
+  ([kw f]
+   (register-endpoint! kw {:binary? false} f))
+  ([kw opts f]
+   {:pre [(keyword? kw) (ifn? f) (map? opts)]}
+   (let [{:keys [binary? middlewares spec] :or {middlewares []}} opts]
+     (swap! available-requests assoc kw opts)
+     (cond
+       (not binary?)
+       (defmethod server.ws/handle-request kw [request state]
+         (when spec
+           (utils/check (data-spec/spec kw spec)
+                        (:params request)))
+         (try
+           (:response (reduce (fn [acc middleware]
+                                (middleware acc))
+                              {:request request :state state :response (f request state)}
+                              middlewares))
+           (catch Throwable e
+             (let [{:keys [type] :as data} (ex-data e)
+                   culture-kw (utils/swallow (:i18n.culture/keyword (entity/find (get-culture (:session state)))))]
+               (if-let [localized-message (when type
+                                            (i18n (or culture-kw :en_US) type data))]
+                 (throw+ (assoc data :message localized-message))
+                 (throw e))))))
+       binary?
+       (defmethod server.ws/handle-binary-request kw [request state]
+         (f request state))))))
 
 (spec/def ::keyword
   (spec-tools.core/create-spec

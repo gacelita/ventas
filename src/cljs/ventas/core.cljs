@@ -79,14 +79,15 @@
   (info "Rendering...")
   [page/main (routes/handler)])
 
-(defn- error-view [message]
+(defn- error-view [{:keys [message] :as error}]
   [:div#main
    [:div.root
     [:div.centered-segment-wrapper
      [:div.centered-segment
       [base/segment {:color "red"}
-       [:pre
-        (with-out-str (pprint/pprint message))]]]]]])
+       (if message
+         [:p message]
+         [:pre (with-out-str (pprint/pprint error))])]]]]])
 
 (defn app-element []
   (js/document.getElementById "app"))

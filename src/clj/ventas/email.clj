@@ -44,7 +44,7 @@
    [:div
     (logo-html)
     [:p
-     (i18n ::new-pending-order)]]))
+     (i18n :en_US ::new-pending-order)]]))
 
 (defn send-template!
   [template & [args]]

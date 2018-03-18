@@ -44,7 +44,8 @@
    (let [user (api/get-user session)
          address (entity/find id)]
      (when-not (= (:db/id user) (:address/user address))
-       (throw+ {:type ::unauthorized}))
+       (throw+ {:type ::entity-update-unauthorized
+                :entity-type :address}))
      (entity/delete id))))
 
 (register-user-endpoint!

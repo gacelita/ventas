@@ -4,5 +4,5 @@
    [ventas.i18n :as sut]))
 
 (deftest i18n
-  (is (= (sut/i18n ::sut/test-value)
+  (is (= (sut/i18n :en_US ::sut/test-value)
          "Test value")))
