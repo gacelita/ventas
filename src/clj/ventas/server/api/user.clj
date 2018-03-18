@@ -4,12 +4,13 @@
    [ventas.database.entity :as entity]
    [ventas.entities.user :as entities.user]
    [ventas.server.api :as api]
-   [ventas.server.pagination :as pagination]))
+   [ventas.server.pagination :as pagination]
+   [slingshot.slingshot :refer [throw+]]))
 
 (defn- user-check! [session]
   (let [{:db/keys [id]} (api/get-user session)]
     (when-not id
-      (throw (Exception. "This API request requires authentication")))))
+      (throw+ {:type ::authentication-required}))))
 
 (defn- register-user-endpoint!
   ([kw f]
@@ -43,7 +44,7 @@
    (let [user (api/get-user session)
          address (entity/find id)]
      (when-not (= (:db/id user) (:address/user address))
-       (throw (Exception. "Unauthorized")))
+       (throw+ {:type ::unauthorized}))
      (entity/delete id))))
 
 (register-user-endpoint!
@@ -111,7 +112,8 @@
        (let [cart (entities.user/get-cart user)]
          (entity/update* (assoc cart :discount (:db/id discount)))
          (entity/find-json (:db/id cart) {:culture (api/get-culture session)}))
-       (throw (Exception. "No discount found with the given code"))))))
+       (throw+ {:type ::discount-not-found
+                :code code})))))
 
 (register-user-endpoint!
  :users.favorites.enumerate

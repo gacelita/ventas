@@ -4,9 +4,9 @@
    [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.core.async.impl.protocols :as core.async.protocols]
    [taoensso.timbre :as timbre]
-   [ventas.common.utils :as common.utils]
    [ventas.database.entity :as entity]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [slingshot.slingshot :refer [throw+]]))
 
 (def ^:private shared-hub
   (atom nil))
@@ -23,14 +23,14 @@
     name))
 
 (defmethod handle-request :default [{:keys [name]} _]
-  (throw
-   (ex-info (str "The " name " API call is not implemented") {})))
+  (throw+ {:type ::api-call-not-found
+           :name name}))
 
 (defn- error-response [{:keys [id]} e]
   {:type :response
    :id id
    :success false
-   :data (or (.getMessage e) (str e))})
+   :data (or (ex-data e) (.getMessage e) (str e))})
 
 (defn call-request-handler [{:keys [id] :as message} & [state]]
   (try

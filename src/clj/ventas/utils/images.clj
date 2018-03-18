@@ -3,7 +3,8 @@
    [clojure.java.io :as io]
    [fivetonine.collage.core :as collage]
    [fivetonine.collage.util :as util]
-   [ventas.utils.files :as utils.files]))
+   [ventas.utils.files :as utils.files]
+   [slingshot.slingshot :refer [throw+]]))
 
 (defn- path-with-metadata [path options]
   (str (utils.files/basename path) "-" (hash options) "." (utils.files/extension path)))
@@ -85,7 +86,8 @@
 
 (defn- transform-image* [source-path target-path {:keys [quality progressive crop scale resize] :as options}]
   (when-not (.exists (io/file source-path))
-    (throw (Exception. (str "Source image does not exist: " source-path))))
+    (throw+ {:type ::file-not-found
+             :path source-path}))
   (-> (util/load-image source-path)
       (cond->
        crop (crop-image crop)
@@ -101,7 +103,8 @@
         target-path (str target-dir "/" (path-with-metadata source-path options))]
     (when (and (:scale options) (or (get-in options [:resize :width])
                                     (get-in options [:resize :height])))
-      (throw (Exception. "Setting both :scale and :width / :height does not compute.")))
+      (throw+ {:type ::inconsistent-parameters
+               :message "Setting both :scale and :width/:height is forbidden"}))
     (io/make-parents target-path)
     (if (.exists (io/file target-path))
       target-path

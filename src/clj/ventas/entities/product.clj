@@ -11,7 +11,8 @@
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
    [ventas.utils.slugs :as utils.slugs]
-   [clojure.test.check.generators :as gen]))
+   [clojure.test.check.generators :as gen]
+   [slingshot.slingshot :refer [throw+]]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -321,7 +322,8 @@
   [ref & [terms]]
   {:pre [(utils/check ::entity/ref ref)]}
   (when-not (entity/find ref)
-    (throw (Exception. (str "Product not found: " ref))))
+    (throw+ {:type ::not-found
+             :ref ref}))
   (let [terms (set terms)]
     (if (empty? terms)
       (if-let [default (entity/query-one :product.variation {:default? true

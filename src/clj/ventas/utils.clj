@@ -3,7 +3,8 @@
    [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
-   [expound.alpha :as expound])
+   [expound.alpha :as expound]
+   [slingshot.slingshot :refer [throw+]])
   (:import
    [java.io File]
    [clojure.lang IAtom]))
@@ -60,8 +61,8 @@
      Returns true when x is valid for spec. Throws an Error if validation fails."
   (if (apply spec/valid? args)
     true
-    (do
-      (throw (Exception. (with-out-str (apply expound/expound args)))))))
+    (throw+ {:type ::spec-invalid
+             :message (with-out-str (apply expound/expound args))})))
 
 (defn update-if-exists [thing kw update-fn]
   (if (get thing kw)
@@ -77,7 +78,8 @@
    **ClojureScript only**"
   [input]
   (if-not (:ns &env)
-    '(throw (Exception. "This macro is cljs-only."))
+    `(throw+ {:type ::unsupported-environment
+              :message "This macro is cljs-only"})
     (let [caller-ns (str (:name (:ns &env)))]
       `(~'keyword ~caller-ns ~input))))
 

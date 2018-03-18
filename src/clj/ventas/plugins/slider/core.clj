@@ -6,7 +6,8 @@
    [ventas.entities.file :as entities.file]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.plugin :as plugin]
-   [ventas.server.api :as api]))
+   [ventas.server.api :as api]
+   [slingshot.slingshot :refer [throw+]]))
 
 (spec/def :slider.slide/name ::entities.i18n/ref)
 
@@ -102,7 +103,8 @@
    (let [{:keys [keyword]} params]
      (if-let [slider (entity/find [:slider.slider/keyword keyword])]
        (api/serialize-with-session session slider)
-       (throw (Error. (str "Could not find slider with keyword: " keyword)))))))
+       (throw+ {:type ::slider-not-found
+                :keyword keyword})))))
 
 (plugin/register!
  :slider

@@ -1,6 +1,5 @@
 (ns ventas.database
   (:require
-   [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.spec.alpha :as spec]
    [clojure.string]
    [clojure.test.check.generators :as gen]
@@ -25,8 +24,9 @@
     (try
       (d/create-database url)
       (d/connect url)
-      (catch ExecutionException e
-        (throw (ex-info "Error connecting (database offline?)" {}))))))
+      (catch ExecutionException _
+        (throw+ {:type ::database-connection-error
+                 :message "Error connecting (database offline?)"})))))
 
 (defn stop-db! [db]
   (timbre/info "Stopping database"))
@@ -51,7 +51,9 @@
   (try
     @(apply d/transact db args)
     (catch Throwable e
-      (throw+ {:type ::transact-exception :message (.getMessage e) :args args}))))
+      (throw+ {:type ::transact-exception
+               :message (.getMessage e)
+               :args args}))))
 
 (defn history
   "history wrapper"

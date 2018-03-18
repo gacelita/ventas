@@ -6,7 +6,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
    [ventas.plugin :as plugin]
-   [ventas.theme :as theme]))
+   [ventas.theme :as theme]
+   [slingshot.slingshot :refer [throw+]]))
 
 (defn- create*
   "Wraps create* with the seed lifecycle functions"
@@ -51,10 +52,15 @@
   (doseq [type types]
     (let [dependencies (entity/dependencies type)]
       (when (contains? dependencies type)
-        (throw (Error. (str "The type " type " depends on itself"))))
+        (throw+ {:type ::self-dependency
+                 :entity-type type
+                 :message "An entity type cannot depend on itself"}))
       (doseq [dependency dependencies]
         (when-not (entity/type-exists? dependency)
-          (throw (Error. (str "The type " type " is depending on the type " dependency ", which does not exist"))))))))
+          (throw+ {:type ::unexisting-type
+                   :message "An entity type cannot depend on an unexisting entity type"
+                   :entity-type type
+                   :dependency dependency}))))))
 
 (defn get-sorted-types
   "Returns the types in dependency order"

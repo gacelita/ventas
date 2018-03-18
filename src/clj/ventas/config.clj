@@ -4,12 +4,12 @@
    [cprop.core :as cprop]
    [cprop.source]
    [mount.core :refer [defstate]]
-   [taoensso.timbre :as timbre]))
+   [taoensso.timbre :as timbre]
+   [ventas.utils :as utils]))
 
 (defn- load-config []
-  (let [custom-config (try
-                        (cprop.source/from-resource "config.edn")
-                        (catch Throwable _))]
+  (let [custom-config (utils/swallow
+                        (cprop.source/from-resource "config.edn"))]
     (apply cprop/load-config
            :resource "default-config.edn"
            (when custom-config

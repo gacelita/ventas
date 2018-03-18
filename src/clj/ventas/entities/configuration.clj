@@ -6,7 +6,8 @@
    [ventas.database.generators :as generators]
    [ventas.utils :as utils]
    [clojure.set :as set]
-   [ventas.database :as db]))
+   [ventas.database :as db]
+   [slingshot.slingshot :refer [throw+]]))
 
 (spec/def :configuration/keyword ::generators/keyword)
 (spec/def :configuration/value ::generators/string)
@@ -45,7 +46,8 @@
       (when (and (seq allowed-user-roles)
                  (not (set/subset? (set (:user/roles user))
                                    (set allowed-user-roles))))
-        (throw (Exception. (str "Access denied to configuration key " key))))
+        (throw+ {:type ::access-denied
+                 :key key}))
       (utils/swallow
        (read-string value)))))
 

@@ -12,12 +12,13 @@
    [ventas.stats :as stats]
    [kinsky.client :as kafka]
    [ventas.entities.configuration :as entities.configuration]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [slingshot.slingshot :refer [throw+]]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
     (when-not (contains? roles :user.role/administrator)
-      (throw (Exception. "This API request requires administration privileges")))))
+      (throw+ {:type ::unauthorized}))))
 
 (defn- register-admin-endpoint!
   ([kw f]
@@ -164,7 +165,8 @@
 
 (defn- check-kafka! []
   (when-not (stats/enabled?)
-    (throw (Exception. "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."))))
+    (throw+ {:type ::kafka-disabled
+             :message "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."})))
 
 (register-admin-endpoint!
  :admin.stats.realtime

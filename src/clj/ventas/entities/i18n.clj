@@ -6,7 +6,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [slingshot.slingshot :refer [throw+]]))
 
 (spec/def :i18n.culture/keyword ::generators/keyword)
 
@@ -111,7 +112,8 @@
       (when (->> entities
                  (map :i18n.translation/culture)
                  (utils/has-duplicates?))
-        (throw (Error. "You can't add more than one translation per culture to an :i18n entity")))))
+        (throw+ {:type ::duplicate-translation
+                 :message "You can't add more than one translation per culture to an :i18n entity"}))))
 
   :serialize
   (fn [this {:keys [culture]}]

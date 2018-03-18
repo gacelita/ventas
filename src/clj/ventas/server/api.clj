@@ -22,7 +22,8 @@
    [ventas.server.ws :as server.ws]
    [ventas.utils :as utils]
    [ventas.stats :as stats]
-   [ventas.entities.configuration :as entities.configuration]))
+   [ventas.entities.configuration :as entities.configuration]
+   [slingshot.slingshot :refer [throw+]]))
 
 (defonce available-requests (atom {}))
 
@@ -96,7 +97,8 @@
                  (string? ref) (entity/resolve-by-slug ref)
                  (db/lookup-ref? ref) (:db/id (db/entity ref)))]
     (when-not result
-      (throw (Exception. (str "Invalid ref: " ref))))
+      (throw+ {:type ::invalid-ref
+               :ref ref}))
     result))
 
 (register-endpoint!
@@ -105,7 +107,8 @@
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [category (entity/find (resolve-ref id :category/keyword))]
      (when-not category
-       (throw (Exception. "Category not found")))
+       (throw+ {:type ::category-not-found
+                :category id}))
      (serialize-with-session session category))))
 
 (register-endpoint!
@@ -126,7 +129,8 @@
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [entity (entity/find (resolve-ref id))]
      (when-not entity
-       (throw (Exception. (str "Unable to find entity: " id))))
+       (throw+ {:type ::entity-not-found
+                :entity id}))
      (serialize-with-session session entity))))
 
 (register-endpoint!
@@ -251,9 +255,11 @@
  (fn [{{:keys [email password]} :params} {:keys [session]}]
    (let [user (entity/query-one :user {:email email})]
      (when-not user
-       (throw (Exception. "User not found")))
+       (throw+ {:type ::user-not-found
+                :email email}))
      (when-not (hashers/check password (:user/password user))
-       (throw (Exception. "Invalid credentials")))
+       (throw+ {:type ::invalid-credentials
+                :email email}))
      (let [token (auth/user->token user)]
        (set-user session user)
        {:user (entity/serialize user)

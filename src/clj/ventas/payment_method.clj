@@ -16,7 +16,8 @@
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [slingshot.slingshot :refer [throw+]]))
 
 ;; Used only in the backoffice
 (spec/def ::name ::entities.i18n/ref)
@@ -44,5 +45,6 @@
   {:pre [(:order/payment-method order) (entity/entity? order)]}
   (let [method (payment-method (:order/payment-method order))]
     (when-not method
-      (throw (Exception. (str "The " method " payment method does not exist"))))
+      (throw+ {:type ::payment-method-not-found
+               :method method}))
     ((:pay-fn method) order)))

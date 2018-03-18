@@ -4,7 +4,8 @@
    [clojure.core.async :refer [go-loop <!]]
    [ventas.database.schema :as schema]
    [ventas.utils :as utils]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [slingshot.slingshot :refer [throw+]]))
 
 (spec/def ::name string?)
 
@@ -49,7 +50,8 @@
 (defn check! [kw]
   {:pre [(keyword? kw)]}
   (if-not (plugin kw)
-    (throw (Exception. (str "The plugin " kw " is not registered")))
+    (throw+ {:type ::plugin-not-found
+             :keyword kw})
     true))
 
 (defn fixtures [kw]

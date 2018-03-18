@@ -10,7 +10,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.category :as entities.category]
-   [ventas.utils :as utils])
+   [ventas.utils :as utils]
+   [slingshot.slingshot :refer [throw+]])
   (:import [clojure.lang ExceptionInfo]))
 
 (defstate elasticsearch
@@ -126,7 +127,8 @@
     (catch Throwable e
       (let [message (get-in (ex-data e) [:body :error])]
         (taoensso.timbre/error message)
-        (throw (Exception. (str "Elasticsearch error: " message)))))))
+        (throw+ {:type ::elasticsearch-error
+                 :error message})))))
 
 (defn- ident->property [ident]
   {:pre [(keyword? ident)]}
@@ -244,9 +246,8 @@
 (defn reindex
   "Indexes everything"
   []
-  (try
-    (remove-index)
-    (catch Throwable e))
+  (utils/swallow
+   (remove-index))
   (setup)
   (let [types (indexable-types)]
     (doseq [type types]
