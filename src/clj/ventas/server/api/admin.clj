@@ -37,7 +37,7 @@
   :doc "Returns a serialized entity. Should be used for read-only access to
         entity data."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
-   (api/find-serialize-with-session id session)))
+   (api/find-serialize-with-session session id)))
 
 (register-admin-endpoint!
  :admin.entities.pull

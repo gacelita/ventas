@@ -29,7 +29,7 @@
 (defonce available-requests (atom {}))
 
 (defn get-user [session]
-  {:pre [(utils/atom? session)]}
+  {:pre [(or (not session) (utils/atom? session))]}
   (when session
     (when-let [user (:user @session)]
       (entity/find user))))

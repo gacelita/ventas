@@ -77,7 +77,7 @@
                                         :order.line/product-variation id
                                         :order.line/quantity 1}}
                          :append? true))
-       (api/find-serialize-with-session (:db/id cart) session)))))
+       (api/find-serialize-with-session session (:db/id cart))))))
 
 (register-user-endpoint!
  :users.cart.remove
@@ -87,7 +87,7 @@
      (let [cart (entities.user/get-cart user)]
        (when-let [line (find-order-line (:db/id cart) id)]
          (entity/delete (:db/id line)))
-       (api/find-serialize-with-session (:db/id cart) session)))))
+       (api/find-serialize-with-session session (:db/id cart))))))
 
 (register-user-endpoint!
  :users.cart.set-quantity
@@ -102,7 +102,7 @@
                           :order/lines {:schema/type :schema.type/order.line
                                         :order.line/product-variation id
                                         :order.line/quantity quantity}}))
-       (api/find-serialize-with-session (:db/id cart) session)))))
+       (api/find-serialize-with-session session (:db/id cart))))))
 
 (register-user-endpoint!
  :users.cart.add-discount
@@ -112,7 +112,7 @@
      (if-let [discount (entity/query-one :discount {:code code})]
        (let [cart (entities.user/get-cart user)]
          (entity/update* (assoc cart :discount (:db/id discount)))
-         (api/find-serialize-with-session (:db/id cart) session))
+         (api/find-serialize-with-session session (:db/id cart)))
        (throw+ {:type ::discount-not-found
                 :code code})))))
 
