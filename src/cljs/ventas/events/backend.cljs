@@ -83,9 +83,14 @@
    {:ws-request (merge {:name :users.cart.set-quantity} options)}))
 
 (rf/reg-event-fx
+ ::users.save
+ (fn [_ [_ options]]
+   {:ws-request (merge {:name :users.save} options)}))
+
+(rf/reg-event-fx
  ::admin.configuration.set
  (fn [_ [_ options]]
-    {:ws-request (merge {:name :admin.configuration.set} options)}))
+   {:ws-request (merge {:name :admin.configuration.set} options)}))
 
 (rf/reg-event-fx
  ::admin.users.list
@@ -95,7 +100,7 @@
 (rf/reg-event-fx
  ::admin.search
  (fn [_ [_ options]]
-    {:ws-request (merge {:name :admin.search} options)}))
+   {:ws-request (merge {:name :admin.search} options)}))
 
 (rf/reg-event-fx
  ::admin.stats.realtime
@@ -145,7 +150,7 @@
 (rf/reg-event-fx
  ::users.favorites.list
  (fn [_ [_ options]]
-    {:ws-request (merge {:name :users.favorites.list} options)}))
+   {:ws-request (merge {:name :users.favorites.list} options)}))
 
 (rf/reg-event-fx
  ::users.favorites.add
@@ -168,6 +173,11 @@
    {:ws-request (merge {:name :states.list} options)}))
 
 (rf/reg-event-fx
+ ::countries.list
+ (fn [_ [_ options]]
+   {:ws-request (merge {:name :countries.list} options)}))
+
+(rf/reg-event-fx
  ::admin.events.list
  (fn [_ [_ options]]
    {:ws-request (merge {:name :admin.events.list} options)}))
@@ -175,7 +185,7 @@
 (rf/reg-event-fx
  ::admin.entities.remove
  (fn [_ [_ options]]
-    {:ws-request (merge {:name :admin.entities.remove} options)}))
+   {:ws-request (merge {:name :admin.entities.remove} options)}))
 
 (rf/reg-event-fx
  ::admin.entities.find
@@ -195,12 +205,12 @@
 (rf/reg-event-fx
  ::admin.entities.save
  (fn [_ [_ options]]
-    {:ws-request (merge {:name :admin.entities.save} options)}))
+   {:ws-request (merge {:name :admin.entities.save} options)}))
 
 (rf/reg-event-fx
  ::admin.entities.list
  (fn [_ [_ options]]
-    {:ws-request (merge {:name :admin.entities.list} options)}))
+   {:ws-request (merge {:name :admin.entities.list} options)}))
 
 (rf/reg-event-fx
  ::admin.i18ns.find
