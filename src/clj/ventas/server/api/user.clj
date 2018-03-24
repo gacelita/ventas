@@ -38,6 +38,12 @@
                                     {:user (:db/id user)})))))
 
 (register-user-endpoint!
+ :users.save
+ (fn [{user :params} {:keys [session]}]
+   (entity/update (merge {:id (:db/id (api/get-user session))}
+                         (select-keys user #{:first-name :last-name :company :email :phone})))))
+
+(register-user-endpoint!
  :users.addresses.remove
  {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
