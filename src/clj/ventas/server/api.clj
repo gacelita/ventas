@@ -227,12 +227,19 @@
       :taxonomies (search.products/aggregate (:categories filters) culture)})))
 
 (register-endpoint!
- :states.list
- {:middlewares [pagination/wrap-paginate]
-  :spec {:country ::ref}}
- (fn [{{:keys [country]} :params} {:keys [session]}]
-   (->> (entity/query :state {:country (resolve-ref country :country/keyword)})
-        (map (partial serialize-with-session session)))))
+  :states.list
+  {:middlewares [pagination/wrap-paginate]
+   :spec {:country ::ref}}
+  (fn [{{:keys [country]} :params} {:keys [session]}]
+    (->> (entity/query :state {:country (resolve-ref country :country/keyword)})
+         (map (partial serialize-with-session session))
+         (map #(dissoc % :country)))))
+
+(register-endpoint!
+  :countries.list
+  (fn [_ {:keys [session]}]
+    (->> (entity/query :country)
+         (map (partial serialize-with-session session)))))
 
 (defn- create-unregistered-user
   "Unauthenticated users can be able to add favorite products and create
