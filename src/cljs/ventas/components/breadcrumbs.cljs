@@ -2,13 +2,14 @@
   (:require
    [ventas.components.base :as base]
    [ventas.routes :as routes]
-   [ventas.utils :as util]))
+   [ventas.utils :as util]
+   [ventas-bidi-syntax.core :as bidi-syntax]))
 
 (defn- breadcrumb-data [handler params]
   (map (fn [route] {:url (apply routes/path-for route (first (seq params)))
                     :name (routes/route-name route params)
                     :route route})
-       (conj (routes/route-parents handler)
+       (conj (bidi-syntax/route-parents handler)
              handler)))
 
 (defn breadcrumb-view [handler params]

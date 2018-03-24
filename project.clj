@@ -104,6 +104,7 @@
 
                  ;; Routing
                  [bidi "2.1.3"]
+                 [joelsanchez/ventas-bidi-syntax "0.1.2"]
                  [venantius/accountant "0.2.3"]
 
                  ;; HTML templating
