@@ -33,6 +33,9 @@
 
 (defstate db :start (start-db!) :stop (stop-db! db))
 
+(defn connected? []
+  (instance? Connection db))
+
 (defn q
   "q wrapper"
   ([query]

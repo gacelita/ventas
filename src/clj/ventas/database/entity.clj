@@ -43,7 +43,7 @@
   (keyword (name type)))
 
 (defn db-migrated? []
-  (boolean (db/entity :schema/type)))
+  (and (db/connected?) (db/entity :schema/type)))
 
 (defn check-db-migrated!
   "Throws if (not (db-migrated?))"
