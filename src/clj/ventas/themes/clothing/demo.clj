@@ -1,7 +1,6 @@
 (ns ventas.themes.clothing.demo
   "Demo data"
   (:require
-   [ventas.database.entity :as entity]
    [ventas.entities.i18n :as entities.i18n]))
 
 (defn product-terms []
@@ -703,7 +702,7 @@
          :address/address-second-line "5º A"
          :address/zip "67943"
          :address/city "Test City"
-         :address/country (-> (entity/query :country) first :db/id)
+         :address/country [:country/keyword :test]
          :address/state [:state/keyword :test]
          :address/user [:user/email "test@test.com"]}]))
 
