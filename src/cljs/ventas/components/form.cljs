@@ -2,23 +2,26 @@
   "Form stuff"
   (:require
    [re-frame.core :as rf]
-   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [cljs.reader :as reader]
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
-   [ventas.components.amount-input :as amount-input]))
+   [ventas.components.amount-input :as amount-input]
+   [ventas.utils.validation :as validation]
+   [reagent.core :as reagent]
+   [clojure.string :as str]))
 
 (rf/reg-event-db
  ::set-field
  (fn [db [_ db-path field value]]
    {:pre [(vector? db-path)]}
-   (let [field (if-not (sequential? field)
-                 [field]
-                 field)]
-     (assoc-in db
-               (concat db-path [:form] field)
-               value))))
+   (let [form-field (if-not (sequential? field) [field] field)
+         validators (get-in db (concat db-path [:form-state :validators]))]
+     (-> db
+         (assoc-in (concat db-path [:form] form-field)
+                   value)
+         (assoc-in (concat db-path [:form-state :validation] form-field)
+                   (:infractions (validation/validate validators field value)))))))
 
 (rf/reg-event-fx
  ::update-field
@@ -32,32 +35,60 @@
 
 (rf/reg-event-db
  ::populate
- (fn [db [_ db-path data]]
-   {:pre [(vector? db-path)]}
-   (-> db
-       (assoc-in (conj db-path :form) data)
-       (assoc-in (conj db-path :form-hash) (hash data)))))
+ (fn [db [_ {:keys [validators db-path] :as db-path-or-config} data]]
+   {:pre [(or (vector? db-path-or-config) (map? db-path-or-config))]}
+   (let [db-path (if (map? db-path-or-config)
+                   db-path
+                   db-path-or-config)]
+     (-> db
+         (assoc-in (conj db-path :form) data)
+         (assoc-in (conj db-path :form-state) {:validators validators
+                                               :validation {}
+                                               :hash (hash data)})))))
 
 (rf/reg-sub
  ::data
  (fn [db [_ db-path]]
    (get-in db (conj db-path :form))))
 
-(defn form [db-path content]
-  (let [form @(rf/subscribe [::events/db (conj db-path :form)])
-        form-hash @(rf/subscribe [::events/db (conj db-path :form-hash)])]
-    (with-meta content {:key form-hash})))
+(rf/reg-sub
+ ::state
+ (fn [db [_ db-path]]
+   (get-in db (conj db-path :form-state))))
 
-(def ^:private known-keys #{:value :type :db-path :key :label})
+(rf/reg-sub
+ ::validation
+ (fn [db [_ db-path key]]
+   (get-in db (concat db-path [:form-state :validation key]))))
+
+(rf/reg-sub
+ ::valid?
+ (fn [[_ db-path]]
+   (rf/subscribe [::state db-path]))
+ (fn [{:keys [validation]}]
+   (empty? (apply concat (vals validation)))))
+
+(defn form [db-path content]
+  (let [{:keys [hash]} @(rf/subscribe [::state db-path])]
+    (with-meta content {:key hash})))
+
+(def ^:private known-keys #{:value :type :db-path :key :label :width :inline-label :on-change-fx})
 
 (defmulti input (fn [{:keys [type]}] type) :default :default)
 
-(defmethod input :toggle [{:keys [value db-path key] :as args}]
+(defn- checkbox [{:keys [value toggle db-path key inline-label] :as args}]
   [base/checkbox
    (merge (apply dissoc args known-keys)
-          {:toggle true
+          {:toggle toggle
            :checked (or value false)
+           :label inline-label
            :on-change #(rf/dispatch [::set-field db-path key (aget %2 "checked")])})])
+
+(defmethod input :toggle [args]
+  (checkbox (assoc args :toggle true)))
+
+(defmethod input :checkbox [args]
+  (checkbox args))
 
 (defmethod input :radio [{current-value :value :keys [db-path key options] :as args}]
   [:div
@@ -97,13 +128,16 @@
                   :on-change #(rf/dispatch [::set-field db-path key (reader/read-string (.-value %2))])
                   :on-search-change on-search-change}])
 
-(defmethod input :combobox [{:keys [value db-path key options] :as args}]
+(defmethod input :combobox [{:keys [value db-path key options on-change-fx] :as args}]
   [base/dropdown
    (merge (apply dissoc args known-keys)
           {:fluid true
            :selection true
            :default-value (if value (pr-str value) "")
-           :on-change #(rf/dispatch [::set-field db-path key (reader/read-string (.-value %2))])
+           :on-change #(let [new-value (reader/read-string (.-value %2))]
+                         (rf/dispatch [::set-field db-path key new-value])
+                         (when on-change-fx
+                           (rf/dispatch (conj on-change-fx new-value))))
            :options (map (fn [{:keys [text value]}]
                            {:text text
                             :value (pr-str value)})
@@ -132,7 +166,7 @@
                                     (out)
                                     (set))]))}])
 
-(defmethod input :amount [{:keys [value db-path key] :as args}]
+(defmethod input :amount [{:keys [value db-path key]}]
   [amount-input/input
    {:amount value
     :on-change #(rf/dispatch [::set-field db-path key %])}])
@@ -142,18 +176,33 @@
     (= type :number) (js/parseInt value 10)
     :else value))
 
-(defmethod input :default [{:keys [value db-path key type] :as args}]
-  [base/form-input
-   (merge (apply dissoc args known-keys)
-          {:default-value (or value "")
-           :type (or type :text)
-           :on-change #(rf/dispatch [::set-field db-path key (parse-value type (-> % .-target .-value))])})])
+(defmethod input :default [{:keys [value db-path key type inline-label] :as args}]
+  (let [infractions @(rf/subscribe [::validation db-path key])]
+    [base/input
+     {:label inline-label
+      :icon true}
+     [:input (merge (apply dissoc args known-keys)
+                    {:default-value (or value "")
+                     :type (or type :text)
+                     :on-change #(rf/dispatch [::set-field db-path key (parse-value type (-> % .-target .-value))])})]
+     (when (seq infractions)
+       [base/popup
+        {:content (->> infractions
+                       (map #(apply i18n %))
+                       (str/join "\n"))
+         :trigger (reagent/as-element
+                   [base/icon {:class "link"
+                               :name "warning sign"}])}])]))
 
-(defn field [{:keys [db-path key label] :as args}]
-  [base/form-field
-   [:label label]
-   [input
-    (merge args
-           {:value (get-in @(rf/subscribe [::data db-path]) (if (sequential? key)
-                                                              key
-                                                              [key]))})]])
+(defn field [{:keys [db-path key label inline-label width] :as args}]
+  (let [infractions @(rf/subscribe [::validation db-path key])]
+    [base/form-field
+     {:width width
+      :error (and (some? infractions) (seq infractions))}
+     (when-not inline-label
+       [:label label])
+     [input
+      (merge args
+             {:value (get-in @(rf/subscribe [::data db-path]) (if (sequential? key)
+                                                                key
+                                                                [key]))})]]))
