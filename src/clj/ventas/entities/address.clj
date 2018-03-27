@@ -18,6 +18,8 @@
 
 (spec/def :address/city ::generators/string)
 
+(spec/def :address/phone ::generators/string)
+
 (spec/def :address/country
   (spec/with-gen ::entity/ref
     #(entity/ref-generator :country)))
@@ -40,7 +42,8 @@
                    :address/state
                    :address/user]
              :opt [:address/company
-                   :address/address-second-line]))
+                   :address/address-second-line
+                   :address/phone]))
 
 (entity/register-type!
  :address
@@ -54,6 +57,10 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :address/company
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident :address/phone
     :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one}
 
