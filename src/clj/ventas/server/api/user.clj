@@ -34,8 +34,9 @@
  :users.addresses.save
  (fn [{address :params} {:keys [session]}]
    (let [user (api/get-user session)]
-     (entity/upsert :address (merge address
-                                    {:user (:db/id user)})))))
+     (->> (entity/upsert :address (merge address
+                                         {:user (:db/id user)}))
+          (api/serialize-with-session session)))))
 
 (register-user-endpoint!
  :users.save
