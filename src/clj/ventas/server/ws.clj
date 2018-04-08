@@ -6,7 +6,10 @@
    [taoensso.timbre :as timbre]
    [ventas.database.entity :as entity]
    [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+]]))
+   [slingshot.slingshot :refer [throw+]]
+   [cognitect.transit :as transit])
+  (:import [java.io ByteArrayInputStream]
+           [com.cognitect.transit ReadHandler]))
 
 (def ^:private shared-hub
   (atom nil))
@@ -30,7 +33,9 @@
   {:type :response
    :id id
    :success false
-   :data (or (ex-data e) (.getMessage e) (str e))})
+   :data (or (ex-data e)
+             (utils/swallow (.getMessage e))
+             (str e))})
 
 (defn call-request-handler [{:keys [id] :as message} & [state]]
   (try
@@ -52,13 +57,30 @@
         (recur)))
     (core.async/put! channel message)))
 
-(defn handle-message [{:keys [type] :as message} {:keys [channel] :as state}]
-  (case type
-    :event (-> (handle-event message state)
-               (send-message channel))
-    :request (-> (call-request-handler message state)
+(defn- safe-transit-handlers []
+  (zipmap ["f"]
+          (repeat (reify ReadHandler
+                    (fromRep [_ o] o)))))
+
+(defn safely-transit-read [s]
+  (-> (ByteArrayInputStream. (.getBytes s))
+      (transit/reader
+       :json
+       {:handlers (safe-transit-handlers)})
+      transit/read))
+
+(defn handle-message [{{:keys [type] :as message} :message :as payload} {:keys [channel] :as state}]
+  (if (:error payload)
+    (do
+      (timbre/error payload)
+      (-> (error-response (safely-transit-read (:invalid-msg payload)) payload)
+          (send-message channel)))
+    (case type
+      :event (-> (handle-event message state)
                  (send-message channel))
-    (timbre/debug "Unhandled message: " message)))
+      :request (-> (call-request-handler message state)
+                   (send-message channel))
+      (timbre/debug "Unhandled message: " message))))
 
 (defn get-shared-channel []
   (let [ch (chan)]
@@ -87,7 +109,7 @@
       (if-let [message (<! ws-channel)]
         (do
           (handle-message
-           (:message message)
+           message
            {:client-id client-id
             :session session
             :channel output-channel
