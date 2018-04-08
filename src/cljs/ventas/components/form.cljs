@@ -46,15 +46,21 @@
                                                :validation {}
                                                :hash (hash data)})))))
 
+(defn get-data [db db-path]
+  (get-in db (conj db-path :form)))
+
 (rf/reg-sub
  ::data
  (fn [db [_ db-path]]
-   (get-in db (conj db-path :form))))
+   (get-data db db-path)))
+
+(defn get-state [db db-path]
+  (get-in db (conj db-path :form-state)))
 
 (rf/reg-sub
  ::state
  (fn [db [_ db-path]]
-   (get-in db (conj db-path :form-state))))
+   (get-state db db-path)))
 
 (rf/reg-sub
  ::validation
