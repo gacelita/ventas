@@ -18,6 +18,7 @@
    [base/container
     [:div.checkout-page
      [:h2 (i18n ::checkout)]
+     [:h3 (i18n ::contact-information)]
      [:div.checkout-page__content
       [:div.checkout-page__payment-methods
        (doall

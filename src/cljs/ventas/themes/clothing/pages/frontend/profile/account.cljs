@@ -2,83 +2,96 @@
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent]
-   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
+   [ventas.events.backend :as backend]
+   [ventas.components.notificator :as notificator]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.session :as session]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
-   [ventas.utils :as utils :include-macros true]
-   [ventas.utils.forms :as forms]
-   [ventas.utils.validation :as validation]))
+   [ventas.utils.validation :as validation]
+   [ventas.components.form :as form]
+   [ventas.utils.ui :as utils.ui])
+  (:require-macros
+   [ventas.utils :refer [ns-kw]]))
+
+(def state-key ::state)
 
 (def regular-length-validator [::length-error validation/length-validator {:max 30}])
 
 (def form-config
-  {::forms/state-key ::state-key
-   ::forms/validators {::first-name [regular-length-validator]
-                       ::last-name [regular-length-validator]
-                       ::company [regular-length-validator]
-                       ::address [regular-length-validator]
-                       ::address-second-line [regular-length-validator]
-                       ::zip-code [[::length-error validation/length-validator {:max 10}]]
-                       ::city [regular-length-validator]
-                       ::state [regular-length-validator]
-                       ::email [[::email-error validation/email-validator]]
-                       ::phone [regular-length-validator]
-                       ::privacy-policy [[::required-error validation/required-validator]]}})
+  {:state-key ::state-key
+   :validators {::first-name [regular-length-validator]
+                ::last-name [regular-length-validator]
+                ::company [regular-length-validator]
+                ::email [[::email-error validation/email-validator]]
+                ::phone [regular-length-validator]
+                ::privacy-policy [[::required-error validation/required-validator]]}})
+
+(defn- field [{:keys [key inline-label] :as args}]
+  [form/field (merge args
+                     {:db-path [state-key]
+                      :label (when-not inline-label
+                               (i18n (ns-kw (if (sequential? key)
+                                              (first key)
+                                              key))))})])
 
 (rf/reg-event-fx
- ::save
- (fn [cofx [_]]))
+ ::submit
+ (fn [{:keys [db]} _]
+   {:dispatch [::backend/users.save
+               {:params (get-in db [state-key :form])
+                :success ::submit.next}]}))
 
-(defn- content [identity]
-  (rf/dispatch [::forms/populate form-config (common.utils/map-keys #(utils/ns-kw %) identity)])
-  ^{:key (forms/get-key form-config)}
-  [base/segment
-   [base/form
+(rf/reg-event-fx
+ ::submit.next
+ (fn [_ _]
+   {:dispatch-n [[::notificator/notify-saved]
+                 [::cancel-edition]]}))
 
-    [base/form-group
-     [base/form-field {:width 5}
-      [forms/text-input form-config ::first-name]]
+(defn content []
+  [form/form [state-key]
+   [base/segment
+    [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-     [base/form-field {:width 11}
-      [forms/text-input form-config ::last-name]]]
+     [base/form-group
+      [field {:key :first-name
+              :width 5}]
+      [field {:key :last-name
+              :width 11}]]
 
-    [base/form-group
-     [base/form-field {:width 16}
-      [forms/text-input form-config ::company]]] [base/form-group
-                                                  [base/form-field {:width 8}
-                                                   [forms/text-input form-config ::email]]
+     [base/form-group
+      [field {:key :company
+              :width 16}]]
 
-                                                  [base/form-field {:width 8}
-                                                   [forms/text-input form-config ::phone]]]
+     [base/form-group
+      [field {:key :email
+              :width 8}]
+      [field {:key :phone
+              :width 8}]]
 
-    [base/form-group
-     (let [field ::privacy-policy
-           {:keys [valid? value infractions]} (forms/get-field form-config field)]
-       [base/form-field {:control "checkbox"
-                         :error (and (not (nil? valid?)) (not valid?))}
-        [base/checkbox
-         {:label (reagent/as-element
-                  [:label (str (i18n ::privacy-policy-text) " ")
-                   [:a {:href #(routes/path-for :frontend.privacy-policy)}
-                    (i18n field)]])
-          :on-change #(rf/dispatch [::forms/set-field form-config field (get (js->clj %2) "checked")])}]])]
+     [base/form-group
+      [field {:key :privacy-policy
+              :type :checkbox
+              :inline-label (reagent/as-element
+                             [:label (str (i18n ::privacy-policy-text) " ")
+                              [:a {:href (routes/path-for :frontend.privacy-policy)}
+                               (i18n ::privacy-policy)]])}]]
 
-    [base/button {:type "button"
-                  :on-click #(rf/dispatch [::save])}
-     (i18n ::save)]]])
+     [base/form-button {:type "submit"}
+      (i18n ::submit)]]]])
 
 (defn page []
   [profile.skeleton/skeleton
-   [content (session/get-identity)]])
+   [content]])
 
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch [::session/require-identity]}))
+   (let [identity (session/get-identity)]
+     {:dispatch-n [[::session/require-identity]
+                   [::form/populate [state-key] identity]]})))
 
 (routes/define-route!
   :frontend.profile.account

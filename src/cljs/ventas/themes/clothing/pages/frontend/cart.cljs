@@ -11,7 +11,8 @@
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.utils :as utils]
    [ventas.utils.formatting :as utils.formatting]
-   [ventas.components.error :as error]))
+   [ventas.components.error :as error]
+   [ventas.common.utils :as common.utils]))
 
 (rf/reg-event-fx
  ::add-voucher
@@ -38,7 +39,7 @@
  (fn [{:keys [lines]}]
    (reduce +
            (map #(* (:quantity %)
-                    (get-in % [:product-variation :price :value]))
+                    (common.utils/bigdec->str (get-in % [:product-variation :price :value])))
                 lines))))
 
 (rf/reg-sub

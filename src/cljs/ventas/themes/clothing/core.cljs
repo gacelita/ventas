@@ -85,6 +85,7 @@
 
    :ventas.themes.clothing.pages.frontend.checkout/checkout "Checkout"
    :ventas.themes.clothing.pages.frontend.checkout/page "Checkout"
+   :ventas.themes.clothing.pages.frontend.checkout/contact-information "Contact information"
 
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"
@@ -127,15 +128,16 @@
    :ventas.themes.clothing.pages.frontend.profile.account/privacy-policy-text "I've read and I accept the"
    :ventas.themes.clothing.pages.frontend.profile.account/privacy-policy "privacy policy"
    :ventas.themes.clothing.pages.frontend.profile.account/page "My account"
-   :ventas.themes.clothing.pages.frontend.profile.account/save "Save"
+   :ventas.themes.clothing.pages.frontend.profile.account/submit "Save"
    :ventas.themes.clothing.pages.frontend.profile.account/phone "Phone"
 
    :ventas.themes.clothing.pages.frontend.profile.addresses/address "Address"
    :ventas.themes.clothing.pages.frontend.profile.addresses/address-second-line "Address (second line)"
    :ventas.themes.clothing.pages.frontend.profile.addresses/city "City"
    :ventas.themes.clothing.pages.frontend.profile.addresses/state "State"
+   :ventas.themes.clothing.pages.frontend.profile.addresses/country "Country"
    :ventas.themes.clothing.pages.frontend.profile.addresses/phone "Phone"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/zip-code "ZIP code"
+   :ventas.themes.clothing.pages.frontend.profile.addresses/zip "ZIP code"
    :ventas.themes.clothing.pages.frontend.profile.addresses/first-name "First name"
    :ventas.themes.clothing.pages.frontend.profile.addresses/last-name "Last name"
    :ventas.themes.clothing.pages.frontend.profile.addresses/save "Save"
