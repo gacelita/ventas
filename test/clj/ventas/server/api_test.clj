@@ -287,7 +287,7 @@
     (let [session (atom nil)]
       (testing "valid credentials"
         (is (= {:token (auth/user->token user)
-                :user {:culture 17592186045541
+                :user {:culture (:user/culture user)
                        :email "test2@test.com"
                        :first-name "Test"
                        :last-name "User"

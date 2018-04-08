@@ -64,14 +64,15 @@
 (deftest users-addresses-save
   (let [user (entity/create* (example-user))]
     (is (= (-> (example-address (:user/email user))
-               (dissoc :address/country :address/state))
+               (dissoc :address/country :address/state)
+               (entity/serialize {:culture [:i18n.culture/keyword :en_US]}))
            (-> (server.ws/call-handler-with-user :users.addresses.save
                                                  (-> (example-address (:user/email user))
                                                      (utils/dequalify-keywords)
                                                      (dissoc :type))
                                                  user)
                :data
-               (dissoc :db/id :address/country :address/state))))))
+               (dissoc :id :country :state))))))
 
 (deftest users-addresses-remove
   (let [user (entity/create* (example-user))
