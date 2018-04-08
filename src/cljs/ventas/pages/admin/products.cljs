@@ -10,7 +10,7 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]))
 
-(def state-key ::state-cat)
+(def state-key ::state)
 
 (defn- action-column [{:keys [id]}]
   [:div

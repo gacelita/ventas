@@ -11,8 +11,7 @@
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
-   [ventas.utils.ui :as utils.ui]
-   [ventas.common.utils :as common.utils])
+   [ventas.utils.ui :as utils.ui])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 
@@ -22,8 +21,7 @@
  ::submit
  (fn [{:keys [db]} _]
    {:dispatch [::backend/admin.entities.save
-               {:params (-> (get-in db [state-key :form])
-                            (update-in [:product/price :amount/value] common.utils/str->bigdec))
+               {:params (form/get-data db [state-key])
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx

@@ -44,9 +44,10 @@
  ::init.next
  (fn [_ [_ data]]
    {:dispatch-n [[::form/populate [state-key] data]
-                 [::backend/admin.entities.find-serialize
-                  {:params {:id (get-in data [:discount/product :db/id])}
-                   :success [::events/db [state-key :product]]}]]}))
+                 (when-let [product (get-in data [:discount/product :db/id])]
+                   [::backend/admin.entities.find-serialize
+                    {:params {:id product}
+                     :success [::events/db [state-key :product]]}])]}))
 
 (defn- field [{:keys [key] :as args}]
   [form/field (merge args

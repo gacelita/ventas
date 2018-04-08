@@ -5,29 +5,24 @@
    [ventas.events :as events]
    [ventas.common.utils :as common.utils]))
 
-(def state-key ::state)
-
 (rf/reg-event-fx
  ::set-field
- (fn [{:keys [db]} [_ id k v callback]]
-   {:pre [(fn? callback) (number? v) id]}
-   (let [new-value (-> (get-in db [state-key id])
-                       (assoc k v))]
-     (callback (merge {:schema/type :schema.type/amount}
-                      new-value))
-     {:db (assoc-in db [state-key id] new-value)})))
+ (fn [_ [_ amount k v on-change-fx]]
+   {:dispatch (conj on-change-fx
+                    (assoc amount k v
+                                  :schema/type :schema.type/amount))}))
 
 (rf/reg-event-fx
  ::set-currency
- (fn [_ [_ id v callback]]
-   {:dispatch [::set-field id :amount/currency v callback]}))
+ (fn [_ [_ amount v on-change-fx]]
+   {:dispatch [::set-field amount :amount/currency v on-change-fx]}))
 
 (rf/reg-event-fx
  ::set-value
- (fn [_ [_ id v callback]]
-   {:dispatch [::set-field id :amount/value v callback]}))
+ (fn [_ [_ amount v on-change-fx]]
+   {:dispatch [::set-field amount :amount/value v on-change-fx]}))
 
-(defn- dropdown [{:keys [currency id on-change]}]
+(defn- dropdown [{:keys [amount on-change-fx]}]
   [:div.amount-input__currency
    [base/form-field
     [base/dropdown
@@ -37,17 +32,13 @@
                       {:text (:symbol v)
                        :value (:id v)})
                     @(rf/subscribe [::events/db [:admin :currencies]]))
-      :default-value currency
-      :on-change #(rf/dispatch [::set-currency id (js/parseFloat (.-value %2)) on-change])}]]])
+      :default-value (get-in amount [:amount/currency :db/id])
+      :on-change #(rf/dispatch [::set-currency amount (js/parseFloat (.-value %2)) on-change-fx])}]]])
 
-(defn input [{:keys [amount control label on-change]}]
-  (let [id (gensym)]
-    (fn []
-      (let [{:amount/keys [value currency]} amount]
-        [base/form-input {:label label :key (boolean amount)}
-         [dropdown {:currency (:db/id currency)
-                    :id id
-                    :on-change on-change}]
-         [(or control :input)
-          {:default-value (common.utils/bigdec->str value)
-           :on-change #(rf/dispatch [::set-value id (js/parseFloat (-> % .-target .-value)) on-change])}]]))))
+(defn input [{:keys [amount control label on-change-fx]}]
+  [base/form-input {:label label :key (boolean amount)}
+   [dropdown {:amount amount
+              :on-change-fx on-change-fx}]
+   [(or control :input)
+    {:default-value (common.utils/bigdec->str (get amount :amount/value))
+     :on-change #(rf/dispatch [::set-value amount (common.utils/str->bigdec (-> % .-target .-value)) on-change-fx])}]])

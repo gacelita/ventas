@@ -175,7 +175,7 @@
 (defmethod input :amount [{:keys [value db-path key]}]
   [amount-input/input
    {:amount value
-    :on-change #(rf/dispatch [::set-field db-path key %])}])
+    :on-change-fx [::set-field db-path key]}])
 
 (defn- parse-value [type value]
   (cond

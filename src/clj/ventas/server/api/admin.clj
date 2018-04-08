@@ -53,12 +53,6 @@
   :doc "Saves an entity, updating it if it already exists.
         This is the preferred way of saving entities in the administration."}
  (fn [{entity :params} _]
-   (comment
-    "@TODO Fails for bigdecs.
-     Attributes to look for:"
-    #{:product/price
-      :discount/amount
-      :tax/amount})
    (entity/upsert* entity)))
 
 (register-admin-endpoint!
