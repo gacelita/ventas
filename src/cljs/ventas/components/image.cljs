@@ -6,7 +6,9 @@
 
 (def state-key ::state)
 
-(defn image [id size]
+(defn image
+  "@TODO Remove form-2 dispatch antipattern"
+  [id size]
   {:pre [(keyword? size)]}
   (rf/dispatch [::events/image-sizes.list])
   (fn [id size]

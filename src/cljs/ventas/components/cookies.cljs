@@ -29,7 +29,8 @@
     :local-storage (assoc local-storage state-key true)}))
 
 (defn cookies
-  "Cookie warning"
+  "Cookie warning
+  @TODO Remove form-2 dispatch antipattern"
   [text]
   (rf/dispatch [::get-state-from-local-storage])
   (fn [text]

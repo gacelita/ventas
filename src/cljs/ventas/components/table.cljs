@@ -63,7 +63,9 @@
         (> current (- total 5)) (left-placeholder pages current)
         :default (both-placeholders pages current)))))
 
-(defn table [{:keys [footer state-path data-path columns init-state] :as config}]
+(defn table
+  "@TODO Remove form-2 dispatch antipattern"
+  [{:keys [footer state-path data-path columns init-state] :as config}]
   (rf/dispatch [::set-state config (merge {:page 0
                                            :items-per-page 10}
                                           init-state)])

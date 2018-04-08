@@ -151,7 +151,9 @@
                  [::execute-menu-hooks]]
     :db (assoc-in db [state-key :menu-items] initial-menu-items)}))
 
-(defn- content-view [content]
+(defn- content-view
+  "@TODO Remove form-2 dispatch antipattern"
+  [content]
   (rf/dispatch [::init])
   (fn []
     [:div

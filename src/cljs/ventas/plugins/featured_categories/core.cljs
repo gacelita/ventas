@@ -11,7 +11,9 @@
    {:dispatch [::backend/featured-categories.list
                {:success #(rf/dispatch [::events/db [::featured-categories] %])}]}))
 
-(defn featured-categories []
+(defn featured-categories
+  "@TODO Remove form-2 dispatch antipattern"
+  []
   (rf/dispatch [::featured-categories.list])
   (fn []
     (let [categories @(rf/subscribe [::events/db [::featured-categories]])]

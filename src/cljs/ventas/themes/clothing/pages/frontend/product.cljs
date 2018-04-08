@@ -196,7 +196,9 @@
                                       (i18n ::is-required))
                             :theme "warning"}])})))
 
-(defn- info-view [_]
+(defn- info-view
+  "@TODO Remove form-2 dispatch antipattern"
+  [_]
   (rf/dispatch [::events/users.favorites.enumerate])
   (fn [{:keys [product]}]
     (let [{:keys [name price description variation]} product]

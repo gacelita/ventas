@@ -10,7 +10,9 @@
  (fn [_ _]
    {:dispatch [::events/configuration.get #{:stripe.public-key}]}))
 
-(defn wire-transfer []
+(defn wire-transfer
+  "@TODO Remove form-2 dispatch antipattern"
+  []
   (rf/dispatch [::init])
   (fn []
     [:div.wire-transfer

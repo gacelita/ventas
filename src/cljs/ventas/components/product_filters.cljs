@@ -84,7 +84,9 @@
          :current (first (:categories filters))
          :outside-branch? true}])]))
 
-(defn product-filters [_]
+(defn product-filters
+  "@TODO Remove form-2 dispatch antipattern"
+  [_]
   (rf/dispatch [::events/categories.list])
   (fn [{:keys [filters taxonomies event]}]
     [sidebar/sidebar

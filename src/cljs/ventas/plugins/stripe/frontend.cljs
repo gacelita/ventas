@@ -26,7 +26,9 @@
  (fn [_ _]
    {:dispatch [::events/configuration.get #{:stripe.public-key}]}))
 
-(defn stripe-checkout []
+(defn stripe-checkout
+  "@TODO Remove form-2 dispatch antipattern"
+  []
   (rf/dispatch [::init])
   (fn []
     (r/create-class

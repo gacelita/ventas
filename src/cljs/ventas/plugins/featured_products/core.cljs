@@ -11,7 +11,9 @@
    {:dispatch [::backend/featured-products.list
                {:success #(rf/dispatch [::events/db [::featured-products] %])}]}))
 
-(defn featured-products []
+(defn featured-products
+  "@TODO Remove form-2 dispatch antipattern"
+  []
   (rf/dispatch [::featured-products.list])
   (fn []
     (let [products @(rf/subscribe [::events/db [::featured-products]])]

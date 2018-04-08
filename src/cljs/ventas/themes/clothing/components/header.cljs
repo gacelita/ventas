@@ -57,7 +57,9 @@
     [:p.search-result__name name]
     [:p.search-result__type (i18n (utils/ns-kw type))]]])
 
-(defn header []
+(defn header
+  "@TODO Remove form-2 dispatch antipattern"
+  []
   (rf/dispatch [::events/configuration.get #{:site.title}])
   (fn []
     [:div.skeleton-header
