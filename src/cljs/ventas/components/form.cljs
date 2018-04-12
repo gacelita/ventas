@@ -182,7 +182,7 @@
     (= type :number) (js/parseInt value 10)
     :else value))
 
-(defmethod input :default [{:keys [value db-path key type inline-label] :as args}]
+(defmethod input :default [{:keys [value db-path key type inline-label on-change-fx] :as args}]
   (let [infractions @(rf/subscribe [::validation db-path key])]
     [base/input
      {:label inline-label
@@ -190,7 +190,10 @@
      [:input (merge (apply dissoc args known-keys)
                     {:default-value (or value "")
                      :type (or type :text)
-                     :on-change #(rf/dispatch [::set-field db-path key (parse-value type (-> % .-target .-value))])})]
+                     :on-change #(let [new-value (parse-value type (-> % .-target .-value))]
+                                   (rf/dispatch [::set-field db-path key new-value])
+                                   (when on-change-fx
+                                     (rf/dispatch (conj on-change-fx new-value))))})]
      (when (seq infractions)
        [base/popup
         {:content (->> infractions
