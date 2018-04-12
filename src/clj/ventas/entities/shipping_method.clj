@@ -2,6 +2,7 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
+   [ventas.database :as db]
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]))
 
@@ -54,8 +55,13 @@
 (spec/def :shipping-method/manipulation-fee
   (spec/with-gen ::entity/ref #(entity/ref-generator :amount)))
 
-(spec/def :shipping-method/pricing #{:shipping-method.pricing/price
-                                     :shipping-method.pricing/weight})
+(def pricings
+  #{:shipping-method.pricing/price
+    :shipping-method.pricing/weight})
+
+(spec/def :shipping-method/pricing
+  (spec/or :pull-eid ::db/pull-eid
+           :pricing pricings))
 
 (spec/def :shipping-method/prices
   (spec/with-gen ::entity/refs #(entity/refs-generator :shipping-method.price)))
