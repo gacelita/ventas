@@ -227,6 +227,12 @@
       :taxonomies (search.products/aggregate (:categories filters) culture)})))
 
 (register-endpoint!
+  :shipping-methods.list
+  (fn [_ {:keys [session]}]
+    (->> (entity/query :shipping-method)
+         (map (partial serialize-with-session session)))))
+
+(register-endpoint!
   :states.list
   {:middlewares [pagination/wrap-paginate]
    :spec {:country ::ref}}
