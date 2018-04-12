@@ -10,25 +10,29 @@
 
 (defn map-keys [f m]
   "Maps only the keys of a map"
-  (->> m
-       (map (fn [[k v]]
-              [(f k) v]))
-       (into {})))
+  (reduce-kv
+   (fn [m k v]
+     (assoc m (f k) v))
+   {}
+   m))
 
 (defn map-vals [f m]
   "Maps only the values of a map"
-  (->> m
-       (map (fn [[k v]]
-              [k (f v)]))
-       (into {})))
+  (reduce-kv
+   (fn [m k v]
+     (assoc m k (f v)))
+   {}
+   m))
 
 (defn map-kv
   "Syntax sugar for map->map transformations"
   [f m]
-  (->> m
-       (map (fn [[k v]]
-              (f k v)))
-       (into {})))
+  (reduce-kv
+   (fn [m k v]
+     (let [[k v] (f k v)]
+       (assoc m k v)))
+   {}
+   m))
 
 (defn map-leaves
   "Applies f to all 'leaves' (anything that is not sequential or a map)"
