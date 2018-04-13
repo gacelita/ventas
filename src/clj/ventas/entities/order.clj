@@ -7,7 +7,7 @@
    [ventas.entities.product :as entities.product]
    [clojure.test.check.generators :as gen]))
 
-(defn- get-amount [{:order/keys [lines]}]
+(defn get-amount [{:order/keys [lines]}]
   (->> lines
        (map entity/find)
        (map (fn [{:order.line/keys [product-variation quantity]}]
@@ -155,3 +155,9 @@
 
   :dependencies
   #{:order :product :product.variation :discount}})
+
+(defn get-country-group
+  "Gets the country group from the shipping address of the given order"
+  [order]
+  (let [country (get-in order [:order/shipping-address :address/country])]
+    (:country/group country)))

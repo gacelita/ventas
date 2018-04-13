@@ -107,3 +107,13 @@
   #{:i18n :amount :shipping-method.price}
 
   :autoresolve? true})
+
+(defn get-amount [{:shipping-method/keys [pricing prices]} country-group order-value]
+  (when (= pricing :shipping-method.pricing/weight)
+    (->> prices
+         (filter (fn [{:shipping-method.price/keys [min-value country-groups]}]
+                   (and (contains? (set country-groups) country-group)
+                        (<= min-value order-value))))
+         (sort-by :shipping-method.price/min-value prices)
+         (first)
+         :shipping-method.price/amount)))

@@ -3,6 +3,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.user :as entities.user]
+   [ventas.entities.order :as entities.order]
+   [ventas.entities.shipping-method :as entities.shipping-method]
    [ventas.server.api :as api]
    [ventas.server.pagination :as pagination]
    [slingshot.slingshot :refer [throw+]]))
@@ -61,6 +63,20 @@
    (when-let [user (api/get-user session)]
      (let [cart (entities.user/get-cart user)]
        (api/serialize-with-session session cart)))))
+
+;; @TODO Test and finish this!
+(register-user-endpoint!
+ :users.cart.shipping-methods
+ (fn [_ {:keys [session]}]
+   (when-let [user (api/get-user session)]
+     (let [cart (entities.user/get-cart user)
+           amount (entities.order/get-amount cart)
+           group (entities.order/get-country-group cart)
+           shipping-methods (entity/query :shipping-method)]
+       (->> shipping-methods
+            (map (fn [method]
+                   (assoc method :amount (entities.shipping-method/get-amount method group amount))))
+            (map (partial api/serialize-with-session session)))))))
 
 (defn- find-order-line [order product-variation]
   (when-let [id (db/nice-query-attr
