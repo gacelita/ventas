@@ -35,7 +35,18 @@
 
 (i18n/register-translations!
  {:en_US
-  {:ventas.themes.clothing.components.header/my-cart "Cart"
+  {:ventas.themes.clothing.components.address/address "Address"
+   :ventas.themes.clothing.components.address/address-second-line "Address (second line)"
+   :ventas.themes.clothing.components.address/city "City"
+   :ventas.themes.clothing.components.address/state "State"
+   :ventas.themes.clothing.components.address/country "Country"
+   :ventas.themes.clothing.components.address/phone "Phone"
+   :ventas.themes.clothing.components.address/zip "ZIP code"
+   :ventas.themes.clothing.components.address/first-name "First name"
+   :ventas.themes.clothing.components.address/last-name "Last name"
+   :ventas.themes.clothing.components.address/company "Company"
+
+   :ventas.themes.clothing.components.header/my-cart "Cart"
    :ventas.themes.clothing.components.header/my-favorites "Favorites"
    :ventas.themes.clothing.components.header/my-account "Profile"
    :ventas.themes.clothing.components.header/logout "Logout"
@@ -86,6 +97,10 @@
    :ventas.themes.clothing.pages.frontend.checkout/checkout "Checkout"
    :ventas.themes.clothing.pages.frontend.checkout/page "Checkout"
    :ventas.themes.clothing.pages.frontend.checkout/contact-information "Contact information"
+   :ventas.themes.clothing.pages.frontend.checkout/already-registered "Already have an account?"
+   :ventas.themes.clothing.pages.frontend.checkout/login "Login"
+   :ventas.themes.clothing.pages.frontend.checkout/email "Email"
+   :ventas.themes.clothing.pages.frontend.checkout/shipping-address "Shipping address"
 
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"
@@ -131,17 +146,7 @@
    :ventas.themes.clothing.pages.frontend.profile.account/submit "Save"
    :ventas.themes.clothing.pages.frontend.profile.account/phone "Phone"
 
-   :ventas.themes.clothing.pages.frontend.profile.addresses/address "Address"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/address-second-line "Address (second line)"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/city "City"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/state "State"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/country "Country"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/phone "Phone"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/zip "ZIP code"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/first-name "First name"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/last-name "Last name"
    :ventas.themes.clothing.pages.frontend.profile.addresses/save "Save"
-   :ventas.themes.clothing.pages.frontend.profile.addresses/company "Company"
    :ventas.themes.clothing.pages.frontend.profile.addresses/new-address "New address"
    :ventas.themes.clothing.pages.frontend.profile.addresses/my-addresses "My addresses"
    :ventas.themes.clothing.pages.frontend.profile.addresses/edit "Edit"

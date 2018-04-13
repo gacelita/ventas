@@ -68,6 +68,11 @@
    {:ws-request (merge {:name :users.cart.get} options)}))
 
 (rf/reg-event-fx
+ ::users.cart.shipping-methods
+ (fn [_ [_ options]]
+   {:ws-request (merge {:name :users.cart.shipping-methods} options)}))
+
+(rf/reg-event-fx
  ::users.cart.add
  (fn [_ [_ options]]
    {:ws-request (merge {:name :users.cart.add} options)}))

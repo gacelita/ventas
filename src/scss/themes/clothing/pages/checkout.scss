@@ -1,0 +1,42 @@
+.checkout-page__contact-info {
+    display: flex;
+
+    span {
+        flex: 1;
+    }
+}
+
+.checkout-page__login {
+    font-size: 1rem;
+}
+
+.checkout-page__content {
+    max-width: 600px;
+}
+
+.shipping-method {
+
+    .ui.segment {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        font-size: 1.1rem;
+    }
+
+    .field {
+        display: inline-block;
+    }
+}
+
+.checkout-page__shipping-methods {
+    margin-top: 30px;
+}
+
+.shipping-method__price {
+    font-weight: bold;
+}
+
+.shipping-method__name {
+    width: 100%;
+    padding: 0px 5px;
+}
