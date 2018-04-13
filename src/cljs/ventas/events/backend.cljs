@@ -163,6 +163,11 @@
    {:ws-request (merge {:name :users.favorites.remove} options)}))
 
 (rf/reg-event-fx
+ ::shipping-methods.list
+ (fn [_ [_ options]]
+   {:ws-request (merge {:name :shipping-methods.list} options)}))
+
+(rf/reg-event-fx
  ::search
  (fn [_ [_ options]]
    {:ws-request (merge {:name :search} options)}))

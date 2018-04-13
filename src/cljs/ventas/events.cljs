@@ -177,6 +177,12 @@
    (assoc db :session {})))
 
 (rf/reg-event-fx
+ ::shipping-methods.list
+ (fn [_ _]
+   {:dispatch [::backend/shipping-methods.list
+               {:success [::db :shipping-methods]}]}))
+
+(rf/reg-event-fx
  ::users.favorites.enumerate
  (fn [_ _]
    {:dispatch [::backend/users.favorites.enumerate
