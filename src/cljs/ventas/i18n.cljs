@@ -88,6 +88,17 @@
 
     :ventas.pages.admin.skeleton/discounts "Discounts"
 
+    :ventas.pages.admin.shipping-methods/create "Create"
+    :ventas.pages.admin.shipping-methods/name "Name"
+    :ventas.pages.admin.shipping-methods/actions "Actions"
+
+    :ventas.pages.admin.shipping-methods.edit/page "Edit shipping method"
+    :ventas.pages.admin.shipping-methods.edit/name "Name"
+    :ventas.pages.admin.shipping-methods.edit/submit "Submit"
+    :ventas.pages.admin.shipping-methods.edit/pricing "Pricing"
+    :ventas.pages.admin.shipping-methods.edit/default? "Default?"
+    :ventas.pages.admin.shipping-methods.edit/manipulation-fee "Manipulation fee"
+
     :ventas.pages.admin.products.discounts/name "Name"
     :ventas.pages.admin.products.discounts/code "Code"
     :ventas.pages.admin.products.discounts/amount "Amount"
@@ -140,6 +151,7 @@
     :ventas.pages.admin.skeleton/taxes "Taxes"
     :ventas.pages.admin.skeleton/orders "Orders"
     :ventas.pages.admin.skeleton/payment-methods "Billing"
+    :ventas.pages.admin.skeleton/shipping-methods "Shipping"
 
     :ventas.pages.admin.taxes/name "Name"
     :ventas.pages.admin.taxes/amount "Amount"
@@ -233,6 +245,9 @@
     :schema.type/user "User"
     :schema.type/product "Product"
     :schema.type/brand "Brand"
+
+    :shipping-method.pricing/price "Price"
+    :shipping-method.pricing/weight "Weight"
 
     :tax.kind/amount "Amount"
     :tax.kind/percentage "Percentage"}

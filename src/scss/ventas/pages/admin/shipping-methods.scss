@@ -1,0 +1,12 @@
+.admin-shipping-methods-edit__pricings.ui.table {
+    width: auto;
+
+    .field {
+        width: 80px;
+
+        input {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem !important;
+        }
+    }
+}

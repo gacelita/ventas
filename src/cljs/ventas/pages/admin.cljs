@@ -9,6 +9,7 @@
    [ventas.pages.admin.orders.edit]
    [ventas.pages.admin.orders]
    [ventas.pages.admin.payment-methods]
+   [ventas.pages.admin.shipping-methods]
    [ventas.pages.admin.plugins]
    [ventas.pages.admin.products.edit]
    [ventas.pages.admin.products]

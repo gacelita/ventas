@@ -47,6 +47,10 @@
     :icon "payment"
     :children []}
 
+   {:route :admin.shipping-methods
+    :label ::shipping-methods
+    :icon "shipping"}
+
    {:divider true}
 
    {:route :admin.activity-log
