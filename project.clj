@@ -225,7 +225,7 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            "release-deploy" ["with-profile" "release" "deploy clojars"]
+            "release-deploy" ["with-profile" "release" "deploy" "clojars"]
             "release-install" ["with-profile" "release" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
 
