@@ -93,6 +93,40 @@
 (spec/def :schema.type/i18n
   (spec/keys :req [:i18n/translations]))
 
+(defn- normalize-i18n [i18n]
+  (update i18n
+          :i18n/translations
+          #(map (fn [translation]
+                  (update translation
+                          :i18n.translation/culture
+                          db/normalize-ref))
+                %)))
+
+(defn- serialize-transacted [this & [culture]]
+  (if-not culture
+    (->> (:i18n/translations this)
+         (map (comp entity/serialize entity/find))
+         (into {}))
+    (-> (db/q '[:find ?translated
+                :in $ ?this-eid ?culture
+                :where [?this-eid :i18n/translations ?term-translation]
+                [?term-translation :i18n.translation/value ?translated]
+                [?term-translation :i18n.translation/culture ?culture]]
+              [(:db/id this) culture])
+        (first)
+        (first))))
+
+(defn- serialize-literal [this & [culture]]
+  (let [this (normalize-i18n this)
+        culture (db/normalize-ref culture)
+        serialized (->> (:i18n/translations this)
+                        (map (fn [{:i18n.translation/keys [culture value]}]
+                               [culture value]))
+                        (into {}))]
+    (if-not culture
+      serialized
+      (get serialized culture))))
+
 (entity/register-type!
  :i18n
  {:attributes
@@ -118,18 +152,9 @@
   :serialize
   (fn [this {:keys [culture]}]
     {:pre [(or (not culture) (utils/check ::entity/ref culture))]}
-    (if-not culture
-      (->> (:i18n/translations this)
-           (map (comp entity/serialize entity/find))
-           (into {}))
-      (-> (db/q '[:find ?translated
-                  :in $ ?this-eid ?culture
-                  :where [?this-eid :i18n/translations ?term-translation]
-                         [?term-translation :i18n.translation/value ?translated]
-                         [?term-translation :i18n.translation/culture ?culture]]
-                [(:db/id this) culture])
-          (first)
-          (first))))
+    (if-not (:db/id this)
+      (serialize-literal this culture)
+      (serialize-transacted this culture)))
 
   :autoresolve? true
   :component? true})
@@ -144,15 +169,6 @@
                               :i18n.translation/value value
                               :i18n.translation/culture [:i18n.culture/keyword culture-kw]})
                            translations)})
-
-(defn- normalize-i18n [i18n]
-  (update i18n
-          :i18n/translations
-          #(map (fn [translation]
-                  (update translation
-                          :i18n.translation/culture
-                          db/normalize-ref))
-                %)))
 
 (defn- merge-i18ns-with* [f a b]
   (let [a (normalize-i18n a)
