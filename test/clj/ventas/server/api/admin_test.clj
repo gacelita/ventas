@@ -87,8 +87,8 @@
                                                     :migrations []}
                                              :theme {:name "Test theme"
                                                      :type :theme}})]
-    (is (= [{:name "Test theme"}
-            {:name "Test plugin"}]
+    (is (= [{:id :test :name "Test plugin"}
+            {:id :theme :name "Test theme" :type :theme}]
            (-> (server.ws/call-handler-with-user :admin.plugins.list {} user)
                :data)))))
 

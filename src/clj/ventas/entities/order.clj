@@ -10,16 +10,20 @@
 (defn get-amount
   "Returns an amount entity representing the total amount to be paid"
   [{:order/keys [lines]}]
-  (->> lines
-       (map entity/find)
-       (map (fn [{:order.line/keys [product-variation quantity]}]
-              (let [{:product/keys [price]} (entities.product/normalize-variation product-variation)
-                    _ (assert price ::variation-has-no-price)
-                    {:amount/keys [value currency]} (entity/find price)]
-                {:schema/type :schema.type/amount
-                 :amount/currency currency
-                 :amount/value (* value quantity)})))
-       (reduce +)))
+  (when (seq lines)
+    (let [{:order.line/keys [product-variation]} (entity/find (first lines))
+          {:product/keys [price]} (entities.product/normalize-variation product-variation)]
+      (assoc (entity/find price)
+             :amount/value
+        (->> lines
+             (map entity/find)
+             (map (fn [{:order.line/keys [product-variation quantity]}]
+                    (let [{:product/keys [price]} (entities.product/normalize-variation product-variation)
+                          _ (assert price ::variation-has-no-price)
+                          {:amount/keys [value]} (entity/find price)]
+                      (* value quantity))))
+             (reduce +)
+             (bigdec))))))
 
 (spec/def :order/user
   (spec/with-gen ::entity/ref #(entity/ref-generator :user)))
@@ -131,7 +135,7 @@
   :serialize
   (fn [this params]
     (-> ((entity/default-attr :serialize) this params)
-        (assoc :amount (entity/serialize (get-amount this) params))))
+        (assoc :amount (some-> (get-amount this) (entity/serialize params)))))
 
   :deserialize
   (fn [this]

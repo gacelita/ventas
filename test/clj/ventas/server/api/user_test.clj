@@ -97,50 +97,52 @@
                                                      :terms #{}})
         variation-json (entity/serialize variation {:culture [:i18n.culture/keyword :en_US]})]
 
-    (server.ws/call-handler-with-user :users.cart.add
-                                      {:id (:db/id variation)}
-                                      user)
-    (is (= {:amount (get-in variation-json [:price :value])
-            :lines [{:product-variation variation-json
-                     :quantity 1}]
-            :status :order.status/draft
-            :user (:db/id user)}
-           (-> (server.ws/call-handler-with-user :users.cart.get
-                                                 {}
-                                                 user)
-               :data
-               (dissoc :id)
-               (update :lines (fn [lines] (map #(dissoc % :id) lines))))))
+    (testing "cart add"
+      (server.ws/call-handler-with-user :users.cart.add
+                                        {:id (:db/id variation)}
+                                        user)
+      (is (= {:amount (:price variation-json)
+              :lines [{:product-variation variation-json
+                       :quantity 1}]
+              :status :order.status/draft
+              :user (:db/id user)}
+             (-> (server.ws/call-handler-with-user :users.cart.get
+                                                   {}
+                                                   user)
+                 :data
+                 (dissoc :id)
+                 (update :lines (fn [lines] (map #(dissoc % :id) lines)))))))
 
-    (server.ws/call-handler-with-user :users.cart.remove
-                                      {:id (:db/id variation)}
-                                      user)
+    (testing "cart remove"
+      (server.ws/call-handler-with-user :users.cart.remove
+                                        {:id (:db/id variation)}
+                                        user)
+      (is (= {:amount nil
+              :status :order.status/draft
+              :user (:db/id user)}
+             (-> (server.ws/call-handler-with-user :users.cart.get
+                                                   {}
+                                                   user)
+                 :data
+                 (dissoc :id)))))
 
-    (is (= {:amount 0
-            :status :order.status/draft
-            :user (:db/id user)}
-           (-> (server.ws/call-handler-with-user :users.cart.get
-                                                 {}
-                                                 user)
-               :data
-               (dissoc :id))))
-
-    (server.ws/call-handler-with-user :users.cart.set-quantity
-                                      {:id (:db/id variation)
-                                       :quantity 5}
-                                      user)
-
-    (is (= {:amount (* 5 (get-in variation-json [:price :value]))
-            :lines [{:product-variation variation-json
-                     :quantity 5}]
-            :status :order.status/draft
-            :user (:db/id user)}
-           (-> (server.ws/call-handler-with-user :users.cart.get
-                                                 {}
-                                                 user)
-               :data
-               (dissoc :id)
-               (update :lines (fn [lines] (map #(dissoc % :id) lines))))))))
+    (testing "cart set-quantity"
+      (server.ws/call-handler-with-user :users.cart.set-quantity
+                                        {:id (:db/id variation)
+                                         :quantity 5}
+                                        user)
+      (is (= {:amount (-> (:price variation-json)
+                          (update :value #(* 5 %)))
+              :lines [{:product-variation variation-json
+                       :quantity 5}]
+              :status :order.status/draft
+              :user (:db/id user)}
+             (-> (server.ws/call-handler-with-user :users.cart.get
+                                                   {}
+                                                   user)
+                 :data
+                 (dissoc :id)
+                 (update :lines (fn [lines] (map #(dissoc % :id) lines)))))))))
 
 (deftest users-favorites
   (let [user (entity/create* (example-user))
