@@ -180,13 +180,17 @@
          [base/icon {:name "cancel"}]
          (i18n ::cancel)]]]])])
 
+(defn address-content-view [address]
+  [:div.address-content
+   [:p (:first-name address) " " (:last-name address)]
+   [:p (:address address) " " (:address-second-line address)]
+   [:p (:zip address) " " (:city address) " " (:name (:state address))]
+   [:p (:name (:country address))]])
+
 (defn- address-view [address]
   [base/card
    [base/card-content
-    [:p (:first-name address) " " (:last-name address)]
-    [:p (:address address) " " (:address-second-line address)]
-    [:p (:zip address) " " (:city address) " " (:name (:state address))]
-    [:p (:name (:country address))]]
+    [address-content-view address]]
 
    [base/card-content {:extra true}
     [base/button {:icon true
