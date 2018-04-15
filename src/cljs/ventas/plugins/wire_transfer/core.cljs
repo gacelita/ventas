@@ -11,4 +11,7 @@
    ::admin/wire-transfer.account-owner "Account owner"
    ::admin/wire-transfer.bank-address "Bank address"
    ::admin/submit "Submit"
-   ::frontend/wire-transfer "Wire transfer"}})
+   ::frontend/wire-transfer "Wire transfer"
+   ::frontend/wire-transfer.account-owner "Account owner"
+   ::frontend/wire-transfer.account-details "Account details"
+   ::frontend/wire-transfer.bank-address "Bank address"}})

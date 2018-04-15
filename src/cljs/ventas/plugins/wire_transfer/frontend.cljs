@@ -1,23 +1,39 @@
 (ns ventas.plugins.wire-transfer.frontend
   (:require
    [re-frame.core :as rf]
-   [ventas.events :as events]
+   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.components.payment :as payment]))
+   [ventas.events :as events]
+   [ventas.components.payment :as payment]
+   [ventas.components.form :as form]
+   [ventas.components.base :as base])
+  (:require-macros
+   [ventas.utils :refer [ns-kw]]))
+
+(def state-key ::state)
 
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch [::events/configuration.get #{:stripe.public-key}]}))
+   {:dispatch [::backend/configuration.get
+               {:params #{:wire-transfer.account-owner
+                          :wire-transfer.account-details
+                          :wire-transfer.bank-address}
+                :success ::init.next}]}))
 
-(defn wire-transfer
-  "@TODO Remove form-2 dispatch antipattern"
-  []
-  (rf/dispatch [::init])
-  (fn []
+(rf/reg-event-db
+ ::init.next
+ (fn [db [_ data]]
+   (assoc db state-key data)))
+
+(defn wire-transfer []
+  (let [data @(rf/subscribe [::events/db [state-key]])]
     [:div.wire-transfer
-     [:h2 (i18n ::wire-transfer)]]))
+     [:p (i18n ::wire-transfer.account-owner) ": " (:wire-transfer.account-owner data)]
+     [:p (i18n ::wire-transfer.account-details) ": " (:wire-transfer.account-details data)]
+     [:p (i18n ::wire-transfer.bank-address) ": " (:wire-transfer.bank-address data)]]))
 
 (payment/add-method
- :stripe
- {:component wire-transfer})
+ :wire-transfer
+ {:component wire-transfer
+  :init-fx [::init]})
