@@ -82,6 +82,7 @@
     :ventas.pages.admin/nothing-here "(Empty page)"
 
     :ventas.pages.admin.plugins/name "Name"
+    :ventas.pages.admin.plugins/page "Plugins"
     :ventas.pages.admin.plugins/version "Version"
 
     :ventas.pages.admin.products/page "Products"
@@ -90,6 +91,7 @@
 
     :ventas.pages.admin.shipping-methods/create "Create"
     :ventas.pages.admin.shipping-methods/name "Name"
+    :ventas.pages.admin.shipping-methods/page "Shipping methods"
     :ventas.pages.admin.shipping-methods/actions "Actions"
 
     :ventas.pages.admin.shipping-methods.edit/page "Edit shipping method"
@@ -99,7 +101,10 @@
     :ventas.pages.admin.shipping-methods.edit/default? "Default?"
     :ventas.pages.admin.shipping-methods.edit/manipulation-fee "Manipulation fee"
 
+    :ventas.pages.admin.payment-methods/page "Billing"
+
     :ventas.pages.admin.products.discounts/name "Name"
+    :ventas.pages.admin.products.discounts/page "Discounts"
     :ventas.pages.admin.products.discounts/code "Code"
     :ventas.pages.admin.products.discounts/amount "Amount"
     :ventas.pages.admin.products.discounts/actions "Actions"
@@ -157,8 +162,10 @@
     :ventas.pages.admin.taxes/amount "Amount"
     :ventas.pages.admin.taxes/actions "Actions"
     :ventas.pages.admin.taxes/create "Create tax"
+    :ventas.pages.admin.taxes/page "Taxes"
 
     :ventas.pages.admin.orders/user "User"
+    :ventas.pages.admin.orders/page "Orders"
     :ventas.pages.admin.orders/status "Status"
     :ventas.pages.admin.orders/amount "Amount"
     :ventas.pages.admin.orders/actions "Actions"
@@ -208,6 +215,7 @@
     :ventas.pages.admin.activity-log/entity-id "ID"
     :ventas.pages.admin.activity-log/entity-type "Entity type"
     :ventas.pages.admin.activity-log/type "Event type"
+    :ventas.pages.admin.activity-log/page "Activity log"
 
     :ventas.session/unregistered-error "You need to be a registered user to do that"
 
