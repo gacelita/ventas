@@ -13,7 +13,7 @@
 
 (defn current []
   (or (keyword (entities.configuration/get :current-theme))
-      (first (all))))
+      (key (first (all)))))
 
 (defn set!
   "Sets the current theme.

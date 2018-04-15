@@ -136,9 +136,10 @@
   :doc "Returns the list of registered plugins."}
  (fn [_ _]
    (->> (plugin/all)
-        (map plugin/plugin)
-        (map (fn [plugin]
-               (select-keys plugin #{:name}))))))
+        (map (fn [[id plugin]]
+               (-> plugin
+                   (select-keys #{:name :type})
+                   (assoc :id id)))))))
 
 (register-admin-endpoint!
  :admin.configuration.set

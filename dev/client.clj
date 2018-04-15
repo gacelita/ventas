@@ -28,7 +28,7 @@
         theme (theme/current)]
     (-> build
         (assoc-in [:compiler :main]
-                  (-> theme (plugin/plugin) (:cljs-ns)))
+                  (-> theme (plugin/find) (:cljs-ns)))
         (assoc-in [:compiler :output-to]
                   (str "resources/public/files/js/compiled/"
                        (name theme)

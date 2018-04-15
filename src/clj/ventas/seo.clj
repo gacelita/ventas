@@ -85,7 +85,7 @@
   (etaoin/go driver (server-uri))
   (go
     (when-let [prerendered-fn (-> (theme/current)
-                                  plugin/plugin
+                                  plugin/find
                                   :prerendered-routes)]
       (doseq [route (prerendered-fn)]
         (<! (prerender route :skip-init? true))))))

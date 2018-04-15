@@ -74,7 +74,7 @@
    Options:
      recreate? - removes the db and creates a new one
      generate? - seeds the database with randomly generated entities
-     minimal?  - seeds only the entity fixtures, ignoring plugin and theme fixtures"
+     minimal?  - seeds only the entity fixtures, ignoring plugin fixtures"
   [& {:keys [recreate? generate? minimal?]}]
 
   (schema/migrate :recreate? recreate?)
@@ -85,12 +85,7 @@
     (seed-type type (if generate? (entity/seed-number type) 0)))
 
   (when-not minimal?
-    (doseq [theme-kw (theme/all)]
-      (timbre/info "Installing theme " theme-kw)
-      (doseq [fixture (plugin/fixtures theme-kw)]
-        (create* fixture)))
-
-    (doseq [plugin-kw (plugin/by-type :plugin)]
-      (timbre/info "Installing plugin " plugin-kw)
-      (doseq [fixture (plugin/fixtures plugin-kw)]
+    (doseq [[id _] (plugin/all)]
+      (timbre/info "Installing plugin " id)
+      (doseq [fixture (plugin/fixtures id)]
         (create* fixture)))))
