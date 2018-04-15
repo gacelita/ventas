@@ -73,6 +73,11 @@
    {:ws-request (merge {:name :users.cart.shipping-methods} options)}))
 
 (rf/reg-event-fx
+ ::users.cart.payment-methods
+ (fn [_ [_ options]]
+    {:ws-request (merge {:name :users.cart.payment-methods} options)}))
+
+(rf/reg-event-fx
  ::users.cart.add
  (fn [_ [_ options]]
    {:ws-request (merge {:name :users.cart.add} options)}))
@@ -86,6 +91,11 @@
  ::users.cart.set-quantity
  (fn [_ [_ options]]
    {:ws-request (merge {:name :users.cart.set-quantity} options)}))
+
+(rf/reg-event-fx
+ ::users.cart.order
+ (fn [_ [_ options]]
+    {:ws-request (merge {:name :users.cart.order} options)}))
 
 (rf/reg-event-fx
  ::users.save
