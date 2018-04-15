@@ -134,11 +134,14 @@
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]
   :doc "Returns the list of registered plugins."}
- (fn [_ _]
+ (fn [_ {:keys [session]}]
    (->> (plugin/all)
         (map (fn [[id plugin]]
                (-> plugin
                    (select-keys #{:name :type})
+                   (update :name #(if (string? %)
+                                    %
+                                    (api/serialize-with-session session %)))
                    (assoc :id id)))))))
 
 (register-admin-endpoint!

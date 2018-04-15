@@ -12,7 +12,7 @@
 (rf/reg-event-fx
  ::fetch
  (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (get-in db state-path)]
      {:dispatch [::backend/admin.plugins.list
                  {:success ::fetch.next
                   :params {:pagination {:page page
@@ -35,9 +35,7 @@
      :data-path [state-key :plugins]
      :fetch-fx ::fetch
      :columns [{:id :name
-                :label (i18n ::name)}
-               {:id :version
-                :label (i18n ::version)}]}]])
+                :label (i18n ::name)}]}]])
 
 (defn- page []
   [admin.skeleton/skeleton
