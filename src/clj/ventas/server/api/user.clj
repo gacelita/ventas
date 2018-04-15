@@ -7,7 +7,9 @@
    [ventas.entities.shipping-method :as entities.shipping-method]
    [ventas.server.api :as api]
    [ventas.server.pagination :as pagination]
-   [slingshot.slingshot :refer [throw+]]))
+   [slingshot.slingshot :refer [throw+]]
+   [ventas.payment-method :as payment-method]
+   [ventas.common.utils :as common.utils]))
 
 (defn- user-check! [session]
   (let [{:db/keys [id]} (api/get-user session)]
@@ -64,7 +66,7 @@
      (let [cart (entities.user/get-cart user)]
        (api/serialize-with-session session cart)))))
 
-;; @TODO Test and finish this!
+;; @TODO Test and finish this
 (register-user-endpoint!
  :users.cart.shipping-methods
  (fn [_ {:keys [session]}]
@@ -75,8 +77,23 @@
            shipping-methods (entity/query :shipping-method)]
        (->> shipping-methods
             (map (fn [method]
-                   (assoc method :amount (entities.shipping-method/get-amount method group amount))))
+                   (assoc method :amount (entities.shipping-method/get-amount method
+                                                                              group
+                                                                              (:amount/value amount)))))
             (map (partial api/serialize-with-session session)))))))
+
+(register-user-endpoint!
+ :users.cart.payment-methods
+ {:doc "Gets the payment methods that apply to the current cart
+        (For now, that means all the payment methods)"}
+ (fn [_ {:keys [session]}]
+   (let [methods (payment-method/all)]
+     (common.utils/map-vals
+      (fn [{:keys [name]}]
+        {:name (if (string? name)
+                 name
+                 (api/serialize-with-session session name))})
+      methods))))
 
 (defn- find-order-line [order product-variation]
   (when-let [id (db/nice-query-attr
@@ -138,6 +155,27 @@
          (api/find-serialize-with-session session (:db/id cart)))
        (throw+ {:type ::discount-not-found
                 :code code})))))
+
+(register-user-endpoint!
+ :users.cart.order
+ {:doc "Makes an order from the current cart"}
+ (fn [{{:keys [email shipping-address shipping-method payment-method payment-params]} :params} {:keys [session]}]
+   (let [user (api/get-user session)
+         cart (entities.user/get-cart user)]
+     (when-not cart
+       (throw+ {:type ::cart-not-found}))
+     (when (= (:user/status user) :user.status/unregistered)
+       (entity/update* (assoc user :user/email email)))
+     (let [shipping-address (if-not (number? shipping-address)
+                              (:db/id (entity/upsert :address (merge shipping-address
+                                                                     {:user (:db/id user)})))
+                              shipping-address)
+           cart (entity/update*
+                 (merge cart {:order/shipping-address shipping-address
+                              :order/shipping-method shipping-method
+                              :order/payment-method payment-method
+                              :order/payment-amount (entities.order/get-amount cart)}))]
+       (payment-method/pay! cart payment-params)))))
 
 (register-user-endpoint!
  :users.favorites.enumerate

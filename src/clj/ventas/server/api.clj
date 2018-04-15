@@ -37,7 +37,9 @@
 (defn set-user [session user]
   (swap! session assoc :user (:db/id user)))
 
-(defn get-culture [session]
+(defn get-culture
+  "Returns the eid of the session culture"
+  [session]
   (let [user (get-user session)]
     (or (:user/culture user)
         (:db/id (db/entity [:i18n.culture/keyword :en_US])))))
@@ -230,6 +232,12 @@
   :shipping-methods.list
   (fn [_ {:keys [session]}]
     (->> (entity/query :shipping-method)
+         (map (partial serialize-with-session session)))))
+
+(register-endpoint!
+  :payment-methods.list
+  (fn [_ {:keys [session]}]
+    (->> (entity/query :payment-method)
          (map (partial serialize-with-session session)))))
 
 (register-endpoint!
