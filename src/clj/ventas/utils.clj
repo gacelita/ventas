@@ -62,7 +62,7 @@
   (if (apply spec/valid? args)
     true
     (throw+ {:type ::spec-invalid
-             :message (with-out-str (apply expound/expound args))})))
+             :explanation (with-out-str (apply expound/expound args))})))
 
 (defn update-if-exists [thing kw update-fn]
   (if (get thing kw)
