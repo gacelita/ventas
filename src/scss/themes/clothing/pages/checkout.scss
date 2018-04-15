@@ -1,3 +1,7 @@
+.checkout-page {
+    margin-bottom: 40px;
+}
+
 .checkout-page__contact-info {
     display: flex;
 
@@ -29,7 +33,30 @@
 }
 
 .checkout-page__shipping-methods {
-    margin-top: 30px;
+
+}
+
+.checkout-page__address {
+    .ui.form {
+        .field {
+            margin-bottom: 0px;
+            margin-right: 10px;
+        }
+    }
+    .ui.segment {
+        display: flex;
+        align-items: center;
+    }
+    p {
+        margin-bottom: 0px;
+    }
+    .address-component {
+        margin-top: 25px;
+    }
+}
+
+.checkout-page__address-inner {
+    width: 100%;
 }
 
 .shipping-method__price {

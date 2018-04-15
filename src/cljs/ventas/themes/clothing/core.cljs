@@ -101,6 +101,10 @@
    :ventas.themes.clothing.pages.frontend.checkout/login "Login"
    :ventas.themes.clothing.pages.frontend.checkout/email "Email"
    :ventas.themes.clothing.pages.frontend.checkout/shipping-address "Shipping address"
+   :ventas.themes.clothing.pages.frontend.checkout/shipping-method "Shipping method"
+   :ventas.themes.clothing.pages.frontend.checkout/payment-method "Payment method"
+   :ventas.themes.clothing.pages.frontend.checkout/order "Order"
+   :ventas.themes.clothing.pages.frontend.checkout/new-address "New address"
 
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"
@@ -112,6 +116,7 @@
    :ventas.themes.clothing.pages.frontend.login/user-registered "Your account is ready. Welcome!"
 
    :ventas.themes.clothing.pages.frontend.privacy-policy/privacy-policy "Privacy policy"
+   :ventas.themes.clothing.pages.frontend.privacy-policy/page "Privacy policy"
    :ventas.themes.clothing.pages.frontend.privacy-policy/privacy-policy-text "Just some example text"
 
    :ventas.themes.clothing.pages.frontend.product/page "Product"
