@@ -1,7 +1,8 @@
 (ns ventas.themes.clothing.demo
   "Demo data"
   (:require
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [ventas.entities.amount :as entities.amount]))
 
 (defn product-terms []
   (map #(assoc % :schema/type :schema.type/product.term)
@@ -177,9 +178,7 @@
 (defn taxes []
   (map #(assoc % :schema/type :schema.type/tax)
        [{:tax/name (entities.i18n/get-i18n-entity {:en_US "Test tax"})
-         :tax/amount {:schema/type :schema.type/amount
-                      :amount/value 21.0M
-                      :amount/currency [:currency/keyword :eur]}
+         :tax/amount (entities.amount/get-entity 21.0M :eur)
          :tax/kind :tax.kind/percentage
          :tax/keyword :test-tax}]))
 
@@ -187,9 +186,7 @@
   (map #(assoc % :schema/type :schema.type/product)
        [{:product/name (entities.i18n/get-i18n-entity {:en_US "Test product"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 15.4M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 15.4M :eur)
          :product/reference "REF001"
          :product/ean13 "7501031311309"
          :product/description (entities.i18n/get-i18n-entity {:en_US "This is a test product"})
@@ -207,9 +204,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Dress one"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.dresses]]
          :product/keyword :dress-1
          :product/brand [:brand/keyword :profitable-brand]
@@ -232,9 +227,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Dress two"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.dresses]]
          :product/keyword :dress-2
          :product/brand [:brand/keyword :profitable-brand]
@@ -255,9 +248,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket one"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.jackets]]
          :product/keyword :jacket-1
          :product/brand [:brand/keyword :profitable-brand]
@@ -278,9 +269,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket two"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.jackets]]
          :product/keyword :jacket-2
          :product/brand [:brand/keyword :terrible-brand]
@@ -314,9 +303,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket three"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.jackets]]
          :product/keyword :jacket-3
          :product/brand [:brand/keyword :terrible-brand]
@@ -336,9 +323,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket four"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.jackets]]
          :product/keyword :jacket-4
          :product/brand [:brand/keyword :terrible-brand]
@@ -366,9 +351,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Jacket five"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.jackets]]
          :product/keyword :jacket-5
          :product/brand [:brand/keyword :profitable-brand]
@@ -396,9 +379,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Jeans one"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.pants]]
          :product/keyword :jeans-1
          :product/terms [[:product.term/keyword :length-long]]
@@ -418,9 +399,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Shirt one"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.shirts]]
          :product/keyword :shirt-1
          :product/brand [:brand/keyword :profitable-brand]
@@ -447,9 +426,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Shirt two"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.shirts]]
          :product/keyword :shirt-2
          :product/brand [:brand/keyword :profitable-brand]
@@ -477,9 +454,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Shirt three"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.shirts]]
          :product/keyword :shirt-3
          :product/terms [[:product.term/keyword :length-short]]
@@ -496,9 +471,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Shoes one"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.shoes]]
          :product/keyword :shoes-1
          :product/terms [[:product.term/keyword :lace-type-regular]]
@@ -524,9 +497,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Shoes two"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.shoes]]
          :product/keyword :shoes-2
          :product/brand [:brand/keyword :terrible-brand]
@@ -563,9 +534,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Sweater one"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.sweaters]]
          :product/keyword :sweater-1
          :product/terms [[:product.term/keyword :length-long]]
@@ -594,9 +563,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Sweater two"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :women.sweaters]]
          :product/keyword :sweater-2
          :product/terms [[:product.term/keyword :length-long]]
@@ -620,9 +587,7 @@
 
         {:product/name (entities.i18n/get-i18n-entity {:en_US "Sweater three"})
          :product/active true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 10M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 10M :eur)
          :product/categories [[:category/keyword :men.sweaters]]
          :product/keyword :sweater-3
          :product/terms [[:product.term/keyword :length-long]]
@@ -645,9 +610,7 @@
          :product.variation/terms [[:product.term/keyword :color-dark-green]
                                    [:product.term/keyword :size-large]]
          :product.variation/default? true
-         :product/price {:schema/type :schema.type/amount
-                         :amount/value 19M
-                         :amount/currency [:currency/keyword :eur]}
+         :product/price (entities.amount/get-entity 19M :eur)
          :product/name (entities.i18n/get-i18n-entity
                         {:en_US "Test product (dark green and large variation)"})}]))
 
@@ -682,9 +645,15 @@
          :user/phone "4444 33 222 333"
          :user/culture [:i18n.culture/keyword :en_US]}]))
 
+(defn country-groups []
+  (map #(assoc % :schema/type :schema.type/country.group)
+       [{:country.group/keyword :test-country-group
+         :country.group/name (entities.i18n/get-i18n-entity {:en_US "Test country group"})}]))
+
 (defn countries []
   (map #(assoc % :schema/type :schema.type/country)
        [{:country/keyword :test
+         :country/group [:country.group/keyword :test-country-group]
          :country/name (entities.i18n/get-i18n-entity {:en_US "Test country"})}]))
 
 (defn states []
@@ -716,10 +685,19 @@
          :discount/free-shipping? true
          :discount/amount.tax-included? false
          :discount/amount.kind :discount.amount.kind/percentage
-         :discount/amount {:schema/type :schema.type/amount
-                                  :amount/value 15M
-                                  :amount/keyword :amount-1
-                                  :amount/currency [:currency/keyword :eur]}}]))
+         :discount/amount (entities.amount/get-entity 15M :eur)}]))
+
+(defn shipping-methods []
+  (map #(assoc % :schema/type :schema.type/shipping-method)
+       [{:shipping-method/name (entities.i18n/get-i18n-entity {:en_US "Default"
+                                                               :es_ES "Predeterminado"})
+         :shipping-method/default? true
+         :shipping-method/manipulation-fee (entities.amount/get-entity 2M :eur)
+         :shipping-method/pricing :shipping-method.pricing/price
+         :shipping-method/prices [{:schema/type :schema.type/shipping-method.price
+                                   :shipping-method.price/country-groups #{[:country.group/keyword :test-country-group]}
+                                   :shipping-method.price/amount (entities.amount/get-entity 5M :eur)
+                                   :shipping-method.price/min-value 0M}]}]))
 
 (defn demo-data []
   (concat (product-terms)
@@ -731,6 +709,8 @@
           (products)
           (product-variations)
           (users)
+          (country-groups)
           (countries)
           (states)
-          (addresses)))
+          (addresses)
+          (shipping-methods)))

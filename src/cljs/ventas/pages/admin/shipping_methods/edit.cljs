@@ -11,30 +11,50 @@
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
    [ventas.utils.ui :as utils.ui]
-   [ventas.common.utils :as common.utils])
+   [ventas.common.utils :as common.utils]
+   [clojure.string :as str])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 
 (def state-key ::state)
 
-(defn- ->prices [prices]
-  (mapcat (fn [[_ {:keys [min groups]}]]
-            (map (fn [[group value]]
-                   {:schema/type :schema.type/shipping-method.price
-                    :shipping-method.price/amount {:schema/type :schema.type/amount
-                                                   :amount/value value
-                                                   :amount/currency [:currency/keyword :eur]}
-                    :shipping-method.price/country-groups #{group}
-                    :shipping-method.price/min-value min})
-                 groups))
-          prices))
+(defn- table->prices [form]
+  (->> (vals form)
+       (mapcat (fn [{:keys [min-value country-groups]}]
+                 (map (fn [[group value]]
+                        (when-not (str/blank? value)
+                          {:schema/type :schema.type/shipping-method.price
+                           :shipping-method.price/amount {:schema/type :schema.type/amount
+                                                          :amount/value (common.utils/str->bigdec value)
+                                                          :amount/currency [:currency/keyword :eur]}
+                           :shipping-method.price/country-groups #{group}
+                           :shipping-method.price/min-value (common.utils/str->bigdec min-value)}))
+                      country-groups)))
+       (remove nil?)))
+
+(defn- prices->table [prices]
+  (reduce-kv (fn [acc idx [min-value prices]]
+               (reduce (fn [acc {:shipping-method.price/keys [country-groups amount]}]
+                         (assoc-in acc
+                                   [idx
+                                    :country-groups
+                                    (-> country-groups first :db/id)]
+                                   (common.utils/bigdec->str (:amount/value amount))))
+                       (assoc-in acc [idx :min-value] min-value)
+                       prices))
+             {}
+             (->> prices
+                  (map #(update % :shipping-method.price/min-value common.utils/bigdec->str))
+                  (sort-by :shipping-method.price/min-value)
+                  (group-by :shipping-method.price/min-value)
+                  (into []))))
 
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
    {:dispatch [::backend/admin.entities.save
                {:params (-> (form/get-data db [state-key])
-                            (assoc :shipping-method/prices (->prices (get-in db [state-key :prices]))))
+                            (assoc :shipping-method/prices (table->prices (form/get-data db [state-key :prices-table]))))
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
@@ -57,13 +77,26 @@
                      [::form/populate [state-key] {:schema/type :schema.type/shipping-method}]
                      [::backend/admin.entities.pull
                       {:params {:id id}
-                       :success [::form/populate [state-key]]}]))]}))
+                       :success [::init.next]}]))]}))
+
+(rf/reg-event-fx
+ ::init.next
+ (fn [{:keys [db]} [_ data]]
+   {:db (assoc-in db
+                  [state-key :price-index]
+                  (->> (:shipping-method/prices data)
+                       (group-by :shipping-method.price/min-value)
+                       (keys)
+                       (count)))
+    :dispatch-n [[::form/populate [state-key] data]
+                 [::form/populate [state-key :prices-table] (prices->table (:shipping-method/prices data))]]}))
 
 (rf/reg-event-fx
  ::init.groups
  (fn [{:keys [db]} [_ groups]]
    {:db (-> db
-            (assoc-in [state-key :prices-table :form (keyword "pricing-0-group-" (first groups))] "0")
+            (update-in [state-key :prices-table :form 0 :min-value]
+                       #(or % "0"))
             (assoc-in [state-key :country.groups] groups))}))
 
 (rf/reg-event-db
@@ -74,21 +107,10 @@
        (update-in db [state-key :price-index] inc)
        db))))
 
-(rf/reg-event-db
- ::save-value
- (fn [db [_ {:keys [index group type]} value]]
-   (if (= type :minimum)
-     (assoc-in db [state-key :prices index :min] value)
-     (assoc-in db [state-key :prices index :groups group] value))))
-
 (rf/reg-event-fx
  ::field-changed
- (fn [_ [_ {:keys [index group type]} value]]
-   (let [value (common.utils/str->bigdec value)]
-     {:dispatch-n [[::update-last-index index]
-                   [::save-value {:index index
-                                  :group group
-                                  :type type} value]]})))
+ (fn [_ [_ idx]]
+   {:dispatch-n [[::update-last-index idx]]}))
 
 (defn- prices-table []
   (let [db-path [state-key :prices-table]]
@@ -100,11 +122,9 @@
         (map (fn [idx]
                [base/table-header-cell
                 [form/field {:db-path db-path
-                             :type :number
-                             :key (keyword (str "pricing-" idx "-min"))
+                             :key [idx :min-value]
                              :placeholder "Minimum"
-                             :on-change-fx [::field-changed {:index idx
-                                                             :type :minimum}]}]])
+                             :on-change-fx [::field-changed idx]}]])
              (range (inc @(rf/subscribe [::events/db [state-key :price-index]]))))]]
       [base/table-body
        (let [rows @(rf/subscribe [::events/db [state-key :country.groups]])]
@@ -115,12 +135,9 @@
              (map (fn [idx]
                     [base/table-cell
                      [form/field {:db-path db-path
-                                  :type :number
-                                  :key (keyword (str "pricing-" idx "-group-" id))
+                                  :key [idx :country-groups id]
                                   :placeholder "Price"
-                                  :on-change-fx [::field-changed {:index idx
-                                                                  :group id
-                                                                  :type :value}]}]])
+                                  :on-change-fx [::field-changed idx]}]])
                   (range (inc @(rf/subscribe [::events/db [state-key :price-index]]))))])))]]]))
 
 (defn- field [{:keys [key] :as args}]
@@ -131,32 +148,31 @@
                                             key)))})])
 
 (defn content []
-  [:div
-   [form/form [state-key]
-    (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
-      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+  [form/form [state-key]
+   (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
+     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-       [base/segment {:color "orange"
-                      :title "Shipping method"}
+      [base/segment {:color "orange"
+                     :title "Shipping method"}
 
-        [field {:key :shipping-method/name
-                :type :i18n
-                :culture culture}]
+       [field {:key :shipping-method/name
+               :type :i18n
+               :culture culture}]
 
-        [field {:key :shipping-method/default?
-                :type :toggle}]
+       [field {:key :shipping-method/default?
+               :type :toggle}]
 
-        [field {:key :shipping-method/manipulation-fee
-                :type :amount}]
+       [field {:key :shipping-method/manipulation-fee
+               :type :amount}]
 
-        [field {:key [:shipping-method/pricing :db/id]
-                :type :combobox
-                :options @(rf/subscribe [::events/db [:enums :shipping-method.pricing]])}]
+       [field {:key [:shipping-method/pricing :db/id]
+               :type :combobox
+               :options @(rf/subscribe [::events/db [:enums :shipping-method.pricing]])}]
 
-        [prices-table]]
+       [prices-table]]
 
-       [base/form-button {:type "submit"}
-        (i18n ::submit)]])]])
+      [base/form-button {:type "submit"}
+       (i18n ::submit)]])])
 
 (defn page []
   [admin.skeleton/skeleton

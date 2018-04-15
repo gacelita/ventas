@@ -2,7 +2,8 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [ventas.utils :as utils]))
 
 (spec/def :amount/keyword ::generators/keyword)
 
@@ -37,3 +38,12 @@
   :seed-number 0
   :autoresolve? true
   :component? true})
+
+(defn get-entity
+  "Creates an amount entity from the given parameters. Meant for quick creation
+  of amount entities"
+  [amount currency-kw]
+  {:pre [(utils/bigdec? amount) (keyword? currency-kw)]}
+  {:schema/type :schema.type/amount
+   :amount/currency [:currency/keyword currency-kw]
+   :amount/value amount})
