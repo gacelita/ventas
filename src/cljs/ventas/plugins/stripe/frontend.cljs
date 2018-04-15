@@ -26,22 +26,19 @@
  (fn [_ _]
    {:dispatch [::events/configuration.get #{:stripe.public-key}]}))
 
-(defn stripe-checkout
-  "@TODO Remove form-2 dispatch antipattern"
-  []
-  (rf/dispatch [::init])
-  (fn []
-    (r/create-class
-     {:component-did-mount stripe-mount-or-update
-      :component-did-update stripe-mount-or-update
-      :reagent-render
-      (fn [props]
-        @(rf/subscribe [::events/db [:configuration :stripe.public-key]])
-        [:div
-         [:h2 (i18n ::pay-with-stripe)]
-         [:form {:action "localhost:3450"
-                 :method "POST"}]])})))
+(defn stripe-checkout []
+  (r/create-class
+   {:component-did-mount stripe-mount-or-update
+    :component-did-update stripe-mount-or-update
+    :reagent-render
+    (fn [props]
+      @(rf/subscribe [::events/db [:configuration :stripe.public-key]])
+      [:div
+       [:p "Not ready yet!"]
+       [:form {:action "localhost:3450"
+               :method "POST"}]])}))
 
 (payment/add-method
  :stripe
- {:component stripe-checkout})
+ {:component stripe-checkout
+  :init-fx [::init]})
