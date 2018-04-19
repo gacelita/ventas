@@ -2,6 +2,7 @@
   (:require
    [clojure.test :refer [deftest is use-fixtures]]
    [ventas.email :as sut]
+   [ventas.email.templates :as templates]
    [postal.core :as postal]))
 
 (def test-configuration
@@ -31,10 +32,10 @@
   (let [received-args (atom nil)
         subject "Hey!"
         template "Test body"]
-    (defmethod sut/template-body :test-template [_ _]
+    (defmethod templates/template-body :test-template [_ _]
       template)
     (with-redefs [postal/send-message (fn [& args] (reset! received-args args))]
-      (sut/send-template! :test-template {:subject subject})
+      (sut/send-template! :test-template {:subject subject} {})
       (is (= [test-configuration
               {:body [{:content template :type "text/html; charset=utf-8"}]
                :from (:from test-configuration)

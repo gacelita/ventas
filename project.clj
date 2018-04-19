@@ -274,6 +274,11 @@
            :style "nested"
            :import-path "src/scss"}
 
+          {:src "src/scss/email.scss"
+           :output-to "resources/public/files/css/email.css"
+           :style "nested"
+           :import-path "src/scss"}
+
           ;; Included themes need their own separate build
           {:src "src/scss/themes/blank/core.scss"
            :output-to "resources/public/files/css/themes/blank.css"

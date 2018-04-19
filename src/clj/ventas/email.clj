@@ -2,9 +2,10 @@
   (:require
    [postal.core :as postal]
    [ventas.entities.configuration :as entities.configuration]
+   [ventas.email.templates.order-done]
+   [ventas.email.templates :as templates]
    [hiccup.core :as hiccup]
-   [ventas.i18n :refer [i18n]]
-   [ventas.config :as config]))
+   [ventas.i18n :refer [i18n]]))
 
 (defn- get-config []
   (let [encryption? (entities.configuration/get :email.encryption.enabled)
@@ -33,21 +34,8 @@
     (postal/send-message config
                          (merge args {:from from}))))
 
-(defn- logo-html []
-  (let [{:keys [host port]} (config/get :server)]
-    [:img {:src (str "http://" host ":" port "/files/logo")}]))
-
-(defmulti template-body (fn [template _] template))
-
-(defmethod template-body :new-pending-order [_ _]
-  (hiccup/html
-   [:div
-    (logo-html)
-    [:p
-     (i18n :en_US ::new-pending-order)]]))
-
 (defn send-template!
-  [template & [args]]
-  (send! (merge args
+  [template email-opts extra-args]
+  (send! (merge email-opts
                 {:body [{:type "text/html; charset=utf-8"
-                         :content (template-body template args)}]})))
+                         :content (hiccup/html (templates/template-body template extra-args))}]})))

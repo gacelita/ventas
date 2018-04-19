@@ -13,6 +13,21 @@
     :ventas.database/transact-exception "Database exception"
     :ventas.entities.configuration/access-denied (fn [{:keys [key]}]
                                                    (str "The current user is not allowed to read the " key " configuration key"))
+    :ventas.email.elements/go-to-orders "You can see your orders"
+    :ventas.email.elements/go-to-orders-link "here"
+    :ventas.email.templates.order-done/shipped (fn [ref] (str "Your order with reference #" ref " has been shipped"))
+    :ventas.email.templates.order-done/paid (fn [ref] (str "We've received your order #" ref ". We'll begin preparing it soon."))
+    :ventas.email.templates.order-done/acknowledged (fn [ref] (str "We're preparing your order #" ref ". We'll notify you when it's shipped."))
+    :ventas.email.templates.order-done/ready (fn [ref] (str "Your order #" ref " is ready, and will be updated when we receive your payment."))
+
+    :ventas.email.templates.order-done/product "Product"
+    :ventas.email.templates.order-done/quantity "Quantity"
+    :ventas.email.templates.order-done/amount "Amount"
+    :ventas.email.templates.order-done/total-amount "Total amount"
+    :ventas.email.templates.order-done/shipping-address "Shipping address"
+
+    :ventas.email.elements/hello (fn [name]
+                                   (str "Hello, " name "!"))
     :ventas.payment-method/payment-method-not-found (fn [{:keys [method]}]
                                                       (str "Payment method not found: " method))
     :ventas.plugin/plugin-not-found (fn [{:keys [keyword]}]
