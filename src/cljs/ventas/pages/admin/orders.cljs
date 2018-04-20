@@ -17,7 +17,7 @@
   [:div
    [base/button {:icon true :on-click #(routes/go-to :admin.orders.edit :id id)}
     [base/icon {:name "edit"}]]
-   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :orders] id])}
+   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :table :rows] id])}
     [base/icon {:name "remove"}]]])
 
 (defn- status-column [{:keys [status]}]
@@ -30,8 +30,8 @@
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column]} (get-in db state-path)]
+ (fn [{:keys [db]} [_ state-path]]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
      {:dispatch [::backend/admin.entities.list
                  {:success ::fetch.next
                   :params {:type :order
@@ -49,7 +49,7 @@
                      {:params {:id user}
                       :success [::events/db [state-key :users user]]}])
       :db (-> db
-              (assoc-in [state-key :orders] items)
+              (assoc-in [state-key :table :rows] items)
               (assoc-in [state-key :table :total] total))})))
 
 (defn- user-column [{:keys [user id]}]
@@ -59,35 +59,35 @@
 
 (defn- content []
   [:div.admin-orders__table
-   [table/table
-    {:init-state {:page 0
-                  :items-per-page 5
-                  :sort-column :id
-                  :sort-direction :asc}
-     :state-path [state-key :table]
-     :data-path [state-key :orders]
-     :fetch-fx ::fetch
-     :columns [{:id :user
-                :label (i18n ::user)
-                :component user-column}
-               {:id :amount
-                :label (i18n ::amount)
-                :component (partial table/amount-column :amount)}
-               {:id :status
-                :label (i18n ::status)
-                :component status-column}
-               {:id :actions
-                :label (i18n ::actions)
-                :component action-column}]
-     :footer footer}]])
+   [table/table [state-key :table]]])
 
 (defn page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-orders__page
     [content]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::table/init [state-key :table]
+               {:fetch-fx [::fetch]
+                :columns [{:id :user
+                           :label (i18n ::user)
+                           :component user-column}
+                          {:id :amount
+                           :label (i18n ::amount)
+                           :component (partial table/amount-column :amount)}
+                          {:id :status
+                           :label (i18n ::status)
+                           :component status-column}
+                          {:id :actions
+                           :label (i18n ::actions)
+                           :component action-column}]
+                :footer footer}]}))
+
 (routes/define-route!
   :admin.orders
   {:name ::page
    :url "orders"
-   :component page})
+   :component page
+   :init-fx [::init]})
