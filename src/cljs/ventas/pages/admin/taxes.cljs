@@ -22,7 +22,7 @@
  ::remove.next
  (fn [db [_ id]]
    (update-in db
-              [state-key :taxes]
+              [state-key :table :rows]
               (fn [items]
                 (remove #(= (:id %) id)
                         items)))))
@@ -42,8 +42,8 @@
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+ (fn [{:keys [db]} [_ state-path]]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
      {:dispatch [::backend/admin.entities.list
                  {:success ::fetch.next
                   :params {:type :tax
@@ -56,7 +56,7 @@
  ::fetch.next
  (fn [db [_ {:keys [items total]}]]
    (-> db
-       (assoc-in [state-key :taxes] items)
+       (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
 (defn- name-column [{:keys [name id]}]
@@ -65,30 +65,33 @@
 
 (defn- content []
   [:div.admin-taxes__table
-   [table/table
-    {:init-state {:sort-column :id}
-     :state-path [state-key :table]
-     :data-path [state-key :taxes]
-     :fetch-fx ::fetch
-     :columns [{:id :name
-                :label (i18n ::name)
-                :component name-column}
-               {:id :amount
-                :label (i18n ::amount)
-                :component (partial table/amount-column :amount)}
-               {:id :actions
-                :label (i18n ::actions)
-                :component action-column
-                :width 110}]
-     :footer footer}]])
+   [table/table [state-key :table]]])
 
 (defn- page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-taxes__page
     [content action-column]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::table/init [state-key :table]
+               {:fetch-fx [::fetch]
+                :columns [{:id :name
+                           :label (i18n ::name)
+                           :component name-column}
+                          {:id :amount
+                           :label (i18n ::amount)
+                           :component (partial table/amount-column :amount)}
+                          {:id :actions
+                           :label (i18n ::actions)
+                           :component action-column
+                           :width 110}]
+                :footer footer}]}))
+
 (routes/define-route!
   :admin.taxes
   {:name ::page
    :url "taxes"
-   :component page})
+   :component page
+   :init-fx [::init]})
