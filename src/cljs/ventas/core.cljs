@@ -58,7 +58,7 @@
 
 (rf/reg-event-fx
  ::rendered-db
- (fn [{:keys [db]} _]
+ (fn [_ _]
    (when-let [rendered (aget js/window "__rendered_db")]
      {:db (reader/read-string rendered)
       :aset [js/window "__rendered_db" nil]})))
@@ -73,6 +73,7 @@
  ::fetch
  (fn [_ _]
    {:dispatch-n [[::events/categories.list]
+                 [::events/image-sizes.list]
                  [::events/users.favorites.enumerate]]}))
 
 (defn- page []
