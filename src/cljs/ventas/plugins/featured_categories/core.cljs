@@ -7,14 +7,10 @@
 
 (rf/reg-event-fx
  ::featured-categories.list
- (fn [cofx [_]]
+ (fn [_ _]
    {:dispatch [::backend/featured-categories.list
-               {:success #(rf/dispatch [::events/db [::featured-categories] %])}]}))
+               {:success [::events/db [::featured-categories]]}]}))
 
-(defn featured-categories
-  "@TODO Remove form-2 dispatch antipattern"
-  []
-  (rf/dispatch [::featured-categories.list])
-  (fn []
-    (let [categories @(rf/subscribe [::events/db [::featured-categories]])]
-      [components.category-list/category-list categories])))
+(defn featured-categories []
+  (let [categories @(rf/subscribe [::events/db [::featured-categories]])]
+    [components.category-list/category-list categories]))

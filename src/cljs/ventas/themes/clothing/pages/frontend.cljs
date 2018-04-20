@@ -19,7 +19,8 @@
    [ventas.themes.clothing.pages.frontend.privacy-policy]
    [ventas.themes.clothing.pages.frontend.product]
    [ventas.themes.clothing.pages.frontend.profile]
-   [ventas.utils.logging :refer [debug error info trace warn]]))
+   [ventas.utils.logging :refer [debug error info trace warn]]
+   [re-frame.core :as rf]))
 
 (defn page []
   [skeleton
@@ -32,8 +33,15 @@
      [theme.heading/heading (i18n ::recently-added)]
      [plugins.featured-categories/featured-categories]]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::plugins.featured-categories/featured-categories.list]
+                 [::plugins.featured-products/featured-products.list]]}))
+
 (routes/define-route!
   :frontend
   {:name ::page
    :url ""
-   :component page})
+   :component page
+   :init-fx [::init]})
