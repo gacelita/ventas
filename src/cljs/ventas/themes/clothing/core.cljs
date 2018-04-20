@@ -6,14 +6,8 @@
    [ventas.events :as events]
    [ventas.i18n :as i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.pages.frontend]))
-
-(rf/reg-event-fx
- ::listen-to-events
- (fn [_ _]
-   {:forward-events {:register ::listener
-                     :events #{::events/session.start}
-                     :dispatch-to [::handle-event]}}))
+   [ventas.themes.clothing.pages.frontend]
+   [ventas.components.cookies :as cookies]))
 
 (defmulti handle-event (fn [name] name))
 
@@ -31,7 +25,27 @@
    (or (apply handle-event evt)
        {})))
 
-(rf/dispatch [::listen-to-events])
+(rf/reg-event-fx
+ ::listen-to-session-start
+ (fn [_ _]
+   {:forward-events {:register ::session-listener
+                     :events #{::events/session.start}
+                     :dispatch-to [::handle-event]}}))
+
+(rf/reg-event-fx
+ ::listen-to-route-change
+ (fn [_ _]
+   {:forward-events {:register ::route-listener
+                     :events #{::routes/set}
+                     :dispatch-to [::handle-route-change]}}))
+
+(rf/reg-event-fx
+ ::handle-route-change
+ (fn [_ _]
+   {:dispatch [::cookies/get-state-from-local-storage]}))
+
+(rf/dispatch [::listen-to-session-start])
+(rf/dispatch [::listen-to-route-change])
 
 (i18n/register-translations!
  {:en_US

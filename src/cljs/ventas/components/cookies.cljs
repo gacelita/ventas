@@ -28,14 +28,10 @@
    {:db (assoc db state-key true)
     :local-storage (assoc local-storage state-key true)}))
 
-(defn cookies
-  "Cookie warning
-  @TODO Remove form-2 dispatch antipattern"
-  [text]
-  (rf/dispatch [::get-state-from-local-storage])
-  (fn [text]
-    (let [open? @(rf/subscribe [::open?])]
-      [:div.cookies {:style (when-not open? {:max-height "0px"})}
-       [:p text]
-       [base/icon {:name "remove"
-                   :on-click #(rf/dispatch [::close])}]])))
+(defn cookies [text]
+  "Cookie warning"
+  (let [open? @(rf/subscribe [::open?])]
+    [:div.cookies {:style (when-not open? {:max-height "0px"})}
+     [:p text]
+     [base/icon {:name "remove"
+                 :on-click #(rf/dispatch [::close])}]]))
