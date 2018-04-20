@@ -66,11 +66,7 @@
           [:button.slider__right {:on-click #(rf/dispatch [::components.slider/next state-path])}
            [base/icon {:name "chevron right"}]]])])))
 
-(defn slider
-  "@TODO Remove form-2 dispatch antipattern"
-  [kw]
-  (rf/dispatch [::sliders.get kw])
-  (fn [kw]
-    (let [slider-data @(rf/subscribe [::events/db [state-key kw]])]
-      (when (:keyword slider-data)
-        [slider* slider-data]))))
+(defn slider [kw]
+  (let [slider-data @(rf/subscribe [::events/db [state-key kw]])]
+    (when (:keyword slider-data)
+      [slider* slider-data])))

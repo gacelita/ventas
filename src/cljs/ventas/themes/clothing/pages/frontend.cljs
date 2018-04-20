@@ -22,10 +22,12 @@
    [ventas.utils.logging :refer [debug error info trace warn]]
    [re-frame.core :as rf]))
 
+(def slider-kw :sample-slider)
+
 (defn page []
   [skeleton
    [:div
-    [plugins.slider/slider :sample-slider]
+    [plugins.slider/slider slider-kw]
     [base/container
      [category-list]
      [theme.heading/heading (i18n ::suggestions-of-the-week)]
@@ -37,7 +39,8 @@
  ::init
  (fn [_ _]
    {:dispatch-n [[::plugins.featured-categories/featured-categories.list]
-                 [::plugins.featured-products/featured-products.list]]}))
+                 [::plugins.featured-products/featured-products.list]
+                 [::plugins.slider/sliders.get slider-kw]]}))
 
 (routes/define-route!
   :frontend
