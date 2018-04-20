@@ -11,15 +11,15 @@
 
 (def state-key ::state)
 
-(defn- action-column [_ row]
+(defn- action-column [_ _]
   [:div
    [base/button {:icon true}
     [base/icon {:name "edit"}]]])
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+ (fn [{:keys [db]} [_ state-path]]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
      {:dispatch [::backend/admin.events.list
                  {:success ::fetch.next
                   :params {:pagination {:page page
@@ -31,7 +31,7 @@
  ::fetch.next
  (fn [db [_ {:keys [items total]}]]
    (-> db
-       (assoc-in [state-key :events] items)
+       (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
 (defn- type-column [{:keys [type]}]
@@ -42,27 +42,30 @@
 
 (defn- content []
   [:div.admin-events__table
-   [table/table
-    {:init-state {:sort-column :id}
-     :state-path [state-key :table]
-     :data-path [state-key :events]
-     :fetch-fx ::fetch
-     :columns [{:id :entity-id
-                :label (i18n ::entity-id)}
-               {:id :entity-type
-                :label (i18n ::entity-type)
-                :component entity-type-column}
-               {:id :type
-                :label (i18n ::type)
-                :component type-column}]}]])
+   [table/table [state-key :table]]])
 
 (defn- page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-events__page
     [content]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::table/init [state-key :table]
+               {:fetch-fx [::fetch]
+                :columns [{:id :entity-id
+                           :label (i18n ::entity-id)}
+                          {:id :entity-type
+                           :label (i18n ::entity-type)
+                           :component entity-type-column}
+                          {:id :type
+                           :label (i18n ::type)
+                           :component type-column}]}]}))
+
 (routes/define-route!
   :admin.activity-log
   {:name ::page
    :url "activity-log"
-   :component page})
+   :component page
+   :init-fx [::init]})
