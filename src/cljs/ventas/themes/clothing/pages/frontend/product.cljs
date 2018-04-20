@@ -196,42 +196,38 @@
                                       (i18n ::is-required))
                             :theme "warning"}])})))
 
-(defn- info-view
-  "@TODO Remove form-2 dispatch antipattern"
-  [_]
-  (rf/dispatch [::events/users.favorites.enumerate])
-  (fn [{:keys [product]}]
-    (let [{:keys [name price description variation]} product]
-      [:div.product-page__info
-       [:h1.product-page__name name]
-       [:p.product-page__description description]
+(defn- info-view [{:keys [product]}]
+  (let [{:keys [name price description variation]} product]
+    [:div.product-page__info
+     [:h1.product-page__name name]
+     [:p.product-page__description description]
 
-       [:h2.product-page__price
-        (utils.formatting/amount->str price)]
+     [:h2.product-page__price
+      (utils.formatting/amount->str price)]
 
-       [:div.product-page__terms-section
-        (doall
-         (for [{:keys [taxonomy terms selected]} variation]
-           [:div.product-page__taxonomy
-            [:h4 (str (:name taxonomy) ": "
-                      (:name selected))]
-            [:div.product-page__terms
-             (for [term terms]
-               [term-view taxonomy term (= term selected)])]]))]
+     [:div.product-page__terms-section
+      (doall
+       (for [{:keys [taxonomy terms selected]} variation]
+         [:div.product-page__taxonomy
+          [:h4 (str (:name taxonomy) ": "
+                    (:name selected))]
+          [:div.product-page__terms
+           (for [term terms]
+             [term-view taxonomy term (= term selected)])]]))]
 
-       [:div.product-page__actions
-        (let [favorites (set @(rf/subscribe [::events/db :users.favorites]))]
-          [:button.product-page__heart
-           {:type "button"
-            :class (when (contains? favorites (:id product))
-                     "product-page__heart--active")
-            :on-click #(rf/dispatch [::events/users.favorites.toggle (:id product)])}
-           [base/icon {:name "empty heart"}]])
-        [:button.product-page__add-to-cart
+     [:div.product-page__actions
+      (let [favorites (set @(rf/subscribe [::events/db :users.favorites]))]
+        [:button.product-page__heart
          {:type "button"
-          :on-click #(rf/dispatch [::add-to-cart])}
-         [base/icon {:name "add to cart"}]
-         (i18n ::add-to-cart)]]])))
+          :class (when (contains? favorites (:id product))
+                   "product-page__heart--active")
+          :on-click #(rf/dispatch [::events/users.favorites.toggle (:id product)])}
+         [base/icon {:name "empty heart"}]])
+      [:button.product-page__add-to-cart
+       {:type "button"
+        :on-click #(rf/dispatch [::add-to-cart])}
+       [base/icon {:name "add to cart"}]
+       (i18n ::add-to-cart)]]]))
 
 (defn- description-view [{{:keys [details]} :product}]
   (when-not (empty? details)
@@ -245,7 +241,8 @@
  ::init
  (fn [{:keys [db]} _]
    {:db (assoc db state-key {:quantity 1})
-    :dispatch [::fetch (routes/ref-from-param :id)]}))
+    :dispatch-n [[::events/users.favorites.enumerate]
+                 [::fetch (routes/ref-from-param :id)]]}))
 
 (defn content []
   (let [state @(rf/subscribe [::events/db state-key])]
