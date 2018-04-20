@@ -10,39 +10,67 @@
   (let [amount (get data key)]
     [:p (utils.formatting/amount->str amount)]))
 
-(rf/reg-event-fx
+(defn get-state [db state-path]
+  (get-in db state-path))
+
+(rf/reg-sub
+ ::rows
+ (fn [db [_ state-path]]
+   (:rows (get-in db state-path))))
+
+(rf/reg-event-db
  ::set-state
- (fn [_ [_ {:keys [state-path fetch-fx] :as config} new-state]]
-   {:dispatch-n [[::events/db state-path new-state]
-                 (when fetch-fx [fetch-fx config])]}))
+ (fn [db [_ state-path state]]
+   (assoc-in db state-path state)))
+
+(rf/reg-event-db
+ ::update-state
+ (fn [db [_ state-path f]]
+   (update-in db state-path f)))
+
+(rf/reg-event-fx
+ ::init
+ (fn [_ [_ state-path state]]
+   (let [{:keys [fetch-fx] :as state} (merge {:page 0
+                                              :items-per-page 10
+                                              :sort-direction :asc
+                                              :sort-column :id}
+                                             state)]
+     {:dispatch-n [[::set-state state-path state]
+                   (when fetch-fx
+                     (conj fetch-fx state-path))]})))
 
 (rf/reg-event-fx
  ::set-page
- (fn [{:keys [db]} [_ page {:keys [state-path] :as config}]]
-   (let [state (get-in db state-path)]
-     {:dispatch [::set-state config (assoc state :page page)]})))
+ (fn [{:keys [db]} [_ state-path page]]
+   {:dispatch-n [[::update-state state-path #(assoc % :page page)]
+                 (when-let [fetch-fx (:fetch-fx (get-state db state-path))]
+                   (conj fetch-fx state-path))]}))
 
 (rf/reg-event-fx
  ::sort
- (fn [{:keys [db]} [_ {:keys [state-path] :as config} column]]
-   (let [{:keys [sort-direction sort-column] :as state} (get-in db state-path)
+ (fn [{:keys [db]} [_ state-path column]]
+   (let [{:keys [sort-direction sort-column fetch-fx] :as state} (get-state db state-path)
          new-direction (if (not= sort-column column)
                          :asc
                          (if (= sort-direction :asc) :desc :asc))]
-     {:dispatch [::set-state config (merge state {:sort-direction new-direction
-                                                  :sort-column column
-                                                  :page 0})]})))
+     {:dispatch-n [[::set-state state-path (merge state
+                                                  {:sort-direction new-direction
+                                                   :sort-column column
+                                                   :page 0})]
+                   (when fetch-fx
+                     (conj fetch-fx state-path))]})))
 
 (def pagination-width 1)
 
 (def pagination-total-width (+ 5 (* pagination-width 2)))
 
-(defn- right-placeholder [pages current]
+(defn- right-placeholder [pages]
   (concat (take (- pagination-total-width 2) pages)
           [::placeholder]
           [(last pages)]))
 
-(defn- left-placeholder [pages current]
+(defn- left-placeholder [pages]
   (concat [(first pages)]
           [::placeholder]
           (take-last (- pagination-total-width 2) pages)))
@@ -59,68 +87,62 @@
     (if (<= total pagination-total-width)
       pages
       (cond
-        (< current 4) (right-placeholder pages current)
-        (> current (- total 5)) (left-placeholder pages current)
+        (< current 4) (right-placeholder pages)
+        (> current (- total 5)) (left-placeholder pages)
         :default (both-placeholders pages current)))))
 
-(defn table
-  "@TODO Remove form-2 dispatch antipattern"
-  [{:keys [footer state-path data-path columns init-state] :as config}]
-  (rf/dispatch [::set-state config (merge {:page 0
-                                           :items-per-page 10}
-                                          init-state)])
-  (fn []
-    (let [{:keys [total items-per-page page sort-direction sort-column]} @(rf/subscribe [::events/db state-path])]
-      [base/table {:celled true :sortable true}
-       [base/table-header
-        [base/table-row
-         (for [{:keys [id label]} columns]
-           [base/table-header-cell
-            {:key id
-             :sorted (if (= sort-column id)
-                       (if (= sort-direction :asc)
-                         "ascending"
-                         "descending"))
-             :on-click #(rf/dispatch [::sort config id])}
-            label])]]
-       [base/table-body
-        (let [rows @(rf/subscribe [::events/db data-path])]
-          (if (empty? rows)
+(defn table [state-path {:keys [footer columns]}]
+  (let [{:keys [total items-per-page page sort-direction sort-column]} @(rf/subscribe [::events/db state-path])]
+    [base/table {:celled true :sortable true}
+     [base/table-header
+      [base/table-row
+       (for [{:keys [id label]} columns]
+         [base/table-header-cell
+          {:key id
+           :sorted (if (= sort-column id)
+                     (if (= sort-direction :asc)
+                       "ascending"
+                       "descending"))
+           :on-click #(rf/dispatch [::sort state-path id])}
+          label])]]
+     [base/table-body
+      (let [rows @(rf/subscribe [::rows state-path])]
+        (if (empty? rows)
+          [base/table-row
+           [base/table-cell {:col-span (count columns)}
+            [:p.table-component__no-rows (i18n ::no-rows)]]]
+          (for [row rows]
             [base/table-row
-             [base/table-cell {:col-span (count columns)}
-              [:p.table-component__no-rows (i18n ::no-rows)]]]
-            (for [row rows]
-              [base/table-row
-               {:key (hash row)}
-               (for [{:keys [id component width]} columns]
-                 [base/table-cell {:key id
-                                   :style (when width
-                                            {:width width})}
-                  (if component
-                    [component row]
-                    (id row))])])))]
-       [base/table-footer
-        [base/table-row
-         [base/table-header-cell {:col-span (count columns)}
-          (when footer
-            [footer])
-          (let [total-pages (Math/ceil (/ total items-per-page))]
-            [base/menu {:floated "right" :pagination true}
-             [base/menu-item {:icon true
-                              :disabled (= page 0)
-                              :on-click #(rf/dispatch [::set-page (dec page) config])}
-              [base/icon {:name "left chevron"}]]
-             (map-indexed
-              (fn [idx n]
-                (if (= ::placeholder n)
-                  [base/menu-item {:key idx} "..."]
-                  [base/menu-item
-                   {:active (= n page)
-                    :key idx
-                    :on-click #(rf/dispatch [::set-page n config])}
-                   (str (inc n))]))
-              (get-page-numbers total-pages page))
-             [base/menu-item {:icon true
-                              :disabled (= page (dec total-pages))
-                              :on-click #(rf/dispatch [::set-page (inc page) config])}
-              [base/icon {:name "right chevron"}]]])]]]])))
+             {:key (hash row)}
+             (for [{:keys [id component width]} columns]
+               [base/table-cell {:key id
+                                 :style (when width
+                                          {:width width})}
+                (if component
+                  [component row]
+                  (id row))])])))]
+     [base/table-footer
+      [base/table-row
+       [base/table-header-cell {:col-span (count columns)}
+        (when footer
+          [footer])
+        (let [total-pages (Math/ceil (/ total items-per-page))]
+          [base/menu {:floated "right" :pagination true}
+           [base/menu-item {:icon true
+                            :disabled (= page 0)
+                            :on-click #(rf/dispatch [::set-page state-path (dec page)])}
+            [base/icon {:name "left chevron"}]]
+           (map-indexed
+            (fn [idx n]
+              (if (= ::placeholder n)
+                [base/menu-item {:key idx} "..."]
+                [base/menu-item
+                 {:active (= n page)
+                  :key idx
+                  :on-click #(rf/dispatch [::set-page state-path n])}
+                 (str (inc n))]))
+            (get-page-numbers total-pages page))
+           [base/menu-item {:icon true
+                            :disabled (= page (dec total-pages))
+                            :on-click #(rf/dispatch [::set-page state-path (inc page)])}
+            [base/icon {:name "right chevron"}]]])]]]]))

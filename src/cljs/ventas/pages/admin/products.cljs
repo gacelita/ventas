@@ -14,9 +14,11 @@
 
 (defn- action-column [{:keys [id]}]
   [:div
-   [base/button {:icon true :on-click #(routes/go-to :admin.products.edit :id id)}
+   [base/button {:icon true
+                 :on-click #(routes/go-to :admin.products.edit :id id)}
     [base/icon {:name "edit"}]]
-   [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :products] id])}
+   [base/button {:icon true
+                 :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :table :rows] id])}
     [base/icon {:name "remove"}]]])
 
 (defn- footer []
@@ -26,8 +28,8 @@
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column]} (get-in db state-path)]
+ (fn [{:keys [db]} [_ state-path]]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
      {:dispatch [::backend/products.list
                  {:success ::fetch.next
                   :params {:pagination {:page page
@@ -41,20 +43,14 @@
  ::fetch.next
  (fn [db [_ {:keys [items total]}]]
    (-> db
-       (assoc-in [state-key :products] items)
+       (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
 (defn- content []
   [:div.admin-products__table
    [table/table
-    {:init-state {:page 0
-                  :items-per-page 5
-                  :sort-column :id
-                  :sort-direction :asc}
-     :state-path [state-key :table]
-     :data-path [state-key :products]
-     :fetch-fx ::fetch
-     :columns [{:id :name
+    [state-key :table]
+    {:columns [{:id :name
                 :label (i18n ::name)}
                {:id :price
                 :label (i18n ::price)
@@ -69,8 +65,14 @@
    [:div.admin__default-content.admin-products__page
     [content]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::table/init [state-key :table] {:fetch-fx [::fetch]}]}))
+
 (routes/define-route!
   :admin.products
   {:name ::page
    :url "products"
-   :component page})
+   :component page
+   :init-fx [::init]})
