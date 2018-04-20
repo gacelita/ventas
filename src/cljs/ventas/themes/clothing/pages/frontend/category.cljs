@@ -29,7 +29,8 @@
                     (assoc-in [menu/state-key :current-category] ref))
             search (assoc-in db [state-key :filters :name] search)
             :default db))
-    :dispatch [::fetch]}))
+    :dispatch-n [[::fetch]
+                 [::events/categories.list]]}))
 
 (rf/reg-event-fx
  ::fetch

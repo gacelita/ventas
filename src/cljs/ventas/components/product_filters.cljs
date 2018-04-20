@@ -84,25 +84,21 @@
          :current (first (:categories filters))
          :outside-branch? true}])]))
 
-(defn product-filters
-  "@TODO Remove form-2 dispatch antipattern"
-  [_]
-  (rf/dispatch [::events/categories.list])
-  (fn [{:keys [filters taxonomies event]}]
-    [sidebar/sidebar
-     [:div.product-filters
-      [categories-view {:filters filters
-                        :terms (->> taxonomies
-                                    (filter #(= (get-in % [:taxonomy :keyword])))
-                                    first
-                                    :terms)}]
-      (for [{{:keys [id name keyword]} :taxonomy terms :terms} taxonomies]
-        (when (not= keyword :category)
-          [sidebar/sidebar-section {:key id
-                                    :id id
-                                    :name (or name
-                                              (i18n (ns-kw keyword)))}
-           (for [term terms]
-             ^{:key (:id term)}
-             [product-term keyword term {:filters filters
-                                         :event event}])]))]]))
+(defn product-filters [{:keys [filters taxonomies event]}]
+  [sidebar/sidebar
+   [:div.product-filters
+    [categories-view {:filters filters
+                      :terms (->> taxonomies
+                                  (filter #(= (get-in % [:taxonomy :keyword])))
+                                  first
+                                  :terms)}]
+    (for [{{:keys [id name keyword]} :taxonomy terms :terms} taxonomies]
+      (when (not= keyword :category)
+        [sidebar/sidebar-section {:key id
+                                  :id id
+                                  :name (or name
+                                            (i18n (ns-kw keyword)))}
+         (for [term terms]
+           ^{:key (:id term)}
+           [product-term keyword term {:filters filters
+                                       :event event}])]))]])
