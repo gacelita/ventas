@@ -2,7 +2,6 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.formatting :as utils.formatting]))
 
@@ -14,9 +13,9 @@
   (get-in db state-path))
 
 (rf/reg-sub
- ::rows
+ ::state
  (fn [db [_ state-path]]
-   (:rows (get-in db state-path))))
+   (get-state db state-path)))
 
 (rf/reg-event-db
  ::set-state
@@ -91,8 +90,9 @@
         (> current (- total 5)) (left-placeholder pages)
         :default (both-placeholders pages current)))))
 
-(defn table [state-path {:keys [footer columns]}]
-  (let [{:keys [total items-per-page page sort-direction sort-column]} @(rf/subscribe [::events/db state-path])]
+(defn table [state-path]
+  (let [{:keys [total items-per-page page sort-direction sort-column
+                footer columns rows]} @(rf/subscribe [::state state-path])]
     [base/table {:celled true :sortable true}
      [base/table-header
       [base/table-row
@@ -106,21 +106,20 @@
            :on-click #(rf/dispatch [::sort state-path id])}
           label])]]
      [base/table-body
-      (let [rows @(rf/subscribe [::rows state-path])]
-        (if (empty? rows)
+      (if (empty? rows)
+        [base/table-row
+         [base/table-cell {:col-span (count columns)}
+          [:p.table-component__no-rows (i18n ::no-rows)]]]
+        (for [row rows]
           [base/table-row
-           [base/table-cell {:col-span (count columns)}
-            [:p.table-component__no-rows (i18n ::no-rows)]]]
-          (for [row rows]
-            [base/table-row
-             {:key (hash row)}
-             (for [{:keys [id component width]} columns]
-               [base/table-cell {:key id
-                                 :style (when width
-                                          {:width width})}
-                (if component
-                  [component row]
-                  (id row))])])))]
+           {:key (hash row)}
+           (for [{:keys [id component width]} columns]
+             [base/table-cell {:key id
+                               :style (when width
+                                        {:width width})}
+              (if component
+                [component row]
+                (id row))])]))]
      [base/table-footer
       [base/table-row
        [base/table-header-cell {:col-span (count columns)}

@@ -48,17 +48,7 @@
 
 (defn- content []
   [:div.admin-products__table
-   [table/table
-    [state-key :table]
-    {:columns [{:id :name
-                :label (i18n ::name)}
-               {:id :price
-                :label (i18n ::price)
-                :component (partial table/amount-column :price)}
-               {:id :actions
-                :label (i18n ::actions)
-                :component action-column}]
-     :footer footer}]])
+   [table/table [state-key :table]]])
 
 (defn page []
   [admin.skeleton/skeleton
@@ -68,7 +58,17 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch [::table/init [state-key :table] {:fetch-fx [::fetch]}]}))
+   {:dispatch [::table/init [state-key :table]
+               {:fetch-fx [::fetch]
+                :footer footer
+                :columns [{:id :name
+                           :label (i18n ::name)}
+                          {:id :price
+                           :label (i18n ::price)
+                           :component (partial table/amount-column :price)}
+                          {:id :actions
+                           :label (i18n ::actions)
+                           :component action-column}]}]}))
 
 (routes/define-route!
   :admin.products
