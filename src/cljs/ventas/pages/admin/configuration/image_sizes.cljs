@@ -46,8 +46,8 @@
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+ (fn [{:keys [db]} [_ state-path]]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
      {:dispatch [::backend/admin.entities.list
                  {:success ::fetch.next
                   :params {:type :image-size
@@ -60,7 +60,7 @@
  ::fetch.next
  (fn [db [_ {:keys [items total]}]]
    (-> db
-       (assoc-in [state-key :image-sizes] items)
+       (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
 (defn- keyword-column [{:keys [keyword id]}]
@@ -69,34 +69,37 @@
 
 (defn- content []
   [:div.admin-image-sizes__table
-   [table/table
-    {:init-state {:sort-column :id}
-     :state-path [state-key :table]
-     :data-path [state-key :image-sizes]
-     :fetch-fx ::fetch
-     :columns [{:id :keyword
-                :label (i18n ::keyword)
-                :component keyword-column}
-               {:id :width
-                :label (i18n ::width)}
-               {:id :height
-                :label (i18n ::height)}
-               {:id :algorithm
-                :label (i18n ::algorithm)
-                :component algorithm-column}
-               {:id :actions
-                :label (i18n ::actions)
-                :component action-column
-                :width 110}]
-     :footer footer}]])
+   [table/table [state-key :table]]])
 
 (defn- page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-image-sizes__page
     [content action-column]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::table/init [state-key :table]
+               {:fetch-fx [::fetch]
+                :columns [{:id :keyword
+                           :label (i18n ::keyword)
+                           :component keyword-column}
+                          {:id :width
+                           :label (i18n ::width)}
+                          {:id :height
+                           :label (i18n ::height)}
+                          {:id :algorithm
+                           :label (i18n ::algorithm)
+                           :component algorithm-column}
+                          {:id :actions
+                           :label (i18n ::actions)
+                           :component action-column
+                           :width 110}]
+                :footer footer}]}))
+
 (routes/define-route!
   :admin.configuration.image-sizes
   {:name ::page
    :url "image-sizes"
-   :component page})
+   :component page
+   :init-fx [::init]})
