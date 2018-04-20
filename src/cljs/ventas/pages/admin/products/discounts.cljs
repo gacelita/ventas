@@ -7,8 +7,7 @@
    [ventas.components.base :as base]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [re-frame.core :as rf]
-   [ventas.utils.formatting :as utils.formatting]))
+   [re-frame.core :as rf]))
 
 (def state-key ::state)
 
@@ -26,8 +25,8 @@
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column]} (get-in db state-path)]
+ (fn [{:keys [db]} [_ state-path]]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
      {:dispatch [::backend/admin.entities.list
                  {:success ::fetch.next
                   :params {:type :discount
@@ -36,12 +35,12 @@
                            :sorting {:direction sort-direction
                                      :field sort-column}}}]})))
 
-(rf/reg-event-fx
+(rf/reg-event-db
  ::fetch.next
- (fn [{:keys [db]} [_ {:keys [items total]}]]
-   {:db (-> db
-            (assoc-in [state-key :discounts] items)
-            (assoc-in [state-key :table :total] total))}))
+ (fn [db [_ {:keys [items total]}]]
+   (-> db
+       (assoc-in [state-key :table :rows] items)
+       (assoc-in [state-key :table :total] total))))
 
 (defn- name-column [{:keys [name id]}]
   [:a {:href (routes/path-for :admin.products.discounts.edit :id id)}
@@ -49,34 +48,34 @@
 
 (defn- content []
   [:div.admin-discounts__table
-   [table/table
-    {:init-state {:page 0
-                  :items-per-page 5
-                  :sort-column :id
-                  :sort-direction :asc}
-     :state-path [state-key :table]
-     :data-path [state-key :discounts]
-     :fetch-fx ::fetch
-     :columns [{:id :name
-                :label (i18n ::name)
-                :component name-column}
-               {:id :code
-                :label (i18n ::code)}
-               {:id :amount
-                :label (i18n ::amount)
-                :component (partial table/amount-column :amount)}
-               {:id :actions
-                :label (i18n ::actions)
-                :component action-column}]
-     :footer footer}]])
+   [table/table [state-key :table]]])
 
 (defn page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-discounts__page
     [content]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::table/init [state-key :table]
+               {:fetch-fx [::fetch]
+                :columns [{:id :name
+                           :label (i18n ::name)
+                           :component name-column}
+                          {:id :code
+                           :label (i18n ::code)}
+                          {:id :amount
+                           :label (i18n ::amount)
+                           :component (partial table/amount-column :amount)}
+                          {:id :actions
+                           :label (i18n ::actions)
+                           :component action-column}]
+                :footer footer}]}))
+
 (routes/define-route!
  :admin.products.discounts
  {:name ::page
   :url "discounts"
-  :component page})
+  :component page
+  :init-fx [::init]})
