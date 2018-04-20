@@ -45,7 +45,8 @@
  (fn [{:keys [db]} [_ [_ handler]]]
    (if (and (str/starts-with? (name handler) "frontend")
             (not (get-in db [::state :init-done?])))
-     {:dispatch [::cookies/get-state-from-local-storage]
+     {:dispatch-n [[::cookies/get-state-from-local-storage]
+                   [::events/configuration.get #{:site.title}]]
       :db (assoc-in db [::state :init-done?] true)}
      {})))
 
