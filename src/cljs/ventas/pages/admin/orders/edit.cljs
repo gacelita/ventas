@@ -44,30 +44,6 @@
     [:img {:key (:id image)
            :src (str "/images/" (:id image) "/resize/admin-orders-edit-line")}]))
 
-(defn- lines-table []
-  [table/table
-   {:init-state {:page 0
-                 :items-per-page 5
-                 :sort-column :id
-                 :sort-direction :asc}
-    :state-path [state-key :lines-table]
-    :data-path [state-key :lines]
-    :columns [{:id :image
-               :label (i18n ::image)
-               :component image-column}
-              {:id :name
-               :label (i18n ::name)
-               :component (fn [row] [:span (get-in row [:product-variation :name])])}
-              {:id :price
-               :label (i18n ::price)
-               :component (fn [row] [:span (get-in row [:product-variation :price :value])])}
-              {:id :quantity
-               :label (i18n ::quantity)}
-              {:id :total
-               :label (i18n ::total)
-               :component (fn [row] [:span (* (:quantity row)
-                                              (get-in row [:product-variation :price :value]))])}]}])
-
 (rf/reg-sub
  ::user-addresses
  (fn [_]
@@ -86,7 +62,24 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [(let [id (routes/ref-from-param :id)]
+   {:dispatch-n [[::table/init [state-key :lines-table]
+                  {:items-per-page 5
+                   :columns [{:id :image
+                              :label (i18n ::image)
+                              :component image-column}
+                             {:id :name
+                              :label (i18n ::name)
+                              :component (fn [row] [:span (get-in row [:product-variation :name])])}
+                             {:id :price
+                              :label (i18n ::price)
+                              :component (fn [row] [:span (get-in row [:product-variation :price :value])])}
+                             {:id :quantity
+                              :label (i18n ::quantity)}
+                             {:id :total
+                              :label (i18n ::total)
+                              :component (fn [row] [:span (* (:quantity row)
+                                                             (get-in row [:product-variation :price :value]))])}]}]
+                 (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/order}]
                      [::backend/admin.orders.get
@@ -101,7 +94,7 @@
                  [::backend/admin.entities.find-serialize
                   {:params {:id (get-in order [:order/user :db/id])}
                    :success [::events/db [state-key :user]]}]]
-    :db (assoc-in db [state-key :lines] lines)}))
+    :db (assoc-in db [state-key :lines-table :rows] lines)}))
 
 (defn- field [{:keys [key] :as args}]
   [form/field (merge args
@@ -164,7 +157,7 @@
     [base/segment {:color "orange"
                    :title (i18n ::lines)}
 
-     [lines-table]]
+     [table/table [state-key :lines-table]]]
 
     [base/form-button {:type "submit"} (i18n ::submit)]]])
 
