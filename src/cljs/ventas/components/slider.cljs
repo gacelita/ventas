@@ -1,18 +1,8 @@
 (ns ventas.components.slider
   (:require
-   [cljs.core.async :refer [<! >! alts! chan timeout]]
+   [cljs.core.async :refer [go <! >! alts! chan timeout]]
    [re-frame.core :as rf]
-   [ventas.events :as events])
-  (:require-macros
-   [cljs.core.async.macros :refer [go]]))
-
-#_"
-  This namespace expects a `state-path` argument, which is a vector that will be used
-  for getting and setting data in the db.
-  Users of this ns are expected to fill that state in this way:
-  {:slides [{:width 0 :height 0} ...]
-   :orientation #{:vertical :horizontal}
-   :visible-slides 3"
+   [ventas.events :as events]))
 
 (def transition-duration-ms 250)
 

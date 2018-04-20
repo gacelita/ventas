@@ -24,38 +24,41 @@
 
 (rf/reg-event-fx
  ::sliders.get
- (fn [cofx [_ kw]]
+ (fn [_ [_ kw]]
    {:dispatch [::slider.backend/sliders.get
                {:params {:keyword kw}
                 :success [::sliders.get.next kw]}]}))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::sliders.get.next
- (fn [db [_ kw {:keys [slides auto-speed auto keyword]}]]
-   (assoc-in db [state-key kw]
-             {:slides (mapv (fn [image]
-                              (merge image
-                                     {:width ::components.slider/viewport
-                                      :height 350}))
-                            slides)
-              :orientation :horizontal
-              :render-index (dec (count slides))
-              :current-index 1
-              :visible-slides 1
-              :auto auto
-              :auto-speed auto-speed
-              :keyword keyword})))
+ (fn [{:keys [db]} [_ kw {:keys [slides auto-speed auto keyword]}]]
+   (let [state-path [state-key kw]]
+     {:db (assoc-in db state-path
+                    {:slides (mapv (fn [image]
+                                     (merge image
+                                            {:width ::components.slider/viewport
+                                             :height 350}))
+                                   slides)
+                     :orientation :horizontal
+                     :render-index (dec (count slides))
+                     :current-index 1
+                     :visible-slides 1
+                     :auto auto
+                     :auto-speed auto-speed
+                     :keyword keyword})
+      :set-interval (when auto
+                      {:id kw
+                       :speed auto-speed
+                       :callback #(rf/dispatch [::components.slider/next state-path])})})))
 
-(defn slider* [{:keys [keyword auto auto-speed]}]
+(defn slider* [keyword]
   (let [state-path [state-key keyword]]
-    (when auto
-      (js/setInterval #(rf/dispatch [::components.slider/next state-path]) auto-speed))
     (fn [{:keys [slides]}]
       ^{:key @(rf/subscribe [::events/db (conj state-path :render-index)])}
       [:div.slider
        [:div.slider__slides {:style {:left @(rf/subscribe [::components.slider/offset state-path])}}
         (map-indexed
-         (fn [idx {:keys [file id]}]
+         (fn [idx {:keys [file]}]
            ^{:key idx}
            [:div.slider__slide {:style {:background-image (str "url(" (:url file) ")")}}])
          @(rf/subscribe [::components.slider/slides state-path]))]
@@ -68,5 +71,5 @@
 
 (defn slider [kw]
   (let [slider-data @(rf/subscribe [::events/db [state-key kw]])]
-    (when (:keyword slider-data)
-      [slider* slider-data])))
+    (when-let [kw (:keyword slider-data)]
+      [slider* kw])))

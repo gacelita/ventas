@@ -50,6 +50,19 @@
  (fn [title]
    (set! js/document.title title)))
 
+(def ^:private id->interval (atom {}))
+
+(rf/reg-fx
+ :set-interval
+ (fn [{:keys [speed callback id]}]
+   (swap! id->interval assoc id (js/setInterval callback speed))))
+
+(rf/reg-fx
+ :clear-interval
+ (fn [id]
+   (js/clearInterval (get @id->interval id))
+   (swap! id->interval dissoc id)))
+
 (rf/reg-fx
  :aset
  (fn [args]
