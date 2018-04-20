@@ -8,7 +8,7 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]))
 
-(def state-key ::users)
+(def state-key ::state)
 
 (rf/reg-event-fx
  ::remove
@@ -21,7 +21,7 @@
  ::remove.next
  (fn [db [_ id]]
    (update-in db
-              [state-key :users]
+              [state-key :table :rows]
               (fn [users]
                 (remove #(= (:id %) id)
                         users)))))
@@ -41,8 +41,8 @@
 
 (rf/reg-event-fx
  ::fetch
- (fn [{:keys [db]} [_ {:keys [state-path]}]]
-   (let [{:keys [page items-per-page sort-direction sort-column] :as state} (get-in db state-path)]
+ (fn [{:keys [db]} [_ state-path]]
+   (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
      {:dispatch [::backend/admin.users.list
                  {:success ::fetch.next
                   :params {:pagination {:page page
@@ -54,7 +54,7 @@
  ::fetch.next
  (fn [db [_ {:keys [items total]}]]
    (-> db
-       (assoc-in [state-key :users] items)
+       (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
 (defn- first-name-column [{:keys [first-name id]}]
@@ -63,28 +63,31 @@
 
 (defn- content []
   [:div.admin-users__table
-   [table/table
-    {:init-state {:sort-column :id}
-     :state-path [state-key :table]
-     :data-path [state-key :users]
-     :fetch-fx ::fetch
-     :columns [{:id :first-name
-                :label (i18n ::name)
-                :component first-name-column}
-               {:id :email
-                :label (i18n ::email)}
-               {:id :actions
-                :label (i18n ::actions)
-                :component action-column}]
-     :footer footer}]])
+   [table/table [state-key :table]]])
 
 (defn- page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-users__page
     [content action-column]]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch [::table/init [state-key :table]
+               {:fetch-fx [::fetch]
+                :columns [{:id :first-name
+                           :label (i18n ::name)
+                           :component first-name-column}
+                          {:id :email
+                           :label (i18n ::email)}
+                          {:id :actions
+                           :label (i18n ::actions)
+                           :component action-column}]
+                :footer footer}]}))
+
 (routes/define-route!
   :admin.users
   {:name ::page
    :url "users"
-   :component page})
+   :component page
+   :init-fx [::init]})
