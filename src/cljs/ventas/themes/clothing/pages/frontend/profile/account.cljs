@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent]
+   [ventas.events :as events]
    [ventas.components.base :as base]
    [ventas.events.backend :as backend]
    [ventas.components.notificator :as notificator]
@@ -21,7 +22,7 @@
 (def regular-length-validator [::length-error validation/length-validator {:max 30}])
 
 (def form-config
-  {:state-key ::state-key
+  {:db-path [state-key]
    :validators {::first-name [regular-length-validator]
                 ::last-name [regular-length-validator]
                 ::company [regular-length-validator]
@@ -41,7 +42,7 @@
  ::submit
  (fn [{:keys [db]} _]
    {:dispatch [::backend/users.save
-               {:params (get-in db [state-key :form])
+               {:params (form/get-data db [state-key])
                 :success ::submit.next}]}))
 
 (rf/reg-event-fx
@@ -50,37 +51,61 @@
    {:dispatch-n [[::notificator/notify-saved]
                  [::cancel-edition]]}))
 
+(rf/reg-event-fx
+ ::submit-password
+ (fn [{:keys [db]}]
+   {:dispatch [::backend/users.change-password
+               {:params {:password (:password (form/get-data db [state-key]))}
+                :success ::submit-password.next}]}))
+
+(rf/reg-event-fx
+ ::submit-password.next
+ (fn [_]
+   {:dispatch-n [[::form/set-field [state-key] :password nil :reset-hash? true]
+                 [::form/set-field [state-key] :password-repeat nil :reset-hash? true]
+                 [::notificator/notify-saved nil]]}))
+
 (defn content []
   [form/form [state-key]
-   [base/segment
-    [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+   [:div
+    [base/segment
+     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-     [base/form-group
-      [field {:key :first-name
-              :width 5}]
-      [field {:key :last-name
-              :width 11}]]
+      [base/form-group
+       [field {:key :first-name
+               :width 5}]
+       [field {:key :last-name
+               :width 11}]]
 
-     [base/form-group
-      [field {:key :company
-              :width 16}]]
+      [base/form-group
+       [field {:key :company
+               :width 16}]]
 
-     [base/form-group
-      [field {:key :email
-              :width 8}]
-      [field {:key :phone
-              :width 8}]]
+      [base/form-group
+       [field {:key :email
+               :width 8}]
+       [field {:key :phone
+               :width 8}]]
 
-     [base/form-group
-      [field {:key :privacy-policy
-              :type :checkbox
-              :inline-label (reagent/as-element
-                             [:label (str (i18n ::privacy-policy-text) " ")
-                              [:a {:href (routes/path-for :frontend.privacy-policy)}
-                               (i18n ::privacy-policy)]])}]]
+      [base/form-group
+       [field {:key :privacy-policy
+               :type :checkbox
+               :inline-label (reagent/as-element
+                              [:label (str (i18n ::privacy-policy-text) " ")
+                               [:a {:href (routes/path-for :frontend.privacy-policy)}
+                                (i18n ::privacy-policy)]])}]]
 
-     [base/form-button {:type "submit"}
-      (i18n ::submit)]]]])
+      [base/form-button {:type "submit"}
+       (i18n ::submit)]]]
+
+    [base/segment
+     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit-password]))}
+      [field {:key :password
+              :type :password}]
+      [field {:key :password-repeat
+              :type :password}]
+      [base/form-button {:type "submit"}
+       (i18n ::submit)]]]]])
 
 (defn page []
   [profile.skeleton/skeleton
@@ -91,7 +116,7 @@
  (fn [_ _]
    (let [identity (session/get-identity)]
      {:dispatch-n [[::session/require-identity]
-                   [::form/populate [state-key] identity]]})))
+                   [::form/populate form-config identity]]})))
 
 (routes/define-route!
   :frontend.profile.account

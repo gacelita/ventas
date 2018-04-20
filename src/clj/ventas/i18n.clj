@@ -13,18 +13,24 @@
     :ventas.database/transact-exception "Database exception"
     :ventas.entities.configuration/access-denied (fn [{:keys [key]}]
                                                    (str "The current user is not allowed to read the " key " configuration key"))
-    :ventas.email.elements/go-to-orders "You can see your orders"
-    :ventas.email.elements/go-to-orders-link "here"
+
     :ventas.email.templates.order-done/shipped (fn [ref] (str "Your order with reference #" ref " has been shipped"))
     :ventas.email.templates.order-done/paid (fn [ref] (str "We've received your order #" ref ". We'll begin preparing it soon."))
     :ventas.email.templates.order-done/acknowledged (fn [ref] (str "We're preparing your order #" ref ". We'll notify you when it's shipped."))
     :ventas.email.templates.order-done/ready (fn [ref] (str "Your order #" ref " is ready, and will be updated when we receive your payment."))
-
     :ventas.email.templates.order-done/product "Product"
     :ventas.email.templates.order-done/quantity "Quantity"
     :ventas.email.templates.order-done/amount "Amount"
     :ventas.email.templates.order-done/total-amount "Total amount"
     :ventas.email.templates.order-done/shipping-address "Shipping address"
+    :ventas.email.templates.order-done/go-to-orders "You can see your orders"
+    :ventas.email.templates.order-done/go-to-orders-link "here"
+
+    :ventas.email.templates.user-registered/welcome (fn [title] (str "Welcome to " title "!"))
+    :ventas.email.templates.user-registered/add-an-address "Now it's a good moment to add an address to your profile, so that it's available for your orders."
+    :ventas.email.templates.user-registered/go-to-profile "Click here to go to your profile"
+
+    :ventas.email.templates.password-forgotten/reset-your-password "Reset your password"
 
     :ventas.email.elements/hello (fn [name]
                                    (str "Hello, " name "!"))

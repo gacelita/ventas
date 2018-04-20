@@ -91,6 +91,9 @@
                  ;; i18n
                  [tongue "0.2.3"]
 
+                 ;; URL parsing
+                 [com.cemerick/url "0.1.1"]
+
                  ;; re-frame
                  [reagent "0.7.0"]
                  [re-frame "0.10.5"]

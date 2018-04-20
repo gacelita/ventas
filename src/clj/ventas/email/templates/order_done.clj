@@ -24,11 +24,12 @@
         {:order/keys [reference shipping-address lines payment-amount status]} order]
     (elements/skeleton
      user
-     [:p (let [kw (case status
-                    :order.status/acknowledged ::acknowledged
-                    :order.status/paid ::paid
-                    :order.status/ready ::ready
-                    :order.status/shipped ::shipped)]
+     [:p (when-let [kw (case status
+                         :order.status/acknowledged ::acknowledged
+                         :order.status/paid ::paid
+                         :order.status/ready ::ready
+                         :order.status/shipped ::shipped
+                         nil)]
            (i18n culture-kw kw reference))]
      [:br]
      (elements/table
@@ -61,4 +62,9 @@
         [:br]
         [:span zip " " city " " (:name state)]
         [:br]
-        [:span (:name country)]]))))
+        [:span (:name country)]])
+     [:br]
+     [:p (i18n culture-kw ::go-to-orders)
+      " "
+      [:a {:href (elements/get-url "/profile/orders")}
+       (i18n culture-kw ::go-to-orders-link)]])))

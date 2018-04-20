@@ -3,6 +3,7 @@
   (:require
    [accountant.core :as accountant]
    [bidi.bidi :as bidi]
+   [cemerick.url :as url]
    [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas.events :as events]
@@ -17,6 +18,10 @@
 
 (def ^:private routes (atom (bidi-syntax/to-bidi @route-data)))
 
+(rf/reg-cofx
+ :url
+ (fn [cofxs _]
+   (assoc cofxs :url (url/url js/document.location.href))))
 
 (defn define-route! [name {:keys [component] :as attrs}]
   (swap! route-data conj (assoc attrs :handler name))

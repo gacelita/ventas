@@ -103,6 +103,11 @@
    {:ws-request (merge {:name :users.save} options)}))
 
 (rf/reg-event-fx
+ ::users.change-password
+ (fn [_ [_ options]]
+    {:ws-request (merge {:name :users.change-password} options)}))
+
+(rf/reg-event-fx
  ::admin.configuration.set
  (fn [_ [_ options]]
    {:ws-request (merge {:name :admin.configuration.set} options)}))

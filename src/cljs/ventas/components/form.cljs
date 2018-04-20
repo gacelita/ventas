@@ -11,17 +11,28 @@
    [reagent.core :as reagent]
    [clojure.string :as str]))
 
+(defn get-data [db db-path]
+  (get-in db (conj db-path :form)))
+
+(defn assoc-hash [db db-path]
+  (assoc-in db
+            (conj db-path :form-state :hash)
+            (hash (get-data db db-path))))
+
 (rf/reg-event-db
  ::set-field
- (fn [db [_ db-path field value]]
+ (fn [db [_ db-path field value & {:keys [reset-hash?]}]]
    {:pre [(vector? db-path)]}
    (let [form-field (if-not (sequential? field) [field] field)
          validators (get-in db (concat db-path [:form-state :validators]))]
-     (-> db
-         (assoc-in (concat db-path [:form] form-field)
-                   value)
-         (assoc-in (concat db-path [:form-state :validation] form-field)
-                   (:infractions (validation/validate validators field value)))))))
+     (as-> db %
+           (assoc-in % (concat db-path [:form] form-field)
+                     value)
+           (assoc-in % (concat db-path [:form-state :validation] form-field)
+                     (:infractions (validation/validate validators field value)))
+           (if-not reset-hash?
+             %
+             (assoc-hash % db-path))))))
 
 (rf/reg-event-fx
  ::update-field
@@ -43,11 +54,8 @@
      (-> db
          (assoc-in (conj db-path :form) data)
          (assoc-in (conj db-path :form-state) {:validators validators
-                                               :validation {}
-                                               :hash (hash data)})))))
-
-(defn get-data [db db-path]
-  (get-in db (conj db-path :form)))
+                                               :validation {}})
+         (assoc-hash db-path)))))
 
 (rf/reg-sub
  ::data

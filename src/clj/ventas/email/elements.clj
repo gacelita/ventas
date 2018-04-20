@@ -67,9 +67,4 @@
         [:td {:style {:text-align "left"}
               :align "left"}
          [:h3 (i18n culture-kw ::hello (entities.user/get-name (:db/id user)))]
-         content
-         [:br]
-         [:p (i18n culture-kw ::go-to-orders)
-          " "
-          [:a {:href (get-url "/profile/orders")}
-           (i18n culture-kw ::go-to-orders-link)]]]]))]))
+         content]]))]))

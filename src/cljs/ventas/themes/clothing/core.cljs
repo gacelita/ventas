@@ -150,6 +150,8 @@
    :ventas.themes.clothing.pages.frontend.profile.account/page "My account"
    :ventas.themes.clothing.pages.frontend.profile.account/submit "Save"
    :ventas.themes.clothing.pages.frontend.profile.account/phone "Phone"
+   :ventas.themes.clothing.pages.frontend.profile.account/password "Password"
+   :ventas.themes.clothing.pages.frontend.profile.account/password-repeat "Repeat your password"
 
    :ventas.themes.clothing.pages.frontend.profile.addresses/save "Save"
    :ventas.themes.clothing.pages.frontend.profile.addresses/new-address "New address"

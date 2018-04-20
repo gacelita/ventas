@@ -138,9 +138,10 @@
 
 (rf/reg-event-fx
  ::users.session
- [(rf/inject-cofx :local-storage)]
- (fn [{:keys [local-storage]} [_]]
-   (let [token (:token local-storage)]
+ [(rf/inject-cofx :local-storage)
+  (rf/inject-cofx :url)]
+ (fn [{:keys [local-storage url]} [_]]
+   (let [token (or (get-in url [:query "token"]) (:token local-storage))]
      {:dispatch [::backend/users.session
                  {:params {:token token}
                   :success ::session.start

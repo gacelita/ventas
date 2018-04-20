@@ -9,7 +9,8 @@
    [ventas.server.pagination :as pagination]
    [slingshot.slingshot :refer [throw+]]
    [ventas.payment-method :as payment-method]
-   [ventas.common.utils :as common.utils]))
+   [ventas.common.utils :as common.utils]
+   [buddy.hashers :as hashers]))
 
 (defn- user-check! [session]
   (let [{:db/keys [id]} (api/get-user session)]
@@ -47,6 +48,13 @@
  (fn [{user :params} {:keys [session]}]
    (entity/update (merge {:id (:db/id (api/get-user session))}
                          (select-keys user #{:first-name :last-name :company :email :phone})))))
+
+(register-user-endpoint!
+ :users.change-password
+ (fn [{{:keys [password]} :params} {:keys [session]}]
+   (let [{id :db/id} (api/get-user session)]
+     (entity/update* {:db/id id
+                      :user/password (hashers/derive password)}))))
 
 (register-user-endpoint!
  :users.addresses.remove
