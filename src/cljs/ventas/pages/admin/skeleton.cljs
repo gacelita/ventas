@@ -155,36 +155,32 @@
                  [::execute-menu-hooks]]
     :db (assoc-in db [state-key :menu-items] initial-menu-items)}))
 
-(defn- content-view
-  "@TODO Remove form-2 dispatch antipattern"
-  [content]
-  (rf/dispatch [::init])
-  (fn []
-    [:div
-     [:div.admin__userbar
-      [:div.admin__userbar-logo
-       [:img {:src "/files/logo"}]]
-      [:div.admin__userbar-home
-       [:a {:href (routes/path-for :frontend)}
-        [base/icon {:name "home"}]
-        [:span (i18n ::home)]]]
-      [base/loader {:active (boolean (seq @(rf/subscribe [::ws/pending-requests])))
-                    :inverted true
-                    :size "small"}]
-      (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
-        [:div.admin__userbar-profile
-         [base/dropdown {:text (:first-name identity)
-                         :class "dropdown--align-right"}
-          [base/dropdown-menu
-           [base/dropdown-item {:text (i18n ::logout)
-                                :on-click #(rf/dispatch [::events/users.logout])}]]]])]
-     [:div.admin__skeleton
-      [:div.admin__sidebar
-       [:a {:href (routes/path-for :admin)}
-        [:h3 (i18n ::administration)]]
-       [menu]]
-      [:div.admin__content
-       content]]]))
+(defn- content-view [content]
+  [:div
+   [:div.admin__userbar
+    [:div.admin__userbar-logo
+     [:img {:src "/files/logo"}]]
+    [:div.admin__userbar-home
+     [:a {:href (routes/path-for :frontend)}
+      [base/icon {:name "home"}]
+      [:span (i18n ::home)]]]
+    [base/loader {:active (boolean (seq @(rf/subscribe [::ws/pending-requests])))
+                  :inverted true
+                  :size "small"}]
+    (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
+      [:div.admin__userbar-profile
+       [base/dropdown {:text (:first-name identity)
+                       :class "dropdown--align-right"}
+        [base/dropdown-menu
+         [base/dropdown-item {:text (i18n ::logout)
+                              :on-click #(rf/dispatch [::events/users.logout])}]]]])]
+   [:div.admin__skeleton
+    [:div.admin__sidebar
+     [:a {:href (routes/path-for :admin)}
+      [:h3 (i18n ::administration)]]
+     [menu]]
+    [:div.admin__content
+     content]]])
 
 (defn skeleton [content]
   [:div.root

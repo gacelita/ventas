@@ -27,7 +27,7 @@
     [:p (if (or first-name last-name)
           (str/join " " [first-name last-name])
           (i18n ::no-name))]
-    [:p created-at]]])
+    [:p (str created-at)]]])
 
 (rf/reg-event-fx
  ::fetch-stats

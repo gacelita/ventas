@@ -18,7 +18,28 @@
    [ventas.pages.admin.taxes]
    [ventas.pages.admin.users.edit]
    [ventas.pages.admin.users]
-   [ventas.routes :as routes]))
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.routes :as routes]
+   [re-frame.core :as rf]
+   [clojure.string :as str]))
+
+(rf/reg-event-fx
+ ::handle-route-change
+ (fn [{:keys [db]} [_ [_ handler]]]
+   (if (and (str/starts-with? (name handler) "admin")
+            (not (get-in db [::state :init-done?])))
+     {:dispatch [::admin.skeleton/init]
+      :db (assoc-in db [::state :init-done?] true)}
+     {})))
+
+(rf/reg-event-fx
+ ::listen-to-route-change
+ (fn [_ _]
+   {:forward-events {:register ::route-listener
+                     :events #{::routes/set}
+                     :dispatch-to [::handle-route-change]}}))
+
+(rf/dispatch [::listen-to-route-change])
 
 (routes/define-route!
   :admin
