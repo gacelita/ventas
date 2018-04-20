@@ -7,7 +7,8 @@
    [ventas.i18n :as i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.themes.clothing.pages.frontend]
-   [ventas.components.cookies :as cookies]))
+   [ventas.components.cookies :as cookies]
+   [clojure.string :as str]))
 
 (defmulti handle-event (fn [name] name))
 
@@ -41,8 +42,12 @@
 
 (rf/reg-event-fx
  ::handle-route-change
- (fn [_ _]
-   {:dispatch [::cookies/get-state-from-local-storage]}))
+ (fn [{:keys [db]} [_ [_ handler]]]
+   (if (and (str/starts-with? (name handler) "frontend")
+            (not (get-in db [::state :init-done?])))
+     {:dispatch [::cookies/get-state-from-local-storage]
+      :db (assoc-in db [::state :init-done?] true)}
+     {})))
 
 (rf/dispatch [::listen-to-session-start])
 (rf/dispatch [::listen-to-route-change])
