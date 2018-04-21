@@ -37,7 +37,7 @@
              (utils/swallow (.getMessage e))
              (str e))})
 
-(defn call-request-handler [{:keys [id] :as message} & [state]]
+(defn call-request-handler [{:keys [id throw?] :as message} & [state]]
   (try
     (let [response (handle-request message state)]
       {:type :response
@@ -46,6 +46,8 @@
        :data response
        :realtime? (utils/chan? response)})
     (catch Throwable e
+      (when throw?
+        (throw e))
       (error-response message e))))
 
 (defn send-message [{:keys [data] :as message} channel]
