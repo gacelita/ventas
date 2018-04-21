@@ -12,7 +12,9 @@
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.utils.formatting :as utils.formatting]))
+   [ventas.utils.formatting :as utils.formatting]
+   [ventas.plugins.sibling-products.core :as sibling-products]
+   [ventas.themes.clothing.components.heading :as theme.heading]))
 
 (def state-key ::state)
 
@@ -237,13 +239,6 @@
       [:div.product-page__details-inner
        [:p details]]]]))
 
-(rf/reg-event-fx
- ::init
- (fn [{:keys [db]} _]
-   {:db (assoc db state-key {:quantity 1})
-    :dispatch-n [[::events/users.favorites.enumerate]
-                 [::fetch (routes/ref-from-param :id)]]}))
-
 (defn content []
   (let [state @(rf/subscribe [::events/db state-key])]
     [:div.product-page
@@ -254,11 +249,26 @@
        [main-image-view state]
        [info-view state]]]
      [:div.product-page__bottom
-      [description-view state]]]))
+      [description-view state]]
+     (let [id (routes/ref-from-param :id)]
+       (when (seq @(rf/subscribe [::sibling-products/list id]))
+         [:div.product-page__sibling-products
+          [base/container
+           [theme.heading/heading (i18n ::sibling-products)]
+           [sibling-products/sibling-products id]]]))]))
 
 (defn page []
   [skeleton
    [content]])
+
+(rf/reg-event-fx
+ ::init
+ (fn [{:keys [db]} _]
+   (let [id (routes/ref-from-param :id)]
+     {:db (assoc db state-key {:quantity 1})
+      :dispatch-n [[::events/users.favorites.enumerate]
+                   [::fetch id]
+                   [::sibling-products/list id]]})))
 
 (routes/define-route!
   :frontend.product

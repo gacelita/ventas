@@ -4,6 +4,6 @@
 
 (rf/reg-event-fx
  ::featured-products.list
- (fn [cofx [_ options]]
+ (fn [_ [_ options]]
    {:ws-request (merge {:name :ventas.plugins.featured-products.core/featured-products.list}
                        options)}))

@@ -31,6 +31,7 @@
    [ventas.plugins.blog.core]
    [ventas.plugins.featured-categories.core]
    [ventas.plugins.featured-products.core]
+   [ventas.plugins.sibling-products.core]
    [ventas.plugins.slider.core]
    [ventas.search :as search]
    [ventas.server]
