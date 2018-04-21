@@ -10,6 +10,7 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
+   [ventas.components.zoomable-image :as zoomable-image]
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.utils.formatting :as utils.formatting]
@@ -89,10 +90,12 @@
         [base/icon {:name "chevron right"
                     :on-click #(rf/dispatch [::components.slider/next state-path])}]])]))
 
-(defn- main-image-view [{:keys [product]}]
+(defn- main-image-view []
   (let [image @(rf/subscribe [::events/db [state-key :main-image]])]
     [:div.product-page__main-image
-     [image/image (:id image) :product-page-main]]))
+     [zoomable-image/main-view (:id image) :product-page-main :product-page-main-zoom]
+     (when-not @(rf/subscribe [::zoomable-image/loaded? (:id image)])
+       [image/image (:id image) :product-page-main])]))
 
 (rf/reg-event-db
  ::update-quantity
@@ -203,7 +206,6 @@
     [:div.product-page__info
      [:h1.product-page__name name]
      [:p.product-page__description description]
-
      [:h2.product-page__price
       (utils.formatting/amount->str price)]
 

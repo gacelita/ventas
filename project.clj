@@ -243,6 +243,7 @@
                 :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "custom-lib"]
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
                 :compiler {:main ventas.core
+                           :npm-deps {:js-image-zoom "0.5.0"}
                            :asset-path "files/js/compiled/out"
                            :closure-defines {"clairvoyant.core.devmode" true}
                            :output-to "resources/public/files/js/compiled/ventas.js"

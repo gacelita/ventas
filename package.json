@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@cljs-oss/module-deps": "^1.1.1",
     "js-image-zoom": "^0.5.0"
   }
 }
