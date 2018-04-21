@@ -61,7 +61,7 @@
        (not binary?)
        (defmethod server.ws/handle-request kw [request state]
          (when spec
-           (utils/check (data-spec/spec kw spec)
+           (utils/check (data-spec/spec (keyword "api" (name kw)) spec)
                         (:params request)))
          (try
            (:response (reduce (fn [acc middleware]
