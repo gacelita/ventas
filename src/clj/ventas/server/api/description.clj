@@ -283,7 +283,7 @@
                  binary?))
        (map (fn [[request {:keys [spec doc]}]]
               [request {:spec (when spec
-                                (->> (data-spec/spec request spec)
+                                (->> (data-spec/spec (keyword "api" (name request)) spec)
                                      (transform)))
                         :doc doc}]))
        (into {})))
@@ -298,5 +298,5 @@
  {:spec {:request ::api/keyword}}
  (fn [{{:keys [request]} :params} _]
    (when-let [{:keys [spec]} (get @api/available-requests request)]
-     (spec/def ::temp (data-spec/spec request spec))
+     (spec/def ::temp (data-spec/spec (keyword "api" (name request)) spec))
      (gen/generate (spec/gen ::temp)))))

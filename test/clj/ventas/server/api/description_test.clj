@@ -44,7 +44,7 @@
 (deftest generate-params
   (dotimes [n 10]
     (is (utils/check
-         (data-spec/spec :products.aggregations (get-in @api/available-requests [:products.aggregations :spec]))
+         (data-spec/spec :api/products.aggregations (get-in @api/available-requests [:products.aggregations :spec]))
          (-> (server.ws/call-handler-with-user :api.generate-params
                                                {:request :products.aggregations}
                                                user)
