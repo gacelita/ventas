@@ -39,11 +39,11 @@
   :dependencies [
                  ;; Clojure
                  [org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.9.946" :scope "provided"]
+                 [org.clojure/clojurescript "1.10.238" :scope "provided"]
                  [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
-                 [expound "0.4.0"]
+                 [expound "0.5.0"]
                  [org.clojure/spec.alpha "0.1.143" :scope "provided"]
-                 [metosin/spec-tools "0.6.0-SNAPSHOT"]
+                 [metosin/spec-tools "0.6.1"]
                  [com.google.guava/guava "23.0"]
                  [org.clojure/tools.nrepl "0.2.13"]
 
@@ -63,12 +63,12 @@
                  [jarohen/chord "0.8.1"]
                  [org.clojure/data.json "0.2.6"]
                  [cheshire "5.8.0"]
-                 [com.cognitect/transit-clj "0.8.300"]
-                 [com.cognitect/transit-cljs "0.8.243"]
+                 [com.cognitect/transit-clj "0.8.309"]
+                 [com.cognitect/transit-cljs "0.8.256"]
                  [org.clojure/data.fressian "0.2.1"]
 
                  ;; Server-side HTTP requests
-                 [clj-http "3.7.0" :exclusions [riddley]]
+                 [clj-http "3.8.0" :exclusions [riddley]]
 
                  ;; HTTP server
                  [http-kit "2.2.0"]
@@ -79,17 +79,17 @@
                  ;; Ring
                  [ring "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
-                 [bk/ring-gzip "0.2.1"]
+                 [bk/ring-gzip "0.3.0"]
                  [ring/ring-json "0.4.0" :exclusions [cheshire]]
 
                  ;; Routing
-                 [compojure "1.6.0" :exclusions [instaparse]]
+                 [compojure "1.6.1" :exclusions [instaparse]]
 
                  ;; Configuration
                  [cprop "0.1.11"]
 
                  ;; i18n
-                 [tongue "0.2.3"]
+                 [tongue "0.2.4"]
 
                  ;; URL parsing
                  [com.cemerick/url "0.1.1"]
@@ -100,21 +100,21 @@
                  [day8.re-frame/forward-events-fx "0.0.5"]
 
                  ;; Semantic UI
-                 [soda-ash "0.76.0"]
+                 [soda-ash "0.79.1"]
 
                  ;; kafka
-                 [spootnik/kinsky "0.1.21"]
+                 [spootnik/kinsky "0.1.22"]
 
                  ;; Routing
                  [bidi "2.1.3"]
                  [joelsanchez/ventas-bidi-syntax "0.1.2"]
-                 [venantius/accountant "0.2.3"]
+                 [venantius/accountant "0.2.4"]
 
                  ;; HTML templating
-                 [selmer "1.11.5" :exclusions [cheshire joda-time]]
+                 [selmer "1.11.7" :exclusions [cheshire joda-time]]
 
                  ;; component alternative
-                 [mount "0.1.11"]
+                 [mount "0.1.12"]
 
                  ;; Filesystem utilities
                  [me.raynes/fs "1.4.6"]
@@ -125,7 +125,7 @@
 
                  ;; Charts
                  [cljsjs/chartjs "2.7.0-0"]
-                 [cljsjs/moment "2.17.1-1"]
+                 [cljsjs/moment "2.22.0-0"]
 
                  ;; Text colors
                  [io.aviso/pretty "0.1.34"]
@@ -141,7 +141,7 @@
                  [com.novemberain/pantomime "2.9.0"]
 
                  ;; DateTime
-                 [clj-time "0.14.2"]
+                 [clj-time "0.14.3"]
 
                  ;; localStorage
                  [alandipert/storage-atom "2.0.1"]
@@ -154,19 +154,19 @@
                  [fivetonine/collage "0.2.1"]
 
                  ;; Nice CLJS development tools
-                 [binaryage/devtools "0.9.9"]
+                 [binaryage/devtools "0.9.10"]
 
                  ;; String manipulation
                  [funcool/cuerdas "2.0.5"]
 
                  ;; Elasticsearch
-                 [cc.qbits/spandex "0.5.5"]
+                 [cc.qbits/spandex "0.6.2"]
 
                  ;; Server-side prerendering
-                 [etaoin "0.2.5"]
+                 [etaoin "0.2.8"]
 
                  ;; Error reporting for Ring
-                 [prone "1.2.0"]
+                 [prone "1.5.2"]
 
                  ;; Devcards itself
                  [devcards "0.2.4" :exclusions [cljsjs/react]]
@@ -295,8 +295,8 @@
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
 
-  :profiles {:dev {:dependencies [[figwheel "0.5.14"]
-                                  [figwheel-sidecar "0.5.14"]
+  :profiles {:dev {:dependencies [[figwheel "0.5.15"]
+                                  [figwheel-sidecar "0.5.15"]
                                   [com.cemerick/piggieback "0.2.2"]
 
                                   ;; Runtime dependency resolution
