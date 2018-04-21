@@ -1,15 +1,16 @@
 (ns ventas.stats
   "Sends stats to Kafka"
   (:require
+   [clojure.core.async :as core.async :refer [go]]
    [kinsky.client :as kafka]
    [mount.core :refer [defstate]]
-   [clojure.core.async :as core.async :refer [go]]
    [taoensso.timbre :as timbre]
-   [ventas.search :as search]
-   [ventas.config :as config])
-  (:import [org.apache.kafka.clients.consumer ConsumerRecords ConsumerRecord KafkaConsumer]
-           [org.apache.kafka.common TopicPartition]
-           [org.apache.kafka.common.errors InterruptException]))
+   [ventas.config :as config]
+   [ventas.search :as search])
+  (:import
+   [org.apache.kafka.clients.consumer ConsumerRecords ConsumerRecord KafkaConsumer]
+   [org.apache.kafka.common TopicPartition]
+   [org.apache.kafka.common.errors InterruptException]))
 
 (def topics ["http" "navigation" "search"])
 
@@ -147,4 +148,3 @@
     (when (future? kafka-indexer)
       (record-http-event! req))
     (handler req)))
-

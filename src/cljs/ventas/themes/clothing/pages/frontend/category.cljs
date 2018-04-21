@@ -10,8 +10,8 @@
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.themes.clothing.components.menu :as menu]))
+   [ventas.themes.clothing.components.menu :as menu]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]))
 
 (def state-key ::state)
 

@@ -1,12 +1,12 @@
 (ns ventas.site
   (:require
-   [mount.core :refer [defstate]]
-   [ventas.paths :as paths]
-   [ventas.database :as db]
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [mount.core :refer [defstate]]
+   [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
-   [taoensso.timbre :as timbre]))
+   [ventas.database :as db]
+   [ventas.paths :as paths]))
 
 (def ^:dynamic current)
 

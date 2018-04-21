@@ -1,8 +1,8 @@
 (ns ventas.events-test
   (:require
+   [clojure.core.async :as core.async :refer [<! >! go]]
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.events :as sut]
-   [clojure.core.async :as core.async :refer [<! >! go]]))
+   [ventas.events :as sut]))
 
 (deftest register-pub-sub
   (let [ch (go

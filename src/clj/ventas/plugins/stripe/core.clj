@@ -1,11 +1,11 @@
 (ns ventas.plugins.stripe.core
   "Adds a payment method for Stripe"
   (:require
-   [ventas.payment-method :as payment-method]
-   [taoensso.timbre :as timbre]
-   [clj-stripe.common :as stripe]
    [clj-stripe.charges :as stripe.charges]
-   [ventas.entities.configuration :as configuration]))
+   [clj-stripe.common :as stripe]
+   [taoensso.timbre :as timbre]
+   [ventas.entities.configuration :as configuration]
+   [ventas.payment-method :as payment-method]))
 
 (defn- pay! [order params]
   (timbre/debug {:stripe-pay! params})

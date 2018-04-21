@@ -3,6 +3,8 @@
   (:require
    [accountant.core :as accountant]
    [cljs.core.async :refer [<!]]
+   [cljs.pprint :as pprint]
+   [cljs.reader :as reader]
    [re-frame.core :as rf]
    [re-frame.loggers :as rf.loggers]
    [reagent.core :as reagent]
@@ -17,12 +19,10 @@
    [ventas.plugins.api.core]
    [ventas.routes :as routes]
    [ventas.seo :as seo]
-   [ventas.utils.logging :refer [debug info]]
-   [ventas.ws :as ws]
-   [cljs.reader :as reader]
-   [ventas.utils.logging :as log]
    [ventas.session :as session]
-   [cljs.pprint :as pprint])
+   [ventas.utils.logging :refer [debug info]]
+   [ventas.utils.logging :as log]
+   [ventas.ws :as ws])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 

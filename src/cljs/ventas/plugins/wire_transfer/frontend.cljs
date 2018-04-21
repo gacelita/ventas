@@ -1,12 +1,12 @@
 (ns ventas.plugins.wire-transfer.frontend
   (:require
    [re-frame.core :as rf]
-   [ventas.events.backend :as backend]
-   [ventas.i18n :refer [i18n]]
-   [ventas.events :as events]
-   [ventas.components.payment :as payment]
+   [ventas.components.base :as base]
    [ventas.components.form :as form]
-   [ventas.components.base :as base])
+   [ventas.components.payment :as payment]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
+   [ventas.i18n :refer [i18n]])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 

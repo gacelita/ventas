@@ -1,6 +1,6 @@
 (ns ventas.components.slider
   (:require
-   [cljs.core.async :refer [go <! >! alts! chan timeout]]
+   [cljs.core.async :refer [<! >! alts! chan go timeout]]
    [re-frame.core :as rf]
    [ventas.events :as events]))
 

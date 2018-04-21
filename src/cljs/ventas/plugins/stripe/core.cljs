@@ -12,5 +12,3 @@
    ::admin/private-key "Private key"
    ::admin/submit "Submit"
    ::frontend/pay-with-stripe "Pay with Stripe"}})
-
-

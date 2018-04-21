@@ -2,17 +2,17 @@
   "Prerendering"
   (:require
    [cheshire.core :as cheshire]
-   [clojure.core.async :as core.async :refer [go <! >! go-loop]]
+   [clojure.core.async :as core.async :refer [<! >! go go-loop]]
    [clojure.core.async.impl.protocols :refer [closed?]]
    [clojure.java.io :as io]
    [etaoin.api :as etaoin]
    [mount.core :refer [defstate]]
    [taoensso.timbre :as timbre]
    [ventas.config :as config]
-   [ventas.paths :as paths]
    [ventas.database :as db]
-   [ventas.theme :as theme]
-   [ventas.plugin :as plugin]))
+   [ventas.paths :as paths]
+   [ventas.plugin :as plugin]
+   [ventas.theme :as theme]))
 
 (defstate driver
   :start

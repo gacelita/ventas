@@ -1,10 +1,10 @@
 (ns ventas.components.chart
   "ChartJS wrapper"
   (:require
-   [reagent.core :as reagent]
+   [cljsjs.chartjs]
    [re-frame.core :as rf]
-   [ventas.events :as events]
-   [cljsjs.chartjs]))
+   [reagent.core :as reagent]
+   [ventas.events :as events]))
 
 (def state-key ::state)
 

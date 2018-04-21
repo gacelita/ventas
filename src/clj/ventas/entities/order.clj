@@ -1,11 +1,11 @@
 (ns ventas.entities.order
   (:require
-   [ventas.database :as db]
    [clojure.spec.alpha :as spec]
+   [clojure.test.check.generators :as gen]
+   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.entities.product :as entities.product]
-   [clojure.test.check.generators :as gen]))
+   [ventas.entities.product :as entities.product]))
 
 (defn get-amount
   "Returns an amount entity representing the total amount to be paid"

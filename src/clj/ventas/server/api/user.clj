@@ -1,16 +1,16 @@
 (ns ventas.server.api.user
   (:require
+   [buddy.hashers :as hashers]
+   [slingshot.slingshot :refer [throw+]]
+   [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.entities.user :as entities.user]
    [ventas.entities.order :as entities.order]
    [ventas.entities.shipping-method :as entities.shipping-method]
-   [ventas.server.api :as api]
-   [ventas.server.pagination :as pagination]
-   [slingshot.slingshot :refer [throw+]]
+   [ventas.entities.user :as entities.user]
    [ventas.payment-method :as payment-method]
-   [ventas.common.utils :as common.utils]
-   [buddy.hashers :as hashers]))
+   [ventas.server.api :as api]
+   [ventas.server.pagination :as pagination]))
 
 (defn- user-check! [session]
   (let [{:db/keys [id]} (api/get-user session)]

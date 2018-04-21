@@ -1,9 +1,9 @@
 (ns ventas.test-tools
   (:require
    [datomic.api :as d]
+   [taoensso.timbre :as timbre]
    [ventas.database :as db]
-   [ventas.database.schema :as schema]
-   [taoensso.timbre :as timbre]))
+   [ventas.database.schema :as schema]))
 
 (defn create-test-uri [& [id]]
   (str "datomic:mem://" (or id (gensym "test"))))

@@ -1,14 +1,14 @@
 (ns ventas.plugins.wire-transfer.admin
   (:require
-   [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.i18n :refer [i18n]]
    [re-frame.core :as rf]
-   [ventas.components.form :as form]
    [ventas.components.base :as base]
-   [ventas.utils.ui :as utils.ui]
-   [ventas.routes :as routes]
+   [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
-   [ventas.events.backend :as backend])
+   [ventas.events.backend :as backend]
+   [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.routes :as routes]
+   [ventas.utils.ui :as utils.ui])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 

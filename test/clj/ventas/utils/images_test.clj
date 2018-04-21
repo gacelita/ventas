@@ -1,9 +1,10 @@
 (ns ventas.utils.images-test
   (:require
    [clojure.test :refer [deftest is testing]]
-   [ventas.utils.images :as sut]
-   [fivetonine.collage.core :as collage])
-  (:import [java.awt.image BufferedImage]))
+   [fivetonine.collage.core :as collage]
+   [ventas.utils.images :as sut])
+  (:import
+   [java.awt.image BufferedImage]))
 
 (defn buffered-image
   "Taken from https://github.com/karls/collage/blob/master/test/fivetonine/collage/helpers.clj"

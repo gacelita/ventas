@@ -1,19 +1,19 @@
 (ns ventas.server.api.admin
   (:require
-   [clojure.core.async :as core.async :refer [chan >! <! go-loop go]]
+   [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.core.async.impl.protocols :as core.async.protocols]
+   [kinsky.client :as kafka]
+   [slingshot.slingshot :refer [throw+]]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
+   [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.image-size :as entities.image-size]
    [ventas.plugin :as plugin]
+   [ventas.search :as search]
    [ventas.server.api :as api]
    [ventas.server.pagination :as pagination]
-   [ventas.search :as search]
    [ventas.stats :as stats]
-   [kinsky.client :as kafka]
-   [ventas.entities.configuration :as entities.configuration]
-   [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+]]))
+   [ventas.utils :as utils]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]

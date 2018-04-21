@@ -1,10 +1,10 @@
 (ns ventas.email
   (:require
-   [postal.core :as postal]
-   [ventas.entities.configuration :as entities.configuration]
-   [ventas.email.templates.order-done]
-   [ventas.email.templates :as templates]
    [hiccup.core :as hiccup]
+   [postal.core :as postal]
+   [ventas.email.templates :as templates]
+   [ventas.email.templates.order-done]
+   [ventas.entities.configuration :as entities.configuration]
    [ventas.i18n :refer [i18n]]))
 
 (defn- get-config []

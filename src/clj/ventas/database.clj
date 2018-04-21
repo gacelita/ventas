@@ -11,9 +11,9 @@
    [ventas.config :as config]
    [ventas.database.generators :as db.generators])
   (:import
-   [java.util.concurrent ExecutionException]
    [datomic Datom Connection]
-   [datomic.query EntityMap]))
+   [datomic.query EntityMap]
+   [java.util.concurrent ExecutionException]))
 
 (def ^:dynamic db)
 

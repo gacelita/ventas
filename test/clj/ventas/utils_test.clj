@@ -1,9 +1,9 @@
 (ns ventas.utils-test
   (:require
-   [clojure.core.async :as core.async :refer [go <! >!]]
+   [clojure.core.async :as core.async :refer [<! >! go]]
+   [clojure.spec.alpha :as spec]
    [clojure.test :refer [deftest is testing]]
-   [ventas.utils :as sut]
-   [clojure.spec.alpha :as spec]))
+   [ventas.utils :as sut]))
 
 (deftest chan?
   (is (sut/chan? (core.async/chan))))

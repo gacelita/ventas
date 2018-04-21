@@ -1,10 +1,10 @@
 (ns ventas.plugins.wire-transfer.core
   "Adds a wire transfer payment method"
   (:require
+   [ventas.database.entity :as entity]
    [ventas.entities.configuration :as configuration]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.payment-method :as payment-method]
-   [ventas.database.entity :as entity]))
+   [ventas.payment-method :as payment-method]))
 
 (defn- pay!
   "Just sets the order as unpaid.

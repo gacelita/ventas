@@ -1,9 +1,9 @@
 (ns ventas.plugins.sibling-products.core
   (:require
    [re-frame.core :as rf]
+   [ventas.components.product-list :as components.product-list]
    [ventas.events :as events]
-   [ventas.plugins.sibling-products.api :as backend]
-   [ventas.components.product-list :as components.product-list]))
+   [ventas.plugins.sibling-products.api :as backend]))
 
 (rf/reg-event-fx
  ::list

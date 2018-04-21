@@ -2,8 +2,8 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.components.notificator :as notificator]
    [ventas.components.form :as form]
+   [ventas.components.notificator :as notificator]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]

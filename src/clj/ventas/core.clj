@@ -34,12 +34,12 @@
    [ventas.plugins.sibling-products.core]
    [ventas.plugins.slider.core]
    [ventas.search :as search]
+   [ventas.seo]
    [ventas.server]
    [ventas.server.api]
    [ventas.server.api.admin]
    [ventas.server.api.description]
    [ventas.server.api.user]
-   [ventas.seo]
    [ventas.themes.clothing.core])
   (:gen-class))
 

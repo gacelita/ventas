@@ -1,15 +1,15 @@
 (ns ventas.components.form
   "Form stuff"
   (:require
-   [re-frame.core :as rf]
-   [ventas.i18n :refer [i18n]]
    [cljs.reader :as reader]
+   [clojure.string :as str]
+   [re-frame.core :as rf]
+   [reagent.core :as reagent]
+   [ventas.components.amount-input :as amount-input]
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
-   [ventas.components.amount-input :as amount-input]
-   [ventas.utils.validation :as validation]
-   [reagent.core :as reagent]
-   [clojure.string :as str]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.utils.validation :as validation]))
 
 (defn get-data [db db-path]
   (get-in db (conj db-path :form)))

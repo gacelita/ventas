@@ -1,6 +1,7 @@
 (ns ventas.themes.clothing.pages.frontend.checkout
   (:require
    [re-frame.core :as rf]
+   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.components.form :as form]
@@ -11,12 +12,11 @@
    [ventas.plugins.stripe.core]
    [ventas.plugins.wire-transfer.core]
    [ventas.routes :as routes]
-   [ventas.utils.formatting :as utils.formatting]
    [ventas.session :as session]
    [ventas.themes.clothing.components.address :as theme.address]
    [ventas.themes.clothing.components.skeleton :as theme.skeleton]
    [ventas.themes.clothing.pages.frontend.profile.addresses :as profile.addresses]
-   [ventas.common.utils :as common.utils]))
+   [ventas.utils.formatting :as utils.formatting]))
 
 (def state-key ::state)
 

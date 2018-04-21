@@ -3,12 +3,12 @@
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
+   [ventas.session :as session]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.pages.frontend.profile.account]
    [ventas.themes.clothing.pages.frontend.profile.addresses]
    [ventas.themes.clothing.pages.frontend.profile.orders]
-   [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
-   [ventas.session :as session]))
+   [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]))
 
 (defn content []
   (let [{:keys [first-name]} (session/get-identity)]

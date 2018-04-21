@@ -2,13 +2,13 @@
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent]
-   [ventas.components.cart :as cart]
    [ventas.components.base :as base]
+   [ventas.components.cart :as cart]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.session :as session]
    [ventas.routes :as routes]
+   [ventas.session :as session]
    [ventas.utils :as utils :include-macros true]))
 
 (def state-key ::state)

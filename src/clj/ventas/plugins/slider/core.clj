@@ -2,12 +2,12 @@
   (:require
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
+   [slingshot.slingshot :refer [throw+]]
    [ventas.database.entity :as entity]
    [ventas.entities.file :as entities.file]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.plugin :as plugin]
-   [ventas.server.api :as api]
-   [slingshot.slingshot :refer [throw+]]))
+   [ventas.server.api :as api]))
 
 (spec/def :slider.slide/name ::entities.i18n/ref)
 

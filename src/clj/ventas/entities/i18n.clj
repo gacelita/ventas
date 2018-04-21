@@ -2,12 +2,12 @@
   (:require
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
+   [slingshot.slingshot :refer [throw+]]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+]]))
+   [ventas.utils :as utils]))
 
 (spec/def :i18n.culture/keyword ::generators/keyword)
 

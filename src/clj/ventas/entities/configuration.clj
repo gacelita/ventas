@@ -1,13 +1,13 @@
 (ns ventas.entities.configuration
   (:refer-clojure :exclude [get])
   (:require
+   [clojure.set :as set]
    [clojure.spec.alpha :as spec]
+   [slingshot.slingshot :refer [throw+]]
+   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils :as utils]
-   [clojure.set :as set]
-   [ventas.database :as db]
-   [slingshot.slingshot :refer [throw+]]))
+   [ventas.utils :as utils]))
 
 (spec/def :configuration/keyword ::generators/keyword)
 (spec/def :configuration/value ::generators/string)

@@ -1,9 +1,9 @@
 (ns ventas.plugins.sibling-products.core
   (:require
+   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.plugin :as plugin]
-   [ventas.server.api :as api]
-   [ventas.database :as db]))
+   [ventas.server.api :as api]))
 
 (api/register-endpoint!
  ::list

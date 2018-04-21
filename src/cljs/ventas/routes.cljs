@@ -6,12 +6,12 @@
    [cemerick.url :as url]
    [clojure.string :as str]
    [re-frame.core :as rf]
+   [ventas-bidi-syntax.core :as bidi-syntax]
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.page :as page]
    [ventas.utils :as utils]
-   [ventas.utils.logging :as log]
-   [ventas-bidi-syntax.core :as bidi-syntax]))
+   [ventas.utils.logging :as log]))
 
 (def ^:private route-data
   (atom []))

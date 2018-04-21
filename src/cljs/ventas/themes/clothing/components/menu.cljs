@@ -1,12 +1,12 @@
 (ns ventas.themes.clothing.components.menu
   (:require
-   [ventas.components.menu :as menu]
-   [ventas.i18n :refer [i18n]]
-   [ventas.routes :as routes]
-   [ventas.events :as events]
+   [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas.common.utils :as common.utils]
-   [clojure.string :as str]))
+   [ventas.components.menu :as menu]
+   [ventas.events :as events]
+   [ventas.i18n :refer [i18n]]
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

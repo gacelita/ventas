@@ -1,14 +1,14 @@
 (ns ventas.themes.clothing.components.address
   (:require
-   [ventas.components.form :as form]
-   [ventas.i18n :refer [i18n]]
    [re-frame.core :as rf]
-   [ventas.events.backend :as backend]
-   [ventas.events :as events]
-   [ventas.components.base :as base]
-   [ventas.utils.validation :as validation]
    [ventas.common.utils :as common.utils]
-   [ventas.utils :as utils :include-macros true]))
+   [ventas.components.base :as base]
+   [ventas.components.form :as form]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
+   [ventas.i18n :refer [i18n]]
+   [ventas.utils :as utils :include-macros true]
+   [ventas.utils.validation :as validation]))
 
 (def regular-length-validator [::length-error validation/length-validator {:max 30}])
 

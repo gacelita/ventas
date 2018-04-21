@@ -2,18 +2,18 @@
   (:require
    [re-frame.core :as rf]
    [reagent.core :as reagent]
-   [ventas.events :as events]
    [ventas.components.base :as base]
-   [ventas.events.backend :as backend]
+   [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
+   [ventas.events :as events]
+   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.session :as session]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]
-   [ventas.utils.validation :as validation]
-   [ventas.components.form :as form]
-   [ventas.utils.ui :as utils.ui])
+   [ventas.utils.ui :as utils.ui]
+   [ventas.utils.validation :as validation])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 

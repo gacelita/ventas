@@ -1,10 +1,10 @@
 (ns ventas.pages.admin.common
   (:require
-   [ventas.components.form :as form]
+   [clojure.set :as set]
    [re-frame.core :as rf]
+   [ventas.components.form :as form]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
-   [clojure.set :as set]))
+   [ventas.events.backend :as backend]))
 
 (def state-key ::state)
 

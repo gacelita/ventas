@@ -1,13 +1,13 @@
 (ns ventas.plugin
   (:refer-clojure :exclude [find])
   (:require
+   [clojure.core.async :refer [<! go-loop]]
    [clojure.spec.alpha :as spec]
-   [clojure.core.async :refer [go-loop <!]]
+   [slingshot.slingshot :refer [throw+]]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]
-   [ventas.events :as events]
    [ventas.entities.i18n :as entities.i18n]
-   [slingshot.slingshot :refer [throw+]]))
+   [ventas.events :as events]
+   [ventas.utils :as utils]))
 
 (spec/def ::name
   (spec/or :string string?

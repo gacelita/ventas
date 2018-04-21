@@ -1,9 +1,9 @@
 (ns ventas.email.templates.user-registered
   (:require
-   [ventas.email.templates :as templates]
    [ventas.email.elements :as elements]
-   [ventas.i18n :refer [i18n]]
-   [ventas.entities.configuration :as entities.configuration]))
+   [ventas.email.templates :as templates]
+   [ventas.entities.configuration :as entities.configuration]
+   [ventas.i18n :refer [i18n]]))
 
 (defmethod templates/template-body :user-registered [_ {:keys [user]}]
   (let [culture-kw (elements/get-user-culture user)]

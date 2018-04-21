@@ -5,8 +5,8 @@
    [ventas.components.table :as table]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.pages.admin.shipping-methods.edit]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]))
 
 (def state-key ::state)

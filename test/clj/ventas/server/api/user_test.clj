@@ -2,13 +2,13 @@
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
    [taoensso.timbre :as timbre]
+   [ventas.core]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.seed :as seed]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.server.api.user :as sut]
    [ventas.server.api :as api]
-   [ventas.core]
+   [ventas.server.api.user :as sut]
    [ventas.server.ws :as server.ws]
    [ventas.test-tools :as test-tools]
    [ventas.utils :as utils]))

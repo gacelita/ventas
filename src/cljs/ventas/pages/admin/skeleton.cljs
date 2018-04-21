@@ -1,5 +1,6 @@
 (ns ventas.pages.admin.skeleton
   (:require
+   [com.rpl.specter :as specter :include-macros true]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
@@ -8,10 +9,9 @@
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
+   [ventas.utils :as utils]
    [ventas.utils.ui :as utils.ui]
-   [ventas.ws :as ws]
-   [com.rpl.specter :as specter :include-macros true]
-   [ventas.utils :as utils]))
+   [ventas.ws :as ws]))
 
 (def state-key ::state)
 

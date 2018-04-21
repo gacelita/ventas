@@ -1,12 +1,12 @@
 (ns ventas.themes.clothing.components.skeleton
   (:require
-   [ventas.routes :as routes]
    [ventas.components.base :as base]
    [ventas.components.breadcrumbs :as breadcrumbs]
    [ventas.components.cookies :as cookies]
    [ventas.components.notificator :as notificator]
    [ventas.components.popup :as popup]
    [ventas.i18n :refer [i18n]]
+   [ventas.routes :as routes]
    [ventas.themes.clothing.components.footer :as footer]
    [ventas.themes.clothing.components.header :as header]
    [ventas.themes.clothing.components.menu :as menu]

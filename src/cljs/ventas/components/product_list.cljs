@@ -6,8 +6,8 @@
    [ventas.components.image :as image]
    [ventas.events :as events]
    [ventas.routes :as routes]
-   [ventas.utils.ui :as utils.ui]
-   [ventas.utils.formatting :as utils.formatting]))
+   [ventas.utils.formatting :as utils.formatting]
+   [ventas.utils.ui :as utils.ui]))
 
 (defn product-list [products]
   [:div.product-list

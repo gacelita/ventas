@@ -6,13 +6,13 @@
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [datomic.api :as d]
+   [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.generators :as db.generators]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+]]))
+   [ventas.utils :as utils]))
 
 (spec/def :schema/type
   (spec/or :pull-eid ::db/pull-eid

@@ -1,8 +1,8 @@
 (ns ventas.themes.clothing.demo
   "Demo data"
   (:require
-   [ventas.entities.i18n :as entities.i18n]
-   [ventas.entities.amount :as entities.amount]))
+   [ventas.entities.amount :as entities.amount]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (defn product-terms []
   (map #(assoc % :schema/type :schema.type/product.term)

@@ -2,8 +2,8 @@
   "Products ES search"
   (:require
    [ventas.database.entity :as entity]
-   [ventas.search :as search]
-   [ventas.entities.product :as entities.product]))
+   [ventas.entities.product :as entities.product]
+   [ventas.search :as search]))
 
 (defn- get-product-category-filter [categories]
   (mapcat (fn [category]

@@ -1,8 +1,8 @@
 (ns ventas.utils.jar-test
   (:require
-   [clojure.test :refer [deftest is testing]]
-   [clojure.string :as str]
    [clojure.java.classpath :as classpath]
+   [clojure.string :as str]
+   [clojure.test :refer [deftest is testing]]
    [ventas.utils.jar :as sut]))
 
 (def example-jar "org/clojure/clojure/1.9.0/clojure-1.9.0.jar")

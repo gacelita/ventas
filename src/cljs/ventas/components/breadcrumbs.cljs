@@ -1,9 +1,9 @@
 (ns ventas.components.breadcrumbs
   (:require
+   [ventas-bidi-syntax.core :as bidi-syntax]
    [ventas.components.base :as base]
    [ventas.routes :as routes]
-   [ventas.utils :as util]
-   [ventas-bidi-syntax.core :as bidi-syntax]))
+   [ventas.utils :as util]))
 
 (defn- breadcrumb-data [handler params]
   (map (fn [route] {:url (apply routes/path-for route (first (seq params)))

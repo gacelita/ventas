@@ -7,8 +7,8 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.ui :refer [with-handler]]
-   [ventas.utils.formatting :as utils.formatting]))
+   [ventas.utils.formatting :as utils.formatting]
+   [ventas.utils.ui :refer [with-handler]]))
 
 (rf/reg-sub
  ::main

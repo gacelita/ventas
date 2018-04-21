@@ -1,27 +1,27 @@
 (ns ventas.pages.admin
   (:require
+   [clojure.string :as str]
+   [re-frame.core :as rf]
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.activity-log]
    [ventas.pages.admin.configuration]
-   [ventas.pages.admin.configuration.image-sizes]
    [ventas.pages.admin.configuration.email]
+   [ventas.pages.admin.configuration.image-sizes]
    [ventas.pages.admin.dashboard :as dashboard]
-   [ventas.pages.admin.orders.edit]
    [ventas.pages.admin.orders]
+   [ventas.pages.admin.orders.edit]
    [ventas.pages.admin.payment-methods]
-   [ventas.pages.admin.shipping-methods]
    [ventas.pages.admin.plugins]
-   [ventas.pages.admin.products.edit]
    [ventas.pages.admin.products]
    [ventas.pages.admin.products.discounts]
    [ventas.pages.admin.products.discounts.edit]
-   [ventas.pages.admin.taxes]
-   [ventas.pages.admin.users.edit]
-   [ventas.pages.admin.users]
+   [ventas.pages.admin.products.edit]
+   [ventas.pages.admin.shipping-methods]
    [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.routes :as routes]
-   [re-frame.core :as rf]
-   [clojure.string :as str]))
+   [ventas.pages.admin.taxes]
+   [ventas.pages.admin.users]
+   [ventas.pages.admin.users.edit]
+   [ventas.routes :as routes]))
 
 (rf/reg-event-fx
  ::handle-route-change

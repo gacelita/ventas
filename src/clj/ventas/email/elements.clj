@@ -1,11 +1,11 @@
 (ns ventas.email.elements
   (:require
    [clojure.java.io :as io]
-   [ventas.i18n :refer [i18n]]
+   [ventas.config :as config]
+   [ventas.database.entity :as entity]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.user :as entities.user]
-   [ventas.database.entity :as entity]
-   [ventas.config :as config]))
+   [ventas.i18n :refer [i18n]]))
 
 (defn get-url [s]
   (let [{:keys [host port]} (config/get :server)]

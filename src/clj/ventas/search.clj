@@ -1,18 +1,19 @@
 (ns ventas.search
   (:require
-   [clojure.core.async :as core.async :refer [<! >! <!! >!! chan go go-loop]]
+   [clojure.core.async :as core.async :refer [<! <!! >! >!! chan go go-loop]]
    [clojure.string :as str]
    [mount.core :refer [defstate]]
    [qbits.spandex :as spandex]
+   [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
    [ventas.config :as config]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.category :as entities.category]
-   [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+]])
-  (:import [clojure.lang ExceptionInfo]))
+   [ventas.utils :as utils])
+  (:import
+   [clojure.lang ExceptionInfo]))
 
 (defstate elasticsearch
   :start

@@ -1,11 +1,11 @@
 (ns ventas.auth-test
   (:require
    [clojure.test :refer [deftest is use-fixtures]]
+   [taoensso.timbre :as timbre]
+   [ventas.auth :as sut]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.auth :as sut]
-   [ventas.test-tools :as test-tools]
-   [taoensso.timbre :as timbre]))
+   [ventas.test-tools :as test-tools]))
 
 (use-fixtures :once
               #(with-redefs [db/db (test-tools/test-conn)]

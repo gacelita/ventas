@@ -1,10 +1,10 @@
 (ns ventas.components.zoomable-image
   (:require
    ["js-image-zoom" :as zoom]
-   [ventas.events :as events]
-   [reagent.core :as reagent]
    [re-frame.core :as rf]
-   [ventas.components.base :as base]))
+   [reagent.core :as reagent]
+   [ventas.components.base :as base]
+   [ventas.events :as events]))
 
 (def state-key ::state)
 

@@ -6,8 +6,8 @@
    [expound.alpha :as expound]
    [slingshot.slingshot :refer [throw+]])
   (:import
-   [java.io File]
-   [clojure.lang IAtom]))
+   [clojure.lang IAtom]
+   [java.io File]))
 
 (defn chan? [v]
   (satisfies? clojure.core.async.impl.protocols/Channel v))

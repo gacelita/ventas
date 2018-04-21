@@ -408,5 +408,3 @@
                                                 :params {:id 1}}})
       (is (= [{:handler :test :params {:id 1} :user nil}]
              @stat-params)))))
-
-

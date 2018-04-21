@@ -2,19 +2,19 @@
   (:require
    [clojure.string :as str]
    [re-frame.core :as rf]
+   [reagent.core :as reagent]
    [ventas.components.base :as base]
+   [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
    [ventas.components.table :as table]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.common :as admin.common]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
-   [ventas.utils.ui :as utils.ui]
-   [reagent.core :as reagent]
-   [ventas.components.form :as form]
-   [ventas.pages.admin.common :as admin.common])
+   [ventas.utils.ui :as utils.ui])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 

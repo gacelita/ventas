@@ -3,8 +3,8 @@
    [clojure.java.io :as io]
    [fivetonine.collage.core :as collage]
    [fivetonine.collage.util :as util]
-   [ventas.utils.files :as utils.files]
-   [slingshot.slingshot :refer [throw+]]))
+   [slingshot.slingshot :refer [throw+]]
+   [ventas.utils.files :as utils.files]))
 
 (defn- path-with-metadata [path options]
   (str (utils.files/basename path) "-" (hash options) "." (utils.files/extension path)))

@@ -1,16 +1,16 @@
 (ns ventas.pages.admin.dashboard
   (:require
+   [cljsjs.moment]
    [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
+   [ventas.components.chart :as chart]
    [ventas.components.datepicker :as datepicker]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.routes :as routes]
-   [ventas.components.chart :as chart]
-   [cljsjs.moment]))
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

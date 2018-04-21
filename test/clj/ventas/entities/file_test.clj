@@ -1,11 +1,11 @@
 (ns ventas.entities.file-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.test-tools :as test-tools]
+   [taoensso.timbre :as timbre]
    [ventas.database :as db]
-   [ventas.entities.file :as sut]
    [ventas.database.entity :as entity]
-   [taoensso.timbre :as timbre]))
+   [ventas.entities.file :as sut]
+   [ventas.test-tools :as test-tools]))
 
 (def example-file
   {:file/keyword :example-file

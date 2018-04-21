@@ -1,14 +1,14 @@
 (ns ventas.themes.clothing.core
   "See the docstring in the server version of this file"
   (:require
+   [clojure.string :as str]
    [re-frame.core :as rf]
+   [ventas.components.cookies :as cookies]
    [ventas.core]
    [ventas.events :as events]
    [ventas.i18n :as i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.pages.frontend]
-   [ventas.components.cookies :as cookies]
-   [clojure.string :as str]))
+   [ventas.themes.clothing.pages.frontend]))
 
 (defmulti handle-event (fn [name] name))
 

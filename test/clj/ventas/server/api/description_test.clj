@@ -1,15 +1,15 @@
 (ns ventas.server.api.description-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.server.ws :as server.ws]
-   [ventas.database :as db]
-   [ventas.test-tools :as test-tools]
-   [taoensso.timbre :as timbre]
-   [ventas.database.entity :as entity]
-   [ventas.utils :as utils]
    [spec-tools.data-spec :as data-spec]
+   [taoensso.timbre :as timbre]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
    [ventas.server.api :as api]
-   [ventas.server.pagination :as pagination]))
+   [ventas.server.pagination :as pagination]
+   [ventas.server.ws :as server.ws]
+   [ventas.test-tools :as test-tools]
+   [ventas.utils :as utils]))
 
 (defn example-user []
   {:schema/type :schema.type/user

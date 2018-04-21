@@ -1,8 +1,10 @@
 (ns ventas.themes.clothing.pages.frontend.cart
   (:require
    [re-frame.core :as rf]
+   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
+   [ventas.components.error :as error]
    [ventas.components.image :as image]
    [ventas.components.term :as term]
    [ventas.events :as events]
@@ -10,9 +12,7 @@
    [ventas.routes :as routes]
    [ventas.themes.clothing.components.skeleton :refer [skeleton]]
    [ventas.utils :as utils]
-   [ventas.utils.formatting :as utils.formatting]
-   [ventas.components.error :as error]
-   [ventas.common.utils :as common.utils]))
+   [ventas.utils.formatting :as utils.formatting]))
 
 (rf/reg-event-fx
  ::add-voucher

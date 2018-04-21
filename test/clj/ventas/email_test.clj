@@ -1,9 +1,9 @@
 (ns ventas.email-test
   (:require
    [clojure.test :refer [deftest is use-fixtures]]
+   [postal.core :as postal]
    [ventas.email :as sut]
-   [ventas.email.templates :as templates]
-   [postal.core :as postal]))
+   [ventas.email.templates :as templates]))
 
 (def test-configuration
   {:host "smtp.gmail.com"

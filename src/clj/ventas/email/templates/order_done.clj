@@ -1,10 +1,10 @@
 (ns ventas.email.templates.order-done
   (:require
-   [ventas.i18n :refer [i18n]]
+   [ventas.database.entity :as entity]
    [ventas.email.elements :as elements]
    [ventas.email.templates :as templates]
-   [ventas.database.entity :as entity]
-   [ventas.entities.product :as entities.product]))
+   [ventas.entities.product :as entities.product]
+   [ventas.i18n :refer [i18n]]))
 
 (defn amount->str [{:amount/keys [value currency]}]
   (str value " " (:currency/symbol (entity/find currency))))

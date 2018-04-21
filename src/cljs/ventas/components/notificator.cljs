@@ -1,12 +1,12 @@
 (ns ventas.components.notificator
   (:require
    [cljs.core.async :refer [<! timeout]]
-   [ventas.i18n :refer [i18n]]
+   [cljs.pprint :as pprint]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.events :as events]
-   [ventas.seo :as seo]
-   [cljs.pprint :as pprint])
+   [ventas.i18n :refer [i18n]]
+   [ventas.seo :as seo])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 

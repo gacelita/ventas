@@ -25,10 +25,10 @@
    [ventas.paths :as paths]
    [ventas.plugin :as plugin]
    [ventas.server.ws :as server.ws]
-   [ventas.theme :as theme]
-   [ventas.utils :as utils]
    [ventas.site :as site]
-   [ventas.stats :as stats])
+   [ventas.stats :as stats]
+   [ventas.theme :as theme]
+   [ventas.utils :as utils])
   (:import
    [clojure.lang Keyword])
   (:gen-class))

@@ -13,8 +13,8 @@
      - Register Ring handlers: use ventas.plugin's :http-handler
      - Make HTTP requests: `clj-http` is included as a dependency"
   (:require
-   [ventas.database.entity :as entity]
    [slingshot.slingshot :refer [throw+]]
+   [ventas.database.entity :as entity]
    [ventas.plugin :as plugin]))
 
 (defn register! [kw attrs]

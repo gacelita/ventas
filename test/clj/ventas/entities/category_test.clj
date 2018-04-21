@@ -1,13 +1,13 @@
 (ns ventas.entities.category-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.test-tools :as test-tools]
-   [ventas.database :as db]
-   [ventas.entities.category :as sut]
-   [ventas.database.entity :as entity]
    [taoensso.timbre :as timbre]
+   [ventas.database :as db]
+   [ventas.database.entity :as entity]
+   [ventas.database.seed :as seed]
+   [ventas.entities.category :as sut]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.database.seed :as seed]))
+   [ventas.test-tools :as test-tools]))
 
 (def example-category
   {:category/name (entities.i18n/get-i18n-entity {:en_US "Example category"})

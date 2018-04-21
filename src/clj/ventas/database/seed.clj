@@ -1,13 +1,13 @@
 (ns ventas.database.seed
   (:require
    [clojure.set :as set]
+   [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
    [ventas.plugin :as plugin]
-   [ventas.theme :as theme]
-   [slingshot.slingshot :refer [throw+]]))
+   [ventas.theme :as theme]))
 
 (defn- create*
   "Wraps create* with the seed lifecycle functions"

@@ -1,9 +1,9 @@
 (ns ventas.components.amount-input
   (:require
    [re-frame.core :as rf]
+   [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
-   [ventas.events :as events]
-   [ventas.common.utils :as common.utils]))
+   [ventas.events :as events]))
 
 (rf/reg-event-fx
  ::set-field

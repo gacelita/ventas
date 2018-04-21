@@ -1,8 +1,8 @@
 (ns ventas.plugins.wire-transfer.core
   (:require
+   [ventas.i18n :as i18n]
    [ventas.plugins.wire-transfer.admin :as admin]
-   [ventas.plugins.wire-transfer.frontend :as frontend]
-   [ventas.i18n :as i18n]))
+   [ventas.plugins.wire-transfer.frontend :as frontend]))
 
 (i18n/register-translations!
  {:en_US

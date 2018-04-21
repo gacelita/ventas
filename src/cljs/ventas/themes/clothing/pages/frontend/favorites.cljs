@@ -2,12 +2,12 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]
-   [ventas.routes :as routes]
+   [ventas.components.product-list :as product-list]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [ventas.themes.clothing.components.skeleton :as theme.skeleton]
-   [ventas.components.product-list :as product-list]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.routes :as routes]
+   [ventas.themes.clothing.components.skeleton :as theme.skeleton]))
 
 (def state-key ::state)
 

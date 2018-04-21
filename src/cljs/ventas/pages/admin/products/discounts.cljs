@@ -1,13 +1,13 @@
 (ns ventas.pages.admin.products.discounts
   (:require
-   [ventas.routes :as routes]
-   [ventas.i18n :refer [i18n]]
-   [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.components.table :as table]
+   [re-frame.core :as rf]
    [ventas.components.base :as base]
+   [ventas.components.table :as table]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
-   [re-frame.core :as rf]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.skeleton :as admin.skeleton]
+   [ventas.routes :as routes]))
 
 (def state-key ::state)
 

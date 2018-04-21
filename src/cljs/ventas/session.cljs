@@ -1,6 +1,6 @@
 (ns ventas.session
   (:require
-   [cljs.core.async :refer [chan >! go]]
+   [cljs.core.async :refer [>! chan go]]
    [re-frame.core :as rf]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]

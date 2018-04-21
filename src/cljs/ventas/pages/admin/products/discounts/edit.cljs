@@ -2,15 +2,15 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.components.notificator :as notificator]
    [ventas.components.form :as form]
+   [ventas.components.notificator :as notificator]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.common :as admin.common]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
-   [ventas.utils.ui :as utils.ui]
-   [ventas.pages.admin.common :as admin.common])
+   [ventas.utils.ui :as utils.ui])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 

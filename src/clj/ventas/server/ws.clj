@@ -3,13 +3,14 @@
    [clj-uuid :as uuid]
    [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.core.async.impl.protocols :as core.async.protocols]
+   [cognitect.transit :as transit]
+   [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
    [ventas.database.entity :as entity]
-   [ventas.utils :as utils]
-   [slingshot.slingshot :refer [throw+]]
-   [cognitect.transit :as transit])
-  (:import [java.io ByteArrayInputStream]
-           [com.cognitect.transit ReadHandler]))
+   [ventas.utils :as utils])
+  (:import
+   [com.cognitect.transit ReadHandler]
+   [java.io ByteArrayInputStream]))
 
 (def ^:private shared-hub
   (atom nil))

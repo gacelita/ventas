@@ -4,18 +4,18 @@
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
    [ventas.components.image :as image]
-   [ventas.components.slider :as components.slider]
    [ventas.components.notificator :as notificator]
+   [ventas.components.slider :as components.slider]
    [ventas.components.term :as term]
+   [ventas.components.zoomable-image :as zoomable-image]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.components.zoomable-image :as zoomable-image]
-   [ventas.routes :as routes]
-   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
-   [ventas.utils.formatting :as utils.formatting]
    [ventas.plugins.sibling-products.core :as sibling-products]
-   [ventas.themes.clothing.components.heading :as theme.heading]))
+   [ventas.routes :as routes]
+   [ventas.themes.clothing.components.heading :as theme.heading]
+   [ventas.themes.clothing.components.skeleton :refer [skeleton]]
+   [ventas.utils.formatting :as utils.formatting]))
 
 (def state-key ::state)
 

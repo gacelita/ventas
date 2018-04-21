@@ -1,9 +1,9 @@
 (ns ventas.server.ws-test
   (:require
-   [clojure.test :refer [deftest testing is use-fixtures]]
-   [ventas.server.ws :as sut]
-   [clojure.core.async :as core.async :refer [go <! >!]]
    [chord.channels :refer [bidi-ch]]
+   [clojure.core.async :as core.async :refer [<! >! go]]
+   [clojure.test :refer [deftest is testing use-fixtures]]
+   [ventas.server.ws :as sut]
    [ventas.utils :as utils]))
 
 (use-fixtures :once #(do (sut/start!)

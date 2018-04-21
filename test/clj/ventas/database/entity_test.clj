@@ -1,10 +1,10 @@
 (ns ventas.database.entity-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
+   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as sut]
-   [ventas.test-tools :as test-tools]
-   [taoensso.timbre :as timbre]))
+   [ventas.test-tools :as test-tools]))
 
 (use-fixtures :each #(with-redefs [db/db (test-tools/test-conn)]
                        (timbre/with-level

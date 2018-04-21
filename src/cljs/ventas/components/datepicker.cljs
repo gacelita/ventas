@@ -1,10 +1,10 @@
 (ns ventas.components.datepicker
   (:require
-   [reagent.ratom :refer [atom]]
    [cljsjs.react-date-range]
+   [re-frame.core :as rf]
+   [reagent.ratom :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.events :as events]
-   [re-frame.core :as rf]))
+   [ventas.events :as events]))
 
 (def state-key ::state)
 

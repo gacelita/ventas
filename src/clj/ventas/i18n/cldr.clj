@@ -1,10 +1,10 @@
 (ns ventas.i18n.cldr
   "CLDR importer. Supports countries and states."
   (:require
-   [ventas.common.utils :as common.utils]
-   [ventas.database :as db]
    [clojure.string :as str]
    [clojure.xml :as xml]
+   [ventas.common.utils :as common.utils]
+   [ventas.database :as db]
    [ventas.database.entity :as entity]))
 
 (defn- get-country-names [path]

@@ -1,10 +1,10 @@
 (ns ventas.plugins.stripe.frontend
   (:require
-   [reagent.core :as r]
    [re-frame.core :as rf]
-   [ventas.i18n :refer [i18n]]
+   [reagent.core :as r]
    [ventas.components.payment :as payment]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [ventas.i18n :refer [i18n]]))
 
 (defn- start-stripe! [form-node key]
   (let [node (js/document.createElement "script")]
