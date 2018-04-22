@@ -39,13 +39,21 @@
   :dependencies [
                  ;; Clojure
                  [org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.238" :scope "provided"]
+                 [org.clojure/clojurescript "1.10.126" :scope "provided"]
                  [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
+                 [org.clojure/tools.nrepl "0.2.13"]
+
+                 ;; Spec stuff
                  [expound "0.5.0"]
                  [org.clojure/spec.alpha "0.1.143" :scope "provided"]
                  [metosin/spec-tools "0.6.1"]
+                 [org.clojure/test.check "0.9.0"]
+                 [com.gfredericks/test.chuck "0.2.9"]
+
+                 ;; Explicit transitive dependencies
+                 [com.google.code.findbugs/jsr305 "3.0.1"]
                  [com.google.guava/guava "23.0"]
-                 [org.clojure/tools.nrepl "0.2.13"]
+                 [instaparse "1.4.8"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
@@ -70,20 +78,19 @@
                  ;; Server-side HTTP requests
                  [clj-http "3.8.0" :exclusions [riddley]]
 
-                 ;; HTTP server
-                 [http-kit "2.2.0"]
+                 ;; HTTP server, routing
+                 [http-kit "2.3.0"]
+                 [compojure "1.6.1"]
 
                  ;; Authentication
-                 [buddy "2.0.0" :exclusions [instaparse]]
+                 [buddy "2.0.0"]
 
                  ;; Ring
                  [ring "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
                  [bk/ring-gzip "0.3.0"]
                  [ring/ring-json "0.4.0" :exclusions [cheshire]]
-
-                 ;; Routing
-                 [compojure "1.6.1" :exclusions [instaparse]]
+                 [prone "1.5.2"]
 
                  ;; Configuration
                  [cprop "0.1.11"]
@@ -91,24 +98,8 @@
                  ;; i18n
                  [tongue "0.2.4"]
 
-                 ;; URL parsing
-                 [com.cemerick/url "0.1.1"]
-
-                 ;; re-frame
-                 [reagent "0.7.0"]
-                 [re-frame "0.10.5"]
-                 [day8.re-frame/forward-events-fx "0.0.5"]
-
-                 ;; Semantic UI
-                 [soda-ash "0.79.1"]
-
                  ;; kafka
                  [spootnik/kinsky "0.1.22"]
-
-                 ;; Routing
-                 [bidi "2.1.3"]
-                 [joelsanchez/ventas-bidi-syntax "0.1.2"]
-                 [venantius/accountant "0.2.4"]
 
                  ;; HTML templating
                  [selmer "1.11.7" :exclusions [cheshire joda-time]]
@@ -119,45 +110,31 @@
                  ;; Filesystem utilities
                  [me.raynes/fs "1.4.6"]
 
+                 ;; "throw+" and "try+"
+                 [slingshot "0.12.2"]
+
+                 ;; String manipulation
+                 [funcool/cuerdas "2.0.5"]
+
+                 ;; Collection manipulation
+                 [com.rpl/specter "1.1.0" :exclusions [riddley]]
+
                  ;; Database
                  [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.5.1"]
 
-                 ;; Charts
-                 [cljsjs/chartjs "2.7.0-0"]
-                 [cljsjs/moment "2.22.0-0"]
-
-                 ;; Text colors
+                 ;; Text colors in the console
                  [io.aviso/pretty "0.1.34"]
 
                  ;; UUIDs
                  [danlentz/clj-uuid "0.1.7" :exclusions [primitive-math]]
 
-                 ;; "throw+" and "try+"
-                 [slingshot "0.12.2"]
-
                  ;; Uploads
                  [byte-streams "0.2.3"]
-                 [com.novemberain/pantomime "2.9.0"]
-
-                 ;; DateTime
-                 [clj-time "0.14.3"]
-
-                 ;; localStorage
-                 [alandipert/storage-atom "2.0.1"]
-
-                 ;; Generators
-                 [org.clojure/test.check "0.9.0"]
-                 [com.gfredericks/test.chuck "0.2.8" :exclusions [instaparse]]
+                 [com.novemberain/pantomime "2.9.0" :exclusions [org.apache.commons/commons-compress]]
 
                  ;; Image processing
                  [fivetonine/collage "0.2.1"]
-
-                 ;; Nice CLJS development tools
-                 [binaryage/devtools "0.9.10"]
-
-                 ;; String manipulation
-                 [funcool/cuerdas "2.0.5"]
 
                  ;; Elasticsearch
                  [cc.qbits/spandex "0.6.2"]
@@ -165,33 +142,60 @@
                  ;; Server-side prerendering
                  [etaoin "0.2.8"]
 
-                 ;; Error reporting for Ring
-                 [prone "1.5.2"]
-
-                 ;; Devcards itself
-                 [devcards "0.2.4" :exclusions [cljsjs/react]]
+                 ;; DateTime
+                 [clj-time "0.14.3"]
 
                  ;; Email
                  [com.draines/postal "2.0.2"]
 
-                 ;; Collection manipulation
-                 [com.rpl/specter "1.1.0"]
-
                  ;; Stripe
                  [abengoa/clj-stripe "1.0.4"]
+
+                 ;;
+                 ;; CLJS dependencies
+                 ;;
+
+                 ;; URL parsing
+                 [com.cemerick/url "0.1.1"]
+
+                 ;; re-frame
+                 [reagent "0.7.0"]
+                 [re-frame "0.10.5"]
+                 [day8.re-frame/forward-events-fx "0.0.5"]
+
+                 ;; Semantic UI
+                 [soda-ash "0.79.1" :exclusions [cljsjs/react-dom cljsjs/react]]
+
+                 ;; Routing
+                 [bidi "2.1.3"]
+                 [joelsanchez/ventas-bidi-syntax "0.1.2"]
+                 [venantius/accountant "0.2.4"]
+
+                 ;; Charts
+                 [cljsjs/chartjs "2.7.0-0"]
+                 [cljsjs/moment "2.22.0-0"]
+
+                 ;; localStorage
+                 [alandipert/storage-atom "2.0.1"]
+
+                 ;; Nice CLJS development tools
+                 [binaryage/devtools "0.9.10"]
+
+                 ;; Devcards itself
+                 [devcards "0.2.4" :exclusions [cljsjs/react]]
 
                  ;; Datepicker
                  [cljsjs/react-date-range "0.2.4-0" :exclusions [cljsjs/react]]]
 
-  :plugins [[lein-ancient "0.6.14"]
+  :plugins [[lein-ancient "0.6.15"]
+            [lein-doo "0.1.10"]
             [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
             [com.gfredericks/how-to-ns "0.1.8"]
             [lein-auto "0.1.3"]
-            [lein-cljfmt "0.5.6"]
+            [lein-cljfmt "0.5.7"]
             [lein-cljsbuild "1.1.7"]
             [lein-cloverage "1.0.10"]
-            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress org.clojure/clojure]]
-            [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
+            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress]]]
 
   :cljfmt {:file-pattern #"(src|test)\/.*?\.clj[sx]?$"}
 
@@ -302,15 +306,13 @@
 
                                   ;; Runtime dependency resolution
                                   [com.cemerick/pomegranate "1.0.0"]
-                                  [org.codehaus.plexus/plexus-utils "3.0.15"]
-
-                                  [org.clojure/test.check "0.9.0"]
-                                  [com.gfredericks/test.chuck "0.2.8"]]
-                   :plugins [[lein-figwheel "0.5.14" :exclusions [org.clojure/clojure]]
-                             [lein-doo "0.1.8" :exclusions [org.clojure/clojure]]
+                                  [org.codehaus.plexus/plexus-utils "3.0.15"]]
+                   :plugins [[lein-figwheel "0.5.15"]
                              [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
                              [refactor-nrepl "2.4.0-SNAPSHOT"]]
                    :source-paths ["dev"]}
+
+             :repl {:plugins [[venantius/ultra "0.5.2"]]}
 
              :release {:aot ~aot-namespaces
                        :hooks [leiningen.sassc]}
