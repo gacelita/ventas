@@ -1,6 +1,6 @@
 (ns ventas.components.zoomable-image
   (:require
-   ["js-image-zoom" :as zoom]
+   [js-image-zoom :as zoom]
    [re-frame.core :as rf]
    [reagent.core :as reagent]
    [ventas.components.base :as base]
