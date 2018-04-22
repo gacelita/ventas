@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "@cljs-oss/module-deps": "^1.1.1",
-    "js-image-zoom": "^0.5.0"
+    "js-image-zoom": "^0.5.0",
+    "karma": "^2.0.2",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-cljs-test": "^0.1.0"
   }
 }
