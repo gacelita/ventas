@@ -102,7 +102,7 @@
                               :direction :desc}
                     :text (i18n ::highest-price)}]]
       {:selection true
-       :options options
+       :options (->> options (map #(dissoc % :sorting)))
        :default-value "lowest-price"
        :on-change #(rf/dispatch [::set-sorting (->> options
                                                     (filter (fn [option]
