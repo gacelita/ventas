@@ -39,7 +39,7 @@
   :dependencies [
                  ;; Clojure
                  [org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.126" :scope "provided"]
+                 [org.clojure/clojurescript "1.10.238" :scope "provided"]
                  [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
                  [org.clojure/tools.nrepl "0.2.13"]
 
@@ -248,8 +248,8 @@
                 :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
                 :compiler {:main ventas.core
                            :npm-deps {:js-image-zoom "0.5.0"}
+                           :install-deps true
                            :asset-path "files/js/compiled/out"
-                           :closure-defines {"clairvoyant.core.devmode" true}
                            :output-to "resources/public/files/js/compiled/ventas.js"
                            :output-dir "resources/public/files/js/compiled/out"
                            :source-map-timestamp true
@@ -261,6 +261,8 @@
                 :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "test/doo" "custom-lib"]
                 :compiler {:output-to "resources/public/files/js/compiled/testable.js"
                            :main ventas.test-runner
+                           :npm-deps {:js-image-zoom "0.5.0"}
+                           :install-deps true
                            :optimizations :none
                            :parallel-build true}}
 
