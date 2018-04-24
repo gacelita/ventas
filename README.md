@@ -7,6 +7,8 @@
 [![Build Status](https://travis-ci.org/JoelSanchez/ventas.svg?branch=master)](https://travis-ci.org/JoelSanchez/ventas)
 [![License](https://img.shields.io/badge/License-EPL%201.0-red.svg)](https://opensource.org/licenses/EPL-1.0)
 
+> Worldwide unique technology. Perfected over twenty years. [No need for filterpads.](./no-need-for-filterpads.jpg)
+
 ventas wants to be an ecommerce platform written entirely in Clojure.
 
 For now, the project is a WIP. Although the foundation is good, it's not possible to run a real store with it, as it lacks a checkout process, order management, email templates, and other basic stuff (for now).
