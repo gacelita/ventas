@@ -6,6 +6,8 @@
      :compiler {:main (symbol (str "ventas.themes." name ".core"))
                 :output-to (str "resources/public/files/js/compiled/" name ".js")
                 :output-dir (str "resources/public/files/js/compiled/" name)
+                :npm-deps {:js-image-zoom "0.5.0"}
+                :install-deps true
                 :source-map-timestamp true
                 :optimizations :advanced
                 :pretty-print false
