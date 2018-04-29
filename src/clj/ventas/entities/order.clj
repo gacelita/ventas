@@ -40,7 +40,11 @@
     ;; the order is ready to be shipped
     :order.status/ready
     ;; the order has been shipped
-    :order.status/shipped})
+    :order.status/shipped
+    ;; cancelled by the user
+    :order.status/cancelled
+    ;; rejected by the shop
+    :order.status/rejected})
 
 (spec/def :order/status
   (spec/with-gen
