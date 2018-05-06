@@ -20,10 +20,10 @@
 (spec/def :category/keyword ::generators/keyword)
 
 (spec/def :schema.type/category
-  (spec/keys :req [:category/name
-                   :category/keyword]
+  (spec/keys :req [:category/name]
              :opt [:category/image
-                   :category/parent]))
+                   :category/parent
+                   :category/keyword]))
 
 (defn get-image [entity & [params]]
   (if (:category/image entity)

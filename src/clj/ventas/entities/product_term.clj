@@ -15,8 +15,8 @@
 
 (spec/def :schema.type/product.term
   (spec/keys :req [:product.term/name
-                   :product.term/taxonomy
-                   :product.term/keyword]))
+                   :product.term/taxonomy]
+             :opt [:product.term/keyword]))
 
 (entity/register-type!
  :product.term

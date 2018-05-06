@@ -28,8 +28,8 @@
 (spec/def :schema.type/tax
   (spec/keys :req [:tax/name
                    :tax/kind
-                   :tax/amount
-                   :tax/keyword]))
+                   :tax/amount]
+             :opt [:tax/keyword]))
 
 (entity/register-type!
  :tax

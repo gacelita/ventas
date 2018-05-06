@@ -10,8 +10,8 @@
 (spec/def :product.taxonomy/keyword ::generators/keyword)
 
 (spec/def :schema.type/product.taxonomy
-  (spec/keys :req [:product.taxonomy/name
-                   :product.taxonomy/keyword]))
+  (spec/keys :req [:product.taxonomy/name]
+             :opt [:product.taxonomy/keyword]))
 
 (entity/register-type!
  :product.taxonomy

@@ -13,9 +13,9 @@
   (spec/with-gen ::entity/ref #(entity/ref-generator :currency)))
 
 (spec/def :schema.type/amount
-  (spec/keys :req [:amount/keyword
-                   :amount/value
-                   :amount/currency]))
+  (spec/keys :req [:amount/value
+                   :amount/currency]
+             :opt [:amount/keyword]))
 
 (entity/register-type!
  :amount

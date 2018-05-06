@@ -13,8 +13,8 @@
 (spec/def :schema.type/currency
   (spec/keys :req [:currency/name
                    :currency/plural-name
-                   :currency/keyword
-                   :currency/symbol]))
+                   :currency/symbol]
+             :opt [:currency/keyword]))
 
 (entity/register-type!
  :currency
