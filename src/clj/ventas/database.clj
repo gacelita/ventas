@@ -30,7 +30,9 @@
 (defn stop-db! [db]
   (timbre/info "Stopping database"))
 
-(defstate db :start (start-db!) :stop (stop-db! db))
+(defstate db
+  :start (start-db!)
+  :stop (stop-db! db))
 
 (defn connected? []
   (instance? Connection db))

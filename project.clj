@@ -18,7 +18,7 @@
   ['clojure.tools.logging.impl
    'ventas.core])
 
-(defproject ventas "0.0.2-SNAPSHOT"
+(defproject ventas "0.0.5-SNAPSHOT"
   :description "The Ventas eCommerce platform"
 
   :url "https://github.com/JoelSanchez/ventas"
