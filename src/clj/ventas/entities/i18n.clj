@@ -103,22 +103,16 @@
                 %)))
 
 (defn- serialize-transacted [this & [culture]]
-  (if-not culture
-    (->> (:i18n/translations this)
-         (map (comp entity/serialize entity/find))
-         (into {}))
-    (-> (db/q '[:find ?translated
-                :in $ ?this-eid ?culture
-                :where [?this-eid :i18n/translations ?term-translation]
-                [?term-translation :i18n.translation/value ?translated]
-                [?term-translation :i18n.translation/culture ?culture]]
-              [(:db/id this) culture])
-        (first)
-        (first))))
+  (let [translations (->> (:i18n/translations this)
+                          (map (comp entity/serialize entity/find))
+                          (into {}))]
+    (if-not culture
+      translations
+      (or (get translations culture)
+          (second (first translations))))))
 
 (defn- serialize-literal [this & [culture]]
   (let [this (normalize-i18n this)
-        culture (db/normalize-ref culture)
         serialized (->> (:i18n/translations this)
                         (map (fn [{:i18n.translation/keys [culture value]}]
                                [culture value]))
@@ -152,9 +146,10 @@
   :serialize
   (fn [this {:keys [culture]}]
     {:pre [(or (not culture) (utils/check ::entity/ref culture))]}
-    (if-not (:db/id this)
-      (serialize-literal this culture)
-      (serialize-transacted this culture)))
+    (let [culture (db/normalize-ref culture)]
+      (if-not (:db/id this)
+        (serialize-literal this culture)
+        (serialize-transacted this culture))))
 
   :autoresolve? true
   :component? true})
