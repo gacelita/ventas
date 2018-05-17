@@ -11,10 +11,10 @@
 (spec/def :currency/symbol ::generators/string)
 
 (spec/def :schema.type/currency
-  (spec/keys :req [:currency/name
+  (spec/keys :req [:currency/name]
+             :opt [:currency/keyword
                    :currency/plural-name
-                   :currency/symbol]
-             :opt [:currency/keyword]))
+                   :currency/symbol]))
 
 (entity/register-type!
  :currency
