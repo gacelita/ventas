@@ -195,15 +195,14 @@
       (find)))
 
 (defn- prepare-creation-attrs [pre-entity & [initial-tempid]]
-  (into {}
-        (map (fn [[k v]]
-               [k (cond
-                    (entity? v) (prepare-creation-attrs v)
-                    (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
-                    :else v)])
-             (-> pre-entity
-                 (assoc :db/id (or initial-tempid (db/tempid)))
-                 (filter-create)))))
+  (utils/mapm (fn [[k v]]
+                [k (cond
+                     (entity? v) (prepare-creation-attrs v)
+                     (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
+                     :else v)])
+              (-> pre-entity
+                  (assoc :db/id (or initial-tempid (db/tempid)))
+                  (filter-create))))
 
 (defn create*
   "Creates an entity"
@@ -271,11 +270,9 @@
 (defn attributes-by-ident
   [type]
   "Returns a map whose keys are idents and whose values are the properties of each ident"
-  (into {}
-        (map
-         (fn [attr]
-           [(:db/ident attr) attr])
-         (attributes type))))
+  (utils/mapm (fn [attr]
+                [(:db/ident attr) attr])
+              (attributes type)))
 
 (defn idents-with-value-type
   "Returns the idents of an entity with the given valueType"
@@ -299,18 +296,17 @@
   [entity & [options]]
   (let [ref-idents (idents-with-value-type entity :db.type/ref)]
     (->> entity
-         (map (fn [[ident value]]
-                [ident (if-not (contains? ref-idents ident)
-                         value
-                         (cond
-                           (spec/valid? (spec/coll-of number?) value)
-                           (map #(autoresolve-ref % options) value)
+         (utils/mapm (fn [[ident value]]
+                       [ident (if-not (contains? ref-idents ident)
+                                value
+                                (cond
+                                  (spec/valid? (spec/coll-of number?) value)
+                                  (map #(autoresolve-ref % options) value)
 
-                           (spec/valid? number? value)
-                           (autoresolve-ref value options)
+                                  (spec/valid? number? value)
+                                  (autoresolve-ref value options)
 
-                           :else value))]))
-         (into {}))))
+                                  :else value))])))))
 
 (defn default-serialize [entity & [{:keys [keep-type?] :as options}]]
   (let [result (-> (autoresolve entity options)
@@ -372,12 +368,11 @@
                                  (= (:db/valueType %) :db.type/ref))
                            relevant-attrs)
         enum-idents (map :db/ident enum-attrs)
-        enum-vals (->> (map (fn [ident]
-                              [ident (->> (get old-values ident)
-                                          (map db/normalize-ref)
-                                          (set))])
-                            enum-idents)
-                       (into {}))]
+        enum-vals (utils/mapm (fn [ident]
+                                [ident (->> (get old-values ident)
+                                            (map db/normalize-ref)
+                                            (set))])
+                              enum-idents)]
     (mapcat (fn [{:keys [ident new-val]}]
               (let [diff (set/difference (get enum-vals ident)
                                          new-val)]
@@ -529,11 +524,10 @@
   "Finds the given eid or lookup ref, and all the refs inside it"
   (let [entity (find eid)
         ref-idents (idents-with-value-type entity :db.type/ref)]
-    (->> entity
-         (map (fn [[k v]]
-                [k (if (and (contains? ref-idents k) (not (keyword? v)))
-                     (if (sequential? v)
-                       (map find-recursively v)
-                       (find-recursively v))
-                     v)]))
-         (into {}))))
+    (utils/mapm (fn [[k v]]
+                  [k (if (and (contains? ref-idents k) (not (keyword? v)))
+                       (if (sequential? v)
+                         (map find-recursively v)
+                         (find-recursively v))
+                       v)])
+                entity)))

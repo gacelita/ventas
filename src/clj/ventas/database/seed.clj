@@ -7,7 +7,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
    [ventas.plugin :as plugin]
-   [ventas.theme :as theme]))
+   [ventas.theme :as theme]
+   [ventas.utils :as utils]))
 
 (defn- create*
   "Wraps create* with the seed lifecycle functions"
@@ -37,9 +38,8 @@
   [current remaining]
   (if (seq remaining)
     (let [new-types (->> remaining
-                         (map (fn [type]
-                                [type (entity/dependencies type)]))
-                         (into {})
+                         (utils/mapm (fn [type]
+                                       [type (entity/dependencies type)]))
                          (filter (fn [[type dependencies]]
                                    (or (empty? dependencies) (set/subset? dependencies (set current)))))
                          (keys))]

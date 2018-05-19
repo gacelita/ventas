@@ -6,7 +6,8 @@
    [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
-   [ventas.paths :as paths]))
+   [ventas.paths :as paths]
+   [ventas.utils :as utils]))
 
 (def ^:dynamic current)
 
@@ -15,24 +16,23 @@
        (io/file)
        (file-seq)
        (remove #(.isDirectory %))
-       (map (fn [file]
-              [(str/replace (.getName file) ".edn" "")
-               (read-string (slurp file))]))
-       (into {})))
+       (utils/mapm (fn [file]
+                     [(str/replace (.getName file) ".edn" "")
+                      (read-string (slurp file))]))))
 
 (defn- start-sites! []
   (timbre/info "Starting sites")
   (->> (get-sites)
-       (map (fn [[site site-config]]
-              [site
-               (let [config (atom (common.utils/deep-merge @ventas.config/config site-config))]
-                 (with-bindings {#'ventas.config/config config}
-                   (merge
-                    {#'ventas.config/config config
-                     #'current site}
-                    (when (get-in site [:database :url])
-                      {#'ventas.database/db (db/start-db!)}))))]))
-       (into {})))
+       (utils/mapm
+        (fn [[site site-config]]
+          [site
+           (let [config (atom (common.utils/deep-merge @ventas.config/config site-config))]
+             (with-bindings {#'ventas.config/config config}
+               (merge
+                {#'ventas.config/config config
+                 #'current site}
+                (when (get-in site [:database :url])
+                  {#'ventas.database/db (db/start-db!)}))))]))))
 
 (defn- stop-sites! [sites]
   (timbre/info "Stopping sites")

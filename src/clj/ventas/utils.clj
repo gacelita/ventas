@@ -23,10 +23,22 @@
   (swallow
    (spec/form v)))
 
+(defn mapm
+  "Like clojure.core/mapv, but creates a map"
+  ([f coll]
+   (-> (reduce (fn [m o] (let [[k v] (f o)] (assoc! m k v))) (transient {}) coll)
+       persistent!))
+  ([f c1 c2]
+   (into {} (map f c1 c2)))
+  ([f c1 c2 c3]
+   (into {} (map f c1 c2 c3)))
+  ([f c1 c2 c3 & colls]
+   (into {} (apply map f c1 c2 c3 colls))))
+
 (defn dequalify-keywords [m]
-  (into {}
-        (for [[k v] m]
-          [(keyword (name k)) v])))
+  (mapm (fn [[k v]]
+          [(keyword (name k)) v])
+        m))
 
 (defn qualify-keyword [kw ns]
   (keyword (name ns) (name kw)))
@@ -35,20 +47,22 @@
   "Qualifies the keywords used as keys in a map.
 	 Accepts a map with keywords as keys and a namespace represented as keyword."
   [ks ns]
-  (into {}
-        (for [[k v] ks]
-          [(qualify-keyword k ns) v])))
+  (mapm (fn [[k v]]
+          [(qualify-keyword k ns) v])
+        ks))
 
 (defn find-files*
   "Find files in `path` by `pred`."
   [path pred]
   (filter #(and (pred %)
-                (not (.isDirectory %))) (-> path io/file file-seq)))
+                (not (.isDirectory %)))
+          (-> path io/file file-seq)))
 
 (defn find-files
   "Find files matching given `pattern`."
   [path pattern]
-  (find-files* path #(re-matches pattern (.getName ^File %))))
+  (find-files* path
+               #(re-matches pattern (.getName ^File %))))
 
 (defn transform
   "Applies the given transformation functions to `data`"

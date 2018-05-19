@@ -8,7 +8,8 @@
    [spec-tools.impl :as impl]
    [spec-tools.parse :as parse]
    [spec-tools.visitor :as visitor]
-   [ventas.server.api :as api]))
+   [ventas.server.api :as api]
+   [ventas.utils :as utils]))
 
 (defn- only-entry? [key a-map] (= [key] (keys a-map)))
 
@@ -281,12 +282,11 @@
   (->> @api/available-requests
        (remove (fn [[request {:keys [binary?]}]]
                  binary?))
-       (map (fn [[request {:keys [spec doc]}]]
-              [request {:spec (when spec
-                                (->> (data-spec/spec (keyword "api" (name request)) spec)
-                                     (transform)))
-                        :doc doc}]))
-       (into {})))
+       (utils/mapm (fn [[request {:keys [spec doc]}]]
+                     [request {:spec (when spec
+                                       (->> (data-spec/spec (keyword "api" (name request)) spec)
+                                            (transform)))
+                               :doc doc}]))))
 
 (api/register-endpoint!
  :api.describe

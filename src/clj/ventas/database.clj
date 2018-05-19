@@ -169,15 +169,16 @@
 (defn EntityMaps->eids
   "EntityMap -> eid"
   [m]
-  (into {}
-        (for [[k v] m]
-          [k (cond
-               (instance? EntityMap v) (:db/id v)
-               (set? v)
-               (cond
-                 (instance? EntityMap (first v)) (map :db/id v)
-                 :else v)
-               :else v)])))
+  (utils/mapm
+   (fn [[k v]]
+     [k (cond
+          (instance? EntityMap v) (:db/id v)
+          (set? v)
+          (cond
+            (instance? EntityMap (first v)) (map :db/id v)
+            :else v)
+          :else v)])
+   m))
 
 (defn touch-eid
   "Touches an entity by eid"

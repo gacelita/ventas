@@ -190,12 +190,10 @@
                    (let [{:ventas/keys [refEntityType] :db/keys [ident]} attr]
                      (if-not (= refEntityType :i18n)
                        (assoc acc (ident->property ident) value)
-                       (merge acc
-                              (->> culture-kws
-                                   (map (fn [culture-kw]
-                                          [(ident->property (with-culture ident culture-kw))
-                                           value]))
-                                   (into {}))))))
+                       (merge acc (utils/mapm (fn [culture-kw]
+                                                [(ident->property (with-culture ident culture-kw))
+                                                 value])
+                                              culture-kws)))))
                  {}))))
 
 (defn setup []
@@ -212,10 +210,9 @@
   (case type
     :schema.type/i18n
     (->> (entity/serialize entity)
-         (map (fn [[culture value]]
-                [(->> culture entity/find :i18n.culture/keyword)
-                 value]))
-         (into {}))
+         (utils/mapm (fn [[culture value]]
+                       [(->> culture entity/find :i18n.culture/keyword)
+                        value])))
     :schema.type/amount
     (:amount/value entity)
 

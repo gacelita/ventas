@@ -104,8 +104,7 @@
 
 (defn- serialize-transacted [this & [culture]]
   (let [translations (->> (:i18n/translations this)
-                          (map (comp entity/serialize entity/find))
-                          (into {}))]
+                          (utils/mapm (comp entity/serialize entity/find)))]
     (if-not culture
       translations
       (or (get translations culture)
@@ -114,9 +113,8 @@
 (defn- serialize-literal [this & [culture]]
   (let [this (normalize-i18n this)
         serialized (->> (:i18n/translations this)
-                        (map (fn [{:i18n.translation/keys [culture value]}]
-                               [culture value]))
-                        (into {}))]
+                        (utils/mapm (fn [{:i18n.translation/keys [culture value]}]
+                                      [culture value])))]
     (if-not culture
       serialized
       (get serialized culture))))

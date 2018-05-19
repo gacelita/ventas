@@ -5,7 +5,8 @@
    [clojure.xml :as xml]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
-   [ventas.database.entity :as entity]))
+   [ventas.database.entity :as entity]
+   [ventas.utils :as utils]))
 
 (defn- get-country-names [path]
   (let [xml (xml/parse path)
@@ -38,11 +39,12 @@
                     (common.utils/find-first #(= (:tag %) :subdivisionContainment))
                     :content
                     (map :attrs))]
-    (into {}
-          (for [{:keys [contains type]} states]
-            [(keyword (str/lower-case type))
-             (->> (str/split contains #" ")
-                  (map keyword))]))))
+    (utils/mapm
+     (fn [{:keys [contains type]}]
+       [(keyword (str/lower-case type))
+        (->> (str/split contains #" ")
+             (map keyword))])
+     states)))
 
 (defn- transact-countries! [countries]
   (->> (for [[keyword translations] countries]
