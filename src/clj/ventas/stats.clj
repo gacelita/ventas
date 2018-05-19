@@ -6,7 +6,8 @@
    [mount.core :refer [defstate]]
    [taoensso.timbre :as timbre]
    [ventas.config :as config]
-   [ventas.search :as search])
+   [ventas.search :as search]
+   [ventas.utils :as utils])
   (:import
    [org.apache.kafka.clients.consumer ConsumerRecords ConsumerRecord KafkaConsumer]
    [org.apache.kafka.common TopicPartition]
@@ -71,7 +72,7 @@
            (let [records (->> (poll consumer 100)
                               :by-topic
                               vals
-                              (apply concat))]
+                              (apply utils/into-n))]
              (when (seq records)
                (doseq [record records]
                  (timbre/debug :kafka-indexer record)

@@ -88,7 +88,7 @@
 (entity/register-type!
  :user
  {:attributes
-  (concat
+  (utils/into-n
    [{:db/ident :user/first-name
      :db/valueType :db.type/string
      :db/fulltext true

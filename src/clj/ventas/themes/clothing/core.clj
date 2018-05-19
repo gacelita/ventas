@@ -10,7 +10,8 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.seo :as seo]
    [ventas.theme :as theme]
-   [ventas.themes.clothing.demo :as demo]))
+   [ventas.themes.clothing.demo :as demo]
+   [ventas.utils :as utils]))
 
 (spec/def :product.term/color ::generators/string)
 
@@ -20,7 +21,7 @@
   :cljs-ns 'ventas.themes.clothing.core
   :prerendered-routes
   (fn []
-    (concat
+    (utils/into-n
      [[:frontend]
       [:frontend.privacy-policy]
       [:frontend.login]]
@@ -32,7 +33,7 @@
                  [:frontend.product :id slug-value])))))
   :fixtures
   (fn []
-    (concat
+    (utils/into-n
      [;; Themes should declare the image sizes they will use as fixtures.
       {:schema/type :schema.type/image-size
        :image-size/keyword :product-page-vertical-carousel

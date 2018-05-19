@@ -91,6 +91,10 @@
 (defn ->number [v]
   (swallow (Long. v)))
 
+(defn into-n [& vs]
+  "Into but accepts any number of input vectors"
+  (reduce into [] vs))
+
 (defn batch [in out max-time max-count]
   (let [lim-1 (dec max-count)]
     (go-loop [buffer []]

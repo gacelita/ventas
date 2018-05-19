@@ -7,7 +7,8 @@
    [ventas.database.generators :as generators]
    [ventas.entities.file :as entities.file]
    [ventas.paths :as paths]
-   [ventas.utils.images :as utils.images]))
+   [ventas.utils.images :as utils.images]
+   [ventas.utils :as utils]))
 
 (spec/def :image-size/keyword ::generators/keyword)
 
@@ -64,7 +65,7 @@
 (entity/register-type!
  :image-size
  {:attributes
-  (concat
+  (utils/into-n
    [{:db/ident :image-size/keyword
      :db/valueType :db.type/keyword
      :db/unique :db.unique/identity

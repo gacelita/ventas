@@ -9,7 +9,8 @@
    [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
    [ventas.config :as config]
-   [ventas.database.generators :as db.generators])
+   [ventas.database.generators :as db.generators]
+   [ventas.utils :as utils])
   (:import
    [datomic Datom Connection]
    [datomic.query EntityMap]
@@ -42,7 +43,7 @@
   ([query]
    (q query []))
   ([query sources]
-   (apply d/q query (concat [(d/db db)] sources))))
+   (apply d/q query (into [(d/db db)] sources))))
 
 (defn pull
   "pull wrapper"
@@ -236,13 +237,14 @@
   (keyword (subs (str db-symbol) 1)))
 
 (defn map->query [m]
-  (vec (concat '(:find) (:find m)
-               '(:in) (:in m)
-               '(:where) (:where m))))
+  (utils/into-n
+   [:find] (:find m)
+   [:in] (:in m)
+   [:where] (:where m)))
 
 (defn- nice-query* [{:keys [find where in]}]
   (map->query {:find (remove nil? find)
-               :in (concat ['$] (remove nil? in))
+               :in (into ['$] (remove nil? in))
                :where where}))
 
 (defn nice-query

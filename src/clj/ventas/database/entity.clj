@@ -398,11 +398,12 @@
   (check-db-migrated!)
   (let [entity (find id)
         attrs (filter-update entity attrs)]
-    (db/transact (concat [attrs]
-                         (when-not append?
-                           (get-enum-retractions entity attrs))
-                         [{:db/id (d/tempid :db.part/tx)
-                           :event/kind :entity.update}]))
+    (db/transact (utils/into-n
+                  [attrs]
+                  (when-not append?
+                    (get-enum-retractions entity attrs))
+                  [{:db/id (d/tempid :db.part/tx)
+                    :event/kind :entity.update}]))
     (find id)))
 
 (defn update

@@ -2,7 +2,8 @@
   "Demo data"
   (:require
    [ventas.entities.amount :as entities.amount]
-   [ventas.entities.i18n :as entities.i18n]))
+   [ventas.entities.i18n :as entities.i18n]
+   [ventas.utils :as utils]))
 
 (defn product-terms []
   (map #(assoc % :schema/type :schema.type/product.term)
@@ -137,7 +138,7 @@
   (let [kw (keyword (str (when parent-kw
                            (str (name parent-kw) "."))
                          (name kw)))]
-    (concat
+    (into
      [(merge {:category/name (entities.i18n/get-i18n-entity i18n)
               :category/keyword kw
               :schema/type :schema.type/category}
@@ -700,17 +701,18 @@
                                    :shipping-method.price/min-value 0M}]}]))
 
 (defn demo-data []
-  (concat (product-terms)
-          (files)
-          (brands)
-          (categories)
-          (taxes)
-          (discounts)
-          (products)
-          (product-variations)
-          (users)
-          (country-groups)
-          (countries)
-          (states)
-          (addresses)
-          (shipping-methods)))
+  (utils/into-n
+   (product-terms)
+   (files)
+   (brands)
+   (categories)
+   (taxes)
+   (discounts)
+   (products)
+   (product-variations)
+   (users)
+   (country-groups)
+   (countries)
+   (states)
+   (addresses)
+   (shipping-methods)))

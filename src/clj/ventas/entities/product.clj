@@ -111,7 +111,7 @@
 (entity/register-type!
  :product
  {:attributes
-  (concat
+  (utils/into-n
    [{:db/ident :product/price
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/one

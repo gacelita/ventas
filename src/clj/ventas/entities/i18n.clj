@@ -134,9 +134,9 @@
 
   :before-create
   (fn [{:i18n/keys [translations]}]
-    (let [entities (concat (->> (filter number? translations)
-                                (map entity/find))
-                           (filter map? translations))]
+    (let [entities (into (->> (filter number? translations)
+                              (map entity/find))
+                         (filter map? translations))]
       (when (->> entities
                  (map :i18n.translation/culture)
                  (utils/has-duplicates?))

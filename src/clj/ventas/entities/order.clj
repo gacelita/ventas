@@ -5,7 +5,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.entities.product :as entities.product]))
+   [ventas.entities.product :as entities.product]
+   [ventas.utils :as utils]))
 
 (defn get-amount
   "Returns an amount entity representing the total amount to be paid"
@@ -87,7 +88,7 @@
 (entity/register-type!
  :order
  {:attributes
-  (concat
+  (utils/into-n
    [{:db/ident :order/user
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/one}

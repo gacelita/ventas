@@ -194,7 +194,7 @@
                    (let [records (->> (stats/poll consumer 50)
                                       :by-topic
                                       vals
-                                      (apply concat))]
+                                      (apply utils/into-n))]
                      (>! ch [{:doc_count (count records)
                               :key (System/currentTimeMillis)}])
                      (recur)))))))))
@@ -215,7 +215,7 @@
             (let [records (->> (stats/poll consumer 1000)
                                :by-topic
                                vals
-                               (apply concat))]
+                               (apply utils/into-n))]
               (when (seq records)
                 (doseq [record records]
                   (>! ch record))))

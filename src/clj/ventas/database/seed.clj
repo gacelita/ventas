@@ -44,7 +44,7 @@
                                    (or (empty? dependencies) (set/subset? dependencies (set current)))))
                          (keys))]
       (get-sorted-types*
-       (vec (concat current new-types))
+       (into current new-types)
        (set/difference remaining new-types)))
     current))
 
