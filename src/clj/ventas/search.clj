@@ -13,16 +13,20 @@
    [ventas.entities.category :as entities.category]
    [ventas.utils :as utils])
   (:import
-   [clojure.lang ExceptionInfo]))
+   [clojure.lang ExceptionInfo]
+   (java.net ConnectException)))
+
+(defn- get-url []
+  (str "http://"
+       (config/get :elasticsearch :host)
+       ":"
+       (config/get :elasticsearch :port)))
 
 (defstate elasticsearch
   :start
-  (let [address (str "http://"
-                     (config/get :elasticsearch :host)
-                     ":"
-                     (config/get :elasticsearch :port))]
-    (timbre/info "Connecting to Elasticsearch at" address)
-    (spandex/client {:hosts [address]})))
+  (let [url (get-url)]
+    (timbre/info "Connecting to Elasticsearch at" url)
+    (spandex/client {:hosts [url]})))
 
 (def batch-size 5)
 
@@ -32,11 +36,20 @@
       (apply str index "/" url)
       index)))
 
+(defn- wrap-connect-exception [f]
+  (try
+    (f)
+    (catch ConnectException e
+      (throw+ {:type ::elasticsearch-unavailable
+               :message (str "Could not make a Elasticsearch request; URL: " (get-url))}))))
+
 (defn request [data]
-  (spandex/request elasticsearch data))
+  (wrap-connect-exception
+   #(spandex/request elasticsearch data)))
 
 (defn request-async [data]
-  (spandex/request-async elasticsearch data))
+  (wrap-connect-exception
+   #(spandex/request-async elasticsearch data)))
 
 (defn create-index [mapping]
   (timbre/debug mapping)
