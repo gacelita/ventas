@@ -6,25 +6,30 @@
    [clojure.core.async.impl.protocols :refer [closed?]]
    [clojure.java.io :as io]
    [etaoin.api :as etaoin]
+   [slingshot.slingshot :refer [throw+]]
    [mount.core :refer [defstate]]
    [taoensso.timbre :as timbre]
    [ventas.config :as config]
    [ventas.database :as db]
    [ventas.paths :as paths]
    [ventas.plugin :as plugin]
-   [ventas.theme :as theme]))
+   [ventas.theme :as theme])
+  (:import (java.io IOException)))
 
 (defstate driver
   :start
   (let [{:keys [host port]} (config/get :chrome-headless)]
     (timbre/info "Starting prerendering driver")
-    (if-not (and host port)
-      (etaoin/chrome-headless)
-      (-> (etaoin/create-driver :chrome {:host host
-                                         :port port})
-          (etaoin/connect-driver))))
+    (try
+      (if-not (and host port)
+        (etaoin/chrome-headless)
+        (-> (etaoin/create-driver :chrome {:host host
+                                           :port port})
+            (etaoin/connect-driver)))
+      (catch IOException _
+        (timbre/warn "The chromedriver command was not found - prerendering is disabled"))))
   :stop
-  (do
+  (when driver
     (timbre/info "Stopping prerendering driver")
     (etaoin/quit driver)))
 

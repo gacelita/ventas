@@ -39,7 +39,7 @@
 (defn- wrap-connect-exception [f]
   (try
     (f)
-    (catch ConnectException e
+    (catch ConnectException _
       (throw+ {:type ::elasticsearch-unavailable
                :message (str "Could not make a Elasticsearch request; URL: " (get-url))}))))
 
