@@ -57,6 +57,10 @@
                  [com.google.guava/guava "23.0"]
                  [instaparse "1.4.8"]
 
+                 ;; ZeroMQ
+                 [org.zeromq/jeromq "0.3.3"]
+                 [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
+
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
 
