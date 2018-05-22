@@ -94,11 +94,12 @@
 
 (declare default-type)
 
-(defn- call-type-fn [kw entity & args]
-  (let [type-properties (type-properties (type entity))
-        type-fn (if (kw type-properties)
-                  (kw type-properties)
-                  (kw default-type))]
+(defn type-property [entity-type property]
+  (or (get (type-properties entity-type) property)
+      (property default-type)))
+
+(defn call-type-fn [property entity & args]
+  (let [type-fn (type-property (type entity) property)]
     (apply type-fn entity args)))
 
 (defn serialize
@@ -109,10 +110,7 @@
 
 (defn deserialize
   [type data]
-  (let [type-properties (type-properties type)
-        type-fn (if-let [f (:deserialize type-properties)]
-                  f
-                  (:deserialize default-type))]
+  (let [type-fn (type-property type :deserialize)]
     (type-fn data)))
 
 (defn filter-seed [entity]
@@ -232,29 +230,29 @@
 
 (defn attributes
   [type]
-  (:attributes (type-properties type)))
+  (type-property type :attributes))
 
 (defn fixtures
   [type]
-  (when-let [fixtures-fn (:fixtures (type-properties type))]
+  (when-let [fixtures-fn (type-property type :fixtures)]
     (->> (fixtures-fn)
          (map #(assoc % :schema/type (kw->type type))))))
 
 (defn autoresolve?
   [type]
-  (:autoresolve? (type-properties type)))
+  (type-property type :autoresolve?))
 
 (defn component?
   [type]
-  (:component? (type-properties type)))
+  (type-property type :component?))
 
 (defn dependencies
   [type]
-  (or (:dependencies (type-properties type)) #{}))
+  (or (type-property type :dependencies) #{}))
 
 (defn seed-number
   [type]
-  (or (:seed-number (type-properties type)) 30))
+  (or (type-property type :seed-number) 30))
 
 (spec/def
   ::ref
