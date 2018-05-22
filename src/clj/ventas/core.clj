@@ -1,4 +1,5 @@
 (ns ventas.core
+  (:refer-clojure :exclude [reset!])
   (:require
    [clojure.core.async :as core.async :refer [>! go]]
    [clojure.tools.nrepl.server :as nrepl]
@@ -43,7 +44,8 @@
    [ventas.server.api]
    [ventas.site :as site]
    [ventas.stats :as stats]
-   [ventas.themes.clothing.core])
+   [ventas.themes.clothing.core]
+   [ventas.entities.image-size :as entities.image-size])
   (:gen-class))
 
 (defn start! []
@@ -69,8 +71,10 @@
     (timbre/info (str "Starting nREPL server on " host ":" port))
     (nrepl/start-server :port port :bind host)))
 
-(defn migrate-and-reindex!
+(defn reset!
   "Returns everything to its default state, removing all data"
   []
   (seed/seed :recreate? true)
-  (search/reindex))
+  (search/reindex)
+  (entities.image-size/clean-storage)
+  (entities.image-size/transform-all))

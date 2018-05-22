@@ -8,7 +8,9 @@
    [ventas.entities.file :as entities.file]
    [ventas.paths :as paths]
    [ventas.utils.images :as utils.images]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [clojure.java.io :as io]
+   [taoensso.timbre :as timbre]))
 
 (spec/def :image-size/keyword ::generators/keyword)
 
@@ -113,7 +115,7 @@
 
 (defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]
   (let [algorithm (name algorithm)]
-    (cond-> {:quality quality
+    (cond-> {:quality (or quality 1)
              :progressive true
              :resize {:width width
                       :height height}}
@@ -129,7 +131,41 @@
   [file-entity size-entity]
   {:pre [(= (entity/type file-entity) :file)
          (= (entity/type size-entity) :image-size)]}
-  (utils.images/transform-image
-   (entities.file/filepath file-entity)
-   (paths/resolve paths/resized-images)
-   (size-entity->configuration size-entity)))
+  (future
+   (utils.images/transform-image
+    (entities.file/filepath file-entity)
+    (paths/resolve paths/resized-images)
+    (size-entity->configuration size-entity))))
+
+(defn already-transformed? [file-entity size-entity]
+  (let [source-path (entities.file/filepath file-entity)
+        options (size-entity->configuration size-entity)]
+    (-> (str (paths/resolve paths/resized-images)
+             "/" (utils.images/path-with-metadata source-path options))
+        io/file
+        .exists)))
+
+(defn list-images [entity]
+  (entity/call-type-fn ::list-images entity))
+
+(defn get-pending-images []
+  (remove nil?
+          (for [{:image-size/keys [entities] :as image-size} (entity/query :image-size)
+                entity-type entities
+                entity (entity/query (keyword (name entity-type)))
+                file-entity (map entity/find (list-images entity))]
+            (when-not (already-transformed? file-entity image-size)
+              {:image-size image-size
+               :file file-entity}))))
+
+(defn transform-all []
+  (future
+   (doseq [{:keys [image-size file]} (get-pending-images)]
+     (timbre/debug {:transforming {:file (:db/id file)
+                                   :image-size (:db/id image-size)}})
+     @(transform file image-size))))
+
+(defn clean-storage []
+  (doseq [file (.listFiles (io/file (paths/resolve ::paths/resized)))]
+    (io/delete-file file))
+  true)

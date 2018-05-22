@@ -12,7 +12,8 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
-   [ventas.utils.slugs :as utils.slugs]))
+   [ventas.utils.slugs :as utils.slugs]
+   [ventas.entities.image-size :as entities.image-size]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -207,7 +208,17 @@
                                       (assoc file :position position)))
                                (sort-by :position)
                                (map #(dissoc % :position))
-                               (into []))))))})
+                               (into []))))))
+
+  ::entities.image-size/list-images
+  (fn [{:keys [:product/images]}]
+    (when images
+      (->> (db/q
+            {:find '[?file-id]
+             :in '[$ [?product-image-ids ...]]
+             :where '[[?product-image-ids :product.image/file ?file-id]]}
+            [images])
+           (map first))))})
 
 (spec/def :product.image/position number?)
 

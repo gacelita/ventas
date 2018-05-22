@@ -6,8 +6,10 @@
    [slingshot.slingshot :refer [throw+]]
    [ventas.utils.files :as utils.files]))
 
-(defn- path-with-metadata [path options]
-  (str (utils.files/basename path) "-" (hash options) "." (utils.files/extension path)))
+(defn path-with-metadata [path options]
+  (str (utils.files/basename path)
+       "-" (hash options)
+       "." (utils.files/extension path)))
 
 (defn- portrait? [relation]
   (< relation 1))
@@ -98,8 +100,7 @@
                  :progressive progressive)))
 
 (defn transform-image [source-path target-dir & [options]]
-  (let [options (merge-with #(if (nil? %1) %2 %1) options {:quality 1})
-        target-dir (or target-dir (utils.files/get-tmp-dir))
+  (let [target-dir (or target-dir (utils.files/get-tmp-dir))
         target-path (str target-dir "/" (path-with-metadata source-path options))]
     (when (and (:scale options) (or (get-in options [:resize :width])
                                     (get-in options [:resize :height])))

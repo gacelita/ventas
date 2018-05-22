@@ -7,7 +7,8 @@
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
-   [ventas.utils.slugs :as utils.slugs]))
+   [ventas.utils.slugs :as utils.slugs]
+   [ventas.entities.image-size :as entities.image-size]))
 
 (spec/def :category/name ::entities.i18n/ref)
 
@@ -91,7 +92,6 @@
     :db/unique :db.unique/identity}]
 
   :filter-create
-
   (fn [this]
     (add-slug-to-category this))
 
@@ -111,4 +111,8 @@
   (fn [this]
     (-> this
         (dissoc :image)
-        ((entity/default-attr :deserialize))))})
+        ((entity/default-attr :deserialize))))
+
+  ::entities.image-size/list-images
+  (fn [{:keys [:category/image]}]
+    [image])})

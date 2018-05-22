@@ -111,7 +111,7 @@
   (if-let [image (entity/find eid)]
     (let [path (if size
                  (let [size (entity/find [:image-size/keyword size])]
-                   (entities.image-size/transform image size))
+                   @(entities.image-size/transform image size))
                  (entities.file/filepath image))]
       (-> path
           (ring.response/file-response)
