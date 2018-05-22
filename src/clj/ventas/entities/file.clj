@@ -2,7 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
-   [pantomime.mime :as mime]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.paths :as paths]
@@ -35,10 +34,8 @@
 
 (defn create-from-file!
   "Creates a :file entity from an existing file"
-  [source-path]
-  (let [mime (mime/mime-type-of (io/file source-path))
-        extension (subs (mime/extension-for-name mime) 1)
-        entity (entity/create :file {:extension extension})]
+  [source-path extension]
+  (let [entity (entity/create :file {:extension extension})]
     (copy-file! entity source-path)
     entity))
 

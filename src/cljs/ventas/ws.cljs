@@ -153,26 +153,25 @@
             (call success data)))}))))
 
 (defn- effect-ws-upload-request
-  [{:keys [name upload-data params upload-key success] :as request} & [file-id start]]
-  (let [file-id (or file-id false)
-        start (or start 0)
-        data-length (-> upload-data .-byteLength)
+  [{:keys [filename array-buffer success] :as request} & [file-id start]]
+  (let [start (or start 0)
+        data-length (-> array-buffer .-byteLength)
         raw-end (+ start ws-upload-chunk-size)
-        is-last (> raw-end data-length)
-        is-first (zero? start)
-        end (if is-last data-length raw-end)]
+        last? (> raw-end data-length)
+        first? (zero? start)
+        end (if last? data-length raw-end)]
     (send-request!
-     {:name name
-      :params (merge params
-                     {upload-key (.slice upload-data start end)
-                      :is-last is-last
-                      :is-first is-first
-                      :file-id file-id})
+     {:name :upload
+      :params {:bytes (.slice array-buffer start end)
+               :last? last?
+               :first? first?
+               :file-id file-id
+               :filename filename}
       :callback (fn [{:keys [data]}]
-                  (if is-last
+                  (if last?
                     (call success data)
                     (effect-ws-upload-request request
-                                              (if is-first data file-id)
+                                              (if first? data file-id)
                                               end)))}
      :binary? true)))
 

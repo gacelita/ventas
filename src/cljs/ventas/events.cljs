@@ -218,8 +218,7 @@
  (fn [_ [_ {:keys [success file]}]]
    (let [fr (js/FileReader.)]
      (set! (.-onload fr) #(rf/dispatch [:effects/ws-upload-request
-                                        {:name :upload
-                                         :upload-key :bytes
-                                         :upload-data (-> fr .-result)
+                                        {:array-buffer (-> fr .-result)
+                                         :filename (.-name file)
                                          :success success}]))
      (.readAsArrayBuffer fr file))))

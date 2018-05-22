@@ -349,22 +349,30 @@
        :user id})
      nil)))
 
+(defn- filename->extension [s]
+  {:post [(< (count %) 5)]}
+  (-> s
+      (str/split #"\.")
+      (last)))
+
 (register-endpoint!
  :upload
  {:binary? true
-  :spec {:is-first boolean?
-         :is-last boolean?
-         (opt :file-id) some?}}
- (fn [{:keys [params]} _]
-   (let [{:keys [bytes is-first is-last file-id]} params
-         file-id (if is-first (gensym "temp-file") file-id)
-         path (str (paths/resolve paths/storage) "/" file-id)]
+  :spec {:first? boolean?
+         :last? boolean?
+         (opt :file-id) some?
+         (opt :filename) string?}}
+ (fn [{{:keys [bytes first? last? file-id filename]} :params} _]
+   (let [file-id (if first? (gensym "temp-file") file-id)
+         path (io/as-file (str (paths/resolve paths/storage)
+                               "/" file-id))]
      (with-open [r (bytes/to-input-stream bytes)
                  w (-> (io/file path)
-                       (io/output-stream :append (not is-first)))]
+                       (io/output-stream :append (not first?)))]
        (io/copy r w))
      (cond
-       is-last (do (entities.file/create-from-file! path)
-                   (io/delete-file path))
-       is-first file-id
+       last? (let [entity (entities.file/create-from-file! path (filename->extension filename))]
+               (io/delete-file path)
+               entity)
+       first? file-id
        :default true))))

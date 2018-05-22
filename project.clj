@@ -137,7 +137,6 @@
 
                  ;; Uploads
                  [byte-streams "0.2.3"]
-                 [com.novemberain/pantomime "2.9.0" :exclusions [org.apache.commons/commons-compress]]
 
                  ;; Image processing
                  [fivetonine/collage "0.2.1"]
