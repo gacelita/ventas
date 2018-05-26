@@ -71,9 +71,18 @@
    (get-state db db-path)))
 
 (rf/reg-sub
- ::validation
- (fn [db [_ db-path key]]
-   (get-in db (concat db-path [:form-state :validation key]))))
+ ::infractions
+ (fn [[_ db-path]]
+   (rf/subscribe [::state db-path]))
+ (fn [{:keys [validation]}]
+   validation))
+
+(rf/reg-sub
+ ::field.infractions
+ (fn [[_ db-path]]
+   (rf/subscribe [::infractions db-path]))
+ (fn [infractions [_ db-path key]]
+   (get infractions key)))
 
 (rf/reg-sub
  ::valid?
@@ -191,7 +200,7 @@
     :else value))
 
 (defmethod input :default [{:keys [value db-path key type inline-label on-change-fx] :as args}]
-  (let [infractions @(rf/subscribe [::validation db-path key])]
+  (let [infractions @(rf/subscribe [::field.infractions db-path key])]
     [base/input
      {:label inline-label
       :icon true}
@@ -212,7 +221,7 @@
                                :name "warning sign"}])}])]))
 
 (defn field [{:keys [db-path key label inline-label width] :as args}]
-  (let [infractions @(rf/subscribe [::validation db-path key])]
+  (let [infractions @(rf/subscribe [::field.infractions db-path key])]
     [base/form-field
      {:width width
       :error (and (some? infractions) (seq infractions))}

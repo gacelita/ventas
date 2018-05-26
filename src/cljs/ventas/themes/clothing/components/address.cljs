@@ -10,7 +10,7 @@
    [ventas.utils :as utils :include-macros true]
    [ventas.utils.validation :as validation]))
 
-(def regular-length-validator [::length-error validation/length-validator {:max 30}])
+(def regular-length-validator [::validation/length-error validation/length-validator {:max 30}])
 
 (defn get-form-config [db-path]
   {:db-path db-path
@@ -19,12 +19,12 @@
                 ::company [regular-length-validator]
                 ::address [regular-length-validator]
                 ::address-second-line [regular-length-validator]
-                ::zip [[::length-error validation/length-validator {:max 10}]]
+                ::zip [[::validation/length-error validation/length-validator {:max 10}]]
                 ::city [regular-length-validator]
                 ::state [regular-length-validator]
-                ::email [[::email-error validation/email-validator]]
+                ::email [[::validation/email-error validation/email-validator]]
                 ::phone [regular-length-validator]
-                ::privacy-policy [[::required-error validation/required-validator]]}})
+                ::privacy-policy [[::validation/required-error validation/required-validator]]}})
 
 (defn entity->option [entity]
   {:text (:name entity)

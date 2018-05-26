@@ -230,6 +230,14 @@
     :ventas.utils.formatting/percentage "%"
     :ventas.utils.formatting/amount ""
 
+    :ventas.utils.validation/length-error (fn [{:keys [min max]}]
+                                            (cond
+                                              (and min max) (str "Length should be higher than " min " and lower than " max)
+                                              min (str "Length should be higher than " min)
+                                              max (str "Length should be lower than " max)))
+    :ventas.utils.validation/email-error "Invalid email address"
+    :ventas.utils.validation/required-error "This field is required"
+
     :discount.amount.kind/amount "Amount"
     :discount.amount.kind/percentage "Percentage"
 
@@ -285,4 +293,4 @@
   (build-translation-fn!))
 
 (defn i18n [kw & args]
-  (apply utils.goog/format (@translation-fn :en_US kw) args))
+  (apply @translation-fn :en_US kw args))

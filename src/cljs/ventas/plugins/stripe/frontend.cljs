@@ -19,10 +19,20 @@
 
 (def state-key ::state)
 
+(rf/reg-event-fx
+ ::set-error
+ (fn [{:keys [db]} [_ field error]]
+   (let [errors (get-in db [state-key :errors])
+         errors (if error
+                  (assoc errors field error)
+                  (dissoc errors field))]
+     {:db (assoc-in db [state-key :errors] errors)
+      :dispatch [::payment/set-errors errors]})))
+
 (defn- on-element-change [e]
   (let [e (js->clj e :keywordize-keys true)
         error (:error e)]
-    (rf/dispatch [::events/db [state-key :errors (keyword (:elementType e))] error])))
+    (rf/dispatch [::set-error (keyword (:elementType e)) error])))
 
 (rf/reg-sub
  ::errors
@@ -45,11 +55,13 @@
 
 (rf/reg-event-fx
  ::submit
- (fn [{:keys [db]} [_ event]]
+ (fn [{:keys [db]} [_ {:keys [success error]}]]
    (let [stripe-instance (get-in db [state-key :stripe-instance])]
      (.then (.createToken (aget stripe-instance "props" "stripe"))
             (fn [payload]
-              (rf/dispatch (conj event {:token (aget payload "token" "id")}))))
+              (if-let [token (.-token payload)]
+                (rf/dispatch (conj success {:token (.-id token)}))
+                (rf/dispatch error))))
      {})))
 
 (defn- stripe-form-render [this]

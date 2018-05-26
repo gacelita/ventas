@@ -21,15 +21,18 @@
 
 (def state-key ::state)
 
+(def new-address-db-path [state-key :new-address])
+
 (rf/reg-event-db
  ::set-shipping-method
  (fn [db [_ v]]
    (assoc-in db [state-key :shipping-method] v)))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  ::set-payment-method
- (fn [db [_ v]]
-   (assoc-in db [state-key :payment-method] v)))
+ (fn [{:keys [db]} [_ v]]
+   {:db (assoc-in db [state-key :payment-method] v)
+    :dispatch [::payment/set-errors nil]}))
 
 (rf/reg-event-db
  ::set-shipping-address
@@ -56,7 +59,7 @@
          shipping-address (let [address (get-in db [state-key :shipping-address])]
                             (if-not (= -1 address)
                               address
-                              (->> (form/get-data db [state-key :new-address])
+                              (->> (form/get-data db new-address-db-path)
                                    (common.utils/map-keys #(keyword (name %))))))]
      {:dispatch [::backend/users.cart.order
                  {:params {:payment-params payment-params
@@ -73,7 +76,8 @@
    (let [{:keys [payment-method]} (get db state-key)
          {:keys [submit-fx]} (get (payment/get-methods) payment-method)]
      {:dispatch (if submit-fx
-                  (conj submit-fx [::order.next])
+                  (conj submit-fx {:success [::order.next]
+                                   :error [::order.next.error]})
                   [::order.next])
       :db (assoc-in db [state-key :loading] true)})))
 
@@ -118,7 +122,7 @@
                            :on-change #(rf/dispatch [::set-shipping-address -1])}]
          [:span (i18n ::new-address)]]]
        (when (= shipping-address -1)
-         [theme.address/address [state-key :new-address]])])]])
+         [theme.address/address new-address-db-path])])]])
 
 (defn shipping-methods []
   [:div.checkout-page__shipping-methods
@@ -164,6 +168,14 @@
                 [component])]]])
          methods)]])]])
 
+(rf/reg-sub
+ ::valid?
+ (fn [db]
+   (let [address (get-in db [state-key :shipping-address])]
+     (and (or (not= -1 address)
+              @(rf/subscribe [::form/valid? new-address-db-path]))
+          (empty? @(rf/subscribe [::payment/errors]))))))
+
 (defn page []
   [theme.skeleton/skeleton
    [base/container
@@ -184,6 +196,7 @@
        [base/button {:type "button"
                      :size "large"
                      :fluid true
+                     :disabled (not @(rf/subscribe [::valid?]))
                      :loading @(rf/subscribe [::events/db [state-key :loading]])
                      :on-click #(rf/dispatch [::order])}
         (i18n ::order)]]]]]])
@@ -204,7 +217,7 @@
                   {:success ::init.shipping-methods.next}]
                  [::backend/users.cart.payment-methods
                   {:success ::init.payment-methods.next}]
-                 [::theme.address/init [state-key]]]}))
+                 [::theme.address/init new-address-db-path]]}))
 
 (rf/reg-event-fx
  ::init.shipping-methods.next

@@ -90,7 +90,7 @@
    :ventas.themes.clothing.pages.frontend/suggestions-of-the-week "Suggestions of the week"
    :ventas.themes.clothing.pages.frontend/recently-added "Recently added"
 
-   :ventas.themes.clothing.pages.frontend.category/page "%s"
+   :ventas.themes.clothing.pages.frontend.category/page "{1}"
    :ventas.themes.clothing.pages.frontend.category/search "Search"
    :ventas.themes.clothing.pages.frontend.category/highest-price "Highest price"
    :ventas.themes.clothing.pages.frontend.category/lowest-price "Lowest price"
@@ -149,7 +149,7 @@
    :ventas.themes.clothing.pages.frontend.product/is-required "is required"
    :ventas.themes.clothing.pages.frontend.product/sibling-products "Similar products"
 
-   :ventas.themes.clothing.pages.frontend.profile/welcome "Welcome %s"
+   :ventas.themes.clothing.pages.frontend.profile/welcome "Welcome {1}"
    :ventas.themes.clothing.pages.frontend.profile/personal-data "Personal data"
    :ventas.themes.clothing.pages.frontend.profile/personal-data-explanation "View and change your personal data"
    :ventas.themes.clothing.pages.frontend.profile/my-orders-explanation "See all the orders you've ever done"
@@ -165,7 +165,7 @@
    :ventas.themes.clothing.pages.frontend.profile.skeleton/my-orders "My orders"
    :ventas.themes.clothing.pages.frontend.profile.skeleton/my-account "My account"
    :ventas.themes.clothing.pages.frontend.profile.skeleton/logout "Logout"
-   :ventas.themes.clothing.pages.frontend.profile.account/length-error "The maximum length is %s"
+   :ventas.themes.clothing.pages.frontend.profile.account/length-error "The maximum length is {1}"
    :ventas.themes.clothing.pages.frontend.profile.account/first-name "First name"
    :ventas.themes.clothing.pages.frontend.profile.account/last-name "Last name"
    :ventas.themes.clothing.pages.frontend.profile.account/company "Company"
