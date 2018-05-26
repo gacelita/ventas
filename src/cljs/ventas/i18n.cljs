@@ -217,6 +217,14 @@
     :ventas.pages.admin.activity-log/type "Event type"
     :ventas.pages.admin.activity-log/page "Activity log"
 
+    :ventas.plugins.stripe.admin/stripe.public-key "Public key"
+    :ventas.plugins.stripe.admin/stripe.private-key "Private key"
+    :ventas.plugins.stripe.frontend/card-number "Card number"
+    :ventas.plugins.stripe.frontend/expiration-date "Expiration date"
+    :ventas.plugins.stripe.frontend/cvc "CVC"
+    :ventas.plugins.stripe.frontend/pay "Pay"
+    :ventas.plugins.stripe.frontend/postal-code "Postal code"
+
     :ventas.session/unregistered-error "You need to be a registered user to do that"
 
     :ventas.utils.formatting/percentage "%"

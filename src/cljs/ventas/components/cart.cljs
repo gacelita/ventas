@@ -86,6 +86,11 @@
                                                   :params {:id eid
                                                            :quantity quantity}}]}))
 
+(rf/reg-event-fx
+ ::clear
+ (fn [_]
+   {:dispatch [::cart nil]}))
+
 (defn cart-item [item]
   [:div.cart__item
    [:p (:name item)]])

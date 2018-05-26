@@ -181,8 +181,7 @@
            cart (entity/update*
                  (merge cart {:order/shipping-address shipping-address
                               :order/shipping-method shipping-method
-                              :order/payment-method payment-method
-                              :order/payment-amount (entities.order/get-amount cart)}))]
+                              :order/payment-method payment-method}))]
        (payment-method/pay! cart payment-params)))))
 
 (register-user-endpoint!

@@ -168,6 +168,9 @@
                  [re-frame "0.10.5"]
                  [day8.re-frame/forward-events-fx "0.0.5"]
 
+                 ;; Stripe
+                 [cljsjs/react-stripe-elements "1.4.1-1"]
+
                  ;; Semantic UI
                  [soda-ash "0.79.1" :exclusions [cljsjs/react-dom cljsjs/react]]
 

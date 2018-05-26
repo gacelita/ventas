@@ -16,6 +16,7 @@
    [ventas.themes.clothing.components.address :as theme.address]
    [ventas.themes.clothing.components.skeleton :as theme.skeleton]
    [ventas.themes.clothing.pages.frontend.profile.addresses :as profile.addresses]
+   [ventas.themes.clothing.pages.frontend.checkout.success]
    [ventas.utils.formatting :as utils.formatting]))
 
 (def state-key ::state)
@@ -36,10 +37,21 @@
    (assoc-in db [state-key :shipping-address] v)))
 
 (rf/reg-event-fx
- ::order
+ ::order.next.success
  (fn [{:keys [db]} _]
+   {:db (assoc-in db [state-key :loading] false)
+    :go-to [:frontend.checkout.success]
+    :dispatch [::cart/clear]}))
+
+(rf/reg-event-db
+ ::order.next.error
+ (fn [db _]
+   (assoc-in db [state-key :loading] false)))
+
+(rf/reg-event-fx
+ ::order.next
+ (fn [{:keys [db]} [_ payment-params]]
    (let [{:keys [shipping-method payment-method]} (get db state-key)
-         payment-params (form/get-data db [state-key :payment-params])
          email (:email (form/get-data db [state-key :contact-information]))
          shipping-address (let [address (get-in db [state-key :shipping-address])]
                             (if-not (= -1 address)
@@ -51,7 +63,19 @@
                            :email email
                            :shipping-address shipping-address
                            :shipping-method shipping-method
-                           :payment-method payment-method}}]})))
+                           :payment-method payment-method}
+                  :success [::order.next.success]
+                  :error [::order.next.error]}]})))
+
+(rf/reg-event-fx
+ ::order
+ (fn [{:keys [db]} _]
+   (let [{:keys [payment-method]} (get db state-key)
+         {:keys [submit-fx]} (get (payment/get-methods) payment-method)]
+     {:dispatch (if submit-fx
+                  (conj submit-fx [::order.next])
+                  [::order.next])
+      :db (assoc-in db [state-key :loading] true)})))
 
 (defn contact-information []
   [:div.checkout-page__contact-information
@@ -123,7 +147,7 @@
    [base/segment {:attached true}
     (let [selected @(rf/subscribe [::events/db [state-key :payment-method]])
           methods @(rf/subscribe [::events/db [state-key :payment-methods]])
-          components (payment/get-methods)]
+          payment-methods (payment/get-methods)]
       [base/accordion {:fluid true
                        :styled true}
        [:div.payment-methods
@@ -136,8 +160,8 @@
              [:span name]]
             [base/accordion-content {:active (= selected id)}
              [:div
-              (when-let [component (get-in components [id :component])]
-                [component [state-key :payment-params]])]]])
+              (when-let [component (get-in payment-methods [id :component])]
+                [component])]]])
          methods)]])]])
 
 (defn page []
@@ -160,15 +184,22 @@
        [base/button {:type "button"
                      :size "large"
                      :fluid true
+                     :loading @(rf/subscribe [::events/db [state-key :loading]])
                      :on-click #(rf/dispatch [::order])}
         (i18n ::order)]]]]]])
+
+(rf/reg-event-fx
+ ::init.addresses.next
+ (fn [_ [_ data]]
+   {:dispatch-n [[::events/db [state-key :addresses] data]
+                 [::set-shipping-address (-> data first :id)]]}))
 
 (rf/reg-event-fx
  ::init
  (fn [_ _]
    {:dispatch-n [[::cart/get]
                  [::backend/users.addresses
-                  {:success [::events/db [state-key :addresses]]}]
+                  {:success ::init.addresses.next}]
                  [::backend/users.cart.shipping-methods
                   {:success ::init.shipping-methods.next}]
                  [::backend/users.cart.payment-methods
@@ -186,7 +217,6 @@
  (fn [_ [_ methods]]
    {:dispatch-n (->> methods
                      (map (fn [[id _]]
-                            (js/console.log :id id :what (-> (payment/get-methods) id))
                             (when-let [init-fx (-> (payment/get-methods) id :init-fx)]
                               init-fx)))
                      (into [[::events/db [state-key :payment-methods] methods]

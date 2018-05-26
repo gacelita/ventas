@@ -1,0 +1,19 @@
+
+
+.StripeElement {
+  display: block;
+  margin-bottom: 1em;
+  max-width: 500px;
+  border: 1px solid rgba(34,36,38,.15);
+  border-radius: .28571429rem;
+  color: rgba(0,0,0,.95);
+  font-size: 1em;
+  line-height: 1.21428571em;
+  padding: .67857143em 1em;
+}
+
+.stripe-form {
+    label {
+        margin: 0 0 .28571429rem 0;
+    }
+}

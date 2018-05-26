@@ -126,6 +126,10 @@
    :ventas.themes.clothing.pages.frontend.checkout/order "Order"
    :ventas.themes.clothing.pages.frontend.checkout/new-address "New address"
 
+   :ventas.themes.clothing.pages.frontend.checkout.success/page "Order placed"
+   :ventas.themes.clothing.pages.frontend.checkout.success/thank-you "Thank you!"
+   :ventas.themes.clothing.pages.frontend.checkout.success/order-placed "Your order has been placed. You should receive a confirmation email soon."
+
    :ventas.themes.clothing.pages.frontend.login/login "Login"
    :ventas.themes.clothing.pages.frontend.login/register "Register"
    :ventas.themes.clothing.pages.frontend.login/full-name "Full name"
