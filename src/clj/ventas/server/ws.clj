@@ -152,5 +152,6 @@
   [name params user]
   {:pre [(entity/entity? user)]}
   (call-request-handler {:name name
+                         :throw? true
                          :params params}
                         {:session (atom {:user (:db/id user)})}))
