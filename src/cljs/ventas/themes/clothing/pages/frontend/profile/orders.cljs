@@ -7,18 +7,24 @@
    [ventas.session :as session]
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]))
 
-(defn content [identity]
+(defn content []
   [:div.login-page
    (let [session @(rf/subscribe [::events/db [:session]])]
      [:div "Nothing yet!"])])
 
 (defn page []
   [profile.skeleton/skeleton
-   [content (session/get-identity)]])
+   [content]])
+
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+
+   {:dispatch [::session/require-identity]}))
 
 (routes/define-route!
   :frontend.profile.orders
   {:name ::page
    :url ["orders"]
    :component page
-   :init-fx [::session/require-identity]})
+   :init-fx [::init]})

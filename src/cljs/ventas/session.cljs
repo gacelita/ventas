@@ -1,6 +1,6 @@
 (ns ventas.session
   (:require
-   [cljs.core.async :refer [>! chan go]]
+   [cljs.core.async :as core.async :refer [>! chan go]]
    [re-frame.core :as rf]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
@@ -22,23 +22,30 @@
 (rf/reg-event-fx
  ::session-done
  (fn [_ [_ [event-kw message]]]
-   (go (>! ready {:success (= event-kw ::events/session.start)
-                  :message message}))
+   (core.async/put! ready {:success (= event-kw ::events/session.start)
+                           :message message})
    {:forward-events {:unregister ::listener}}))
 
-(defn get-identity []
-  @(rf/subscribe [::events/db [:session :identity]]))
+(defn- get-identity [db]
+  (get-in db [:session :identity]))
 
-(defn valid-identity? []
-  (let [{:keys [id status]} (get-identity)]
-    (and id
-         (not= :user.status/unregistered status))))
+(rf/reg-sub ::identity get-identity)
+
+(defn- identity-valid? [{:keys [id status]}]
+  (and id
+       (not= :user.status/unregistered status)))
+
+(rf/reg-sub
+ ::identity.valid?
+ (fn [_]
+   (rf/subscribe [::identity]))
+ identity-valid?)
 
 (rf/reg-event-fx
  ::require-identity
- (fn [_ _]
-   (let [{:keys [id status]} (get-identity)]
-     (when (or (not id) (= :user.status/unregistered status))
+ (fn [{:keys [db]} _]
+   (let [{:keys [status] :as identity} (get-identity db)]
+     (when-not (identity-valid? identity)
        (merge {:go-to [:frontend.login]}
               (when (= :user.status/unregistered status)
                 {:dispatch [::notificator/add {:message (i18n ::unregistered-error)

@@ -87,7 +87,7 @@
        :on-blur #(rf/dispatch [::close])}
       [base/icon {:name "user"}]
       [:span (i18n ::my-account)]
-      (when (session/valid-identity?)
+      (when @(rf/subscribe [::session/identity.valid?])
         [base/menu {:vertical true
                     :class "skeleton-header__user-menu"}
          [base/menu-item {:on-click #(rf/dispatch [::logout])}

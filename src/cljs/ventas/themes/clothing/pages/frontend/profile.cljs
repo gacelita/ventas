@@ -1,5 +1,6 @@
 (ns ventas.themes.clothing.pages.frontend.profile
   (:require
+   [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
@@ -11,7 +12,7 @@
    [ventas.themes.clothing.pages.frontend.profile.skeleton :as profile.skeleton]))
 
 (defn content []
-  (let [{:keys [first-name]} (session/get-identity)]
+  (let [{:keys [first-name]} @(rf/subscribe [::session/identity])]
     [:div.profile-page
 
      [:h2.profile-page__name (str (i18n ::welcome first-name) "!")]

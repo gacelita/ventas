@@ -114,7 +114,7 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   (let [identity (session/get-identity)]
+   (let [identity @(rf/subscribe [::session/identity])]
      {:dispatch-n [[::session/require-identity]
                    [::form/populate form-config identity]]})))
 

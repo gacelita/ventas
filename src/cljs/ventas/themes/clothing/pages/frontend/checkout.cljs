@@ -183,7 +183,7 @@
      [:h2 (i18n ::checkout)]
      [:div.checkout-page__content
       [:div
-       (when-not (session/valid-identity?)
+       (when-not @(rf/subscribe [::session/identity.valid?])
          [:div
           [contact-information]
           [base/divider {:hidden true}]])

@@ -220,7 +220,7 @@
 
    (if @(rf/subscribe [::events/db [state-key :editing?]])
      [address-form]
-     (let [identity (session/get-identity)]
+     (let [identity @(rf/subscribe [::session/identity])]
        [base/button {:basic true
                      :color "grey"
                      :on-click #(rf/dispatch [::edit (select-keys identity #{:first-name :last-name :company})])}
