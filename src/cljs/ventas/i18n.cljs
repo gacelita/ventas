@@ -191,6 +191,9 @@
     :ventas.pages.admin.orders.edit/price "Price"
     :ventas.pages.admin.orders.edit/quantity "Quantity"
     :ventas.pages.admin.orders.edit/total "Total"
+    :ventas.pages.admin.orders.edit/status-history "Status history"
+    :ventas.pages.admin.orders.edit/nothing-yet "Nothing yet"
+    :ventas.pages.admin.orders.edit/date "Date"
 
     :ventas.pages.admin.taxes.edit/amount "Amount"
     :ventas.pages.admin.taxes.edit/name "Name"

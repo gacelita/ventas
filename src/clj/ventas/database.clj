@@ -250,7 +250,7 @@
 
 (defn nice-query
   "Automates the :in argument and returns maps instead of vectors"
-  [{:keys [find in where]}]
+  [{:keys [find in where]} & [explicit-db]]
   {:pre [(sequential? find) (or (nil? in) (map? in)) (sequential? where)]}
   (let [in (or in {})
         where (or where [])
@@ -264,7 +264,8 @@
                   (fn [idx itm]
                     [(db-symbol->keyword (nth find idx)) itm])
                   result)))
-         (q query (vals in)))))
+         (apply d/q query (into [(or explicit-db (d/db db))]
+                                (vals in))))))
 
 (defn nice-query-one
   "(first (nice-query))"

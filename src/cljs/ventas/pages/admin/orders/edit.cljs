@@ -98,12 +98,14 @@
 
 (rf/reg-event-fx
  ::init.next
- (fn [{:keys [db]} [_ {:keys [order lines]}]]
+ (fn [{:keys [db]} [_ {:keys [order lines status-history]}]]
    {:dispatch-n [[::form/populate [state-key] order]
                  [::backend/admin.entities.find-serialize
                   {:params {:id (get-in order [:order/user :db/id])}
                    :success [::events/db [state-key :user]]}]]
-    :db (assoc-in db [state-key :lines-table :rows] lines)}))
+    :db (-> db
+            (assoc-in [state-key :lines-table :rows] lines)
+            (assoc-in [state-key :status-history] status-history))}))
 
 (defn- field [{:keys [key] :as args}]
   [form/field (merge args
@@ -129,7 +131,23 @@
 
      [field {:key [:order/status :db/id]
              :type :combobox
-             :options @(rf/subscribe [::events/db [:enums :order.status]])}]]
+             :options @(rf/subscribe [::events/db [:enums :order.status]])}]
+
+     [:h5 (i18n ::status-history)]
+     (let [lines @(rf/subscribe [::events/db [state-key :status-history]])]
+       (if (empty? lines)
+         [:p (i18n ::nothing-yet)]
+         [base/table
+          [base/table-header
+           [base/table-row
+            [base/table-header-cell (i18n ::status)]
+            [base/table-header-cell (i18n ::date)]]]
+          [base/table-body
+           (doall
+            (for [{:keys [status date]} lines]
+              [base/table-row
+               [base/table-cell (i18n status)]
+               [base/table-cell (.format (js/moment date) "dddd, MMMM Do YYYY, h:mm:ss a")]]))]]))]
 
     [base/segment {:color "orange"
                    :title (i18n ::billing)}

@@ -182,3 +182,13 @@
   [order]
   (let [country (get-in order [:order/shipping-address :address/country])]
     (:country/group country)))
+
+(defn status-history [id]
+  (->> (db/nice-query
+        {:find '[?status ?date]
+         :in {'?e id}
+         :where '[[?e :order/status ?status ?tx true]
+                  [?tx :db/txInstant ?date]]}
+        (db/history))
+       (map #(update % :status db/ident))
+       (sort-by :date)))

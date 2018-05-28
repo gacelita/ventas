@@ -8,6 +8,7 @@
    [ventas.database.entity :as entity]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.image-size :as entities.image-size]
+   [ventas.entities.order :as entities.order]
    [ventas.plugin :as plugin]
    [ventas.search :as search]
    [ventas.server.api :as api]
@@ -108,6 +109,7 @@
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [{:order/keys [lines]} (entity/find id)]
      {:order (db/pull '[*] id)
+      :status-history (entities.order/status-history id)
       :lines (map (partial api/find-serialize-with-session session)
                   lines)})))
 
