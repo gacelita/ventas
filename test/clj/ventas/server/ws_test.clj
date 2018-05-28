@@ -12,6 +12,7 @@
 (deftest call-handler-with-user
   (defmethod sut/handle-request :call-handler-with-user-test [request {:keys [session]}]
     (is (= {:name :call-handler-with-user-test
+            :throw? true
             :params {:some :data}}
            request))
     (is (= @session {:user 1})))

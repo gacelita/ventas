@@ -36,7 +36,7 @@
 (deftest create-from-file!
   (is (= {:file/extension "png"
           :schema/type :schema.type/file}
-         (-> (sut/create-from-file! "storage/logo.png")
+         (-> (sut/create-from-file! "storage/logo.png" "png")
              (dissoc :db/id)))))
 
 (deftest get-seed-files
