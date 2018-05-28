@@ -15,6 +15,8 @@
 
     :ventas.components.error/no-data "Nothing found!"
 
+    :ventas.components.form/search "Search"
+
     :ventas.components.table/no-rows "No items to show"
 
     :ventas.components.product-filters/category "Category"
@@ -260,6 +262,8 @@
     :order.status/ready "Ready"
     :order.status/shipped "Shipped"
     :order.status/unpaid "Unpaid"
+    :order.status/rejected "Rejected"
+    :order.status/cancelled "Cancelled"
 
     :entity.create "Creation"
     :entity.delete "Deletion"
