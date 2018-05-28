@@ -6,6 +6,9 @@
 
 (def state-key ::state)
 
+(defn get-url [id size]
+  (str "images/" id "/resize/" (name size)))
+
 (defn image [id size]
   {:pre [(keyword? size)]}
   (let [loaded? @(rf/subscribe [::events/db [state-key [id size]]])]
@@ -18,4 +21,4 @@
        [:div.image-component__inner
         [:img {:style (when-not loaded? {:display "none"})
                :on-load #(rf/dispatch [::events/db [state-key [id size]] true])
-               :src (str "images/" id "/resize/" (name size))}]]])))
+               :src (get-url id size)}]]])))

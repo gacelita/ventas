@@ -28,11 +28,13 @@
 
 (defonce available-requests (atom {}))
 
-(defn get-user [session]
+(defn get-user-id [session]
   {:pre [(or (not session) (utils/atom? session))]}
   (when session
-    (when-let [user (:user @session)]
-      (entity/find user))))
+    (:user @session)))
+
+(defn get-user [session]
+  (some-> (get-user-id session) entity/find))
 
 (defn set-user [session user]
   (swap! session assoc :user (:db/id user)))

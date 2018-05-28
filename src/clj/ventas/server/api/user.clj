@@ -185,6 +185,16 @@
        (payment-method/pay! cart payment-params)))))
 
 (register-user-endpoint!
+ :users.orders.list
+ {:doc "Lists the orders of an user (excluding drafts)"}
+ (fn [_ {:keys [session]}]
+   (let [user (api/get-user-id session)]
+     (->> (entity/query :order {:user user})
+          (remove (fn [order] (= (:order/status order) :order.status/draft)))
+          (map #(let [order (api/serialize-with-session session %)]
+                  (merge order (entity/dates (:db/id %)))))))))
+
+(register-user-endpoint!
  :users.favorites.enumerate
  (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]

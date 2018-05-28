@@ -4,6 +4,7 @@
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.components.term :as term]
+   [ventas.components.image :as image]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
@@ -52,7 +53,7 @@
      [:h3 (i18n ::product-added)]
      [:div.cart-notification__inner
       [:div.cart-notification__image
-       [:img {:src (str "/images/" (:id (first images)) "/resize/product-listing")}]]
+       [:img {:src (image/get-url (first images) :product-listing)}]]
       [:div.cart-notification__info
        [:h4 (:name product-variation)]
        [:h4 (utils.formatting/amount->str price)]
