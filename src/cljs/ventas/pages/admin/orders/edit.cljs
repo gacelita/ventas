@@ -14,7 +14,8 @@
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
-   [ventas.utils.ui :as utils.ui])
+   [ventas.utils.ui :as utils.ui]
+   [ventas.common.utils :as common.utils])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 
@@ -59,6 +60,11 @@
            :value (:id address)})
         addresses)))
 
+(rf/reg-sub
+ ::shipping-methods
+ (fn [db]
+   (get-in db [state-key :shipping-methods])))
+
 (rf/reg-event-fx
  ::init
  (fn [_ _]
@@ -72,20 +78,23 @@
                               :component (fn [row] [:span (get-in row [:product-variation :name])])}
                              {:id :price
                               :label (i18n ::price)
-                              :component (fn [row] [:span (get-in row [:product-variation :price :value])])}
+                              :component (fn [row] [:span (common.utils/bigdec->str (get-in row [:product-variation :price :value]))])}
                              {:id :quantity
                               :label (i18n ::quantity)}
                              {:id :total
                               :label (i18n ::total)
                               :component (fn [row] [:span (* (:quantity row)
-                                                             (get-in row [:product-variation :price :value]))])}]}]
+                                                             (common.utils/bigdec->str (get-in row [:product-variation :price :value])))])}]}]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/order}]
                      [::backend/admin.orders.get
                       {:params {:id id}
                        :success ::init.next}]))
-                 [::events/enums.get :order.status]]}))
+                 [::events/enums.get :order.status]
+                 [::backend/admin.entities.list
+                  {:params {:type :shipping-method}
+                   :success [::events/db [state-key :shipping-methods]]}]]}))
 
 (rf/reg-event-fx
  ::init.next
@@ -127,6 +136,7 @@
 
      ;; @TODO Do this
      [field {:key :order/payment-method
+             :disabled true
              :type :text}]
 
      [field {:key :order/billing-address
@@ -141,9 +151,11 @@
     [base/segment {:color "orange"
                    :title (i18n ::shipping)}
 
-     ;; @TODO Do this
      [field {:key :order/shipping-method
-             :type :text}]
+             :type :entity
+             :xform {:in :db/id
+                     :out (fn [v] {:db/id v})}
+             :options (map admin.common/entity->option @(rf/subscribe [::shipping-methods]))}]
 
      [field {:key :order/shipping-address
              :type :combobox

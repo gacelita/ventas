@@ -138,17 +138,20 @@
 
 (def state-key ::state)
 
-(defmethod input :entity [{:keys [value db-path key options on-search-change]}]
+(defmethod input :entity [{:keys [value db-path key options on-search-change]
+                           {:keys [in out] :or {in identity out identity}} :xform}]
   [base/dropdown {:placeholder (i18n ::search)
                   :selection true
-                  :default-value (if value (pr-str value) "")
+                  :default-value (if value (-> value in pr-str) "")
                   :icon "search"
                   :search (fn [options _] options)
                   :options (map (fn [{:keys [text value]}]
                                   {:text text
                                    :value (pr-str value)})
                                 options)
-                  :on-change #(rf/dispatch [::set-field db-path key (reader/read-string (.-value %2))])
+                  :on-change #(rf/dispatch [::set-field db-path key (-> (.-value %2)
+                                                                        reader/read-string
+                                                                        out)])
                   :on-search-change on-search-change}])
 
 (defmethod input :combobox [{:keys [value db-path key options on-change-fx] :as args}]
@@ -199,18 +202,18 @@
     (= type :number) (js/parseInt value 10)
     :else value))
 
-(defmethod input :default [{:keys [value db-path key type inline-label on-change-fx] :as args}]
+(defn- base-input [html-control {:keys [value db-path key type inline-label on-change-fx] :as args}]
   (let [infractions @(rf/subscribe [::field.infractions db-path key])]
     [base/input
      {:label inline-label
       :icon true}
-     [:input (merge (apply dissoc args known-keys)
-                    {:default-value (or value "")
-                     :type (or type :text)
-                     :on-change #(let [new-value (parse-value type (-> % .-target .-value))]
-                                   (rf/dispatch [::set-field db-path key new-value])
-                                   (when on-change-fx
-                                     (rf/dispatch (conj on-change-fx new-value))))})]
+     [html-control (merge (apply dissoc args known-keys)
+                          {:default-value (or value "")
+                           :type (or type :text)
+                           :on-change #(let [new-value (parse-value type (-> % .-target .-value))]
+                                         (rf/dispatch [::set-field db-path key new-value])
+                                         (when on-change-fx
+                                           (rf/dispatch (conj on-change-fx new-value))))})]
      (when (seq infractions)
        [base/popup
         {:content (->> infractions
@@ -219,6 +222,12 @@
          :trigger (reagent/as-element
                    [base/icon {:class "link"
                                :name "warning sign"}])}])]))
+
+(defmethod input :textarea [data]
+  (base-input :textarea data))
+
+(defmethod input :default [data]
+  (base-input :input data))
 
 (defn field [{:keys [db-path key label inline-label width] :as args}]
   (let [infractions @(rf/subscribe [::field.infractions db-path key])]
