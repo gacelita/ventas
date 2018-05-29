@@ -243,6 +243,7 @@
             ;;  "release" ["with-profile" "package,datomic-free" "deploy" "clojars"]
             "local-install" ["with-profile" "package,datomic-pro" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
+            "do-release" ["with-profile" "package,datomic-free" "release"]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
@@ -334,7 +335,5 @@
                        :hooks [leiningen.sassc]
                        :omit-source true
                        :aot ~aot-namespaces}
-
-             :release [:package :datomic-free]
-
+             
              :uberjar [:datomic-pro :package]})
