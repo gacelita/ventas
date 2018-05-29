@@ -39,7 +39,10 @@
                          :password password})))
                  "releases"
                  {:url "https://repo.clojars.org"
-                  :creds :gpg}}
+                  :creds :gpg}
+                 "snapshots"
+                 {:url "https://repo.clojars.org"
+                 :creds :gpg}}
 
   :dependencies [
                  ;; Clojure
@@ -240,10 +243,10 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            ;;  "release" ["with-profile" "package,datomic-free" "deploy" "clojars"]
             "local-install" ["with-profile" "package,datomic-pro" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
             "do-release" ["with-profile" "package,datomic-free" "release"]
+            "do-deploy" ["with-profile" "package,datomic-free" "deploy"]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
