@@ -205,8 +205,6 @@
             [lein-cloverage "1.0.10"]
             [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress]]]
 
-  :cljfmt {:file-pattern #"(src|test)\/.*?\.clj[sx]?$"}
-
   :how-to-ns {:require-docstring?      false
               :sort-clauses?           true
               :allow-refer-all?        false
@@ -242,7 +240,8 @@
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
             "release-deploy" ["with-profile" "release" "deploy" "clojars"]
             "release-install" ["with-profile" "release" "install"]
-            "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]}
+            "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
+            "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
               [
@@ -326,6 +325,8 @@
 
              :release {:aot ~aot-namespaces
                        :hooks [leiningen.sassc]}
+
+             :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
 
              :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                        :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
