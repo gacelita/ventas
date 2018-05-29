@@ -36,4 +36,5 @@ lein repl :connect ${CONTAINER_IP}:4001 << ENDREPL
 (mount.core/stop #'ventas.search/indexer)
 (mount.core/start #'ventas.search/indexer)
 (ventas.search/reindex)
+(ventas.entities.image-size/transform-all)
 ENDREPL
