@@ -18,7 +18,7 @@
   ['clojure.tools.logging.impl
    'ventas.core])
 
-(defproject ventas "0.0.5-SNAPSHOT"
+(defproject ventas "0.0.5"
   :description "The Ventas eCommerce platform"
 
   :url "https://github.com/JoelSanchez/ventas"
@@ -36,7 +36,10 @@
                           password (System/getenv "DATOMIC__PASSWORD")]
                       (when (and username password)
                         {:username username
-                         :password password})))}
+                         :password password})))
+                 "releases"
+                 {:url "https://repo.clojars.org"
+                  :creds :gpg}}
 
   :dependencies [
                  ;; Clojure
@@ -126,7 +129,6 @@
                  [com.rpl/specter "1.1.0" :exclusions [riddley]]
 
                  ;; Database
-                 [com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.5.1"]
 
                  ;; Text colors in the console
@@ -238,8 +240,8 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            "release-deploy" ["with-profile" "release" "deploy" "clojars"]
-            "release-install" ["with-profile" "release" "install"]
+            ;;  "release" ["with-profile" "package,datomic-free" "deploy" "clojars"]
+            "local-install" ["with-profile" "package,datomic-pro" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
@@ -309,27 +311,30 @@
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
 
-  :profiles {:dev {:dependencies [[figwheel "0.5.15"]
-                                  [figwheel-sidecar "0.5.15"]
-                                  [com.cemerick/piggieback "0.2.2"]
+  :profiles {:datomic-pro {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
+             :datomic-free {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
+             :dev [:datomic-pro {:dependencies [[figwheel "0.5.15"]
+                                                [figwheel-sidecar "0.5.15"]
+                                                [com.cemerick/piggieback "0.2.2"]
 
-                                  ;; Runtime dependency resolution
-                                  [com.cemerick/pomegranate "1.0.0"]
-                                  [org.codehaus.plexus/plexus-utils "3.0.15"]]
-                   :plugins [[lein-figwheel "0.5.15"]
-                             [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
-                             [refactor-nrepl "2.4.0-SNAPSHOT"]]
-                   :source-paths ["dev"]}
+                                                ;; Runtime dependency resolution
+                                                [com.cemerick/pomegranate "1.0.0"]
+                                                [org.codehaus.plexus/plexus-utils "3.0.15"]]
+                                 :plugins [[lein-figwheel "0.5.15"]
+                                           [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
+                                           [refactor-nrepl "2.4.0-SNAPSHOT"]]
+                                 :source-paths ["dev"]}]
 
-             :repl {:plugins [[venantius/ultra "0.5.2"]]}
-
-             :release {:aot ~aot-namespaces
-                       :hooks [leiningen.sassc]}
+             :repl [:datomic-pro {:plugins [[venantius/ultra "0.5.2"]]}]
 
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
 
-             :uberjar {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
+             :package {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                        :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
                        :hooks [leiningen.sassc]
                        :omit-source true
-                       :aot ~aot-namespaces}})
+                       :aot ~aot-namespaces}
+
+             :release [:package :datomic-free]
+
+             :uberjar [:datomic-pro :package]})
