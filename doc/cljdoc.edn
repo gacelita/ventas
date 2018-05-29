@@ -1,0 +1,9 @@
+{:cljdoc.doc/tree
+ [["Documentation index" {:file "doc/README.md"}
+   ["Development workflow" {:file "doc/Development_workflow.md"}]
+   ["Endpoints" {:file "doc/Endpoints.md"}]
+   ["Frontend development" {:file "doc/Frontend_development.md"}]
+   ["Entity types" {:file "doc/Entity_types.md"}]
+   ["Plugins" {:file "doc/Plugins.md"}]
+   ["Themes" {:file "doc/Themes.md"}]
+   ["Sites" {:file "doc/Sites.md"}]]]}
