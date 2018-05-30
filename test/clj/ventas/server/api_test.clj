@@ -14,7 +14,8 @@
    [ventas.server.api :as sut]
    [ventas.server.ws :as server.ws]
    [ventas.stats :as stats]
-   [ventas.test-tools :as test-tools]))
+   [ventas.test-tools :as test-tools])
+  (:import [org.elasticsearch.client RestClient]))
 
 (use-fixtures :once #(with-redefs [db/db (test-tools/test-conn)]
                        (timbre/with-level
@@ -225,11 +226,13 @@
 
 (deftest products-aggregations
   (testing "spec does not fail when not passing params"
-    (is (= ::search/elasticsearch-error
-           (-> (server.ws/call-request-handler {:name :products.aggregations}
-                                               {})
-               :data
-               :type))))
+    (let [result (-> (server.ws/call-request-handler {:name :products.aggregations}
+                                                     {})
+                     :data
+                     :type)]
+      (if (= (type search/elasticsearch) RestClient)
+        (is (not result))
+        (is (= ::search/elasticsearch-error result)))))
   (doseq [entity (concat test-taxonomies test-terms test-products test-product-variations)]
     (entity/create* entity))
   (entity/create :category {:name (entities.i18n/get-i18n-entity {:en_US "Test category"})
