@@ -23,6 +23,8 @@
 
   :url "https://github.com/JoelSanchez/ventas"
 
+  :scm {:url "git@github.com:joelsanchez/ventas.git"}
+
   :author {:name "Joel Sánchez"
            :email "webmaster@kazer.es"}
 
