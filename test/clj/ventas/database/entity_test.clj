@@ -35,11 +35,12 @@
 
 (deftest register-type!
   (with-redefs [sut/registered-types (atom {})]
-    (is (do (sut/register-type! :new-type)
-            (= @sut/registered-types {:new-type {}})))
-    (is (let [test-fns {:filter-json (fn [])}]
-          (sut/register-type! :new-type test-fns)
-          (= @sut/registered-types {:new-type test-fns})))))
+    (is (do (sut/register-type! :new-type {:attributes []})
+            (= @sut/registered-types {:new-type {:attributes []}})))
+    (is (let [properties {:filter-json (fn [])
+                          :attributes []}]
+          (sut/register-type! :new-type properties)
+          (= @sut/registered-types {:new-type properties})))))
 
 (deftest entities-remove
   (let [{id :db/id} (sut/create :user test-user-attrs)]

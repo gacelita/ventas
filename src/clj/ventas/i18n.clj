@@ -14,17 +14,32 @@
     :ventas.entities.configuration/access-denied (fn [{:keys [key]}]
                                                    (str "The current user is not allowed to read the " key " configuration key"))
 
-    :ventas.email.templates.order-done/shipped (fn [ref] (str "Your order with reference #" ref " has been shipped"))
-    :ventas.email.templates.order-done/paid (fn [ref] (str "We've received your order #" ref ". We'll begin preparing it soon."))
-    :ventas.email.templates.order-done/acknowledged (fn [ref] (str "We're preparing your order #" ref ". We'll notify you when it's shipped."))
-    :ventas.email.templates.order-done/ready (fn [ref] (str "Your order #" ref " is ready, and will be updated when we receive your payment."))
-    :ventas.email.templates.order-done/product "Product"
-    :ventas.email.templates.order-done/quantity "Quantity"
-    :ventas.email.templates.order-done/amount "Amount"
-    :ventas.email.templates.order-done/total-amount "Total amount"
-    :ventas.email.templates.order-done/shipping-address "Shipping address"
-    :ventas.email.templates.order-done/go-to-orders "You can see your orders"
-    :ventas.email.templates.order-done/go-to-orders-link "here"
+    :ventas.email.templates.order-status-changed/heading (fn [status ref]
+                                                           (case status
+                                                             :order.status/unpaid (str "We've received your order #" ref ". We'll notify you when we receive your payment.")
+                                                             :order.status/paid (str "We've received your order #" ref ". We'll begin preparing it soon.")
+                                                             :order.status/acknowledged (str "We're preparing your order #" ref ". We'll notify you when it's shipped.")
+                                                             :order.status/ready (str "Your order #" ref " is ready, and will be updated when we receive your payment.")
+                                                             :order.status/shipped (str "Your order #" ref " has been shipped.")
+                                                             :order.status/cancelled (str "You've cancelled your order #" ref ".")
+                                                             :order.status/rejected (str "Your order #" ref " has been rejected.")))
+    :ventas.email.templates.order-status-changed/subject (fn [status ref]
+                                                           (str "Order #" ref " - "
+                                                                (case status
+                                                                  :order.status/unpaid "Unpaid"
+                                                                  :order.status/paid "Paid"
+                                                                  :order.status/acknowledged "Acknowledged"
+                                                                  :order.status/ready "Ready"
+                                                                  :order.status/shipped "Shipped"
+                                                                  :order.status/cancelled "Cancelled"
+                                                                  :order.status/rejected "Rejected")))
+    :ventas.email.templates.order-status-changed/product "Product"
+    :ventas.email.templates.order-status-changed/quantity "Quantity"
+    :ventas.email.templates.order-status-changed/amount "Amount"
+    :ventas.email.templates.order-status-changed/total-amount "Total amount"
+    :ventas.email.templates.order-status-changed/shipping-address "Shipping address"
+    :ventas.email.templates.order-status-changed/go-to-orders "You can see your orders"
+    :ventas.email.templates.order-status-changed/go-to-orders-link "here"
 
     :ventas.email.templates.user-registered/welcome (fn [title] (str "Welcome to " title "!"))
     :ventas.email.templates.user-registered/add-an-address "Now it's a good moment to add an address to your profile, so that it's available for your orders."

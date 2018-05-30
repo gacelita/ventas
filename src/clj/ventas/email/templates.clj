@@ -1,3 +1,3 @@
 (ns ventas.email.templates)
 
-(defmulti template-body (fn [template _] template))
+(defmulti template (fn [template _] template))

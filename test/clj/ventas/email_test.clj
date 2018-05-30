@@ -31,13 +31,16 @@
 (deftest send-template!
   (let [received-args (atom nil)
         subject "Hey!"
-        template "Test body"]
-    (defmethod templates/template-body :test-template [_ _]
-      template)
+        template "Test body"
+        email "test@send-template.com"]
+    (defmethod templates/template :test-template [_ _]
+      {:body template
+       :subject subject})
     (with-redefs [postal/send-message (fn [& args] (reset! received-args args))]
-      (sut/send-template! :test-template {:subject subject} {})
+      (sut/send-template! :test-template {:user {:user/email email}})
       (is (= [test-configuration
               {:body [{:content template :type "text/html; charset=utf-8"}]
                :from (:from test-configuration)
-               :subject subject}]
+               :subject subject
+               :to email}]
              @received-args)))))

@@ -3,7 +3,6 @@
    [hiccup.core :as hiccup]
    [postal.core :as postal]
    [ventas.email.templates :as templates]
-   [ventas.email.templates.order-done]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.i18n :refer [i18n]]))
 
@@ -35,7 +34,9 @@
                          (merge args {:from from}))))
 
 (defn send-template!
-  [template email-opts extra-args]
-  (send! (merge email-opts
-                {:body [{:type "text/html; charset=utf-8"
-                         :content (hiccup/html (templates/template-body template extra-args))}]})))
+  [template {:keys [user] :as template-args}]
+  (let [{:keys [subject body]} (templates/template template template-args)]
+    (send! {:to (:user/email user)
+            :subject subject
+            :body [{:type "text/html; charset=utf-8"
+                    :content (hiccup/html body)}]})))

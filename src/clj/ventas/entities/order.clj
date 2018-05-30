@@ -6,7 +6,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.entities.product :as entities.product]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.email :as email]))
 
 (defn get-amount
   "Returns an amount entity representing the total amount to be paid"
@@ -136,6 +137,14 @@
 
   :dependencies
   #{:address :user :amount :shipping-method}
+
+  :after-update
+  (fn [entity new-entity]
+    (let [old (:order/status entity)
+          new (:order/status new-entity)]
+      (when (and old new (not= old new) (not= new :order.status/draft))
+        (email/send-template! :order-status-changed {:order new-entity
+                                                     :user (entity/find (:order/user new-entity))}))))
 
   :serialize
   (fn [this params]
