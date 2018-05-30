@@ -357,7 +357,7 @@
   (get default-type attr-name))
 
 (defn- normalize-refs [refs]
-  (when-not (map? refs) ()
+  (when-not (map? refs)
     (map db/normalize-ref refs)))
 
 (defn- get-enum-retractions
