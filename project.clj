@@ -1,4 +1,3 @@
-
 (defn minified-build [theme]
   (let [name (name theme)]
     {:id (str "min-" name)
@@ -23,6 +22,8 @@
 
   :url "https://github.com/JoelSanchez/ventas"
 
+  :scm {:url "git@github.com:joelsanchez/ventas.git"}
+
   :author {:name "Joel Sánchez"
            :email "webmaster@kazer.es"}
 
@@ -42,7 +43,7 @@
                   :creds :gpg}
                  "snapshots"
                  {:url "https://repo.clojars.org"
-                 :creds :gpg}}
+                  :creds :gpg}}
 
   :dependencies [
                  ;; Clojure
@@ -235,18 +236,17 @@
 
   :uberjar-name "ventas.jar"
 
-  :main ventas.core
-
   :repl-options {:init-ns user
                  :port 4001
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            "local-install" ["with-profile" "package,datomic-pro" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
-            "do-release" ["with-profile" "package,datomic-free" "release"]
-            "do-deploy" ["with-profile" "package,datomic-free" "deploy"]
+            "install" ["do" ["clean"] ["with-profile" "datomic-pro" "install"]]
+            "release" ["do" ["clean"] ["with-profile" "datomic-free" "release"]]
+            "deploy" ["do" ["clean"] ["with-profile" "datomic-free" "deploy"]]
+            "run" ["do" ["clean"] ["with-profile" "uberjar" "run"]]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
@@ -315,13 +315,11 @@
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
 
-  :profiles {:datomic-pro {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :datomic-free {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
+  :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
+             :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :dev [:datomic-pro {:dependencies [[figwheel "0.5.15"]
                                                 [figwheel-sidecar "0.5.15"]
                                                 [com.cemerick/piggieback "0.2.2"]
-
-                                                ;; Runtime dependency resolution
                                                 [com.cemerick/pomegranate "1.0.0"]
                                                 [org.codehaus.plexus/plexus-utils "3.0.15"]]
                                  :plugins [[lein-figwheel "0.5.15"]
@@ -332,11 +330,10 @@
              :repl [:datomic-pro {:plugins [[venantius/ultra "0.5.2"]]}]
 
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
-
-             :package {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
-                       :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
-                       :hooks [leiningen.sassc]
-                       :omit-source true
-                       :aot ~aot-namespaces}
              
-             :uberjar [:datomic-pro :package]})
+             :uberjar [:datomic-pro {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
+                                     :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
+                                     :main ventas.core
+                                     :hooks [leiningen.sassc]
+                                     :omit-source true
+                                     :aot ~aot-namespaces}]})
