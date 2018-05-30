@@ -240,10 +240,9 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            ;;  "release" ["with-profile" "package,datomic-free" "deploy" "clojars"]
-            "local-install" ["with-profile" "package,datomic-pro" "install"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
-            "do-release" ["with-profile" "package,datomic-free" "release"]
+            "do-install" ["with-profile" "datomic-pro" "install"]
+            "do-release" ["do" ["clean"] ["with-profile" "datomic-free" "release"]]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
@@ -329,11 +328,9 @@
              :repl [:datomic-pro {:plugins [[venantius/ultra "0.5.2"]]}]
 
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
-
-             :package {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
-                       :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
-                       :hooks [leiningen.sassc]
-                       :omit-source true
-                       :aot ~aot-namespaces}
              
-             :uberjar [:datomic-pro :package]})
+             :uberjar [:datomic-pro {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
+                                     :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
+                                     :hooks [leiningen.sassc]
+                                     :omit-source true
+                                     :aot ~aot-namespaces}]})
