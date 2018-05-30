@@ -21,18 +21,10 @@
 (spec/def ::entity
   (spec/keys :req [:schema/type]))
 
+(spec/def ::attributes sequential?)
+
 (spec/def ::entity-type
-  (spec/keys :opt-un [::attributes
-                      ::serialize
-                      ::filter-seed
-                      ::filter-create
-                      ::filter-update
-                      ::before-seed
-                      ::before-create
-                      ::before-delete
-                      ::after-seed
-                      ::after-create
-                      ::after-delete]))
+  (spec/keys :req-un [::attributes]))
 
 (defn kw->type [kw]
   {:pre [(keyword? kw)]}
@@ -137,6 +129,10 @@
   {:pre [(entity? entity)]}
   (call-type-fn :before-delete entity))
 
+(defn before-update [entity new-attrs]
+  {:pre [(entity? entity)]}
+  (call-type-fn :before-update entity new-attrs))
+
 (defn after-seed [entity]
   {:pre [(entity? entity)]}
   (call-type-fn :after-seed entity))
@@ -148,6 +144,10 @@
 (defn after-delete [entity]
   {:pre [(entity? entity)]}
   (call-type-fn :after-delete entity))
+
+(defn after-update [entity new-entity]
+  {:pre [(entity? entity)]}
+  (call-type-fn :after-update entity new-entity))
 
 (defn spec!
   "Checks that an entity complies with its spec"
@@ -343,13 +343,15 @@
    :deserialize default-deserialize
    :filter-seed identity
    :filter-create identity
-   :filter-update (fn [entity data] data)
+   :filter-update (fn [_ data] data)
    :before-seed (fn [_] true)
    :before-create (fn [_] true)
    :before-delete (fn [_] true)
+   :before-update (fn [_ _] true)
    :after-seed (fn [_] true)
    :after-create (fn [_] true)
-   :after-delete (fn [_] true)})
+   :after-delete (fn [_] true)
+   :after-update (fn [_ _] true)})
 
 (defn default-attr [attr-name]
   (get default-type attr-name))
@@ -391,13 +393,16 @@
   (check-db-migrated!)
   (let [entity (find id)
         attrs (filter-update entity attrs)]
+    (before-update entity attrs)
     (db/transact (utils/into-n
                   [attrs]
                   (when-not append?
                     (get-enum-retractions entity attrs))
                   [{:db/id (d/tempid :db.part/tx)
                     :event/kind :entity.update}]))
-    (find id)))
+    (let [result (find id)]
+      (after-update entity result)
+      result)))
 
 (defn update
   "Updates an entity from unqualified attributes.
