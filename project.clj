@@ -39,6 +39,9 @@
                          :password password})))
                  "releases"
                  {:url "https://repo.clojars.org"
+                  :creds :gpg}
+                 "snapshots"
+                 {:url "https://repo.clojars.org"
                   :creds :gpg}}
 
   :dependencies [
@@ -241,8 +244,9 @@
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
             "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
-            "do-install" ["with-profile" "datomic-pro" "install"]
-            "do-release" ["do" ["clean"] ["with-profile" "datomic-free" "release"]]
+            "install" ["do" ["clean"] ["with-profile" "datomic-pro" "install"]]
+            "release" ["do" ["clean"] ["with-profile" "datomic-free" "release"]]
+            "deploy" ["do" ["clean"] ["with-profile" "datomic-free" "deploy"]]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
@@ -311,13 +315,11 @@
   :auto {"sassc" {:file-pattern  #"\.(scss)$"
                   :paths ["src/scss"]}}
 
-  :profiles {:datomic-pro {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :datomic-free {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
+  :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
+             :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :dev [:datomic-pro {:dependencies [[figwheel "0.5.15"]
                                                 [figwheel-sidecar "0.5.15"]
                                                 [com.cemerick/piggieback "0.2.2"]
-
-                                                ;; Runtime dependency resolution
                                                 [com.cemerick/pomegranate "1.0.0"]
                                                 [org.codehaus.plexus/plexus-utils "3.0.15"]]
                                  :plugins [[lein-figwheel "0.5.15"]
