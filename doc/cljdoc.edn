@@ -1,5 +1,6 @@
 {:cljdoc.doc/tree
- [["Documentation index" {:file "doc/README.md"}
+ [["README" {:file "README.md"}]
+  ["Documentation index" {:file "doc/README.md"}
    ["Development workflow" {:file "doc/Development_workflow.md"}]
    ["Endpoints" {:file "doc/Endpoints.md"}]
    ["Frontend development" {:file "doc/Frontend_development.md"}]
