@@ -22,7 +22,8 @@
    [ventas.server.api]
    [ventas.site :as site]
    [ventas.stats :as stats]
-   [ventas.themes.clothing.core])
+   [ventas.themes.clothing.core]
+   [ventas.entities.image-size :as entities.image-size])
   (:gen-class))
 
 (defn start! []

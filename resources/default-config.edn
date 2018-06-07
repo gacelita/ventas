@@ -37,9 +37,6 @@
  :chrome-headless {:host nil
                    :port 4444}
 
- :zeromq {:host "localhost"
-          :port 5556}
-
  ;; recommended `false` for Emacs:
  :embed-figwheel? true
 
