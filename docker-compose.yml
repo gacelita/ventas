@@ -9,6 +9,9 @@ services:
       - 4336:4336
     volumes:
       - datomic:/opt/datomic-pro-0.9.5561/data
+    environment:
+      - XMX=-Xmx512M
+      - XMS=-Xms512M
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
@@ -18,7 +21,7 @@ services:
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - cluster.routing.allocation.disk.watermark.high=0.95
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
     ulimits:
       memlock:
         soft: -1
@@ -42,6 +45,7 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
