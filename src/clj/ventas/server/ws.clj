@@ -18,6 +18,9 @@
 (def ^:private shared-mult
   (atom nil))
 
+(def ^:private response-channels
+  (atom {}))
+
 (defmulti handle-event
   (fn [{:keys [name]} _]
     name))
@@ -38,11 +41,12 @@
              (utils/swallow (.getMessage e))
              (str e))})
 
-(defn call-request-handler [{:keys [id throw?] :as message} & [state]]
+(defn call-request-handler [{:keys [id throw? channel-key] :as message} & [state]]
   (try
     (let [response (handle-request message state)]
       {:type :response
        :id id
+       :channel-key channel-key
        :success true
        :data response
        :realtime? (utils/chan? response)})
@@ -51,13 +55,23 @@
         (throw e))
       (error-response message e))))
 
+(defn- store-response-channel! [{:keys [channel-key id params data]}]
+  (let [channel-key (or channel-key (hash [id params]))
+        channel (get @response-channels channel-key)]
+    (when channel
+      (core.async/close! channel))
+    (swap! response-channels assoc channel-key data)))
+
 (defn send-message [{:keys [data] :as message} channel]
   (if (utils/chan? data)
-    (go-loop []
-      (>! channel (assoc message :data (<! data)))
-      (when (and (not (core.async.protocols/closed? data))
-                 (not (core.async.protocols/closed? channel)))
-        (recur)))
+    (do
+      (store-response-channel! message)
+      (go-loop []
+        (when-let [result (<! data)]
+          (>! channel (assoc message :data result))
+          (when (and (not (core.async.protocols/closed? data))
+                     (not (core.async.protocols/closed? channel)))
+            (recur)))))
     (core.async/put! channel message)))
 
 (defn- safe-transit-handlers []
