@@ -4,7 +4,9 @@
    [re-frame.core :as rf]
    [reagent.ratom :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.events :as events]))
+   [ventas.events :as events]
+   [ventas.utils :as utils]
+   [reagent.core :as reagent]))
 
 (def state-key ::state)
 
@@ -23,17 +25,32 @@
    js/ReactDateRange.DateRange
    #js {:onChange #(rf/dispatch (conj on-change-fx (js->clj %)))}))
 
+(defn- handle-input-click [this-node focused? target]
+  (when-not (utils/child? target this-node)
+    (reset! focused? false)))
+
 (defn range-input [_]
   (let [focused? (atom false)
-        id (str (gensym))]
-    (fn [{:keys [placeholder on-change-fx]}]
-      [:div.date-range-input
-       [base/input
-        [:input {:on-focus #(reset! focused? true)
-                 :on-blur #(reset! focused? false)
-                 :readOnly true
-                 :value (or @(rf/subscribe [::events/db [state-key id]])
-                            "")
-                 :placeholder placeholder}]]
-       (when @focused?
-         [range-picker {:on-change-fx [::set-value id on-change-fx]}])])))
+        id (str (gensym))
+        node (atom nil)
+        click-listener #(handle-input-click @node focused? (.-target %))]
+    (reagent/create-class
+     {:component-will-unmount
+      (fn [_]
+        (.removeEventListener js/window "click" click-listener))
+      :component-did-mount
+      (fn [this]
+        (reset! node (reagent/dom-node this))
+        (.addEventListener js/window "click" click-listener))
+      :reagent-render
+      (fn [{:keys [placeholder on-change-fx]}]
+        [:div.date-range-input
+         [base/input
+          [:input {:on-focus #(reset! focused? true)
+                   :readOnly true
+                   :value (or @(rf/subscribe [::events/db [state-key id]])
+                              "")
+                   :placeholder placeholder}]]
+         (when @focused?
+           [range-picker {:on-change-fx [::set-value id on-change-fx]}])])})))
+
