@@ -66,7 +66,6 @@
 (rf/reg-fx
  :aset
  (fn [args]
-   (log/debug :aset args)
    (apply aset args)))
 
 (rf/reg-event-fx
