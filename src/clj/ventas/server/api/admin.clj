@@ -1,8 +1,7 @@
 (ns ventas.server.api.admin
   (:require
-   [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
+   [clojure.core.async :as core.async :refer [<! <!! >! chan go go-loop]]
    [clojure.core.async.impl.protocols :as core.async.protocols]
-   [kinsky.client :as kafka]
    [slingshot.slingshot :refer [throw+]]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
@@ -12,9 +11,10 @@
    [ventas.plugin :as plugin]
    [ventas.search :as search]
    [ventas.server.api :as api]
+   [ventas.search.entities :as search.entities]
    [ventas.server.pagination :as pagination]
-   [ventas.stats :as stats]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.kafka :as kafka]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -120,7 +120,7 @@
   :doc "Does a fulltext search for `search` in the given `attrs`"}
  (fn [{{:keys [search attrs]} :params} {:keys [session]}]
    (let [culture (api/get-culture session)]
-     (search/entities search attrs culture))))
+     (search.entities/search search attrs culture))))
 
 (register-admin-endpoint!
  :admin.datadmin.datoms
@@ -160,11 +160,8 @@
                   :aggs {:events {:histogram {:field "timestamp"
                                               :interval interval}}}}))
 
-(defn make-interval [min max n]
-  (/ (- max min) (* n 1.0)))
-
 (defn- check-kafka! []
-  (when-not (stats/enabled?)
+  (when-not (kafka/enabled?)
     (throw+ {:type ::kafka-disabled
              :message "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."})))
 
@@ -172,54 +169,28 @@
  :admin.stats.realtime
  {:doc "Returns Kafka messages from the given topics.
         `min` and `max` should be millisecond timestamps."}
- (fn [{{:keys [topics min max]} :params} {:keys [channel]}]
+ (fn [{{:keys [topics min max interval]} :params} {:keys [channel]}]
+   {:pre [min interval (or (not max) (< min max))]}
    (check-kafka!)
-   (let [ch (chan)
-         realtime? (not max)
-         max (or max (System/currentTimeMillis))
-         interval (make-interval min max 100.0)]
-     (go
-       (if (<= max min)
-         (>! ch [])
-         (do
-           (>! ch (-> (time-series topics {:min min
-                                           :max max
-                                           :interval interval})
-                      (get-in [:body :aggregations :events :buckets])))
-           (when realtime?
-             (let [consumer (stats/start-consumer!)]
-               (kafka/subscribe! consumer topics)
-               (loop []
-                 (when (and (not (core.async.protocols/closed? ch))
-                            (not (core.async.protocols/closed? channel)))
-                   (<! (core.async/timeout interval))
-                   (let [records (->> (stats/poll consumer 50)
-                                      :by-topic
-                                      vals
-                                      (apply utils/into-n))]
-                     (>! ch [{:doc_count (count records)
-                              :key (System/currentTimeMillis)}])
-                     (recur)))))))))
-     ch)))
-
-(register-admin-endpoint!
- :admin.stats.stream
- {:doc "Directly streams a topic from Kafka. Probably not a very good idea."}
- (fn [{{:keys [topic]} :params} {:keys [channel]}]
-   (check-kafka!)
-   (let [ch (chan)]
-     (go
-      (let [consumer (stats/start-consumer!)]
-        (kafka/subscribe! consumer [topic])
-        (loop []
-          (when (and (not (core.async.protocols/closed? ch))
-                     (not (core.async.protocols/closed? channel)))
-            (let [records (->> (stats/poll consumer 1000)
-                               :by-topic
-                               vals
-                               (apply utils/into-n))]
-              (when (seq records)
-                (doseq [record records]
-                  (>! ch record))))
-            (recur)))))
-     ch)))
+   (let [realtime? (not max)
+         get-response (fn [{:keys [min max]}]
+                        (println "PRINT" :min min :max max :interval interval)
+                        (-> (time-series topics {:min min
+                                                 :max max
+                                                 :interval interval})
+                            (get-in [:body :aggregations :events :buckets])))]
+     (if-not realtime?
+       (get-response {:min min :max max})
+       (let [response-ch (chan)
+             last-ts (System/currentTimeMillis)]
+         (go
+           (>! response-ch (get-response {:min min}))
+           (loop [last-ts last-ts]
+             (<! (core.async/timeout interval))
+             (when (and (not (core.async.protocols/closed? response-ch))
+                        (not (core.async.protocols/closed? channel)))
+               (let [new-ts (System/currentTimeMillis)]
+                 (>! response-ch
+                     (get-response {:min last-ts}))
+                 (recur new-ts)))))
+         response-ch)))))

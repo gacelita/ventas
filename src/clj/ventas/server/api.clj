@@ -24,7 +24,8 @@
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
    [ventas.stats :as stats]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.search.entities :as search.entities]))
 
 (defonce available-requests (atom {}))
 
@@ -330,11 +331,11 @@
  (fn [{{:keys [search]} :params} {:keys [session]}]
    (stats/record-search-event! search)
    (let [culture (get-culture session)]
-     (->> (search/entities search
-                           #{:product/name
-                             :category/name
-                             :brand/name}
-                           culture)
+     (->> (search.entities/search search
+                                  #{:product/name
+                                    :category/name
+                                    :brand/name}
+                                  culture)
           (map (fn [{:keys [images] :as result}]
                  (let [result (if images
                                 (assoc result :image (first images))

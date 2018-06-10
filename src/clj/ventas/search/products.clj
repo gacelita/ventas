@@ -38,6 +38,11 @@
   (get {:price "product/price"}
        field))
 
+(defn i18n-field [field culture-kw]
+  (keyword (namespace field)
+           (str (name field)
+                "__" (name culture-kw))))
+
 (defn- get-products-query [{:keys [terms categories name price]} culture-kw]
   {:pre [culture-kw]}
   (utils/into-n
@@ -52,7 +57,7 @@
      [{:range {:product/price {:gte (:min price)
                                :lte (:max price)}}}])
    (when name
-     [{:match {(search/i18n-field :product/name culture-kw) name}}])))
+     [{:match {(i18n-field :product/name culture-kw) name}}])))
 
 (defn search [filters {:keys [items-per-page page sorting]} culture]
   (let [culture-kw (-> culture

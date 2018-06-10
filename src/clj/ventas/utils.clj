@@ -4,7 +4,8 @@
    [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
    [expound.alpha :as expound]
-   [slingshot.slingshot :refer [throw+]])
+   [slingshot.slingshot :refer [throw+]]
+   [taoensso.timbre :as timbre])
   (:import
    [clojure.lang IAtom]
    [java.io File]))
@@ -18,6 +19,23 @@
 (defmacro swallow [& body]
   `(try (do ~@body)
         (catch Throwable e# nil)))
+
+(defmacro interruptible-try [& body]
+  (let [additional-exceptions (when (vector? (first body))
+                                (->> (first body)
+                                     (map (fn [ex]
+                                            `(catch ~ex ~'_
+                                               (.interrupt (Thread/currentThread)))))))
+        body (if (vector? (first body))
+               (rest body)
+               body)]
+    `(try
+       ~@body
+       (catch InterruptedException ~'_
+         (.interrupt (Thread/currentThread)))
+       ~@additional-exceptions
+       (catch Throwable ~'e
+         (timbre/error (class ~'e) (.getMessage ~'e))))))
 
 (defn spec-exists? [v]
   (swallow

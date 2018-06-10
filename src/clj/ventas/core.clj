@@ -10,10 +10,14 @@
    [ventas.database.seed :as seed]
    [ventas.email.templates.core]
    [ventas.entities.core]
+   [ventas.entities.image-size :as entities.image-size]
    [ventas.events :as events]
+   [ventas.kafka.producer :as kafka.producer]
+   [ventas.kafka.registry :as kafka.registry]
    [ventas.logging]
    [ventas.plugins.core]
    [ventas.search :as search]
+   [ventas.search.indexing :as search.indexing]
    [ventas.seo :as seo]
    [ventas.server :as server]
    [ventas.server.api.admin]
@@ -21,9 +25,8 @@
    [ventas.server.api.user]
    [ventas.server.api]
    [ventas.site :as site]
-   [ventas.stats :as stats]
-   [ventas.themes.clothing.core]
-   [ventas.entities.image-size :as entities.image-size])
+   [ventas.stats.indexer :as stats.indexer]
+   [ventas.themes.clothing.core])
   (:gen-class))
 
 (defn start! []
@@ -31,12 +34,13 @@
                #'db/db
                #'search/elasticsearch
                #'search/indexer
-               #'search/tx-report-queue-listener
+               #'search.indexing/tx-report-queue-loop
                #'seo/driver
                #'server/server
                #'site/sites
-               #'stats/kafka-indexer
-               #'stats/producer)
+               #'stats.indexer/indexer
+               #'kafka.producer/producer
+               #'kafka.registry/registry)
   (core.async/put! (events/pub :init) true))
 
 (defn -main [& args]
@@ -53,6 +57,6 @@
   "Returns everything to its default state, removing all data"
   []
   (seed/seed :recreate? true)
-  (search/reindex)
+  (search.indexing/reindex)
   (entities.image-size/clean-storage)
   (entities.image-size/transform-all))
