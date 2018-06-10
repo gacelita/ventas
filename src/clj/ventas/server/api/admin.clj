@@ -14,7 +14,8 @@
    [ventas.search.entities :as search.entities]
    [ventas.server.pagination :as pagination]
    [ventas.utils :as utils]
-   [ventas.kafka :as kafka]))
+   [ventas.kafka :as kafka]
+   [taoensso.timbre :as timbre]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -156,41 +157,71 @@
 (defn time-series [topics {:keys [min max interval]}]
   (search/search {:query {:bool {:must [{:terms {:topic topics}}
                                         {:range {:timestamp {:gte min
-                                                             :lte max}}}]}}
-                  :aggs {:events {:histogram {:field "timestamp"
-                                              :interval interval}}}}))
+                                                             :lt max}}}]}}
+                  :aggs (->> topics
+                             (utils/mapm (fn [topic]
+                                           [(keyword topic)
+                                            {:filter {:term {:topic topic}}
+                                             :aggs {:events {:date_histogram {:field "timestamp"
+                                                                              :min_doc_count 0
+                                                                              :extended_bounds {:min min
+                                                                                                :max (dec max)}
+                                                                              :interval interval}}}}])))}))
 
 (defn- check-kafka! []
   (when-not (kafka/enabled?)
     (throw+ {:type ::kafka-disabled
              :message "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."})))
 
+(defn- extract-bucket-data [response topic]
+  (let [data (get-in response
+                     [:body :aggregations (keyword topic) :events :buckets])]
+    (zipmap (map :key data) (map :doc_count data))))
+
+(defn- get-last-key [response]
+  (->> response
+       (vals)
+       (first)
+       (sort-by first)
+       (last)
+       (key)))
+
 (register-admin-endpoint!
  :admin.stats.realtime
- {:doc "Returns Kafka messages from the given topics.
-        `min` and `max` should be millisecond timestamps."}
+ {:doc "Returns statistics for the given topics.
+        `min` and `max` should be millisecond timestamps.
+        `interval` can be:
+           - an amount in milliseconds
+           - a valid ES interval (see date_histogram docs)
+        Continuous updates will be sent if `max` is nil and `interval` is a millisecond amount."}
  (fn [{{:keys [topics min max interval]} :params} {:keys [channel]}]
    {:pre [min interval (or (not max) (< min max))]}
    (check-kafka!)
-   (let [realtime? (not max)
-         get-response (fn [{:keys [min max]}]
-                        (println "PRINT" :min min :max max :interval interval)
-                        (-> (time-series topics {:min min
-                                                 :max max
-                                                 :interval interval})
-                            (get-in [:body :aggregations :events :buckets])))]
+   (let [realtime? (and (not max) (number? interval))
+         max (or max (System/currentTimeMillis))
+         make-request (fn [{:keys [min max]} & {:keys [realtime?]}]
+                        (let [params {:min min
+                                      :max max
+                                      :interval interval}
+                              response (time-series topics params)]
+                          (utils/mapm
+                           (fn [topic]
+                             [topic (extract-bucket-data response topic)])
+                           topics)))]
      (if-not realtime?
-       (get-response {:min min :max max})
+       (make-request {:min min :max max})
        (let [response-ch (chan)
-             last-ts (System/currentTimeMillis)]
+             response (make-request {:min min :max max} :realtime? true)]
          (go
-           (>! response-ch (get-response {:min min}))
-           (loop [last-ts last-ts]
+           (>! response-ch response)
+           (<! (core.async/timeout 1000))
+           (loop [last-key (get-last-key response)]
              (<! (core.async/timeout interval))
              (when (and (not (core.async.protocols/closed? response-ch))
                         (not (core.async.protocols/closed? channel)))
-               (let [new-ts (System/currentTimeMillis)]
+               (let [new-key (+ last-key interval)]
                  (>! response-ch
-                     (get-response {:min last-ts}))
-                 (recur new-ts)))))
+                     (make-request {:min new-key
+                                    :max (+ new-key interval)} :realtime? true))
+                 (recur new-key)))))
          response-ch)))))
