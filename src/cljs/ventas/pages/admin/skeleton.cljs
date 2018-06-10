@@ -57,6 +57,10 @@
     :label ::activity-log
     :icon "time"}
 
+   {:route :admin.statistics
+    :label ::statistics
+    :icon "chart line"}
+
    {:route :admin.configuration.image-sizes
     :label ::configuration
     :icon "configure"

@@ -9,6 +9,7 @@
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
+   [ventas.pages.admin.statistics :as admin.statistics]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]))
 
@@ -21,6 +22,13 @@
      label]
     children]])
 
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::backend/admin.users.list
+                  {:success [::events/db [state-key :users]]}]
+                 [::admin.statistics/view.select :24h]]}))
+
 (defn- user-view [{:keys [id first-name last-name created-at]}]
   [:li.admin-dashboard__user
    [:a {:href (routes/path-for :admin.users.edit :id id)}
@@ -28,54 +36,6 @@
           (str/join " " [first-name last-name])
           (i18n ::no-name))]
     [:p (str created-at)]]])
-
-(rf/reg-event-fx
- ::fetch-stats
- (fn [_ [_ {:keys [start end]}]]
-   (let [min (if start
-               (.valueOf start)
-               (- (.getTime (js/Date.)) 3600000))
-         max (when end (.valueOf end))]
-     {:dispatch-n [[::chart/update {:id ::chart
-                                    :data-fn (constantly [])
-                                    :labels-fn (constantly [])}]
-                   [::backend/admin.stats.realtime
-                    {:params {:topics ["navigation" "http"]
-                              :min min
-                              :max max}
-                     :success ::stats.update}]]})))
-
-(rf/reg-event-fx
- ::init
- (fn [_ _]
-   {:dispatch-n [[::backend/admin.users.list
-                  {:success [::events/db [state-key :users]]}]
-                 [::fetch-stats]]}))
-
-(rf/reg-event-fx
- ::stats.update
- (fn [_ [_ buckets]]
-   (let [counts (map :doc_count buckets)
-         keys (->> buckets (map :key) (map js/moment))]
-     {:dispatch [::chart/update {:id ::chart
-                                 :data-fn #(into % counts)
-                                 :labels-fn #(into % keys)}]})))
-
-(defn- traffic-stats []
-  [chart/chart
-   {:height 200
-    :id ::chart
-    :config {:type "line"
-             :data {:labels []
-                    :datasets [{:data []
-                                :label "Navigation and HTTP events"
-                                :backgroundColor "#90EE90"
-                                :fill false}]}
-             :options {:responsive true
-                       :maintainAspectRatio false
-                       :scales {:xAxes [{:type "time"
-                                         :time {:format "MM/DD/YYYY HH:mm"
-                                                :tooltipFormat "ll HH:mm"}}]}}}}])
 
 (defn- latest-users []
   (let [{:keys [users]} @(rf/subscribe [::events/db [state-key]])]
@@ -90,9 +50,10 @@
    [base/grid-column
     [:div.admin-dashboard__traffic-statistics
      [segment {:label (i18n ::traffic-statistics)}
-      [datepicker/range-input {:placeholder (i18n ::datepicker-placeholder)
-                               :on-change-fx [::fetch-stats]}]
-      [traffic-stats]]]]
+      [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
+                                      [:week (i18n ::admin.statistics/week)]
+                                      [:month (i18n ::admin.statistics/month)]]]
+      [admin.statistics/traffic-stats-chart]]]]
    [segment {:label (i18n ::pending-orders)}]
    [segment {:label (i18n ::latest-users)}
     [latest-users]]
