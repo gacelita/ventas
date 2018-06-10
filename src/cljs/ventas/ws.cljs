@@ -7,7 +7,6 @@
    [re-frame.core :as rf]
    [reagent.core :as reagent]
    [reagent.ratom :as ratom]
-   [ventas.common.utils :as common.utils]
    [ventas.utils.logging :as log])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
@@ -25,10 +24,11 @@
 
 (defn send-request!
   "Sends a request and calls the callback with the response"
-  [{:keys [params callback] request-name :name} & {:keys [binary?]}]
+  [{:keys [params channel-key callback] request-name :name} & {:keys [binary?]}]
   (log/debug ::send-request!
              {:name request-name
               :params params
+              :channel-key channel-key
               :binary? binary?})
   (let [request-channel (chan)
         request-id (str (gensym (str "request-" (name request-name) "-")))
@@ -39,7 +39,8 @@
           {:type :request
            :id request-id
            :name request-name
-           :params params})
+           :params params
+           :channel-key channel-key})
       (loop []
         (let [{:keys [realtime?] :as message} (<! request-channel)]
           (callback message)
@@ -130,13 +131,14 @@
     fn? (to-call data)
     (log/error "Not an effect or function: " to-call)))
 
-(defn- effect-ws-request [{:keys [name params success error] :as request}]
+(defn- effect-ws-request [{:keys [name params channel-key success error] :as request}]
   (let [args-hash (hash request)]
     (when-not (contains? @pending-requests args-hash)
       (swap! pending-requests conj args-hash)
       (send-request!
        {:name name
         :params params
+        :channel-key channel-key
         :callback
         (fn [{data :data request-succeeded? :success :as response}]
           (swap! pending-requests disj args-hash)
