@@ -42,6 +42,7 @@
                        :id :test-request
                        :realtime? false
                        :success true
+                       :channel-key nil
                        :type :response}
                       (<! write-ch))))]
       (core.async/alts!! [ch (core.async/timeout 1000)]))))
