@@ -5,7 +5,8 @@
    [clojure.spec.alpha :as spec]
    [expound.alpha :as expound]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre])
+   [taoensso.timbre :as timbre]
+   [ventas.common.utils :as common.utils])
   (:import
    [clojure.lang IAtom]
    [java.io File]))
@@ -123,9 +124,7 @@
 (defn ->number [v]
   (swallow (Long. v)))
 
-(defn into-n [& vs]
-  "Into but accepts any number of input vectors"
-  (reduce into [] vs))
+(def ^:deprecated into-n common.utils/into-n)
 
 (defn batch [in out max-time max-count]
   (let [lim-1 (dec max-count)]

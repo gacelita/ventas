@@ -101,6 +101,10 @@
     (update-in m ks f)
     m))
 
+(defn into-n [& vs]
+  "Into but accepts any number of input vectors"
+  (reduce into [] vs))
+
 (defn index-by
   "Indexes a collection using the given keyword as key"
   [keyword coll]
