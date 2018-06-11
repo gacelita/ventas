@@ -43,6 +43,14 @@
                #'kafka.registry/registry)
   (core.async/put! (events/pub :init) true))
 
+(defn reset!
+  "Returns everything to its default state, removing all data"
+  []
+  (seed/seed :recreate? true)
+  (search.indexing/reindex)
+  (entities.image-size/clean-storage)
+  (entities.image-size/transform-all))
+
 (defn -main [& args]
   (start!)
   (let [auth-secret (config/get :auth-secret)]
@@ -51,12 +59,7 @@
                               "Either edit resources/config.edn or add an AUTH_SECRET environment variable, and try again.")))))
   (let [{:keys [host port]} (config/get :nrepl)]
     (timbre/info (str "Starting nREPL server on " host ":" port))
-    (nrepl/start-server :port port :bind host)))
-
-(defn reset!
-  "Returns everything to its default state, removing all data"
-  []
-  (seed/seed :recreate? true)
-  (search.indexing/reindex)
-  (entities.image-size/clean-storage)
-  (entities.image-size/transform-all))
+    (nrepl/start-server :port port :bind host))
+  (when (config/get :reset-on-restart)
+    (timbre/info ":reset-on-restart is on -- removing all data")
+    (reset!)))

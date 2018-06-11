@@ -17,9 +17,9 @@ For any questions I'm usually available at the `#ventas` channel in [clojurians]
 
 [Documentation](./doc) (but read this document first!)
 
-[Demo instance](https://ventas2.kazer.es) (may not be running)
+[Demo instance](http://ventas-demo.kazer.es) (may not be running)
 
-- [Swagger-like API tool](https://ventas2.kazer.es/api)
+- [Swagger-like API tool](http://ventas-demo.kazer.es/api)
 
 
 
