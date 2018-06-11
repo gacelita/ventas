@@ -53,8 +53,8 @@
                         [a (value->es a v)]))
                  (reduce filter-entity-attr
                          {})
-                 (common.utils/map-keys search.schema/ident->property)
-                 (db-id->document-id))]
+                 (db-id->document-id)
+                 (common.utils/map-keys search.schema/ident->property))]
     (search/document->indexing-queue doc)))
 
 (defn- indexable-types []
