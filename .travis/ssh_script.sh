@@ -18,7 +18,7 @@ bower install
 echo "Building Docker images"
 
 source /etc/docker.env
-docker login repo.treescale.com
+docker login -u $TREESCALE_USER -p $TREESCALE_PASSWORD repo.treescale.com
 
 lein uberjar &&
 docker build -t ventas . &&
