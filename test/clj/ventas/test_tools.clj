@@ -12,7 +12,7 @@
   (let [uri (create-test-uri id)]
     (d/create-database uri)
     (let [c (d/connect uri)]
-      (with-redefs [db/db c]
+      (with-redefs [db/conn c]
         (timbre/with-level :report
           (schema/migrate)))
       c)))

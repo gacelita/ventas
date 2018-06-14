@@ -6,7 +6,7 @@
    [ventas.database.entity :as sut]
    [ventas.test-tools :as test-tools]))
 
-(use-fixtures :each #(with-redefs [db/db (test-tools/test-conn)]
+(use-fixtures :each #(with-redefs [db/conn (test-tools/test-conn)]
                        (timbre/with-level
                         :report
                         (%))))

@@ -16,8 +16,6 @@
    [datomic.query EntityMap]
    [java.util.concurrent ExecutionException]))
 
-(def ^:dynamic db)
-
 (defn start-db! []
   (let [url (config/get :database :url)]
     (timbre/info (str "Starting database, URL: " url))
@@ -28,33 +26,36 @@
         (throw+ {:type ::database-connection-error
                  :message "Error connecting (database offline?)"})))))
 
-(defn stop-db! [db]
+(defn stop-db! [_]
   (timbre/info "Stopping database"))
 
-(defstate db
+(defstate conn
   :start (start-db!)
-  :stop (stop-db! db))
+  :stop (stop-db! conn))
+
+(defn ^:dynamic db []
+  (d/db conn))
 
 (defn connected? []
-  (instance? Connection db))
+  (instance? Connection conn))
 
 (defn q
   "q wrapper"
   ([query]
    (q query []))
   ([query sources]
-   (apply d/q query (into [(d/db db)] sources))))
+   (apply d/q query (into [(db)] sources))))
 
 (defn pull
   "pull wrapper"
   [& args]
-  (apply d/pull (d/db db) args))
+  (apply d/pull (db) args))
 
 (defn transact
   "transact wrapper"
   [& args]
   (try
-    @(apply d/transact db args)
+    @(apply d/transact conn args)
     (catch Throwable e
       (throw+ {:type ::transact-exception
                :message (.getMessage e)
@@ -63,27 +64,27 @@
 (defn history
   "history wrapper"
   [& args]
-  (apply d/history (d/db db) args))
+  (apply d/history (db) args))
 
 (defn ident
   "ident wrapper"
   [& args]
-  (apply d/ident (d/db db) args))
+  (apply d/ident (db) args))
 
 (defn basis-t
   "Gets the last t"
   []
-  (-> db d/db d/basis-t))
+  (-> (db) (d/basis-t)))
 
 (defn log
   "log wrapper"
   []
-  (d/log db))
+  (d/log conn))
 
 (defn index-range
   "index-range wrapper"
   [attrid start end]
-  (d/index-range (d/db db) attrid start end))
+  (d/index-range (db) attrid start end))
 
 (defn transaction-log
   "Gets the list of all transactions"
@@ -98,22 +99,22 @@
 (defn entity
   "entity wrapper"
   [& args]
-  (apply d/entity (d/db db) args))
+  (apply d/entity (db) args))
 
 (defn datoms
   "datoms wrapper"
   [& args]
-  (apply d/datoms (d/db db) args))
+  (apply d/datoms (db) args))
 
 (defn tx-report-queue
   "tx-report-queue wrapper"
   [& args]
-  (apply d/tx-report-queue db args))
+  (apply d/tx-report-queue conn args))
 
 (defn resolve-tempid
   "resolve-tempid wrapper"
   [& args]
-  (apply d/resolve-tempid (d/db db) args))
+  (apply d/resolve-tempid (d/db conn) args))
 
 (defn retract-entity
   "Retract an entity by eid"
@@ -264,7 +265,7 @@
                   (fn [idx itm]
                     [(db-symbol->keyword (nth find idx)) itm])
                   result)))
-         (apply d/q query (into [(or explicit-db (d/db db))]
+         (apply d/q query (into [(or explicit-db (db))]
                                 (vals in))))))
 
 (defn nice-query-one
@@ -313,7 +314,7 @@
   "conformity/ensure-conforms wrapper"
   [id migration]
   {:pre [(keyword? id) (coll? migration)]}
-  (conformity/ensure-conforms db {id {:txes [migration]}}))
+  (conformity/ensure-conforms conn {id {:txes [migration]}}))
 
 (spec/def :db/id number?)
 

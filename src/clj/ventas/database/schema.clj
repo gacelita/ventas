@@ -2,8 +2,7 @@
   (:require
    [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
-   [ventas.database :as db :refer [db]]
-   [ventas.site :as site]))
+   [ventas.database :as db]))
 
 (defn- make-migration [attrs]
   {(keyword (str "hash-" (hash attrs))) attrs})
@@ -42,7 +41,12 @@
                      :db/valueType :db.type/ref
                      :db/cardinality :db.cardinality/one
                      :db/isComponent true
-                     :ventas/refEntityType :i18n}])])
+                     :ventas/refEntityType :i18n}
+
+                    {:db/ident :ventas/site
+                     :db/valueType :db.type/ref
+                     :db/cardinality :db.cardinality/one
+                     :ventas/refEntityType :site}])])
 
 (defonce ^:private migrations
   (atom (initial-migrations)))
@@ -84,12 +88,9 @@
   "Migrates the database."
   [& {:keys [recreate?]}]
   (when recreate?
-    (let [v (if (string? site/current)
-              #'site/sites
-              #'db/db)]
-      (mount.core/stop v)
-      (db/recreate)
-      (mount.core/start v)))
+    (mount.core/stop #'db/conn)
+    (db/recreate)
+    (mount.core/start #'db/conn))
   (let [migrations (get-migrations)]
     (timbre/info "Running migrations")
     (doseq [migration migrations]

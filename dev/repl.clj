@@ -73,7 +73,7 @@
 (defn keyword->state [kw]
   (get {:figwheel 'client/figwheel
         :sass 'client/sass
-        :db 'ventas.database/db
+        :db 'ventas.database/conn
         :indexer 'ventas.search/indexer
         :server 'ventas.server/server
         :config 'ventas.config/config-loader

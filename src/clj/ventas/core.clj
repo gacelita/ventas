@@ -24,20 +24,18 @@
    [ventas.server.api.description]
    [ventas.server.api.user]
    [ventas.server.api]
-   [ventas.site :as site]
    [ventas.stats.indexer :as stats.indexer]
    [ventas.themes.clothing.core])
   (:gen-class))
 
 (defn start! []
   (mount/start #'config/config-loader
-               #'db/db
+               #'db/conn
                #'search/elasticsearch
                #'search/indexer
                #'search.indexing/tx-report-queue-loop
                #'seo/driver
                #'server/server
-               #'site/sites
                #'stats.indexer/indexer
                #'kafka.producer/producer
                #'kafka.registry/registry)

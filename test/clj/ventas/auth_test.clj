@@ -8,7 +8,7 @@
    [ventas.test-tools :as test-tools]))
 
 (use-fixtures :once
-              #(with-redefs [db/db (test-tools/test-conn)]
+              #(with-redefs [db/conn (test-tools/test-conn)]
                  (timbre/with-level
                   :report
                   (%))))

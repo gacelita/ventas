@@ -17,6 +17,7 @@
    [ventas.entities.product-term]
    [ventas.entities.product]
    [ventas.entities.shipping-method]
+   [ventas.entities.site]
    [ventas.entities.state]
    [ventas.entities.tax]
    [ventas.entities.user]))

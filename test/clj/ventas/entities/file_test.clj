@@ -12,7 +12,7 @@
    :file/extension "jpg"
    :schema/type :schema.type/file})
 
-(use-fixtures :once #(with-redefs [db/db (test-tools/test-conn)]
+(use-fixtures :once #(with-redefs [db/conn (test-tools/test-conn)]
                        (timbre/with-level :report
                          (entity/create* example-file)
                          (%))))

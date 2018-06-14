@@ -14,6 +14,21 @@
    [ventas.database.schema :as schema]
    [ventas.utils :as utils]))
 
+(defn entity? [entity]
+  (when (map? entity)
+    (spec/valid? ::entity (select-keys entity #{:schema/type}))))
+
+(spec/def
+  ::ref
+  (spec/or :eid number?
+           :entity entity?
+           :lookup-ref db/lookup-ref?
+           :pull-eid ::db/pull-eid))
+
+(spec/def
+  ::refs
+  (spec/coll-of ::ref))
+
 (spec/def :schema/type
   (spec/or :pull-eid ::db/pull-eid
            :keyword ::db.generators/keyword))
@@ -43,10 +58,6 @@
   (when-not (db-migrated?)
     (throw+ {:type ::database-not-migrated
              :message "The database needs to be migrated before doing this"})))
-
-(defn entity? [entity]
-  (when (map? entity)
-    (spec/valid? ::entity (select-keys entity #{:schema/type}))))
 
 (defonce registered-types (atom {}))
 
@@ -253,17 +264,6 @@
 (defn seed-number
   [type]
   (or (type-property type :seed-number) 30))
-
-(spec/def
-  ::ref
-  (spec/or :eid number?
-           :entity entity?
-           :lookup-ref db/lookup-ref?
-           :pull-eid ::db/pull-eid))
-
-(spec/def
-  ::refs
-  (spec/coll-of ::ref))
 
 (defn attributes-by-ident
   [type]
