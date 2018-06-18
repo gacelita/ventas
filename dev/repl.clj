@@ -71,14 +71,17 @@
   (go (>! (ventas.events/pub :init) true))
   :done)
 
-(defn keyword->state [kw]
-  (get {:figwheel 'client/figwheel
-        :sass 'client/sass
-        :db 'ventas.database/conn
-        :indexer 'ventas.search/indexer
-        :server 'ventas.server/server
-        :config 'ventas.config/config-loader
-        :sites 'ventas.site/sites}
+(defn keyword->states [kw]
+  (get {:figwheel '[client/figwheel]
+        :sass '[client/sass]
+        :db '[ventas.database/conn]
+        :indexer '[ventas.search/indexer]
+        :server '[ventas.server/server]
+        :config '[ventas.config/config-loader]
+        :sites '[ventas.site/sites]
+        :kafka '[ventas.kafka.registry/registry
+                 ventas.kafka.producer/producer
+                 ventas.stats.indexer/indexer]}
        kw))
 
 (defn r
@@ -92,11 +95,13 @@
   (when (= (ns-name *ns*) 'repl)
     (deinit-aliases))
   (let [states (->> states
-                    (map (fn [kw]
-                           (let [state (keyword->state kw)]
-                             (when-not state
+                    (mapcat (fn [kw]
+                           (let [states (keyword->states kw)]
+                             (when-not states
                                (throw (Exception. (str "State " kw " does not exist"))))
-                             (ns-resolve 'repl state)))))
+                             states)))
+                    (map (fn [state]
+                           (ns-resolve 'repl state))))
         _ (when (seq states)
             (apply mount/stop states))
         result (tn/refresh)]
