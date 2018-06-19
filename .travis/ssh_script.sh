@@ -20,6 +20,7 @@ echo "Building Docker images"
 source /etc/docker.env
 docker login -u $TREESCALE_USER -p $TREESCALE_PASSWORD repo.treescale.com
 
+lein clean &&
 lein uberjar &&
 docker build -t ventas . &&
 docker build -t ventas-datomic datomic &&
