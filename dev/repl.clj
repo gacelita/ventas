@@ -96,10 +96,10 @@
     (deinit-aliases))
   (let [states (->> states
                     (mapcat (fn [kw]
-                           (let [states (keyword->states kw)]
-                             (when-not states
-                               (throw (Exception. (str "State " kw " does not exist"))))
-                             states)))
+                              (let [states (keyword->states kw)]
+                                (when-not states
+                                  (throw (Exception. (str "State " kw " does not exist"))))
+                                states)))
                     (map (fn [state]
                            (ns-resolve 'repl state))))
         _ (when (seq states)
