@@ -235,10 +235,9 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            "compile-min" ["do" ["clean"] ["cljsbuild" "once" "min"]]
-            "install" ["do" ["clean"] ["with-profile" "datomic-pro" "install"]]
-            "release" ["do" ["clean"] ["with-profile" "datomic-free" "release"]]
-            "deploy" ["do" ["clean"] ["with-profile" "datomic-free" "deploy"]]
+            "install" ["do" ["clean"] ["with-profile" "datomic-pro,build-themes" "install"]]
+            "release" ["do" ["clean"] ["with-profile" "datomic-free,build-themes" "release"]]
+            "deploy" ["do" ["clean"] ["with-profile" "datomic-free,build-themes" "deploy"]]
             "run" ["do" ["clean"] ["with-profile" "uberjar" "run"]]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
@@ -311,6 +310,7 @@
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
+             :build-themes ^:leaky {:prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]}
              :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
                                           [ventas/devtools "0.0.7-SNAPSHOT"]
                                           ;; CLJS
@@ -323,9 +323,8 @@
                                      [refactor-nrepl "2.4.0-SNAPSHOT"]]
                            :source-paths ["dev"]}
              :repl [:datomic-pro :development {:plugins [[venantius/ultra "0.5.2"]]}]
-             :uberjar [:datomic-pro {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
-                                     :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
-                                     :main ventas.core
-                                     :hooks [leiningen.sassc]
-                                     :omit-source true
-                                     :aot ~aot-namespaces}]})
+             :uberjar [:datomic-pro :build-themes {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
+                                                   :main ventas.core
+                                                   :hooks [leiningen.sassc]
+                                                   :omit-source true
+                                                   :aot ~aot-namespaces}]})
