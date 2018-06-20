@@ -25,7 +25,8 @@
    [ventas.server.ws :as server.ws]
    [ventas.stats :as stats]
    [ventas.utils :as utils]
-   [ventas.search.entities :as search.entities]))
+   [ventas.search.entities :as search.entities]
+   [ventas.utils.slugs :as utils.slugs]))
 
 (defonce available-requests (atom {}))
 
@@ -351,6 +352,25 @@
        :params params
        :user id})
      nil)))
+
+(register-endpoint!
+ :site.create
+ (fn [{{:keys [email password name]} :params} {:keys [session]}]
+   (let [user (entity/create* {:schema/type :schema.type/user
+                               :user/email email
+                               :user/password password
+                               :user/roles #{:user.role/administrator}})
+         token (auth/user->token user)
+         _ (set-user session user)
+         subdomain (utils.slugs/slug name)
+         site (entity/create* {:schema/type :schema.type/site
+                               :site/user (:db/id user)
+                               :site/subdomain subdomain})]
+     (entity/update* (assoc user :ventas/site (:db/id site)))
+     (entities.configuration/set! :site.title name (:db/id site))
+     {:user (entity/serialize user)
+      :token token
+      :subdomain subdomain})))
 
 (defn- filename->extension [s]
   {:post [(< (count %) 5)]}
