@@ -15,13 +15,15 @@
                           (= site (.v datom))))]
     (d/filter (d/db db/conn) site-filter)))
 
-(defn with-site [server-name f]
-  (let [subdomain (first (str/split server-name #"."))
-        site (entity/query-one :site {:subdomain subdomain})]
-    (if site
-      (with-bindings {#'ventas.database/db #(site-db (:db/id site))}
-        (f))
-      (f))))
+(defn by-hostname [hostname]
+  (let [subdomain (first (str/split hostname #"."))]
+    (entity/query-one :site {:subdomain subdomain})))
+
+(defn with-site [hostname f]
+  (if-let [site (by-hostname hostname)]
+    (with-bindings {#'ventas.database/db #(site-db (:db/id site))}
+      (f))
+    (f)))
 
 (defn wrap-multisite
   [handler]
