@@ -27,6 +27,10 @@
  ;; will remove all data on restart. very useful for demo environments
  :reset-on-restart false
 
+ ;; the theme to use. can be overriden by site-specific configuration
+ ;; (in the database)
+ :theme :clothing
+
  :debug true
 
  :cljs-port 3001
