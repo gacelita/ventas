@@ -12,6 +12,8 @@
    [ventas.plugin :as plugin]
    [ventas.theme :as theme]))
 
+(def figwheel-theme (atom nil))
+
 (alter-var-root
  #'figwheel.css-watcher/handle-css-notification
  (fn [_]
@@ -25,7 +27,7 @@
   (let [build (->> (figwheel.config/get-project-builds)
                    (filter #(= (:id %) "app"))
                    (first))
-        theme (theme/current)]
+        theme (or @figwheel-theme (theme/current))]
     (-> build
         (assoc-in [:compiler :main]
                   (-> theme (plugin/find) (:cljs-ns)))

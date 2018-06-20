@@ -10,6 +10,7 @@
    [mount.core :as mount]
    [ventas.config]
    [ventas.events]
+   [client]
    ;; Aliases for REPL usage
    [clojure.core.async :as core.async :refer [<! chan >! go]]
    [clojure.spec.alpha :as spec]
@@ -112,6 +113,6 @@
   (clojure.test/run-all-tests #"ventas.*?\-test"))
 
 (defn set-theme! [theme]
-  ((ns-resolve 'ventas.theme 'set!) theme)
+  (reset! client/figwheel-theme theme)
   (mount.core/stop (ns-resolve 'repl 'client/figwheel))
   (mount.core/start (ns-resolve 'repl 'client/figwheel)))

@@ -1,6 +1,5 @@
 (ns ventas.theme
   (:require
-   [ventas.database.entity :as entity]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.plugin :as plugin]))
 
@@ -12,12 +11,5 @@
   (plugin/by-type :theme))
 
 (defn current []
-  (or (keyword (entities.configuration/get :current-theme))
-      (key (first (all)))))
-
-(defn set!
-  "Sets the current theme.
-   Use repl/set-theme! in development."
-  [theme]
-  (entity/create :configuration {:keyword :current-theme
-                                 :value (name theme)}))
+  (or (entities.configuration/get :current-theme)
+      (some-> (all) (first) (key))))
