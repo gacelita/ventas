@@ -52,11 +52,10 @@
          existing-data? (seq labels)
          topics-data (common.utils/map-vals
                       (fn [buckets]
-                        (as-> buckets %
-                              (if existing-data?
-                                %
-                                (update % min #(or % 0)))
-                              (sort-by first %)))
+                        (->> (if existing-data?
+                               buckets
+                               (update buckets min #(or % 0)))
+                             (sort-by first)))
                       topics-data)
          max-value (->> topics-data
                         (vals)
