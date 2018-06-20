@@ -150,9 +150,9 @@
 (register-admin-endpoint!
  :admin.configuration.set
  {:doc "Sets the given configuration key to the given value."}
- (fn [{config :params} _]
+ (fn [{config :params} {:keys [site]}]
    (doseq [[k v] config]
-     (entities.configuration/set! k v))))
+     (entities.configuration/set! k v site))))
 
 (defn time-series [topics {:keys [min max interval]}]
   (search/search {:query {:bool {:must [{:terms {:topic topics}}
