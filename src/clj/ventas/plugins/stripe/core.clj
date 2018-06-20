@@ -32,5 +32,6 @@
  {:name "Stripe"
   :pay-fn pay!
   :init (fn []
-          (configuration/register-key! :stripe.private-key #{:user.role/administrator})
+          (configuration/register-key! :stripe.private-key
+                                       {:allowed-user-roles #{:user.role/administrator}})
           (configuration/register-key! :stripe.public-key))})
