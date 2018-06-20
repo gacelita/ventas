@@ -155,18 +155,19 @@
      (entities.configuration/set! k v site))))
 
 (defn time-series [topics {:keys [min max interval]}]
-  (search/search {:query {:bool {:must [{:terms {:topic topics}}
-                                        {:range {:timestamp {:gte min
-                                                             :lt max}}}]}}
-                  :aggs (->> topics
-                             (utils/mapm (fn [topic]
-                                           [(keyword topic)
-                                            {:filter {:term {:topic topic}}
-                                             :aggs {:events {:date_histogram {:field "timestamp"
-                                                                              :min_doc_count 0
-                                                                              :extended_bounds {:min min
-                                                                                                :max (dec max)}
-                                                                              :interval interval}}}}])))}))
+  (search/search
+   {:query {:bool {:must [{:terms {:topic topics}}
+                          {:range {:timestamp {:gte min
+                                               :lt max}}}]}}
+    :aggs (->> topics
+               (utils/mapm (fn [topic]
+                             [(keyword topic)
+                              {:filter {:term {:topic topic}}
+                               :aggs {:events {:date_histogram {:field "timestamp"
+                                                                :min_doc_count 0
+                                                                :extended_bounds {:min min
+                                                                                  :max (dec max)}
+                                                                :interval interval}}}}])))}))
 
 (defn- check-kafka! []
   (when-not (kafka/enabled?)
@@ -199,7 +200,7 @@
    (check-kafka!)
    (let [realtime? (and (not max) (number? interval))
          max (or max (System/currentTimeMillis))
-         make-request (fn [{:keys [min max]} & {:keys [realtime?]}]
+         make-request (fn [{:keys [min max]}]
                         (let [params {:min min
                                       :max max
                                       :interval interval}
@@ -211,7 +212,7 @@
      (if-not realtime?
        (make-request {:min min :max max})
        (let [response-ch (chan)
-             response (make-request {:min min :max max} :realtime? true)]
+             response (make-request {:min min :max max})]
          (go
            (>! response-ch response)
            (<! (core.async/timeout 1000))
@@ -222,6 +223,6 @@
                (let [new-key (+ last-key interval)]
                  (>! response-ch
                      (make-request {:min new-key
-                                    :max (+ new-key interval)} :realtime? true))
+                                    :max (+ new-key interval)}))
                  (recur new-key)))))
          response-ch)))))
