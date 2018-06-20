@@ -1,6 +1,7 @@
 (ns repl
   "Basically ventas-devtools.repl"
-  (:require [clojure.tools.namespace.repl :as tn]))
+  (:require
+   [clojure.tools.namespace.repl :as tn]))
 
 (defn immigrate
   "Copies all vars from `from-ns` to the current ns.
@@ -15,6 +16,10 @@
        (select-keys (meta target) [:name :ns])
        (merge (meta v))
        (with-meta '~target)))))
+
+(cond->> ["src/clj" "src/cljc" "test/clj" "test/cljc"]
+         (not (ventas.config/get :strict-classloading)) (concat ["dev"])
+         true (apply clojure.tools.namespace.repl/set-refresh-dirs))
 
 (defn init []
   (let [result (tn/refresh-all)]
