@@ -50,6 +50,11 @@
  (fn [title]
    (set! js/document.title title)))
 
+(rf/reg-fx
+ :redirect
+ (fn [url]
+   (set! js/document.location url)))
+
 (def ^:private id->interval (atom {}))
 
 (rf/reg-fx
