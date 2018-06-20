@@ -83,7 +83,7 @@
 (defn get-name [id]
   {:pre [id]}
   (let [{:user/keys [first-name last-name]} (entity/find id)]
-    (str first-name " " last-name)))
+    (str/join " " [first-name last-name])))
 
 (entity/register-type!
  :user
