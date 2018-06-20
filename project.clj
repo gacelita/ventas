@@ -64,10 +64,6 @@
                  [com.google.guava/guava "23.0"]
                  [instaparse "1.4.8"]
 
-                 ;; ZeroMQ
-                 [org.zeromq/jeromq "0.3.3"]
-                 [org.zeromq/cljzmq "0.1.4" :exclusions [org.zeromq/jzmq]]
-
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
 
@@ -192,9 +188,6 @@
                  ;; localStorage
                  [alandipert/storage-atom "2.0.1"]
 
-                 ;; Nice CLJS development tools
-                 [binaryage/devtools "0.9.10"]
-
                  ;; Devcards itself
                  [devcards "0.2.4" :exclusions [cljsjs/react]]
 
@@ -236,7 +229,7 @@
 
   :uberjar-name "ventas.jar"
 
-  :repl-options {:init-ns user
+  :repl-options {:init-ns repl
                  :port 4001
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
                  :timeout 120000}
@@ -317,20 +310,19 @@
 
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :dev [:datomic-pro {:dependencies [[figwheel "0.5.15"]
-                                                [figwheel-sidecar "0.5.15"]
-                                                [com.cemerick/piggieback "0.2.2"]
-                                                [com.cemerick/pomegranate "1.0.0"]
-                                                [org.codehaus.plexus/plexus-utils "3.0.15"]]
-                                 :plugins [[lein-figwheel "0.5.15"]
-                                           [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
-                                           [refactor-nrepl "2.4.0-SNAPSHOT"]]
-                                 :source-paths ["dev"]}]
-
-             :repl [:datomic-pro {:plugins [[venantius/ultra "0.5.2"]]}]
-
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
-             
+             :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
+                                          [ventas/devtools "0.0.7-SNAPSHOT"]
+                                          ;; CLJS
+                                          [figwheel "0.5.15"]
+                                          [figwheel-sidecar "0.5.15"]
+                                          [com.cemerick/piggieback "0.2.2"]
+                                          [binaryage/devtools "0.9.10"]]
+                           :plugins [[lein-figwheel "0.5.15"]
+                                     [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
+                                     [refactor-nrepl "2.4.0-SNAPSHOT"]]
+                           :source-paths ["dev"]}
+             :repl [:datomic-pro :development {:plugins [[venantius/ultra "0.5.2"]]}]
              :uberjar [:datomic-pro {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                                      :prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]
                                      :main ventas.core
