@@ -102,9 +102,9 @@
                (str/replace "{{theme}}"
                             (name theme-name))))})
 
-(defn- handle-websocket [format]
+(defn- handle-websocket [format opts]
   (chord.http-kit/wrap-websocket-handler
-   (partial server.ws/handle-messages format)
+   (partial server.ws/handle-messages format opts)
    {:format format}))
 
 (defn- handle-image [eid & {:keys [size]}]
@@ -120,10 +120,10 @@
 
 ;; All routes
 (defroutes routes
-  (GET "/ws/fressian" []
-    (handle-websocket :fressian))
-  (GET "/ws/transit-json" []
-    (handle-websocket :transit-json))
+  (GET "/ws/fressian" req
+    (handle-websocket :fressian (select-keys req #{:server-name})))
+  (GET "/ws/transit-json" req
+    (handle-websocket :transit-json (select-keys req #{:server-name})))
   (GET "/files/*" {{path :*} :route-params}
     (handle-file path))
   (GET "/images/:image" [image]

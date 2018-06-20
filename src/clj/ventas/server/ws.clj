@@ -7,7 +7,8 @@
    [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
    [ventas.database.entity :as entity]
-   [ventas.utils :as utils])
+   [ventas.utils :as utils]
+   [ventas.site :as site])
   (:import
    [com.cognitect.transit ReadHandler]
    [java.io ByteArrayInputStream]))
@@ -112,14 +113,15 @@
   (core.async/put! shared-hub message))
 
 (defmulti handle-messages
-  (fn [format _]
+  (fn [format _ _]
     format))
 
-(defmethod handle-messages :transit-json [_ {:keys [ws-channel] :as request}]
+(defmethod handle-messages :transit-json [_ {:keys [server-name]} {:keys [ws-channel] :as request}]
   (let [shared-channel (get-shared-channel)
         client-id (uuid/v4)
         session (atom {})
-        output-channel (chan)]
+        output-channel (chan)
+        site (site/by-hostname server-name)]
     (core.async/pipe shared-channel ws-channel)
     (core.async/pipe output-channel ws-channel)
     (go-loop []
@@ -128,6 +130,7 @@
           (handle-message
            message
            {:client-id client-id
+            :site site
             :session session
             :channel output-channel
             :request request})
@@ -138,7 +141,7 @@
   (fn [{:keys [name]} state]
     name))
 
-(defmethod handle-messages :fressian [_ {channel :ws-channel :as request}]
+(defmethod handle-messages :fressian [_ _ {channel :ws-channel :as request}]
   (let [client-id (uuid/v4)]
     (go-loop []
       (when-let [{{:keys [id] :as message} :message} (<! channel)]
