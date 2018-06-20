@@ -85,7 +85,16 @@
     (seed-type type (if generate? (entity/seed-number type) 0)))
 
   (when-not minimal?
-    (doseq [[id _] (plugin/all)]
-      (timbre/info "Installing plugin " id)
-      (doseq [fixture (plugin/fixtures id)]
-        (create* fixture)))))
+    (let [themes (->> (theme/all) (keys) (set))
+          plugins (->> (plugin/all)
+                       (keys)
+                       (set)
+                       (remove #(contains? themes %)))]
+      (doseq [id themes]
+        (timbre/info "Installing theme " id)
+        (doseq [fixture (plugin/fixtures id)]
+          (create* fixture)))
+      (doseq [id plugins]
+        (timbre/info "Installing plugin " id)
+        (doseq [fixture (plugin/fixtures id)]
+          (create* fixture))))))
