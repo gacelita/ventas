@@ -16,7 +16,9 @@
     (d/filter (d/db db/conn) site-filter)))
 
 (defn by-hostname [hostname]
-  (let [subdomain (first (str/split hostname #"."))]
+  (when-let [subdomain (some-> hostname
+                               (str/split #".")
+                               first)]
     (entity/query-one :site {:subdomain subdomain})))
 
 (defn with-site [hostname f]

@@ -107,13 +107,15 @@
 
 (deftest i18n-cultures-list
   (let [fixtures (->> (ventas.database.entity/fixtures :i18n.culture)
-                      (map #(dissoc % :schema/type)))]
+                      (map #(dissoc % :schema/type))
+                      (set))]
     (is (= fixtures
            (->> (server.ws/call-request-handler {:name :i18n.cultures.list})
                 :data
                 (map #(dissoc % :id))
                 (map #(set/rename-keys % {:keyword :i18n.culture/keyword
-                                          :name :i18n.culture/name})))))))
+                                          :name :i18n.culture/name}))
+                (set))))))
 
 (deftest image-sizes-list
   (doseq [entity (entity/query :image-size)]
