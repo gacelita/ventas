@@ -84,7 +84,7 @@
   {:pre [(or (not allowed-user-roles) (set allowed-user-roles))]}
   (when (entity/db-migrated?)
     (entity/create* (merge
-                     {:schema/type :schema.type/configuration
+                     {:schema/type :schema.type/configuration.acl
                       :configuration.acl/keyword k}
                      (when allowed-user-roles
                        {:configuration.acl/allowed-user-roles allowed-user-roles})))))
