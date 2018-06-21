@@ -1,7 +1,8 @@
 (ns repl
   "Basically ventas-devtools.repl"
   (:require
-   [clojure.tools.namespace.repl :as tn]))
+   [clojure.tools.namespace.repl :as tn]
+   [ventas.config]))
 
 (defn immigrate
   "Copies all vars from `from-ns` to the current ns.
