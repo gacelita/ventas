@@ -238,6 +238,7 @@
             "install" ["do" ["clean"] ["with-profile" "datomic-pro,build-themes" "install"]]
             "release" ["do" ["clean"] ["with-profile" "datomic-free,build-themes" "release"]]
             "deploy" ["do" ["clean"] ["with-profile" "datomic-free,build-themes" "deploy"]]
+            "test" ["with-profile" "datomic-free" "test"]
             "run" ["do" ["clean"] ["with-profile" "uberjar" "run"]]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
