@@ -313,7 +313,7 @@
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
              :build-themes ^:leaky {:prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]}
              :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
-                                          [ventas/devtools "0.0.7-SNAPSHOT"]
+                                          [ventas/devtools "0.0.9"]
                                           ;; CLJS
                                           [figwheel "0.5.15"]
                                           [figwheel-sidecar "0.5.15"]
