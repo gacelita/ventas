@@ -6,7 +6,7 @@
 (theme/register!
  :blank
  {:name "Blank"
-  :cljs-ns 'ventas.themes.blank.core
+  :build {:main 'ventas.themes.blank.core}
   :fixtures
   (fn []
     [])

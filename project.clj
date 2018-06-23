@@ -243,27 +243,7 @@
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
-              [
-               ;; This build will be altered by client/dev-build, to do theme-dependent
-               ;; builds.
-               ;; The default `:main` in here is ventas.themes.clothing.core for compatibility
-               ;; with the :embed-figwheel? option, but bear in mind that repl/set-theme!
-               ;; won't work if you take that path.
-               {:id "app"
-                :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "custom-lib"]
-                :figwheel {:on-jsload "ventas.core/on-figwheel-reload"}
-                :compiler {:main ventas.core
-                           :npm-deps {:js-image-zoom "0.5.0"}
-                           :install-deps true
-                           :asset-path "files/js/compiled/out"
-                           :output-to "resources/public/files/js/compiled/ventas.js"
-                           :output-dir "resources/public/files/js/compiled/out"
-                           :source-map-timestamp true
-                           :devcards true
-                           :preloads [devtools.preload]
-                           :parallel-build true}}
-
-               {:id "test"
+              [{:id "test"
                 :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "test/doo" "custom-lib"]
                 :compiler {:output-to "resources/public/files/js/compiled/testable.js"
                            :main ventas.test-runner
@@ -271,11 +251,6 @@
                            :install-deps true
                            :optimizations :none
                            :parallel-build true}}
-
-               ;; In development, the :main and :output-to options are changed dynamically
-               ;; to change between themes.
-               ;; In production this is not an option, that's why every build needs to be
-               ;; explicitly specified.
                ~(minified-build :clothing)
                ~(minified-build :blank)]}
 
@@ -313,7 +288,7 @@
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
              :build-themes ^:leaky {:prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]}
              :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
-                                          [ventas/devtools "0.0.9"]
+                                          [ventas/devtools "0.0.10-SNAPSHOT"]
                                           ;; CLJS
                                           [figwheel "0.5.15"]
                                           [figwheel-sidecar "0.5.15"]

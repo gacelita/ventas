@@ -18,7 +18,9 @@
 (theme/register!
  :clothing
  {:name "Clothing"
-  :cljs-ns 'ventas.themes.clothing.core
+  :build {:main 'ventas.themes.clothing.core
+          :npm-deps {:js-image-zoom "0.5.0"}
+          :install-deps true}
   :prerendered-routes
   (fn []
     (utils/into-n
