@@ -15,9 +15,9 @@
 (def state-key ::state)
 
 (admin.skeleton/add-menu-item!
- :admin.payment-methods
  {:route :admin.payment-methods.stripe
-  :label ::page})
+  :label ::page
+  :parent :admin.payment-methods})
 
 (rf/reg-event-fx
  ::submit

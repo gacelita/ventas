@@ -2,6 +2,7 @@
   (:require
    [com.rpl.specter :as specter :include-macros true]
    [re-frame.core :as rf]
+   [reagent.ratom :as ratom]
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.components.popup :as popup]
@@ -11,85 +12,86 @@
    [ventas.routes :as routes]
    [ventas.utils :as utils]
    [ventas.utils.ui :as utils.ui]
-   [ventas.ws :as ws]))
+   [ventas.ws :as ws]
+   [reagent.core :as reagent]
+   [ventas.common.utils :as common.utils]))
 
 (def state-key ::state)
 
-(def initial-menu-items
-  [{:route :admin
-    :label ::dashboard
-    :icon "home"}
+(defonce ^:private menu-items
+  (reagent/atom
+   [{:route :admin
+     :label ::dashboard
+     :icon "home"}
 
-   {:route :admin.products
-    :label ::products
-    :icon "tag"
-    :children [{:route :admin.products.discounts
-                :label ::discounts}]}
+    {:route :admin.products
+     :label ::products
+     :icon "tag"
+     :children [{:route :admin.products.discounts
+                 :label ::discounts}]}
 
-   {:route :admin.orders
-    :label ::orders
-    :icon "unordered list"}
+    {:route :admin.orders
+     :label ::orders
+     :icon "unordered list"}
 
-   {:route :admin.users
-    :label ::users
-    :icon "user"}
+    {:route :admin.users
+     :label ::users
+     :icon "user"}
 
-   {:route :admin.plugins
-    :label ::plugins
-    :icon "plug"}
+    {:route :admin.plugins
+     :label ::plugins
+     :icon "plug"}
 
-   {:route :admin.taxes
-    :label ::taxes
-    :icon "percent"}
+    {:route :admin.taxes
+     :label ::taxes
+     :icon "percent"}
 
-   {:route :admin.payment-methods
-    :label ::payment-methods
-    :icon "payment"
-    :children []}
+    {:route :admin.payment-methods
+     :label ::payment-methods
+     :icon "payment"
+     :children []}
 
-   {:route :admin.shipping-methods
-    :label ::shipping-methods
-    :icon "shipping"}
+    {:route :admin.shipping-methods
+     :label ::shipping-methods
+     :icon "shipping"}
 
-   {:divider true}
+    {:divider true}
 
-   {:route :admin.activity-log
-    :label ::activity-log
-    :icon "time"}
+    {:route :admin.activity-log
+     :label ::activity-log
+     :icon "time"}
 
-   {:route :admin.statistics
-    :label ::statistics
-    :icon "chart line"}
+    {:route :admin.statistics
+     :label ::statistics
+     :icon "chart line"}
 
-   {:route :admin.configuration.image-sizes
-    :label ::configuration
-    :icon "configure"
-    :children [{:route :admin.configuration.image-sizes
-                :label ::image-sizes}
-               {:route :admin.configuration.email
-                :label ::email}]}])
+    {:route :admin.configuration.image-sizes
+     :label ::configuration
+     :icon "configure"
+     :children [{:route :admin.configuration.image-sizes
+                 :label ::image-sizes}
+                {:route :admin.configuration.email
+                 :label ::email}]}]))
 
-(defonce ^:private menu-hooks (atom {}))
+(rf/reg-sub-raw
+ ::menu-items
+ (fn [_ _]
+   (ratom/reaction @menu-items)))
 
-(defn add-menu-hook! [id f]
-  (swap! menu-hooks assoc id f))
-
-(rf/reg-event-db
- ::execute-menu-hooks
- (fn [db _]
-   (reduce (fn [db f]
-             (f db))
-           db
-           (vals @menu-hooks))))
-
-(defn add-menu-item! [where what]
-  (add-menu-hook!
-   (hash what)
-   (fn [db]
-     (specter/transform
-      [state-key :menu-items (specter/filterer #(= (:route %) where)) 0 :children]
-      #(conj % what)
-      db))))
+(defn add-menu-item! [item]
+  (let [parent (:parent item)
+        node (dissoc item :parent)]
+    (swap! menu-items (fn [nodes]
+                        (let [node-adder (fn [node nodes]
+                                           (if (some #(= (:route %) (:route node)) nodes)
+                                             nodes
+                                             (conj nodes node)))]
+                          (if-not parent
+                            (node-adder node nodes)
+                            (specter/transform
+                             [(specter/filterer #(= (:route %) parent)) 0 :children]
+                             (partial node-adder node)
+                             nodes)))))))
 
 (defn- menu-item [{:keys [route label icon children] :as item}]
   [:li.admin__menu-item (when (= (routes/handler) route)
@@ -109,7 +111,7 @@
 
 (defn- menu []
   [:ul
-   (for [item @(rf/subscribe [::events/db [state-key :menu-items]])]
+   (for [item @(rf/subscribe [::menu-items])]
      ^{:key (hash item)} [menu-item item])])
 
 (rf/reg-event-fx
@@ -145,7 +147,7 @@
 
 (rf/reg-event-fx
  ::init
- (fn [{:keys [db]} _]
+ (fn [_ _]
    {:dispatch-n [[::backend/admin.entities.list
                   {:params {:type :brand}
                    :success [::events/db [:admin :brands]]}]
@@ -155,9 +157,7 @@
                  [::backend/admin.entities.list
                   {:params {:type :currency}
                    :success [::events/db [:admin :currencies]]}]
-                 [::events/i18n.cultures.list]
-                 [::execute-menu-hooks]]
-    :db (assoc-in db [state-key :menu-items] initial-menu-items)}))
+                 [::events/i18n.cultures.list]]}))
 
 (defn- content-view [content]
   [:div
