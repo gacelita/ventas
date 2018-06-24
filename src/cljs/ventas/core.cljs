@@ -22,7 +22,8 @@
    [ventas.session :as session]
    [ventas.utils.logging :refer [debug info]]
    [ventas.utils.logging :as log]
-   [ventas.ws :as ws])
+   [ventas.ws :as ws]
+   [cognitect.transit :as transit])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
 
@@ -77,8 +78,9 @@
  ::rendered-db
  (fn [_ _]
    (when-let [rendered (aget js/window "__rendered_db")]
-     {:db (reader/read-string rendered)
-      :aset [js/window "__rendered_db" nil]})))
+     (let [reader (transit/reader :json)]
+       {:db (transit/read reader rendered)
+        :aset [js/window "__rendered_db" nil]}))))
 
 (rf/reg-event-fx
  ::init

@@ -6,7 +6,8 @@
    [re-frame.core :as rf]
    [ventas.events :as events]
    [ventas.routes :as routes]
-   [ventas.ws :as ws]))
+   [ventas.ws :as ws]
+   [cognitect.transit :as transit]))
 
 (defn ^:export go-to [args]
   (apply routes/go-to
@@ -22,8 +23,8 @@
    (= js/document.readyState "complete")))
 
 (defn ^:export dump-db []
-  (with-out-str
-   (pprint/pprint @(re-frame.core/subscribe [::events/db]))))
+  (let [writer (transit/writer :json)]
+    (transit/write writer @(re-frame.core/subscribe [::events/db]))))
 
 (defonce ^:private prerendering-hooks (atom {}))
 
