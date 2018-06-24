@@ -25,6 +25,7 @@
    [ventas.paths :as paths]
    [ventas.plugin :as plugin]
    [ventas.server.ws :as server.ws]
+   [ventas.server.spa :as server.spa]
    [ventas.site :as site]
    [ventas.stats :as stats]
    [ventas.theme :as theme]
@@ -64,44 +65,6 @@
       (add-mime-type response path)
       (compojure.route/not-found ""))))
 
-(defn rendered-file [path extension]
-  (let [path (if (= path "/")
-               "/index"
-               path)
-        file (io/as-file (str (paths/resolve ::paths/rendered) path "." extension))]
-    (if (.exists file)
-      (slurp file)
-      "")))
-
-(defn rendered-db-script [path]
-  (let [edn-str (rendered-file path "edn")]
-    (if (empty? edn-str)
-      ""
-      (str "<script>window.__rendered_db="
-           (cheshire/encode edn-str)
-           "</script>"))))
-
-(defn- handle-spa [{:keys [uri]}]
-  (timbre/debug "Handling SPA" uri)
-  {:status 200
-   :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (let [theme-name (theme/current)]
-           (-> (slurp (io/resource "public/index.html"))
-               (str/replace "{{theme}}"
-                            (name theme-name))
-               (str/replace "{{rendered-html}}"
-                            (rendered-file uri "html"))
-               (str/replace "{{rendered-db-script}}"
-                            (rendered-db-script uri))))})
-
-(defn- handle-devcards [_]
-  {:status 200
-   :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (let [theme-name (theme/current)]
-           (-> (slurp (io/resource "public/devcards.html"))
-               (str/replace "{{theme}}"
-                            (name theme-name))))})
-
 (defn- handle-websocket [format opts]
   (chord.http-kit/wrap-websocket-handler
    (partial server.ws/handle-messages format opts)
@@ -133,9 +96,9 @@
   (GET "/plugins/:plugin/*" {{path :* plugin :plugin} :route-params}
     (plugin/handle-request (keyword plugin) path))
   (GET "/devcards" _
-    handle-devcards)
+    server.spa/handle-devcards)
   (GET "/*" _
-    handle-spa))
+    server.spa/handle-spa))
 
 (def http-handler
   (-> routes
