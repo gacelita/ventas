@@ -59,10 +59,8 @@
                  [org.clojure/test.check "0.9.0"]
                  [com.gfredericks/test.chuck "0.2.9"]
 
-                 ;; Explicit transitive dependencies
-                 [com.google.code.findbugs/jsr305 "3.0.1"]
-                 [com.google.guava/guava "23.0"]
-                 [instaparse "1.4.8"]
+                 ;; Avoid problem with com.cemerick/piggieback
+                 [com.google.guava/guava "20.0"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
