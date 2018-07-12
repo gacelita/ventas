@@ -16,22 +16,7 @@ jdk:
 
 addons:
   ssh_known_hosts:
-  - ventas2.kazer.es
-
-before_deploy:
-- openssl aes-256-cbc -K $encrypted_1c5130aa9ebd_key -iv $encrypted_1c5130aa9ebd_iv
-  -in .travis/deploy_rsa.enc -out .travis/deploy_rsa -d
-- eval "$(ssh-agent -s)"
-- cp .travis/deploy_rsa ~/.ssh/id_rsa
-- chmod 600 ~/.ssh/id_rsa
-- ssh-add ~/.ssh/id_rsa
-
-deploy:
-- provider: script
-  skip_cleanup: true
-  script: "./.travis/deploy.sh"
-  on:
-    branch: master
+  - ventas.kazer.es
 
 after_success:
 - CLOVERAGE_VERSION=1.0.10 lein cloverage --codecov
