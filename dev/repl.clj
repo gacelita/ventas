@@ -28,4 +28,3 @@
       (throw result))
     (immigrate 'ventas-devtools.repl)
     ((ns-resolve 'ventas-devtools.repl 'init))))
-
