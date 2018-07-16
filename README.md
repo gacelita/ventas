@@ -137,7 +137,7 @@ To quit, type: :cljs/quit
 
 - `cd datomic`
 - `cp .credentials.example .credentials`
-- In `.credentials`, replace "username" and "pasword" with your credentials for downloading Datomic from my.datomic.com
+- In `.credentials`, replace "username" and "pasword" with your credentials for downloading Datomic. These credentials are not the same as your login credentials: you need to use your email as the user and your "download key" (shown in https://my.datomic.com/account) as the password.
 - `cd config`
 - `cp transactor.example.properties transactor.properties`
 - In `transactor.properties`, replace "YOUR_LICENSE_KEY" with your Datomic Pro license key (you can get one for free, see Datomic Starter [here](https://www.datomic.com/get-datomic.html))
@@ -148,7 +148,7 @@ Now everything is prepared for starting your local environment. Every time you w
 
 `docker-compose up` 
 
-That will start Datomic and Elasticsearch.
+That will start Datomic and Elasticsearch. You'll also need to set up two env vars the first time you run the project: `DATOMIC__USERNAME` and `DATOMIC__PASSWORD`. These are the same as the ones in `.credentials`, and they are necessary to download the datomic-pro jar.
 
 ### Overview
 
