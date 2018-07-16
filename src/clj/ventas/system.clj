@@ -2,6 +2,7 @@
   "Utilities for managing the state of the system"
   (:require
    [mount.core :as mount]
+   [ventas.events :as events]
    [clojure.core.async :as core.async]))
 
 (def default-subsystem-mapping
@@ -33,6 +34,6 @@
       :done
       (let [{:keys [stopped]} (apply mount/stop states)
             {:keys [started]} (apply mount/start states)]
-        (core.async/put! (ventas.events/pub :init) true)
+        (core.async/put! (events/pub :init) true)
         {:stopped stopped
          :started started}))))
