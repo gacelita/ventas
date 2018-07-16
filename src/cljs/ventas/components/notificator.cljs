@@ -54,13 +54,14 @@
   [:div.notificator
    (let [notifications @(rf/subscribe [::events/db [:notifications]])]
      (for [{:keys [theme message icon id component]} notifications]
-       [:div.notificator__item {:key id :class theme}
+       [:div.notificator__item {:key id
+                                :class theme
+                                :on-click #(rf/dispatch [::remove id])}
         (if component
           component
           [:div
            [base/icon {:class "close"
-                       :name icon
-                       :on-click #(rf/dispatch [::remove id])}]
+                       :name icon}]
            [:p.message
             (if (string? message)
               message
