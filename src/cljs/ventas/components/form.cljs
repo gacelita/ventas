@@ -9,7 +9,8 @@
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.validation :as validation]))
+   [ventas.utils.validation :as validation]
+   [ventas.components.colorpicker :as colorpicker]))
 
 (defn get-data [db db-path]
   (get-in db (conj db-path :form)))
@@ -135,6 +136,13 @@
     :culture culture
     :control :textarea
     :on-change #(rf/dispatch [::set-field db-path key %])}])
+
+(defmethod input :color [{:keys [db-path on-change-fx]}]
+  [colorpicker/colorpicker
+   {:on-change (fn [color]
+                 (rf/dispatch [::set-field db-path key color])
+                 (when on-change-fx
+                   (rf/dispatch (conj on-change-fx color))))}])
 
 (def state-key ::state)
 

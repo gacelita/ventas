@@ -183,6 +183,9 @@
                  [cljsjs/chartjs "2.7.0-0"]
                  [cljsjs/moment "2.22.0-0"]
 
+                 ;; Color picker
+                 [cljsjs/react-color "2.13.8-0"]
+
                  ;; localStorage
                  [alandipert/storage-atom "2.0.1"]
 
