@@ -6,8 +6,10 @@
 
 (def state-key ::state)
 
-(defn get-url [id size]
-  (str "images/" id "/resize/" (name size)))
+(defn get-url [id & [size]]
+  (if size
+    (str "images/" id "/resize/" (name size))
+    (str "images/" id)))
 
 (defn image [id size]
   {:pre [(keyword? size)]}
