@@ -9,7 +9,8 @@
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.session :as session]
-   [ventas.utils :as utils :include-macros true]))
+   [ventas.utils :as utils :include-macros true]
+   [ventas.components.image :as image]))
 
 (def state-key ::state)
 
@@ -76,10 +77,12 @@
                      :on-search-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
 
     [:div.skeleton-header__logo
-     (let [title @(rf/subscribe [::events/db [:configuration :site.title]])]
-       [:a {:title title
+     (let [{:customization/keys [logo] :as config} @(rf/subscribe [::events/db [:configuration]])]
+       [:a {:title (:site.title config)
             :href (-> js/window (.-location) (.-origin))}
-        [:img {:src "files/logo"}]])]
+        [:img {:src (if logo
+                      (image/get-url logo)
+                      "files/logo")}]])]
 
     [:div.skeleton-header__buttons
      [:div.skeleton-header__profile
