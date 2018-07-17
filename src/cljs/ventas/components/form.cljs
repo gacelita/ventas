@@ -6,11 +6,14 @@
    [re-frame.core :as rf]
    [reagent.core :as reagent]
    [ventas.components.amount-input :as amount-input]
+   [ventas.components.image-input :as image-input]
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.validation :as validation]
    [ventas.components.colorpicker :as colorpicker]))
+
+(def state-key ::state)
 
 (defn get-data [db db-path]
   (get-in db (conj db-path :form)))
@@ -137,14 +140,22 @@
     :control :textarea
     :on-change #(rf/dispatch [::set-field db-path key %])}])
 
-(defmethod input :color [{:keys [db-path on-change-fx]}]
-  [colorpicker/colorpicker
-   {:on-change (fn [color]
-                 (rf/dispatch [::set-field db-path key color])
-                 (when on-change-fx
-                   (rf/dispatch (conj on-change-fx color))))}])
+(defmethod input :image [{:keys [value db-path key]}]
+  [image-input/image-input
+   {:on-change [::set-field db-path key]
+    :value value}])
 
-(def state-key ::state)
+(rf/reg-event-fx
+ ::on-color-change
+ (fn [_ [_ db-path key on-change-fx {:keys [hex]}]]
+   {:dispatch-n [[::set-field db-path key hex]
+                 (when on-change-fx
+                   (conj on-change-fx hex))]}))
+
+(defmethod input :color [{:keys [db-path key on-change-fx value]}]
+  [colorpicker/colorpicker
+   {:on-change [::on-color-change db-path key on-change-fx]
+    :value value}])
 
 (defmethod input :entity [{:keys [value db-path key options on-search-change]
                            {:keys [in out] :or {in identity out identity}} :xform}]
