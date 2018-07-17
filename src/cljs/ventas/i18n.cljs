@@ -60,6 +60,16 @@
     :ventas.pages.admin.configuration.image-sizes.edit/submit "Submit"
     :ventas.pages.admin.configuration.image-sizes.edit/saved-notification "Saved!"
 
+    :ventas.pages.admin.customization/page "Customization"
+    :ventas.pages.admin.customization/name "Name"
+    :ventas.pages.admin.customization/logo "Logo"
+    :ventas.pages.admin.customization/header-image "Header image"
+    :ventas.pages.admin.customization/background-color "Background color"
+    :ventas.pages.admin.customization/foreground-color "Foreground color"
+    :ventas.pages.admin.customization/product-listing-mode "Product listing mode"
+    :ventas.pages.admin.customization/font-family "Font family"
+    :ventas.pages.admin.customization/submit "Submit"
+
     :ventas.pages.admin.dashboard/traffic-statistics "Traffic statistics"
     :ventas.pages.admin.dashboard/latest-users "Latest users"
     :ventas.pages.admin.dashboard/pending-orders "Pending orders"

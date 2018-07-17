@@ -7,6 +7,7 @@
    [ventas.pages.admin.configuration.email]
    [ventas.pages.admin.configuration.image-sizes]
    [ventas.pages.admin.configuration]
+   [ventas.pages.admin.customization]
    [ventas.pages.admin.dashboard :as dashboard]
    [ventas.pages.admin.orders.edit]
    [ventas.pages.admin.orders]

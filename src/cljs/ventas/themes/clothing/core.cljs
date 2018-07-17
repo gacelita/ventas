@@ -46,7 +46,14 @@
    (if (and (str/starts-with? (name handler) "frontend")
             (not (get-in db [::state :init-done?])))
      {:dispatch-n [[::cookies/get-state-from-local-storage]
-                   [::events/configuration.get #{:site.title}]]
+                   [::events/configuration.get #{:site.title
+                                                 :customization/name
+                                                 :customization/logo
+                                                 :customization/header-image
+                                                 :customization/background-color
+                                                 :customization/foreground-color
+                                                 :customization/product-listing-mode
+                                                 :customization/font-family}]]
       :db (assoc-in db [::state :init-done?] true)}
      {})))
 
