@@ -1,0 +1,36 @@
+
+.image-input {
+    display: inline-block;
+    position: relative;
+    height: 150px;
+
+    img.ui.image {
+        margin: 0;
+    }
+
+    .ui.icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+}
+
+.ui.small.image.image-input__placeholder {
+    background-color: #d0d0d0;
+    font-size: 2.5rem;
+    height: 150px;
+
+    .icon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        line-height: normal;
+    }
+
+    input {
+        display: none;
+    }
+}
