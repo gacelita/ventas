@@ -1,10 +1,6 @@
 ## Plugins
 
-**Warning**: this is a draft, don't actually use these instructions for now (they won't work).
-
-Plugins are used to allow users to conditionally enable optional functionality.
-
-They are not used to add functionality: the things they reference need to exist already.
+Plugins are used to extend ventas in a similar way to entity types.
 
 ```clojure
 (ventas.plugin/register!
@@ -23,13 +19,20 @@ They are not used to add functionality: the things they reference need to exist 
    :migrations
    [{:db/ident :awesome/entity
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}]
-    
-   ;; list of entity types to conditionally enable
-   :entity-types [:my-entity-type]
-    
-   ;; list of endpoints to conditionally enable
-   ::endpoints [:my-entity-type.list]})
+     :db/cardinality :db.cardinality/one}]})
 ```
 
-You can use the [lein template](https://github.com/JoelSanchez/ventas-lein-template) to begin with theme development.
+The idea is that independent authors should be able to distribute functionality that users can include in their stores.
+
+The plugin above could be uploaded to Clojars and then `require`d in the store project.
+
+FAQ:
+
+- Can I install or uninstall a plugin from the backoffice?
+  No you can't. That would require, as a minimum, a restart of the jvm process, but running unknown code in a production store is a bad idea anyway.
+- Can I upgrade a plugin from the backoffice?
+  That would also be running unknown code in production, so no. Ventas may add some notification system telling you that a new version of a plugin is available, but that's it.
+- Can I disable a plugin from the backoffice?
+  See the first question.
+
+You can use the [lein template](https://github.com/JoelSanchez/ventas-lein-template) to begin with plugin development.

@@ -21,5 +21,7 @@ For now, just read the [README](../README.md).
 
 ### Using ventas
 
-- TODO: Production usage, link to ansible repo, explain lein template
+- [Building a Docker image](./Building.md)
+- [Deployment with docker-compose](Docker-compose.md)
+- [Deployment with Kubernetes](./Kubernetes.md)
 

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chrome
+spec:
+  selector:
+    app: ventas
+    tier: browser
+  ports:
+  - name: "4444"
+    port: 4444
+    targetPort: 4444
+status:
+  loadBalancer: {}

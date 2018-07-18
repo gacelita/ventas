@@ -1,0 +1,66 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ventas
+spec:
+  selector:
+    matchLabels:
+      app: ventas
+      tier: backend
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ventas
+        tier: backend
+    spec:
+      containers:
+      - env:
+        - name: CHROME_HEADLESS__HOST
+          value: "chrome"
+        - name: CHROME_HEADLESS__PORT
+          value: "4444"
+        - name: KAFKA__HOST
+          value: "kafka"
+        - name: RESET_ON_RESTART
+          value: "true"
+        - name: AUTH_SECRET
+          value: 'CHANGE_ME'
+        - name: DATABASE__URL
+          value: 'datomic:cass://cassandra:9042/datomic.datomic/ventas'
+        - name: ELASTICSEARCH__HOST
+          value: 'elasticsearch'
+        - name: ELASTICSEARCH__INDEX
+          value: 'ventas'
+        - name: ELASTICSEARCH__PORT
+          value: "9200"
+        - name: LOCAL_PORT
+          value: "80"
+        - name: NREPL__HOST
+          value: '0.0.0.0'
+        - name: NREPL__PORT
+          value: "4001"
+        - name: SERVER__HOST
+          value: '0.0.0.0'
+        - name: SERVER__PORT
+          value: "80"
+        - name: SERVER__DOCKER_HOST
+          value: "ventas"
+        image: YOUR_IMAGE
+        name: ventas
+        ports:
+        - containerPort: 80
+        resources: {}
+        volumeMounts:
+        - mountPath: /storage
+          name: ventas
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: YOUR_PULL_SECRET
+      volumes:
+      - name: ventas
+        persistentVolumeClaim:
+          claimName: ventas
+status: {}

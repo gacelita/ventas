@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: chrome
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      app: ventas
+      tier: browser
+  template:
+    metadata:
+      labels:
+        app: ventas
+        tier: browser
+    spec:
+      containers:
+      - env:
+        - name: CHROMEDRIVER_WHITELISTED_IPS
+          value: ''
+        image: robcherry/docker-chromedriver
+        name: chrome
+        ports:
+        - containerPort: 4444
+        resources: {}
+        securityContext:
+          privileged: true
+      restartPolicy: Always
+status: {}
