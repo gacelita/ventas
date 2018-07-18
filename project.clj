@@ -202,8 +202,7 @@
             [lein-auto "0.1.3"]
             [lein-cljfmt "0.5.7"]
             [lein-cljsbuild "1.1.7"]
-            [lein-cloverage "1.0.10"]
-            [lein-sassc "0.10.4" :exclusions [org.apache.commons/commons-compress]]]
+            [lein-cloverage "1.0.10"]]
 
   :how-to-ns {:require-docstring?      false
               :sort-clauses?           true
@@ -236,11 +235,11 @@
                  :timeout 120000}
 
   :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            "install" ["do" ["clean"] ["with-profile" "datomic-pro,build-themes" "install"]]
-            "release" ["do" ["clean"] ["with-profile" "datomic-free,build-themes" "release"]]
-            "deploy" ["do" ["clean"] ["with-profile" "datomic-free,build-themes" "deploy"]]
+            "install" ["do" ["clean"] ["with-profile" "datomic-pro,build-client" "install"]]
+            "release" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "release"]]
+            "deploy" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "deploy"]]
+            "prepare" ["do" ["clean"] ["with-profile" "development" "run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build]]
             "test" ["with-profile" "datomic-free" "test"]
-            "run" ["do" ["clean"] ["with-profile" "uberjar" "run"]]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :cljsbuild {:builds
@@ -255,39 +254,16 @@
                ~(minified-build :clothing)
                ~(minified-build :blank)]}
 
-  :figwheel {:css-dirs ["resources/public/files/css"]
-             :server-logfile "log/figwheel.log"
-             :repl false}
-
   :doo {:build "test"}
 
-  :sassc [{:src "src/scss/main.scss"
-           :output-to "resources/public/files/css/style.css"
-           :style "nested"
-           :import-path "src/scss"}
-
-          {:src "src/scss/email.scss"
-           :output-to "resources/public/files/css/email.css"
-           :style "nested"
-           :import-path "src/scss"}
-
-          ;; Included themes need their own separate build
-          {:src "src/scss/themes/blank/core.scss"
-           :output-to "resources/public/files/css/themes/blank.css"
-           :style "nested"
-           :import-path "src/scss"}
-          {:src "src/scss/themes/clothing/core.scss"
-           :output-to "resources/public/files/css/themes/clothing.css"
-           :style "nested"
-           :import-path "src/scss"}]
-
-  :auto {"sassc" {:file-pattern  #"\.(scss)$"
-                  :paths ["src/scss"]}}
+  :ventas-build {:themes #{:clothing :blank}}
 
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
-             :build-themes ^:leaky {:prep-tasks ["compile" ["cljsbuild" "once" "min-clothing" "min-blank"]]}
+             :build-client ^:leaky {:prep-tasks ["javac"
+                                                 "compile"
+                                                 ["run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build]]}
              :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
                                           [ventas/devtools "0.0.10-SNAPSHOT"]
                                           ;; CLJS
@@ -295,13 +271,11 @@
                                           [figwheel-sidecar "0.5.15"]
                                           [com.cemerick/piggieback "0.2.2"]
                                           [binaryage/devtools "0.9.10"]]
-                           :plugins [[lein-figwheel "0.5.15"]
-                                     [cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
+                           :plugins [[cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
                                      [refactor-nrepl "2.4.0-SNAPSHOT"]]
                            :source-paths ["dev"]}
              :repl [:datomic-pro :development {:plugins [[venantius/ultra "0.5.2"]]}]
-             :uberjar [:datomic-pro :build-themes {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
+             :uberjar [:datomic-pro :build-client {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
                                                    :main ventas.core
-                                                   :hooks [leiningen.sassc]
                                                    :omit-source true
                                                    :aot ~aot-namespaces}]})
