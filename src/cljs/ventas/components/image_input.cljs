@@ -35,11 +35,22 @@
                    :size "large"
                    :src url}]]]))
 
-(defn image-view [id]
-  [base/image {:src (image/get-url id :admin-products-edit)
-               :size "small"
-               :on-click (utils.ui/with-handler
-                          #(rf/dispatch [::image-modal.open (image/get-url id :product-page-main-zoom)]))}])
+(rf/reg-event-fx
+ ::remove-image
+ (fn [_ [_ on-change]]
+   {:dispatch (conj on-change nil)}))
+
+(defn image-view [on-change id]
+  [:div
+   [base/image {:src (image/get-url id :admin-products-edit)
+                :size "small"
+                :on-click (utils.ui/with-handler
+                           #(rf/dispatch [::image-modal.open (image/get-url id :product-page-main-zoom)]))}]
+   [base/button {:icon true
+                 :size "mini"
+                 :on-click (utils.ui/with-handler
+                            #(rf/dispatch [::remove-image on-change]))}
+    [base/icon {:name "remove"}]]])
 
 (rf/reg-event-fx
  ::upload
@@ -70,6 +81,6 @@
 (defn image-input [{:keys [on-change value]}]
   [:div.image-input
    (if value
-     ^{:key value} [image-view value]
+     ^{:key value} [image-view on-change value]
      [image-placeholder {:on-change on-change}])
    [image-modal]])
