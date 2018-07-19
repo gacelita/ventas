@@ -261,7 +261,8 @@
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
-             :build-client ^:leaky {:prep-tasks ["javac"
+             :build-client ^:leaky {:dependencies [[ventas/devtools "0.0.10-SNAPSHOT"]]
+                                    :prep-tasks ["javac"
                                                  "compile"
                                                  ["run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build]]}
              :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
