@@ -12,6 +12,6 @@
   (plugin/by-type :theme))
 
 (defn current []
-  (or (config/get :theme)
-      (entities.configuration/get :theme)
+  (or (entities.configuration/get :theme)
+      (config/get :theme)
       (some-> (all) (first) (key))))
