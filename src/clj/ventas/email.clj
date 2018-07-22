@@ -30,8 +30,9 @@
    https://github.com/drewr/postal/blob/master/README.md"
   [args]
   (let [{:keys [from] :as config} (get-config)]
-    (postal/send-message config
-                         (merge args {:from from}))))
+    (when from
+      (postal/send-message config
+                           (merge args {:from from})))))
 
 (defn send-template!
   [template {:keys [user] :as template-args}]
