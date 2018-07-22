@@ -1,18 +1,3 @@
-(defn minified-build [theme]
-  (let [name (name theme)]
-    {:id (str "min-" name)
-     :source-paths ["src/cljs" "src/cljc" "custom-lib"]
-     :compiler {:main (symbol (str "ventas.themes." name ".core"))
-                :output-to (str "resources/public/files/js/compiled/" name ".js")
-                :output-dir (str "resources/public/files/js/compiled/" name)
-                :npm-deps {:js-image-zoom "0.5.0"}
-                :install-deps true
-                :source-map-timestamp true
-                :optimizations :advanced
-                :pretty-print false
-                :externs ["externs.js"]
-                :parallel-build true}}))
-
 (def aot-namespaces
   ['clojure.tools.logging.impl
    'ventas.core])
@@ -250,9 +235,7 @@
                            :npm-deps {:js-image-zoom "0.5.0"}
                            :install-deps true
                            :optimizations :none
-                           :parallel-build true}}
-               ~(minified-build :clothing)
-               ~(minified-build :blank)]}
+                           :parallel-build true}}]}
 
   :doo {:build "test"}
 
