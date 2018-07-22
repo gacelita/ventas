@@ -89,10 +89,14 @@
                        {:configuration.acl/allowed-user-roles allowed-user-roles})))))
 
 (defn set! [k v & [site]]
+  {:pre [(keyword? k)]}
   "Sets to `v` the `k` configuration key."
-  (entity/create*
-   (common.utils/remove-nil-vals
-    {:schema/type :schema.type/configuration
-     :configuration/keyword k
-     :ventas/site site
-     :configuration/value (pr-str v)})))
+  (let [value (pr-str v)]
+    (if-let [existing-entity (entity/query-one :configuration {:keyword k})]
+      (entity/update* (assoc existing-entity :configuration/value value))
+      (entity/create*
+       (common.utils/remove-nil-vals
+        {:schema/type :schema.type/configuration
+         :configuration/keyword k
+         :ventas/site site
+         :configuration/value (pr-str v)})))))

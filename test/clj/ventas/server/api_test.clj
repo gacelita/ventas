@@ -63,16 +63,28 @@
                 (sort-by :keyword))))))
 
 (deftest configuration-get
-  (let [data {:stripe.publishable-key "TEST-KEY"
-              :site.title "TEST-TITLE"}]
-    (doseq [[k v] data]
-      (entities.configuration/set! k v))
-    (is (= data
-           (-> (server.ws/call-request-handler {:name :configuration.get
-                                                :params #{:stripe.publishable-key
-                                                          :site.title}}
-                                               {})
-               :data)))))
+  (testing "sets the configuration"
+    (let [data {:stripe.publishable-key "TEST-KEY"
+                :site.title "TEST-TITLE"}]
+      (doseq [[k v] data]
+        (entities.configuration/set! k v))
+      (is (= data
+             (-> (server.ws/call-request-handler {:name :configuration.get
+                                                  :params #{:stripe.publishable-key
+                                                            :site.title}}
+                                                 {})
+                 :data)))))
+  (testing "overwrites the configuration if exists; creates a new one otherwise"
+    (let [data {:site.title "Another site title"
+                :made.up "Completely made up"}]
+      (doseq [[k v] data]
+        (entities.configuration/set! k v))
+      (is (= data
+             (-> (server.ws/call-request-handler {:name :configuration.get
+                                                  :params #{:site.title
+                                                            :made.up}}
+                                                 {})
+                 :data))))))
 
 (deftest entities-find
   (let [category (create-test-category!)]
