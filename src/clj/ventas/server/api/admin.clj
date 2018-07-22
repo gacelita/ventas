@@ -56,7 +56,7 @@
         This is the preferred way of saving entities in the administration."}
  (fn [{entity :params} {:keys [site]}]
    (entity/upsert* (if-not site
-                     site
+                     entity
                      (assoc entity :ventas/site site)))))
 
 (register-admin-endpoint!
