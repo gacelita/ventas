@@ -22,8 +22,7 @@
  {:attributes
   [{:db/ident :configuration/keyword
     :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident :configuration/value
     :db/valueType :db.type/string
@@ -53,7 +52,7 @@
 
 (defn- get* [key user]
   (when (entity/db-migrated?)
-    (let [{:configuration/keys [value]} (entity/find [:configuration/keyword key])
+    (let [{:configuration/keys [value]} (entity/query-one :configuration {:keyword key})
           {:configuration.acl/keys [allowed-user-roles]} (entity/find [:configuration.acl/keyword key])]
       (when (and (seq allowed-user-roles)
                  (not (set/subset? (set (:user/roles user))
