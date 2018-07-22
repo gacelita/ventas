@@ -8,16 +8,16 @@
   (:import [datomic Datom]))
 
 (defn site-db [site]
-  (let [site-ident (d/entid (d/db db/conn) :ventas/site)
-        site-filter (fn [_ ^Datom datom]
-                      (or (not= site-ident (.a datom))
-                          (not (.v datom))
-                          (= site (.v datom))))]
-    (d/filter (d/db db/conn) site-filter)))
+  (d/filter (d/db db/conn)
+            (fn [_ ^Datom datom]
+              (let [entity (datomic.api/entity (d/db db/conn) (.e datom))
+                    entity-site (get-in entity [:ventas/site :db/id])]
+                (or (not entity-site)
+                    (= entity-site site))))))
 
 (defn by-hostname [hostname]
   (when-let [subdomain (some-> hostname
-                               (str/split #".")
+                               (str/split #"\.")
                                first)]
     (entity/query-one :site {:subdomain subdomain})))
 
