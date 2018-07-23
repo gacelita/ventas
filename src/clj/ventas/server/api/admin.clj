@@ -95,13 +95,17 @@
         - unpaid
         - ready"}
  (fn [_ {:keys [session]}]
-   (->> (entity/query :order {:status #{:order.status/unpaid
-                                        :order.status/paid
-                                        :order.status/acknowledged
-                                        :order.status/ready}})
-        (map (fn [entity]
-               (->> (merge entity (entity/dates (:db/id entity)))
-                    (api/serialize-with-session session)))))))
+   (->> (db/nice-query {:find '[?id]
+                        :where '[[?id :schema/type :schema.type/order]
+                                 (or [?id :order/status :order.status/unpaid]
+                                     [?id :order/status :order.status/paid]
+                                     [?id :order/status :order.status/acknowledged]
+                                     [?id :order/status :order.status/ready])]})
+        (into []
+              (comp (map (comp entity/find :id))
+                    (map (fn [entity]
+                           (->> (merge entity (entity/dates (:db/id entity)))
+                                (api/serialize-with-session session)))))))))
 
 (register-admin-endpoint!
  :admin.image-sizes.entities.list
