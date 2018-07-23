@@ -453,22 +453,23 @@
 
 (defn- filters->wheres* [type filters]
   (->> filters
+       ;; autoqualify attributes, handle :any
        (map (fn [[attribute value]]
               (let [attribute (if (namespace attribute)
                                 attribute
                                 (utils/qualify-keyword attribute type))
                     value (if (= value :any) '_ value)]
                 ['?id attribute value])))
-       (mapcat (fn [[var attribute value]]
-                 (if (set? value)
-                   (for [item value]
-                     [var attribute item])
-                   [[var attribute value]])))
-       (mapcat (fn [[var attribute value]]
-                 (if (vector? value)
-                   (let [[min max] value]
-                     [[var attribute value]])
-                   [[var attribute value]])))))
+       ;; generate (or...) queries when a set is given
+       ;; (it's impossible for a datom's value to be a set,
+       ;; so handling it like this is more useful)
+       (map (fn [[var attribute value]]
+              (if (set? value)
+                (apply list
+                       'or
+                       (for [item value]
+                         [var attribute item]))
+                [var attribute value])))))
 
 (defn filters->wheres
   "Generates `:where` clauses"
