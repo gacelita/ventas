@@ -88,6 +88,22 @@
                      (entity/dates (:db/id %)))))))
 
 (register-admin-endpoint!
+ :admin.orders.list-pending
+ {:doc "Returns a coll of orders with these statuses:
+        - acknowledged
+        - paid
+        - unpaid
+        - ready"}
+ (fn [_ {:keys [session]}]
+   (->> (entity/query :order {:status #{:order.status/unpaid
+                                        :order.status/paid
+                                        :order.status/acknowledged
+                                        :order.status/ready}})
+        (map (fn [entity]
+               (->> (merge entity (entity/dates (:db/id entity)))
+                    (api/serialize-with-session session)))))))
+
+(register-admin-endpoint!
  :admin.image-sizes.entities.list
  (fn [_ _]
    (->> entities.image-size/entities
@@ -110,9 +126,11 @@
   :doc "Like doing admin.entities.pull on an order, but also returns the lines
         of the order, serialized."}
  (fn [{{:keys [id]} :params} {:keys [session]}]
-   (let [{:order/keys [lines]} (entity/find id)]
+   (let [{:order/keys [lines shipping-method shipping-address]} (entity/find id)]
      {:order (db/pull '[*] id)
       :status-history (entities.order/status-history id)
+      :shipping {:method (api/find-serialize-with-session session shipping-method)
+                 :address (api/find-serialize-with-session session shipping-address)}
       :lines (map (partial api/find-serialize-with-session session)
                   lines)})))
 

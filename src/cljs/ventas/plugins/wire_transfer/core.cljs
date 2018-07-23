@@ -14,4 +14,5 @@
    ::frontend/wire-transfer "Wire transfer"
    ::frontend/wire-transfer.account-owner "Account owner"
    ::frontend/wire-transfer.account-details "Account details"
-   ::frontend/wire-transfer.bank-address "Bank address"}})
+   ::frontend/wire-transfer.bank-address "Bank address"
+   :payment-method/wire-transfer "Wire transfer"}})

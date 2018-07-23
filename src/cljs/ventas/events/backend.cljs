@@ -261,3 +261,8 @@
  ::admin.orders.get
  (fn [_ [_ options]]
    {:ws-request (merge {:name :admin.orders.get} options)}))
+
+(rf/reg-event-fx
+ ::admin.orders.list-pending
+ (fn [_ [_ options]]
+    {:ws-request (merge {:name :admin.orders.list-pending} options)}))

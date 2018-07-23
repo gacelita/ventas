@@ -36,3 +36,32 @@
         flex: 1;
     }
 }
+
+.pending-orders__order {
+    color: #4183c4;
+    cursor: pointer;
+
+    &--acknowledged {
+        background-color: lighten($yellow, 45);
+    }
+    &--ready {
+        background-color: lighten($green, 73);
+    }
+    &--unpaid {
+        background-color: lighten($red, 48);
+    }
+    &--paid {
+        background-color: lighten($orange, 23);
+    }
+}
+
+.ui.button.pending-orders__button {
+    background: white;
+    color: black;
+    border: solid 1px #b9b9b9;
+}
+
+.pending-orders__address {
+    display: inline-block;
+    vertical-align: top;
+}

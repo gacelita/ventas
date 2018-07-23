@@ -15,7 +15,8 @@
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
    [ventas.utils.ui :as utils.ui]
-   [ventas.common.utils :as common.utils])
+   [ventas.common.utils :as common.utils]
+   [ventas.components.image :as image])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 
@@ -43,7 +44,7 @@
 (defn- image-column [row]
   (when-let [image (first (get-in row [:product-variation :images]))]
     [:img {:key (:id image)
-           :src (str "/images/" (:id image) "/resize/admin-orders-edit-line")}]))
+           :src (image/get-url (:id image) :admin-orders-edit-line)}]))
 
 (rf/reg-sub
  ::user-addresses
@@ -65,26 +66,28 @@
  (fn [db]
    (get-in db [state-key :shipping-methods])))
 
+(def table-config
+  {:items-per-page 5
+   :columns [{:id :image
+              :label (i18n ::image)
+              :component image-column}
+             {:id :name
+              :label (i18n ::name)
+              :component (fn [row] [:span (get-in row [:product-variation :name])])}
+             {:id :price
+              :label (i18n ::price)
+              :component (fn [row] [:span (common.utils/bigdec->str (get-in row [:product-variation :price :value]))])}
+             {:id :quantity
+              :label (i18n ::quantity)}
+             {:id :total
+              :label (i18n ::total)
+              :component (fn [row] [:span (* (:quantity row)
+                                             (common.utils/bigdec->str (get-in row [:product-variation :price :value])))])}]})
+
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::table/init [state-key :lines-table]
-                  {:items-per-page 5
-                   :columns [{:id :image
-                              :label (i18n ::image)
-                              :component image-column}
-                             {:id :name
-                              :label (i18n ::name)
-                              :component (fn [row] [:span (get-in row [:product-variation :name])])}
-                             {:id :price
-                              :label (i18n ::price)
-                              :component (fn [row] [:span (common.utils/bigdec->str (get-in row [:product-variation :price :value]))])}
-                             {:id :quantity
-                              :label (i18n ::quantity)}
-                             {:id :total
-                              :label (i18n ::total)
-                              :component (fn [row] [:span (* (:quantity row)
-                                                             (common.utils/bigdec->str (get-in row [:product-variation :price :value])))])}]}]
+   {:dispatch-n [[::table/init [state-key :lines-table] table-config]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/order}]
