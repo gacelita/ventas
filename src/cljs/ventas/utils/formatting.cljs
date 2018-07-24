@@ -12,3 +12,6 @@
   (str (format-number (common.utils/bigdec->str value))
        " "
        (:symbol currency)))
+
+(defn format-date [date]
+  (.format (js/moment date) "YYYY-MM-DD H:mm:ss"))

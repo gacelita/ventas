@@ -36,7 +36,7 @@
     [:p (if (or first-name last-name)
           (str/join " " [first-name last-name])
           (i18n ::no-name))]
-    [:p (str created-at)]]])
+    [:p (utils.formatting/format-date created-at)]]])
 
 (defn- latest-users []
   (let [{:keys [users]} @(rf/subscribe [::events/db [state-key]])]
@@ -171,23 +171,27 @@
                                 "Set as shipped"]]
           "")]
        [base/table-cell (utils.formatting/amount->str (:amount order))]
-       [base/table-cell (.format (js/moment (:created-at order)) "YYYY-MM-DD H:mm:ss")]
+       [base/table-cell (utils.formatting/format-date (:created-at order))]
        [base/table-cell (i18n (:status order))]])]])
 
 (defn- content []
   [base/grid {:stackable true :columns 2}
    [base/grid-column
-    [:div.admin-dashboard__traffic-statistics
-     [segment {:label (i18n ::traffic-statistics)}
-      [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
-                                      [:week (i18n ::admin.statistics/week)]
-                                      [:month (i18n ::admin.statistics/month)]]]
-      [admin.statistics/traffic-stats-chart]]]]
-   [segment {:label (i18n ::pending-orders)}
-    [pending-orders]]
-   [segment {:label (i18n ::latest-users)}
-    [latest-users]]
-   [segment {:label (i18n ::unread-messages)}]])
+    [base/grid-row
+     [:div.admin-dashboard__traffic-statistics
+      [segment {:label (i18n ::traffic-statistics)}
+       [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
+                                       [:week (i18n ::admin.statistics/week)]
+                                       [:month (i18n ::admin.statistics/month)]]]
+       [admin.statistics/traffic-stats-chart]]]]]
+   [base/grid-column
+    [base/grid-row
+     [segment {:label (i18n ::pending-orders)}
+      [pending-orders]]]
+    [:br]
+    [base/grid-row
+     [segment {:label (i18n ::latest-users)}
+      [latest-users]]]]])
 
 (defn- page []
   [admin.skeleton/skeleton
