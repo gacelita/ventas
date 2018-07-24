@@ -18,7 +18,17 @@
     .ui.small.image {
         height: 150px;
     }
+
+    .draggable-list {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
     .draggable-list__item {
         display: inline-block;
+    }
+
+    .image-input__placeholder {
+        margin: 0px;
     }
 }

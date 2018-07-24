@@ -6,6 +6,7 @@
    [ventas.components.draggable-list :as draggable-list]
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
+   [ventas.components.image-input :as image-input]
    [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
@@ -30,29 +31,25 @@
    {:dispatch [::notificator/notify-saved]
     :go-to [:admin.products]}))
 
-(def image-modal-key ::image-modal)
+(defmulti set-field-filter (fn [field _] field))
 
-(rf/reg-event-db
- ::image-modal.open
- (fn [db [_ url]]
-   (assoc db image-modal-key {:open true
-                              :url url})))
+(defmethod set-field-filter :product/images [_ value]
+  (->> value
+       (map-indexed (fn [idx itm]
+                      (assoc itm :product.image/position idx)))))
 
-(rf/reg-event-db
- ::image-modal.close
- (fn [db [_]]
-   (assoc-in db [image-modal-key :open] false)))
+(defmethod set-field-filter :default [_ value]
+  value)
 
-(defn image-modal []
-  (let [{:keys [open url]} @(rf/subscribe [::events/db [image-modal-key]])]
-    [base/modal {:basic true
-                 :size "small"
-                 :open open
-                 :on-close #(rf/dispatch [::image-modal.close])}
-     [base/modal-content {:image true}
-      [base/image {:wrapped true
-                   :size "large"
-                   :src url}]]]))
+(rf/reg-event-fx
+ ::upload.next
+ (fn [db [_ id]]
+   (let [image {:schema/type :schema.type/product.image
+                :product.image/file {:db/id id}}]
+     {:dispatch [::form/update-field
+                 [state-key]
+                 :product/images
+                 #(conj (vec %) image)]})))
 
 (rf/reg-event-db
  ::remove-image
@@ -66,54 +63,7 @@
 (defn image-view [{:product.image/keys [file]}]
   (let [{:db/keys [id]} file]
     [:div.admin-products-edit__image
-     [base/image {:src (str "/images/" id "/resize/admin-products-edit")
-                  :size "small"
-                  :on-click (utils.ui/with-handler
-                              #(rf/dispatch [::image-modal.open id]))}]
-     [base/button {:icon true
-                   :size "mini"
-                   :on-click (utils.ui/with-handler
-                               #(rf/dispatch [::remove-image id]))}
-      [base/icon {:name "remove"}]]]))
-
-(defmulti set-field-filter (fn [field _] field))
-
-(defmethod set-field-filter :product/images [_ value]
-  (->> value
-       (map-indexed (fn [idx itm]
-                      (assoc itm :product.image/position idx)))))
-
-(defmethod set-field-filter :default [_ value]
-  value)
-
-(rf/reg-event-fx
- ::upload
- (fn [_ [_ file]]
-   {:dispatch [::events/upload
-               {:success ::upload.next
-                :file file}]}))
-
-(rf/reg-event-fx
- ::upload.next
- (fn [db [_ {:db/keys [id]}]]
-   (let [image {:schema/type :schema.type/product.image
-                :product.image/file {:db/id id}}]
-     {:dispatch [::form/update-field
-                 [state-key]
-                 :product/images
-                 #(conj (vec %) image)]})))
-
-(defn- image-placeholder []
-  (let [ref (atom nil)]
-    (fn []
-      [:div.ui.small.image.admin-products-edit__image-placeholder
-       {:on-click #(-> @ref (.click))}
-       [base/icon {:name "plus"}]
-       [:input {:type "file"
-                :ref #(reset! ref %)
-                :on-change #(rf/dispatch [::upload (-> (-> % .-target .-files)
-                                                       js/Array.from
-                                                       first)])}]])))
+     [image-input/image-view [::remove-image] id]]))
 
 (rf/reg-event-fx
  ::init
@@ -201,7 +151,8 @@
                               (rf/dispatch [::form/set-field [state-key] field images])))}
              (for [{:db/keys [id] :as image} (get form field)]
                ^{:key id} [image-view image])]
-            [image-placeholder]]])]
+            [image-input/image-placeholder
+             {:on-change [::upload.next]}]]])]
 
        [base/segment {:color "orange"
                       :title "Terms"}
@@ -232,7 +183,7 @@
 
        [base/form-button {:type "submit"} (i18n ::send)]]
 
-      [image-modal]])])
+      [image-input/image-modal]])])
 
 (defn page []
   [admin.skeleton/skeleton
