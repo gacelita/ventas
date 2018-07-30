@@ -27,6 +27,8 @@
     :ventas.events/session-started "Welcome!"
 
     :ventas.page/not-found "404"
+    :ventas.page/not-implemented "Not implemented"
+    :ventas.page/this-page-has-not-been-implemented #(str "This page (" % ") has not been implemented")
 
     :ventas.pages.admin.configuration.email/email.from "From address"
     :ventas.pages.admin.configuration.email/email.encryption.enabled "Enable encryption?"

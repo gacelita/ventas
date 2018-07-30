@@ -9,10 +9,10 @@
   [:span
    [:h1 (i18n ::not-found)]])
 
-(defmethod pages :default []
+(defmethod pages :default [route]
   [:span
    [:h1 (i18n ::not-implemented)]
-   [:p (i18n ::this-page-has-not-been-implemented)]])
+   [:p (i18n ::this-page-has-not-been-implemented route)]])
 
 (defn main [handler]
   [:div#main
