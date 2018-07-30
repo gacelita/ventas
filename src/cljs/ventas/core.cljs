@@ -112,18 +112,19 @@
 (defn app-element []
   (js/document.getElementById "app"))
 
+(defn nav-handler [path]
+  (info "Current path" path)
+  (let [{:keys [handler route-params]} (routes/match-route path)]
+    (info "Current page" handler)
+    (rf/dispatch [::routes/set handler route-params])))
+
 (defn init []
   (.addEventListener js/window
                      "resize"
                      #(rf/dispatch [::events/db [:window] {:width js/window.innerWidth
                                                            :height js/window.innerHeight}]))
   (accountant/configure-navigation!
-   {:nav-handler
-    (fn [path]
-      (info "Current path" path)
-      (let [{:keys [handler route-params]} (routes/match-route path)]
-        (info "Current page" handler)
-        (rf/dispatch [::routes/set handler route-params])))
+   {:nav-handler #'nav-handler
     :path-exists?
     (fn [path]
       (boolean (routes/match-route path)))})
