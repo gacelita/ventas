@@ -86,12 +86,11 @@
 (defn header [filters]
   [:div.category-page__header
    [base/header {:as "h2"}
-    (if (:name filters)
-      (str "Searching for: \"" (:name filters) "\"")
-      (str "Browsing category: \""
-           (let [slug (first (:categories filters))]
-             (:name (find-category slug)))
-           "\""))]
+    (let [slug (first (:categories filters))]
+      (cond
+        (:name filters) (str "Searching for: \"" (:name filters) "\"")
+        slug (str "Browsing category: \"" (:name (find-category slug)) "\"")
+        :else ""))]
    [base/dropdown
     (let [options [{:value "lowest-price"
                     :text (i18n ::lowest-price)
@@ -153,3 +152,10 @@
    :url ["search/" :search]
    :component page
    :init-fx [::init]})
+
+(routes/define-route!
+ :frontend.products
+ {:name [::title]
+  :url ["products"]
+  :component page
+  :init-fx [::init]})
