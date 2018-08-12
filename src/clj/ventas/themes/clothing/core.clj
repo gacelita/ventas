@@ -93,6 +93,12 @@
        :image-size/algorithm :image-size.algorithm/crop-and-resize
        :image-size/entities #{:schema.type/product}}
 
+      {:schema/type :schema.type/image-size
+       :image-size/keyword :logo
+       :image-size/width 300
+       :image-size/height 100
+       :image-size/algorithm :image-size.algorithm/crop-and-resize}
+
       ;; Themes can also include taxonomies
       {:schema/type :schema.type/product.taxonomy
        :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "Color"
