@@ -60,9 +60,9 @@
   (spec/keys :req [:image-size/keyword
                    :image-size/width
                    :image-size/height
-                   :image-size/algorithm
-                   :image-size/entities]
-             :opt [:image-size/quality]))
+                   :image-size/algorithm]
+             :opt [:image-size/quality
+                   :image-size/entities]))
 
 (entity/register-type!
  :image-size
