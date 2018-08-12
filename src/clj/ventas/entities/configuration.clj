@@ -30,8 +30,8 @@
 
   :fixtures
   (fn []
-    [{:configuration/keyword :site.title
-      :configuration/value "Ventas Dev Store"}])})
+    [{:configuration/keyword :customization/name
+      :configuration/value "Ventas"}])})
 
 (spec/def :configuration.acl/allowed-user-roles
   (spec/coll-of keyword?))

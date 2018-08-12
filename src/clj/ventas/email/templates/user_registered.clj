@@ -10,7 +10,7 @@
    (let [culture-kw (elements/get-user-culture user)]
      (elements/skeleton
       user
-      [:p (i18n culture-kw ::welcome (entities.configuration/get :site.title))]
+      [:p (i18n culture-kw ::welcome (entities.configuration/get :customization/name))]
       [:p (i18n culture-kw ::add-an-address)]
       [:p
        [:a {:href (elements/get-url "/profile")}

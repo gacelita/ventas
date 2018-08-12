@@ -62,7 +62,7 @@
         [:td.logo {:align "center"
                    :style {:text-align "center"}}
          [:img {:src "/files/logo"}]
-         [:h2 (entities.configuration/get :site.title)]]]
+         [:h2 (entities.configuration/get :customization/name)]]]
        [:tr
         [:td {:style {:text-align "left"}
               :align "left"}

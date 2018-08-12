@@ -367,7 +367,7 @@
                                :site/user (:db/id user)
                                :site/subdomain subdomain})]
      (entity/update* (assoc user :ventas/site (:db/id site)))
-     (entities.configuration/set! :site.title name (:db/id site))
+     (entities.configuration/set! :customization/name name (:db/id site))
      {:user (entity/serialize user)
       :token token
       :subdomain subdomain})))
