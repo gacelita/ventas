@@ -147,15 +147,17 @@
 
 (rf/reg-event-fx
  ::on-color-change
- (fn [_ [_ db-path key on-change-fx {:keys [hex]}]]
-   {:dispatch-n [[::set-field db-path key hex]
+ (fn [_ [_ db-path key on-change-fx color]]
+   {:dispatch-n [[::set-field db-path key color]
                  (when on-change-fx
-                   (conj on-change-fx hex))]}))
+                   (conj on-change-fx color))]}))
 
 (defmethod input :color [{:keys [db-path key on-change-fx value]}]
-  [colorpicker/colorpicker
-   {:on-change [::on-color-change db-path key on-change-fx]
-    :value value}])
+  [:div
+   [base/input]
+   [colorpicker/colorpicker
+    {:on-change [::on-color-change db-path key on-change-fx]
+     :value value}]])
 
 (defmethod input :entity [{:keys [value db-path key options on-search-change]
                            {:keys [in out] :or {in identity out identity}} :xform}]
