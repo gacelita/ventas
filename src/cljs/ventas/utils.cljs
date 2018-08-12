@@ -3,7 +3,8 @@
   (:require
    [cljs.spec.alpha :as spec]
    [expound.alpha :as expound]
-   [ventas.utils.logging :refer [debug error info trace warn]])
+   [ventas.utils.logging :refer [debug error info trace warn]]
+   [clojure.string :as str])
   (:require-macros
    [ventas.utils]))
 
@@ -69,3 +70,11 @@
   (map-indexed (fn [idx itm]
                  (with-meta itm {:key idx}))
                coll))
+
+(defn cut-string-on-space [s max-chars]
+  (when s
+    (let [last-idx (.lastIndexOf (take max-chars s) \space)
+          idx (if (pos? last-idx)
+                last-idx
+                max-chars)]
+      (subs s 0 idx))))
