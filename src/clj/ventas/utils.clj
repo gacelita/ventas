@@ -42,17 +42,7 @@
   (swallow
    (spec/form v)))
 
-(defn mapm
-  "Like clojure.core/mapv, but creates a map"
-  ([f coll]
-   (-> (reduce (fn [m o] (let [[k v] (f o)] (assoc! m k v))) (transient {}) coll)
-       persistent!))
-  ([f c1 c2]
-   (into {} (map f c1 c2)))
-  ([f c1 c2 c3]
-   (into {} (map f c1 c2 c3)))
-  ([f c1 c2 c3 & colls]
-   (into {} (apply map f c1 c2 c3 colls))))
+(def mapm common.utils/mapm)
 
 (defn dequalify-keywords [m]
   (mapm (fn [[k v]]
