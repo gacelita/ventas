@@ -2,3 +2,15 @@
 .page-wrapper {
     min-height: calc(100vh - 416px);
 }
+
+.breadcrumbs-wrapper--with-header-image {
+    min-height: 150px;
+    background-position: center center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .breadcrumbs {
+        background-color: white;
+    }
+}

@@ -2,8 +2,6 @@
 $skeleton-header-logo-width: 60px;
 
 .skeleton-header {
-    padding: 18px 0;
-
     .ui.container {
         display: flex;
         flex-direction: row;
@@ -18,10 +16,10 @@ $skeleton-header-logo-width: 60px;
 .skeleton-header__logo {
     text-align: center;
     line-height: 0px;
-
-    img {
-        width: $skeleton-header-logo-width;
-    }
+    min-height: 80px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
 }
 
 .skeleton-header__info {
@@ -60,7 +58,7 @@ $skeleton-header-logo-width: 60px;
     > div {
         display: inline-block;
         padding: 0px 8px;
-        color: #2c3e50;
+        color: #212121;
         cursor: pointer;
 
         .icon {
@@ -93,7 +91,7 @@ $skeleton-header-logo-width: 60px;
             display: block;
             width: calc(100% + 6px);
             height: 2px;
-            background: #2c3e50;
+            background: #212121;
             position: relative;
             left: -3px;
             top: 2px;

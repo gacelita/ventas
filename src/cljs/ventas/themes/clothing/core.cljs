@@ -42,12 +42,10 @@
 
 (rf/reg-event-fx
  ::handle-route-change
- (fn [{:keys [db]} [_ [_ handler]]]
-   (if (and (str/starts-with? (name handler) "frontend")
-            (not (get-in db [::state :init-done?])))
+ (fn [{:keys [db]} _]
+   (if-not (get-in db [::state :init-done?])
      {:dispatch-n [[::cookies/get-state-from-local-storage]
-                   [::events/configuration.get #{:site.title
-                                                 :customization/name
+                   [::events/configuration.get #{:customization/name
                                                  :customization/logo
                                                  :customization/header-image
                                                  :customization/background-color

@@ -70,7 +70,8 @@
     :ventas.pages.admin.customization/foreground-color "Foreground color"
     :ventas.pages.admin.customization/product-listing-mode "Product listing mode"
     :ventas.pages.admin.customization/font-family "Font family"
-    :ventas.pages.admin.customization/submit "Submit"
+    :ventas.pages.admin.customization/save "Save"
+    :ventas.pages.admin.customization/back "Back"
 
     :ventas.pages.admin.dashboard/traffic-statistics "Traffic statistics"
     :ventas.pages.admin.dashboard/latest-users "Latest users"

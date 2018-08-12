@@ -78,10 +78,10 @@
 
     [:div.skeleton-header__logo
      (let [{:customization/keys [logo] :as config} @(rf/subscribe [::events/db [:configuration]])]
-       [:a {:title (:site.title config)
+       [:a {:title (:customization/name config)
             :href (-> js/window (.-location) (.-origin))}
         [:img {:src (if logo
-                      (image/get-url logo)
+                      (image/get-url logo :logo)
                       "files/logo")}]])]
 
     [:div.skeleton-header__buttons
