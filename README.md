@@ -70,7 +70,7 @@ INFO [ventas.server:102] - Starting server on 0.0.0.0:3450
 INFO [client:28] - Starting Figwheel
 Figwheel: Starting server at http://0.0.0.0:3449
 Figwheel: Watching build - app
-Compiling "resources/public/files/js/compiled/ventas.js" from ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "custom-lib"]...
+Compiling "resources/public/files/js/compiled/ventas.js" from ["src/cljs" "src/cljc" "test/cljs" "test/cljc"]...
 Successfully compiled "resources/public/files/js/compiled/ventas.js" in 8.252 seconds.
 Figwheel: Starting CSS Watcher for paths  ["resources/public/files/css"]
 INFO [client:42] - Starting SASS

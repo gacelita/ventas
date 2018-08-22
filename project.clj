@@ -198,7 +198,7 @@
 
   :min-lein-version "2.6.1"
 
-  :source-paths ["src/clj" "src/cljs" "src/cljc" "custom-lib"]
+  :source-paths ["src/clj" "src/cljs" "src/cljc"]
 
   :test-paths ["test/clj" "test/cljc"]
 
@@ -229,7 +229,7 @@
 
   :cljsbuild {:builds
               [{:id "test"
-                :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "test/doo" "custom-lib"]
+                :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "test/doo"]
                 :compiler {:output-to "resources/public/files/js/compiled/testable.js"
                            :main ventas.test-runner
                            :npm-deps {:js-image-zoom "0.5.0"}
@@ -259,7 +259,7 @@
                                      [refactor-nrepl "2.4.0-SNAPSHOT"]]
                            :source-paths ["dev"]}
              :repl [:datomic-pro :development {:plugins [[venantius/ultra "0.5.2"]]}]
-             :uberjar [:datomic-pro :build-client {:source-paths ^:replace ["src/clj" "src/cljc" "custom-lib"]
+             :uberjar [:datomic-pro :build-client {:source-paths ^:replace ["src/clj" "src/cljc"]
                                                    :main ventas.core
                                                    :omit-source true
                                                    :aot ~aot-namespaces}]})
