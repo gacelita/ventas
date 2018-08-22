@@ -66,6 +66,7 @@
                  [com.cognitect/transit-clj "0.8.309"]
                  [com.cognitect/transit-cljs "0.8.256"]
                  [org.clojure/data.fressian "0.2.1"]
+                 [joelsanchez/fressian-cljs "0.2.1"]
 
                  ;; Server-side HTTP requests
                  [clj-http "3.8.0" :exclusions [riddley]]
@@ -243,7 +244,7 @@
 
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :fmt {:source-paths ^:replace ["dev" "src/clj" "src/cljc" "src/cljs"]}
+             :fmt {:source-paths ^:replace ["dev/clj" "dev/cljs" "src/clj" "src/cljc" "src/cljs"]}
              :build-client ^:leaky {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT"]]
                                     :prep-tasks ["javac"
                                                  "compile"
@@ -257,7 +258,7 @@
                                           [binaryage/devtools "0.9.10"]]
                            :plugins [[cider/cider-nrepl "0.17.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
                                      [refactor-nrepl "2.4.0-SNAPSHOT"]]
-                           :source-paths ["dev"]}
+                           :source-paths ["dev/clj" "dev/cljs"]}
              :repl [:datomic-pro :development {:plugins [[venantius/ultra "0.5.2"]]}]
              :uberjar [:datomic-pro :build-client {:source-paths ^:replace ["src/clj" "src/cljc"]
                                                    :main ventas.core
