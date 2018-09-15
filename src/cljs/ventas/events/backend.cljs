@@ -12,6 +12,11 @@
    {:ws-request (merge {:name :categories.get} options)}))
 
 (rf/reg-event-fx
+ ::categories.options
+ (fn [_ [_ options]]
+    {:ws-request (merge {:name :categories.options} options)}))
+
+(rf/reg-event-fx
  ::categories.list
  (fn [_ [_ options]]
    {:ws-request (common.utils/deep-merge

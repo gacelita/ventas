@@ -71,6 +71,8 @@
    {:dispatch-n [[::backend/admin.entities.list
                   {:params {:type :product.term}
                    :success [::events/db [state-key :product.terms]]}]
+                 [::backend/categories.options
+                  {:success [::events/db [state-key :categories]]}]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/product}]
@@ -178,6 +180,19 @@
                                      {:text (str (get-in v [:taxonomy :name]) ": " (:name v))
                                       :value (:id v)}))
                               (sort-by :text))}]]
+
+       [base/segment {:color "orange"
+                      :title "Categories"}
+        [field {:key :product/categories
+                :type :tags
+                :xform {:in #(map :db/id %)
+                        :out #(map (fn [v] {:db/id v}) %)}
+                :options (->> @(rf/subscribe [::events/db [state-key :categories]])
+                              (map (fn [v]
+                                     {:text (val v)
+                                      :value (key v)}))
+                              (sort-by :text))
+                :forbid-additions true}]]
 
        [base/divider {:hidden true}]
 

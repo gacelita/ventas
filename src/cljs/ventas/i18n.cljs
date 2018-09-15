@@ -139,6 +139,7 @@
 
     :ventas.pages.admin.products.edit/active "Active"
     :ventas.pages.admin.products.edit/brand "Brand"
+    :ventas.pages.admin.products.edit/categories "Categories"
     :ventas.pages.admin.products.edit/description "Description"
     :ventas.pages.admin.products.edit/ean13 "EAN13"
     :ventas.pages.admin.products.edit/variation-terms "Variation terms"

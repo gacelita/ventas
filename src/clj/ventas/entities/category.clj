@@ -8,7 +8,10 @@
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
    [ventas.utils.slugs :as utils.slugs]
-   [ventas.entities.image-size :as entities.image-size]))
+   [ventas.entities.image-size :as entities.image-size]
+   [ventas.common.utils :as common.utils]
+   [clojure.set :as set]
+   [clojure.data :as data]))
 
 (spec/def :category/name ::entities.i18n/ref)
 
@@ -68,6 +71,49 @@
                                            slug)
            slug)))
       entity)))
+
+(defn- category-options* [category-id culture & [cache]]
+  (let [{:category/keys [parent name]} (entity/find category-id)
+        name (entity/serialize (entity/find name) {:culture culture})]
+    (if parent
+      (let [result (if (get cache parent)
+                     cache
+                     (category-options* parent culture))]
+        (merge cache
+               result
+               {category-id (str (get result parent) " / " name)}))
+      (assoc cache category-id name))))
+
+(defn leaves []
+  (map first
+       (db/q
+        {:find '[?id]
+         :in '[$ ?type]
+         :where '[[?id :schema/type ?type]
+                  (not [_ :category/parent ?id])]}
+        [:schema.type/category])))
+
+(defn branches []
+  (map first
+       (db/q
+        {:find '[?id]
+         :in '[$ ?type]
+         :where '[[?id :schema/type ?type]
+                  [_ :category/parent ?id]]}
+        [:schema.type/category])))
+
+(defn category-options [culture]
+  (let [branches-map (->> (branches)
+                          (reduce (fn [cache id]
+                                    (category-options* id culture cache))
+                                  {})
+                          (into {}))
+        leaves-map (->> (leaves)
+                        (reduce (fn [cache id]
+                                  (category-options* id culture cache))
+                                branches-map)
+                        (into {}))]
+    (first (data/diff leaves-map branches-map))))
 
 (entity/register-type!
  :category

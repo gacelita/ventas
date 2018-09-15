@@ -26,7 +26,8 @@
    [ventas.stats :as stats]
    [ventas.utils :as utils]
    [ventas.search.entities :as search.entities]
-   [ventas.utils.slugs :as utils.slugs]))
+   [ventas.utils.slugs :as utils.slugs]
+   [ventas.entities.category :as entities.category]))
 
 (defonce available-requests (atom {}))
 
@@ -134,6 +135,12 @@
  (fn [_ {:keys [session]}]
    (->> (entity/query :category)
         (map (partial serialize-with-session session)))))
+
+(register-endpoint!
+  :categories.options
+  {:doc "Lists categories in a format suitable for a dropdown selector"}
+  (fn [_ {:keys [session]}]
+    (entities.category/category-options (get-culture session))))
 
 (register-endpoint!
  :configuration.get
