@@ -224,7 +224,7 @@
             "install" ["do" ["clean"] ["with-profile" "datomic-pro,build-client" "install"]]
             "release" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "release"]]
             "deploy" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "deploy"]]
-            "prepare" ["do" ["clean"] ["with-profile" "development" "run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build]]
+            "prepare" ["do" ["clean"] ["with-profile" "development" "run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build :project/main]]
             "test" ["with-profile" "datomic-free" "test"]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
@@ -240,6 +240,8 @@
 
   :doo {:build "test"}
 
+  :main ventas.core
+
   :ventas-build {:themes #{:clothing :blank}}
 
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5561.56" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
@@ -248,7 +250,7 @@
              :build-client ^:leaky {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT"]]
                                     :prep-tasks ["javac"
                                                  "compile"
-                                                 ["run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build]]}
+                                                 ["run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build :project/main]]}
              :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
                                           [ventas/devtools "0.0.11-SNAPSHOT"]
                                           ;; CLJS
@@ -261,6 +263,5 @@
                            :source-paths ["dev/clj" "dev/cljs"]}
              :repl [:datomic-pro :development {:plugins [[venantius/ultra "0.5.2"]]}]
              :uberjar [:datomic-pro :build-client {:source-paths ^:replace ["src/clj" "src/cljc"]
-                                                   :main ventas.core
                                                    :omit-source true
                                                    :aot ~aot-namespaces}]})
