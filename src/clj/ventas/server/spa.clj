@@ -42,14 +42,14 @@
           [:script {:src (str "files/js/compiled/" theme ".js") :type "text/javascript"}]
           [:script init-script]]])))
 
-(defn- handle [uri init-script]
-  (timbre/debug "Handling SPA" uri)
+(defn handle [uri theme init-script]
+  (timbre/debug "Handling SPA" uri theme)
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (get-html uri (name (theme/current)) init-script)})
+   :body (get-html uri (name theme) init-script)})
 
 (defn handle-spa [{:keys [uri]}]
-  (handle uri "ventas.core.start();"))
+  (handle uri (theme/current) "ventas.core.start();"))
 
 (defn handle-devcards [{:keys [uri]}]
-  (handle uri "devcards.core.start_devcard_ui_BANG__STAR_();"))
+  (handle uri (theme/current) "devcards.core.start_devcard_ui_BANG__STAR_();"))
