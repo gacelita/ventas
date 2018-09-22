@@ -1,0 +1,15 @@
+
+.admin-configuration__page {
+    padding: 10px 25px;
+}
+
+.admin-configuration__menu {
+    .ui.list .item  {
+        padding-bottom: 15px !important;
+        padding-top: 15px !important;
+
+        .icon {
+            min-width: 33px;
+        }
+    }
+}
