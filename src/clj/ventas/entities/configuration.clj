@@ -44,6 +44,7 @@
  {:attributes
   [{:db/ident :configuration.acl/allowed-user-roles
     :db/valueType :db.type/ref
+    :ventas/refEntityType :enum
     :db/cardinality :db.cardinality/many}
    {:db/ident :configuration.acl/keyword
     :db/valueType :db.type/keyword

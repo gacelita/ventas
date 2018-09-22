@@ -1,16 +1,11 @@
 (ns ventas.search
   (:require
    [clojure.core.async :as core.async :refer [<! <!! >! >!! chan go go-loop]]
-   [clojure.string :as str]
    [mount.core :refer [defstate]]
    [qbits.spandex :as spandex]
    [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
-   [ventas.common.utils :as common.utils]
    [ventas.config :as config]
-   [ventas.database :as db]
-   [ventas.database.entity :as entity]
-   [ventas.entities.category :as entities.category]
    [ventas.utils :as utils])
   (:import
    [clojure.lang ExceptionInfo]
@@ -50,6 +45,10 @@
 (defn request-async [data]
   (wrap-connect-exception
    #(spandex/request-async elasticsearch data)))
+
+(defn bulk-chan [config]
+  (wrap-connect-exception
+   #(spandex/bulk-chan elasticsearch config)))
 
 (defn create-index [mapping]
   (timbre/debug mapping)
@@ -100,15 +99,26 @@
 
 (defn- indexing-loop [indexing-chan]
   (future
-   (loop []
-     (when-not (Thread/interrupted)
-       (when-let [doc (<!! indexing-chan)]
-         (utils/interruptible-try
-          (let [response-ch (chan)
-                result (index-document doc :channel response-ch)]
-            (when (instance? ExceptionInfo result)
-              (timbre/error (get-in (ex-data result) [:body :error])))))
-         (recur))))))
+   (let [{:keys [input-ch output-ch]} (bulk-chan {:flush-threshold 50
+                                                  :flush-interval 3000
+                                                  :max-concurrent-requests 3})]
+     (go-loop []
+       (when-not (Thread/interrupted)
+         (let [[_ result] (<! output-ch)]
+           (doseq [{:keys [index]} (:items (:body result))]
+             (when (:error index)
+               (timbre/error (:error index))))
+           (recur))))
+     (go-loop []
+       (when-not (Thread/interrupted)
+         (when-let [doc (<! indexing-chan)]
+           (utils/interruptible-try
+            (>! input-ch
+                [{:index {:_index (config/get :elasticsearch :index)
+                          :_type "doc"
+                          :_id (get doc "document/id")}}
+                 (dissoc doc "document/id")]))
+           (recur)))))))
 
 (defn start-indexer! []
   (let [indexing-chan (chan (core.async/buffer (* 10 batch-size)))

@@ -93,7 +93,8 @@
 
     {:db/ident :discount/amount.kind
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}]
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :enum}]
 
    (map #(hash-map :db/ident %) amount-kinds))
 

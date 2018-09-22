@@ -93,6 +93,7 @@
 
    {:db/ident :shipping-method/pricing
     :db/valueType :db.type/ref
+    :ventas/refEntityType :enum
     :db/cardinality :db.cardinality/one}
 
    {:db/ident :shipping-method.pricing/price}
