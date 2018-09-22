@@ -92,7 +92,8 @@
   {:pre [(keyword? k)]}
   "Sets to `v` the `k` configuration key."
   (let [value (pr-str v)]
-    (if-let [existing-entity (entity/query-one :configuration {:keyword k})]
+    (if-let [existing-entity (entity/query-one :configuration {:configuration/keyword k
+                                                               :ventas/site site})]
       (entity/update* (assoc existing-entity :configuration/value value))
       (entity/create*
        (common.utils/remove-nil-vals
