@@ -61,7 +61,7 @@
                (utils/->number search) (file-path-by-eid (utils/->number search))
                (not (str/includes? search "/")) (file-path-by-keyword (keyword search))
                :else (str (paths/resolve paths/public) search))]
-    (if-let [response (ring.response/file-response path)]
+    (if-let [response (some-> path ring.response/file-response)]
       (add-mime-type response path)
       (compojure.route/not-found ""))))
 
