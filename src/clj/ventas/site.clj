@@ -7,6 +7,8 @@
    [ventas.database.entity :as entity])
   (:import [datomic Datom]))
 
+(def ^:dynamic *current* nil)
+
 (defn site-db [site]
   (d/filter (d/db db/conn)
             (fn [_ ^Datom datom]
@@ -23,7 +25,8 @@
 
 (defn with-site [hostname f]
   (if-let [site (by-hostname hostname)]
-    (with-bindings {#'ventas.database/db #(site-db (:db/id site))}
+    (with-bindings {#'ventas.database/db #(site-db (:db/id site))
+                    #'*current* (:db/id site)}
       (f))
     (f)))
 
