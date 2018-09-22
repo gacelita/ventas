@@ -135,55 +135,67 @@
      [base/table-header-cell
       [:span "Status"]]]]
    [base/table-body
-    (for [order @(rf/subscribe [::events/db [state-key :pending-orders]])]
-      [base/table-row {:class (str "pending-orders__order "
-                                   "pending-orders__order--" (name (:status order)))}
-       [base/table-cell
-        [:a {:href (routes/path-for :admin.orders.edit :id (:id order))} [:p (:id order)]]
-        (case (:status order)
-          :order.status/unpaid [:div
-                                [pending-order-button
-                                 {:on-click #(rf/dispatch [::modal.init (:id order) #'payment-info-modal])}
-                                 "See payment info"]
-                                [pending-order-button
-                                 {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/paid])}
-                                 "Set as paid"]]
-          :order.status/paid [:div
-                              [pending-order-button
-                               {:on-click #(rf/dispatch [::modal.init (:id order) #'order-items-modal])}
-                               "See order items"]
-                              [pending-order-button
-                               {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/acknowledged])}
-                               "Set as acknowledged"]]
-          :order.status/acknowledged [:div
-                                      [pending-order-button
-                                       {:on-click #(rf/dispatch [::modal.init (:id order) #'order-items-modal])}
-                                       "See order items"]
-                                      [pending-order-button
-                                       {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/ready])}
-                                       "Set as ready"]]
-          :order.status/ready [:div
-                               [pending-order-button
-                                {:on-click #(rf/dispatch [::modal.init (:id order) #'shipping-info-modal])}
-                                "See shipping info"]
-                               [pending-order-button
-                                {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/shipped])}
-                                "Set as shipped"]]
-          "")]
-       [base/table-cell (utils.formatting/amount->str (:amount order))]
-       [base/table-cell (utils.formatting/format-date (:created-at order))]
-       [base/table-cell (i18n (:status order))]])]])
+    (let [orders @(rf/subscribe [::events/db [state-key :pending-orders]])]
+      (if (empty? orders)
+        [base/table-row
+         [base/table-cell {:col-span 4}
+          [:p.table-component__no-rows (i18n ::table/no-rows)]]]
+        (for [order orders]
+          [base/table-row {:class (str "pending-orders__order "
+                                       "pending-orders__order--" (name (:status order)))}
+           [base/table-cell
+            [:a {:href (routes/path-for :admin.orders.edit :id (:id order))} [:p (:id order)]]
+            (case (:status order)
+              :order.status/unpaid [:div
+                                    [pending-order-button
+                                     {:on-click #(rf/dispatch [::modal.init (:id order) #'payment-info-modal])}
+                                     "See payment info"]
+                                    [pending-order-button
+                                     {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/paid])}
+                                     "Set as paid"]]
+              :order.status/paid [:div
+                                  [pending-order-button
+                                   {:on-click #(rf/dispatch [::modal.init (:id order) #'order-items-modal])}
+                                   "See order items"]
+                                  [pending-order-button
+                                   {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/acknowledged])}
+                                   "Set as acknowledged"]]
+              :order.status/acknowledged [:div
+                                          [pending-order-button
+                                           {:on-click #(rf/dispatch [::modal.init (:id order) #'order-items-modal])}
+                                           "See order items"]
+                                          [pending-order-button
+                                           {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/ready])}
+                                           "Set as ready"]]
+              :order.status/ready [:div
+                                   [pending-order-button
+                                    {:on-click #(rf/dispatch [::modal.init (:id order) #'shipping-info-modal])}
+                                    "See shipping info"]
+                                   [pending-order-button
+                                    {:on-click #(rf/dispatch [::order.set-status (:id order) :order.status/shipped])}
+                                    "Set as shipped"]]
+              "")]
+           [base/table-cell (utils.formatting/amount->str (:amount order))]
+           [base/table-cell (utils.formatting/format-date (:created-at order))]
+           [base/table-cell (i18n (:status order))]])))]])
+
+(defn- traffic-statistics []
+  (if (= :error @(rf/subscribe [::events/db [admin.statistics/state-key :status]]))
+    [segment {:label (i18n ::traffic-statistics)}
+     [:p (i18n ::statistics-disabled)]]
+    [:div.admin-dashboard__traffic-statistics
+     [segment {:label (i18n ::traffic-statistics)}
+      [:div
+       [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
+                                       [:week (i18n ::admin.statistics/week)]
+                                       [:month (i18n ::admin.statistics/month)]]]
+       [admin.statistics/traffic-stats-chart]]]]))
 
 (defn- content []
   [base/grid {:stackable true :columns 2}
    [base/grid-column
     [base/grid-row
-     [:div.admin-dashboard__traffic-statistics
-      [segment {:label (i18n ::traffic-statistics)}
-       [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
-                                       [:week (i18n ::admin.statistics/week)]
-                                       [:month (i18n ::admin.statistics/month)]]]
-       [admin.statistics/traffic-stats-chart]]]]]
+     [traffic-statistics]]]
    [base/grid-column
     [base/grid-row
      [segment {:label (i18n ::pending-orders)}

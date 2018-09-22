@@ -79,6 +79,7 @@
     :ventas.pages.admin.dashboard/unread-messages "Unread messages"
     :ventas.pages.admin.dashboard/no-name "(No name)"
     :ventas.pages.admin.dashboard/page "Dashboard"
+    :ventas.pages.admin.dashboard/statistics-disabled "Statistics are disabled"
 
     :ventas.pages.admin.products/create-product "Create product"
     :ventas.pages.admin.products/name "Name"
@@ -235,6 +236,7 @@
     :ventas.pages.admin.orders.edit/date "Date"
 
     :ventas.pages.admin.taxes.edit/amount "Amount"
+    :ventas.pages.admin.taxes.edit/page "Taxes"
     :ventas.pages.admin.taxes.edit/name "Name"
     :ventas.pages.admin.taxes.edit/kind "Type"
     :ventas.pages.admin.taxes.edit/submit "Submit"

@@ -2,6 +2,7 @@
   (:require
    [cljsjs.moment]
    [re-frame.core :as rf]
+   [ventas.events :as events]
    [ventas.components.base :as base]
    [ventas.components.chart :as chart]
    [ventas.components.datepicker :as datepicker]
@@ -72,6 +73,11 @@
                                             (update-datasets datasets topics topics-data existing-data?))}]})))
 
 (rf/reg-event-fx
+  ::stats.fetch.error
+  (fn [{:keys [db]} _]
+    {:db (assoc-in db [state-key :status] :error)}))
+
+(rf/reg-event-fx
  ::stats.fetch
  (fn [_ [_ {:keys [min max interval]}]]
    (let [params {:topics ["navigation" "http"]
@@ -82,7 +88,8 @@
                    [::backend/admin.stats.realtime
                     {:params params
                      :channel-key ::admin.stats.realtime
-                     :success [::stats.fetch.next params]}]]})))
+                     :success [::stats.fetch.next params]
+                     :error [::stats.fetch.error]}]]})))
 
 (def custom-settings-db-path
   [state-key :custom-settings])
