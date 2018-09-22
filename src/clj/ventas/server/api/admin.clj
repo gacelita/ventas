@@ -193,11 +193,6 @@
                                                                                   :max (dec max)}
                                                                 :interval interval}}}}])))}))
 
-(defn- check-kafka! []
-  (when-not (kafka/enabled?)
-    (throw+ {:type ::kafka-disabled
-             :message "Kafka is disabled. Statistics won't work. Check :kafka :host in the configuration."})))
-
 (defn- extract-bucket-data [response topic]
   (let [data (get-in response
                      [:body :aggregations (keyword topic) :events :buckets])]
@@ -221,32 +216,32 @@
         Continuous updates will be sent if `max` is nil and `interval` is a millisecond amount."}
  (fn [{{:keys [topics min max interval]} :params} {:keys [channel]}]
    {:pre [min interval (or (not max) (< min max))]}
-   (check-kafka!)
-   (let [realtime? (and (not max) (number? interval))
-         max (or max (System/currentTimeMillis))
-         make-request (fn [{:keys [min max]}]
-                        (let [params {:min min
-                                      :max max
-                                      :interval interval}
-                              response (time-series topics params)]
-                          (utils/mapm
-                           (fn [topic]
-                             [topic (extract-bucket-data response topic)])
-                           topics)))]
-     (if-not realtime?
-       (make-request {:min min :max max})
-       (let [response-ch (chan)
-             response (make-request {:min min :max max})]
-         (go
-           (>! response-ch response)
-           (<! (core.async/timeout 1000))
-           (loop [last-key (get-last-key response)]
-             (<! (core.async/timeout interval))
-             (when (and (not (core.async.protocols/closed? response-ch))
-                        (not (core.async.protocols/closed? channel)))
-               (let [new-key (+ last-key interval)]
-                 (>! response-ch
-                     (make-request {:min new-key
-                                    :max (+ new-key interval)}))
-                 (recur new-key)))))
-         response-ch)))))
+   (when (kafka/enabled?)
+()     (let [realtime? (and (not max) (number? interval))
+           max (or max (System/currentTimeMillis))
+           make-request (fn [{:keys [min max]}]
+                          (let [params {:min min
+                                        :max max
+                                        :interval interval}
+                                response (time-series topics params)]
+                            (utils/mapm
+                             (fn [topic]
+                               [topic (extract-bucket-data response topic)])
+                             topics)))]
+       (if-not realtime?
+         (make-request {:min min :max max})
+         (let [response-ch (chan)
+               response (make-request {:min min :max max})]
+           (go
+             (>! response-ch response)
+             (<! (core.async/timeout 1000))
+             (loop [last-key (get-last-key response)]
+               (<! (core.async/timeout interval))
+               (when (and (not (core.async.protocols/closed? response-ch))
+                          (not (core.async.protocols/closed? channel)))
+                 (let [new-key (+ last-key interval)]
+                   (>! response-ch
+                       (make-request {:min new-key
+                                      :max (+ new-key interval)}))
+                   (recur new-key)))))
+           response-ch))))))
