@@ -165,7 +165,7 @@
     [:div.admin__userbar-logo
      [:img {:src "/files/logo"}]]
     [:div.admin__userbar-home
-     [:a {:href (routes/path-for :frontend)}
+     [:a {:href js/document.location.origin}
       [base/icon {:name "home"}]
       [:span (i18n ::home)]]]
     [base/loader {:active (boolean (seq @(rf/subscribe [::ws/pending-requests])))
