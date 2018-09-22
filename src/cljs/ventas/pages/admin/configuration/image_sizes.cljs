@@ -30,9 +30,6 @@
 (defn- action-column [{:keys [id]}]
   [:div
    [base/button {:icon true
-                 :on-click #(routes/go-to :admin.configuration.image-sizes.edit :id id)}
-    [base/icon {:name "edit"}]]
-   [base/button {:icon true
                  :on-click #(rf/dispatch [::remove id])}
     [base/icon {:name "remove"}]]])
 
@@ -63,10 +60,6 @@
        (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
-(defn- keyword-column [{:keys [keyword id]}]
-  [:a {:href (routes/path-for :admin.configuration.image-sizes.edit :id id)}
-   keyword])
-
 (defn- content []
   [:div.admin-image-sizes__table
    [table/table [state-key :table]]])
@@ -83,7 +76,7 @@
                {:fetch-fx [::fetch]
                 :columns [{:id :keyword
                            :label (i18n ::keyword)
-                           :component keyword-column}
+                           :component (partial table/link-column :admin.configuration.image-sizes.edit :id :keyword)}
                           {:id :width
                            :label (i18n ::width)}
                           {:id :height

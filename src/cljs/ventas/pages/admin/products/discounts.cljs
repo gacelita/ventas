@@ -13,8 +13,6 @@
 
 (defn- action-column [{:keys [id]}]
   [:div
-   [base/button {:icon true :on-click #(routes/go-to :admin.products.discounts.edit :id id)}
-    [base/icon {:name "edit"}]]
    [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :discounts] id])}
     [base/icon {:name "remove"}]]])
 
@@ -42,10 +40,6 @@
        (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
-(defn- name-column [{:keys [name id]}]
-  [:a {:href (routes/path-for :admin.products.discounts.edit :id id)}
-   name])
-
 (defn- content []
   [:div.admin-discounts__table
    [table/table [state-key :table]]])
@@ -62,7 +56,7 @@
                {:fetch-fx [::fetch]
                 :columns [{:id :name
                            :label (i18n ::name)
-                           :component name-column}
+                           :component (partial table/link-column :admin.products.discounts.edit :id :name)}
                           {:id :code
                            :label (i18n ::code)}
                           {:id :amount

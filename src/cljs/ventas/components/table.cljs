@@ -3,11 +3,16 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.formatting :as utils.formatting]))
+   [ventas.utils.formatting :as utils.formatting]
+   [ventas.routes :as routes]))
 
 (defn amount-column [key data]
   (let [amount (get data key)]
     [:p (utils.formatting/amount->str amount)]))
+
+(defn link-column [route id-key label-key data]
+  [:a {:href (routes/path-for route :id (get data id-key))}
+   (get data label-key)])
 
 (defn get-state [db state-path]
   (get-in db state-path))
@@ -93,7 +98,7 @@
 (defn table [state-path]
   (let [{:keys [total items-per-page page sort-direction sort-column
                 footer columns rows]} @(rf/subscribe [::state state-path])]
-    [base/table {:celled true :sortable true}
+    [base/table {:celled true :sortable true :unstackable true}
      [base/table-header
       [base/table-row
        (for [{:keys [id label]} columns]

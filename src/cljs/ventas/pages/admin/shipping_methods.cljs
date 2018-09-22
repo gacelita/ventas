@@ -30,9 +30,6 @@
 (defn- action-column [{:keys [id]}]
   [:div
    [base/button {:icon true
-                 :on-click #(routes/go-to :admin.shipping-methods.edit :id id)}
-    [base/icon {:name "edit"}]]
-   [base/button {:icon true
                  :on-click #(rf/dispatch [::remove id])}
     [base/icon {:name "remove"}]]])
 
@@ -59,10 +56,6 @@
        (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
-(defn- name-column [{:keys [name id]}]
-  [:a {:href (routes/path-for :admin.shipping-methods.edit :id id)}
-   name])
-
 (defn- content []
   [:div.admin-shipping-methods__table
    [table/table [state-key :table]]])
@@ -79,7 +72,7 @@
                {:fetch-fx [::fetch]
                 :columns [{:id :name
                            :label (i18n ::name)
-                           :component name-column}
+                           :component (partial table/link-column :admin.shipping-methods.edit :id :name)}
                           {:id :actions
                            :label (i18n ::actions)
                            :component action-column

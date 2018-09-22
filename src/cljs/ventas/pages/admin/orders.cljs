@@ -15,8 +15,6 @@
 
 (defn- action-column [{:keys [id]}]
   [:div
-   [base/button {:icon true :on-click #(routes/go-to :admin.orders.edit :id id)}
-    [base/icon {:name "edit"}]]
    [base/button {:icon true :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :table :rows] id])}
     [base/icon {:name "remove"}]]])
 

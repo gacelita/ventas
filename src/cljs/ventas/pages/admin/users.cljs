@@ -29,9 +29,6 @@
 (defn- action-column [{:keys [id]}]
   [:div
    [base/button {:icon true
-                 :on-click #(routes/go-to :admin.users.edit :id id)}
-    [base/icon {:name "edit"}]]
-   [base/button {:icon true
                  :on-click #(rf/dispatch [::remove id])}
     [base/icon {:name "remove"}]]])
 
@@ -57,10 +54,6 @@
        (assoc-in [state-key :table :rows] items)
        (assoc-in [state-key :table :total] total))))
 
-(defn- first-name-column [{:keys [first-name id]}]
-  [:a {:href (routes/path-for :admin.users.edit :id id)}
-   first-name])
-
 (defn- content []
   [:div.admin-users__table
    [table/table [state-key :table]]])
@@ -77,7 +70,7 @@
                {:fetch-fx [::fetch]
                 :columns [{:id :first-name
                            :label (i18n ::name)
-                           :component first-name-column}
+                           :component (partial table/link-column :admin.users.edit :id :first-name)}
                           {:id :email
                            :label (i18n ::email)}
                           {:id :actions

@@ -11,11 +11,6 @@
 
 (def state-key ::state)
 
-(defn- action-column [_ _]
-  [:div
-   [base/button {:icon true}
-    [base/icon {:name "edit"}]]])
-
 (rf/reg-event-fx
  ::fetch
  (fn [{:keys [db]} [_ state-path]]

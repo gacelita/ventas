@@ -15,9 +15,6 @@
 (defn- action-column [{:keys [id]}]
   [:div
    [base/button {:icon true
-                 :on-click #(routes/go-to :admin.products.edit :id id)}
-    [base/icon {:name "edit"}]]
-   [base/button {:icon true
                  :on-click #(rf/dispatch [::events/admin.entities.remove [state-key :table :rows] id])}
     [base/icon {:name "remove"}]]])
 
@@ -62,7 +59,8 @@
                {:fetch-fx [::fetch]
                 :footer footer
                 :columns [{:id :name
-                           :label (i18n ::name)}
+                           :label (i18n ::name)
+                           :component (partial table/link-column :admin.products.edit :id :name)}
                           {:id :price
                            :label (i18n ::price)
                            :component (partial table/amount-column :price)}
