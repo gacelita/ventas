@@ -10,27 +10,35 @@
    [taoensso.timbre :as timbre]
    [ventas.config :as config]
    [ventas.database.generators :as db.generators]
-   [ventas.utils :as utils])
+   [ventas.utils :as utils]
+   [perseverance.core :as p])
   (:import
    [datomic Datom Connection]
    [datomic.query EntityMap]
-   [java.util.concurrent ExecutionException]))
+   [java.util.concurrent ExecutionException]
+   [clojure.lang ExceptionInfo]))
 
 (defn start-db! []
-  (let [url (config/get :database :url)]
-    (timbre/info (str "Starting database, URL: " url))
-    (try
-      (d/create-database url)
-      (d/connect url)
-      (catch ExecutionException _
-        (throw+ {:type ::database-connection-error
-                 :message "Error connecting (database offline?)"})))))
+  (p/retriable
+   {:catch [ExceptionInfo]
+    :tag ::connect-to-db}
+   (let [url (config/get :database :url)]
+     (timbre/info (str "Starting database, URL: " url))
+     (try
+       (d/create-database url)
+       (d/connect url)
+       (catch ExecutionException _
+         (throw+ {:type ::database-connection-error
+                  :message "Error connecting (database offline?)"}))))))
 
 (defn stop-db! [_]
   (timbre/info "Stopping database"))
 
 (defstate conn
-  :start (start-db!)
+  :start
+  (p/retry
+   {:strategy (p/constant-retry-strategy 100 3)}
+   (start-db!))
   :stop (stop-db! conn))
 
 (defn ^:dynamic db []

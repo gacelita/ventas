@@ -142,6 +142,9 @@
                  ;; Stripe
                  [abengoa/clj-stripe "1.0.4"]
 
+                 ;; Retry
+                 [com.grammarly/perseverance "0.1.3"]
+
                  ;;
                  ;; CLJS dependencies
                  ;;
