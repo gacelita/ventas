@@ -156,6 +156,7 @@
 (admin.skeleton/add-menu-item!
  {:route :admin.customization
   :icon "edit"
+  :mobile? false
   :label ::page})
 
 (routes/define-route!

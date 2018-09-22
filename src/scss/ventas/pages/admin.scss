@@ -2,6 +2,10 @@
     display: flex;
     flex-direction: row;
     padding-top: 35px;
+
+    @media (max-width: 767px) {
+        flex-direction: column;
+    }
 }
 
 .admin__menu-item {
@@ -15,6 +19,10 @@
     min-width: 160px;
     background-color: #212121;
     padding-top: 15px;
+
+    @media (max-width: 767px) {
+        display: none;
+    }
 
     h3 {
         padding: 0px 10px;
@@ -84,6 +92,20 @@
                 }
             }
         }
+    }
+}
+
+.admin__footer {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    @media (max-width: 767px) {
+        display: block;
+    }
+
+    .ui.fluid.labeled.icon.menu>.item {
+        flex-grow: 1;
     }
 }
 
@@ -174,3 +196,4 @@
 @import "./admin/dashboard";
 @import "./admin/shipping-methods";
 @import "./admin/statistics";
+@import "./admin/configuration";

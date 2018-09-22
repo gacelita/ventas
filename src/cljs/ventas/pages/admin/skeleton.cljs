@@ -38,40 +38,48 @@
      :label ::users
      :icon "user"}
 
-    {:route :admin.plugins
-     :label ::plugins
-     :icon "plug"}
+    {:route :admin.configuration
+     :label ::configuration
+     :icon "configure"
+     :desktop? false}
+
+    {:divider true}
 
     {:route :admin.taxes
      :label ::taxes
-     :icon "percent"}
+     :icon "percent"
+     :configuration? true
+     :mobile? false}
 
     {:route :admin.payment-methods
      :label ::payment-methods
      :icon "payment"
-     :children []}
+     :children []
+     :configuration? true
+     :mobile? false}
+
+    {:route :admin.configuration.email
+     :label ::email
+     :icon "mail"
+     :configuration? true
+     :mobile? false}
+
+    {:route :admin.configuration.image-sizes
+     :label ::image-sizes
+     :icon "image"
+     :configuration? true
+     :mobile? false}
 
     {:route :admin.shipping-methods
      :label ::shipping-methods
-     :icon "shipping"}
-
-    {:divider true}
-
-    {:route :admin.activity-log
-     :label ::activity-log
-     :icon "time"}
+     :icon "shipping"
+     :configuration? true
+     :mobile? false}
 
     {:route :admin.statistics
      :label ::statistics
-     :icon "chart line"}
-
-    {:route :admin.configuration.image-sizes
-     :label ::configuration
-     :icon "configure"
-     :children [{:route :admin.configuration.image-sizes
-                 :label ::image-sizes}
-                {:route :admin.configuration.email
-                 :label ::email}]}]))
+     :icon "chart line"
+     :mobile? false}]))
 
 (rf/reg-sub-raw
  ::menu-items
@@ -93,26 +101,43 @@
                              (partial node-adder node)
                              nodes)))))))
 
-(defn- menu-item [{:keys [route label icon children] :as item}]
-  [:li.admin__menu-item (when (= (routes/handler) route)
-                          {:class "admin__menu-item--active"})
-   (if (:divider item)
-     [base/divider]
-     (utils/render-with-indexes
-      [:a {:href (routes/path-for route)}
-       (when icon
-         [base/icon {:name icon}])
-       (i18n label)]
-      (when children
-        [:ul
-         (for [child children]
-           ^{:key (hash child)}
-           [menu-item child])])))])
+(defn- menu-item [{:keys [route label icon children divider desktop?]}]
+  (when (not= false desktop?)
+    [:li.admin__menu-item (when (= (routes/handler) route)
+                            {:class "admin__menu-item--active"})
+     (if divider
+       [base/divider]
+       (utils/render-with-indexes
+        [:a {:href (routes/path-for route)}
+         (when icon
+           [base/icon {:name icon}])
+         (i18n label)]
+        (when children
+          [:ul
+           (for [child children]
+             ^{:key (hash child)}
+             [menu-item child])])))]))
 
 (defn- menu []
   [:ul
    (for [item @(rf/subscribe [::menu-items])]
      ^{:key (hash item)} [menu-item item])])
+
+(defn- footer-item [{:keys [route label icon divider mobile?]}]
+  (when (and (not divider) (not= false mobile?))
+    [base/menu-item {:active (= (routes/handler) route)
+                     :href (routes/path-for route)}
+     (when icon
+       [base/icon {:name icon
+                   :size "small"}])
+     (i18n label)]))
+
+(defn- footer []
+  [base/menu {:icon "labeled"
+              :fluid true
+              :size "mini"}
+   (for [item @(rf/subscribe [::menu-items])]
+     ^{:key (hash item)} [footer-item item])])
 
 (rf/reg-event-fx
  ::login
@@ -160,10 +185,11 @@
                  [::events/i18n.cultures.list]]}))
 
 (defn- content-view [content]
-  [:div
+  [:div.admin__wrapper
    [:div.admin__userbar
     [:div.admin__userbar-logo
-     [:img {:src "/files/logo"}]]
+     [:a {:href (routes/path-for :admin)}
+      [:img {:src "/files/logo"}]]]
     [:div.admin__userbar-home
      [:a {:href js/document.location.origin}
       [base/icon {:name "home"}]
@@ -184,7 +210,9 @@
       [:h3 (i18n ::administration)]]
      [menu]]
     [:div.admin__content
-     content]]])
+     content]
+    [:div.admin__footer
+     [footer]]]])
 
 (defn skeleton [content]
   [:div.root

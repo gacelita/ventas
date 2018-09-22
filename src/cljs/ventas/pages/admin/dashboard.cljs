@@ -123,7 +123,7 @@
        [:p (:name (:country address))]]]]))
 
 (defn- pending-orders []
-  [base/table {:class "pending-orders"}
+  [base/table {:class "pending-orders" :unstackable true}
    [base/table-header
     [base/table-row
      [base/table-header-cell
