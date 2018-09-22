@@ -57,6 +57,7 @@
                                                    (str "Slider not found: " keyword))
     :ventas.search/elasticsearch-error "Elasticsearch error"
     :ventas.server.api.admin/unauthorized "Unauthorized: you need to be an administrator to do this"
+    :ventas.server.api.admin/kafka-disabled "Kafka is disabled. Statistics won't work."
     :ventas.server.api.user/authentication-required "Authentication required: your identity is invalid or missing"
     :ventas.server.api.user/discount-not-found (fn [{:keys [code]}]
                                                  (str "Discount not found: " code))
