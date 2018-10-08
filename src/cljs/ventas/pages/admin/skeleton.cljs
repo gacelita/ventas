@@ -79,7 +79,12 @@
     {:route :admin.statistics
      :label ::statistics
      :icon "chart line"
-     :mobile? false}]))
+     :mobile? false}
+
+    {:route :admin.customization
+     :icon "edit"
+     :mobile? false
+     :label ::customization}]))
 
 (rf/reg-sub-raw
  ::menu-items

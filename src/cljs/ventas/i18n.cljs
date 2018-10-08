@@ -19,6 +19,11 @@
 
     :ventas.components.table/no-rows "No items to show"
 
+    :ventas.components.search-box/search "Search"
+    :ventas.components.search-box/product "Product"
+    :ventas.components.search-box/category "Category"
+    :ventas.components.search-box/page "Page"
+
     :ventas.components.product-filters/category "Category"
 
     :ventas.components.notificator/saved "Saved!"
@@ -62,16 +67,31 @@
     :ventas.pages.admin.configuration.image-sizes.edit/submit "Submit"
     :ventas.pages.admin.configuration.image-sizes.edit/saved-notification "Saved!"
 
-    :ventas.pages.admin.customization/page "Customization"
-    :ventas.pages.admin.customization/name "Name"
-    :ventas.pages.admin.customization/logo "Logo"
-    :ventas.pages.admin.customization/header-image "Header image"
-    :ventas.pages.admin.customization/background-color "Background color"
-    :ventas.pages.admin.customization/foreground-color "Foreground color"
-    :ventas.pages.admin.customization/product-listing-mode "Product listing mode"
-    :ventas.pages.admin.customization/font-family "Font family"
-    :ventas.pages.admin.customization/save "Save"
-    :ventas.pages.admin.customization/back "Back"
+    :ventas.pages.admin.customization.customize/page "Customize"
+    :ventas.pages.admin.customization.customize/name "Name"
+    :ventas.pages.admin.customization.customize/logo "Logo"
+    :ventas.pages.admin.customization.customize/header-image "Header image"
+    :ventas.pages.admin.customization.customize/background-color "Background color"
+    :ventas.pages.admin.customization.customize/foreground-color "Foreground color"
+    :ventas.pages.admin.customization.customize/product-listing-mode "Product listing mode"
+    :ventas.pages.admin.customization.customize/font-family "Font family"
+    :ventas.pages.admin.customization.customize/save "Save"
+    :ventas.pages.admin.customization.customize/back "Back"
+
+    :ventas.pages.admin.customization.menus/name "Name"
+    :ventas.pages.admin.customization.menus/items "Menu items"
+    :ventas.pages.admin.customization.menus/page "Menus"
+
+    :ventas.pages.admin.customization.menus.edit/page "Menu"
+    :ventas.pages.admin.customization.menus.edit/name "Name"
+    :ventas.pages.admin.customization.menus.edit/link "Link"
+    :ventas.pages.admin.customization.menus.edit/add "Add"
+    :ventas.pages.admin.customization.menus.edit/menu-item "Menu item"
+    :ventas.pages.admin.customization.menus.edit/menu-items "Menu items"
+    :ventas.pages.admin.customization.menus.edit/add-menu-item "Add menu item"
+    :ventas.pages.admin.customization.menus.edit/save "Save"
+    :ventas.pages.admin.customization.menus.edit/menu "Menu"
+
 
     :ventas.pages.admin.dashboard/traffic-statistics "Traffic statistics"
     :ventas.pages.admin.dashboard/latest-users "Latest users"
@@ -174,6 +194,7 @@
     :ventas.pages.admin.skeleton/payment-methods "Billing"
     :ventas.pages.admin.skeleton/shipping-methods "Shipping"
     :ventas.pages.admin.skeleton/statistics "Statistics"
+    :ventas.pages.admin.skeleton/customization "Customization"
 
     :ventas.pages.admin.statistics/page "Statistics"
     :ventas.pages.admin.statistics/traffic-statistics "Traffic statistics"
@@ -202,8 +223,6 @@
 
     :ventas.pages.admin.taxes/name "Name"
     :ventas.pages.admin.taxes/amount "Amount"
-    :ventas.pages.admin.taxes/actions "Actions"
-    :ventas.pages.admin.taxes/create "Create tax"
     :ventas.pages.admin.taxes/page "Taxes"
 
     :ventas.components.crud-table/actions "Actions"
