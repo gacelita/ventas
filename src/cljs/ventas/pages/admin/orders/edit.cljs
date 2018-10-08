@@ -2,6 +2,7 @@
   (:require
    [clojure.string :as str]
    [re-frame.core :as rf]
+   [moment]
    [reagent.core :as reagent]
    [ventas.components.base :as base]
    [ventas.components.form :as form]
@@ -150,7 +151,7 @@
             (for [{:keys [status date]} lines]
               [base/table-row
                [base/table-cell (i18n status)]
-               [base/table-cell (.format (js/moment date) "dddd, MMMM Do YYYY, h:mm:ss a")]]))]]))]
+               [base/table-cell (.format (moment. date) "dddd, MMMM Do YYYY, h:mm:ss a")]]))]]))]
 
     [base/segment {:color "orange"
                    :title (i18n ::billing)}

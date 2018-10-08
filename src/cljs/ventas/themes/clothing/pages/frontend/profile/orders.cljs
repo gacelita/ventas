@@ -12,7 +12,7 @@
    [ventas.components.base :as base]
    [ventas.components.image :as image]
    [ventas.components.term :as term]
-   [cljsjs.moment]))
+   [moment]))
 
 (def state-key ::state)
 
@@ -26,7 +26,7 @@
          [:h4.orders-page__order-price
           (str "Total: " (utils.formatting/amount->str amount))]
          [:p.orders-page__order-created-at
-          (.format (js/moment created-at) "dddd, MMMM Do YYYY, h:mm:ss a")]]
+          (.format (moment. created-at) "dddd, MMMM Do YYYY, h:mm:ss a")]]
         (for [{{:keys [name images variation]} :product-variation} lines]
           [:div.orders-page__line
            [:div.orders-page__line-image

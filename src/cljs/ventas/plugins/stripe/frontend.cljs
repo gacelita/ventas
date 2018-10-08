@@ -3,19 +3,19 @@
    [re-frame.core :as rf]
    [reagent.core :as r]
    [ventas.components.payment :as payment]
-   [cljsjs.react-stripe-elements]
+   [react-stripe-elements]
    [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.ui :as utils.ui]
    [ventas.components.base :as base]))
 
-(def stripe-elements (r/adapt-react-class js/ReactStripeElements.Elements))
-(def card-cvc-element (r/adapt-react-class js/ReactStripeElements.CardCVCElement))
-(def card-element (r/adapt-react-class js/ReactStripeElements.CardElement))
-(def card-expiry-element (r/adapt-react-class js/ReactStripeElements.CardExpiryElement))
-(def card-number-element (r/adapt-react-class js/ReactStripeElements.CardNumberElement))
-(def postal-code-element (r/adapt-react-class js/ReactStripeElements.PostalCodeElement))
-(def stripe-provider (r/adapt-react-class js/ReactStripeElements.StripeProvider))
+(def stripe-elements (r/adapt-react-class (.-Elements react-stripe-elements)))
+(def card-cvc-element (r/adapt-react-class (.-CardCVCElement react-stripe-elements)))
+(def card-element (r/adapt-react-class (.-CardElement react-stripe-elements)))
+(def card-expiry-element (r/adapt-react-class (.-CardExpiryElement react-stripe-elements)))
+(def card-number-element (r/adapt-react-class (.-CardNumberElement react-stripe-elements)))
+(def postal-code-element (r/adapt-react-class (.-PostalCodeElement react-stripe-elements)))
+(def stripe-provider (r/adapt-react-class (.-StripeProvider react-stripe-elements)))
 
 (def state-key ::state)
 
@@ -94,7 +94,7 @@
 
 (def stripe-form
   (r/adapt-react-class
-   (js/ReactStripeElements.injectStripe
+   (.injectStripe react-stripe-elements
     (r/reactify-component
      (r/create-class {:display-name "stripe-form"
                       :component-did-mount (fn [this]

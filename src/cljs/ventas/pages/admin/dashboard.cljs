@@ -1,6 +1,6 @@
 (ns ventas.pages.admin.dashboard
   (:require
-   [cljsjs.moment]
+   [moment]
    [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
@@ -92,7 +92,7 @@
 
 (defn modal []
   (let [{:keys [visible? content]} @(rf/subscribe [::events/db [state-key :order-modal]])]
-    [base/modal {:size "medium"
+    [base/modal {:size "small"
                  :open visible?
                  :on-close #(rf/dispatch [::modal.toggle])}
      [base/modal-content
@@ -185,11 +185,10 @@
      [:p (i18n ::statistics-disabled)]]
     [:div.admin-dashboard__traffic-statistics
      [segment {:label (i18n ::traffic-statistics)}
-      [:div
-       [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
-                                       [:week (i18n ::admin.statistics/week)]
-                                       [:month (i18n ::admin.statistics/month)]]]
-       [admin.statistics/traffic-stats-chart]]]]))
+      [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
+                                      [:week (i18n ::admin.statistics/week)]
+                                      [:month (i18n ::admin.statistics/month)]]]
+      [admin.statistics/traffic-stats-chart]]]))
 
 (defn- content []
   [base/grid {:stackable true :columns 2}

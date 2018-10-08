@@ -2,6 +2,7 @@
   (:require
    [ventas.common.utils :as common.utils]
    [ventas.i18n :refer [i18n]]
+   [moment]
    [ventas.utils.goog :as utils.goog]))
 
 (defn format-number [n]
@@ -14,4 +15,4 @@
        (:symbol currency)))
 
 (defn format-date [date]
-  (.format (js/moment date) "YYYY-MM-DD H:mm:ss"))
+  (.format (moment. date) "YYYY-MM-DD H:mm:ss"))

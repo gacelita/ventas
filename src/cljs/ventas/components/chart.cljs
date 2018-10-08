@@ -1,7 +1,7 @@
 (ns ventas.components.chart
   "ChartJS wrapper"
   (:require
-   [cljsjs.chartjs]
+   [chart.js]
    [re-frame.core :as rf]
    [reagent.core :as reagent]
    [reagent.ratom :as ratom]
@@ -82,7 +82,7 @@
                     (.querySelector "canvas")
                     (.getContext "2d"))
         {:keys [labels data] :as state} @(rf/subscribe [::events/db [state-key id]])
-        chart (js/Chart. context (clj->js (make-config config state)))]
+        chart (chart.js/Chart. context (clj->js (make-config config state)))]
     (rf/dispatch [::events/db [state-key id] {:chart chart
                                               :labels (or labels [])
                                               :data (or data [])}])))

@@ -1,9 +1,9 @@
 (ns ventas.components.colorpicker
   (:require
-   [cljsjs.react-color]
+   [react-color]
    [re-frame.core :as rf]))
 
-(def chrome-picker (js/React.createFactory js/ReactColor.ChromePicker))
+(def chrome-picker (js/React.createFactory (.-ChromePicker react-color)))
 
 (defn colorpicker [{:keys [on-change value]}]
   [:div.colorpicker

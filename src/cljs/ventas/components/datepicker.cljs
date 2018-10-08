@@ -1,6 +1,6 @@
 (ns ventas.components.datepicker
   (:require
-   [cljsjs.react-date-range]
+   [react-date-range]
    [re-frame.core :as rf]
    [reagent.ratom :refer [atom]]
    [ventas.components.base :as base]

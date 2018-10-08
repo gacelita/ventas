@@ -1,6 +1,6 @@
 (ns ventas.pages.admin.statistics
   (:require
-   [cljsjs.moment]
+   [moment]
    [re-frame.core :as rf]
    [ventas.events :as events]
    [ventas.components.base :as base]
@@ -37,7 +37,7 @@
   (->> topics-data
        (first)
        (val)
-       (map (comp js/moment first))))
+       (map (comp (moment.) first))))
 
 (defn- update-labels [old-labels topics-data existing-data?]
   (let [new-labels (get-labels topics-data)]
@@ -139,9 +139,9 @@
     (case id
       :24h {:min (- current-time one-day)
             :interval ten-minutes}
-      :week {:min (-> (js/moment) (.startOf "week") (.isoWeekday 1) (.valueOf))
+      :week {:min (-> (moment.) (.startOf "week") (.isoWeekday 1) (.valueOf))
              :interval one-hour}
-      :month {:min (-> (js/moment) (.startOf "month") (.valueOf))
+      :month {:min (-> (moment.) (.startOf "month") (.valueOf))
               :interval one-hour})))
 
 (rf/reg-event-fx
