@@ -80,7 +80,8 @@
 (defn- find-category [slug]
   (->> @(rf/subscribe [::events/db :categories])
        (filter (fn [category]
-                 (= slug (:slug category))))
+                 (or (= slug (:id category))
+                     (= slug (:slug category)))))
        (first)))
 
 (defn header [filters]

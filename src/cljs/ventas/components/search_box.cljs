@@ -57,7 +57,6 @@
 
 (defn ->options [on-result-click coll]
   (map (fn [item]
-         (js/console.log :item item)
          {:value (:id item)
           :text (:name item)
           :key (:id item)
@@ -65,7 +64,6 @@
        coll))
 
 (defn search-box [{:keys [id on-result-click] :as props}]
-  (js/console.log :search-box-item (->options on-result-click @(rf/subscribe [::items id])))
   [base/dropdown
    (merge
     {:placeholder (i18n ::search)

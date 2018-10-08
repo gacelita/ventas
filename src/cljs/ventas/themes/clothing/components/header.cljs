@@ -1,15 +1,15 @@
 (ns ventas.themes.clothing.components.header
   (:require
    [re-frame.core :as rf]
-   [reagent.core :as reagent]
    [ventas.components.base :as base]
    [ventas.components.cart :as cart]
+   [ventas.components.search-box :as search-box :refer [search-box]]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.session :as session]
-   [ventas.utils :as utils :include-macros true]
+   [ventas.utils.re-frame :refer [pure-subscribe]]
+   [ventas.common.utils :refer [find-first]]
    [ventas.components.image :as image]))
 
 (def state-key ::state)
@@ -35,46 +35,28 @@
    {:dispatch-n [[::toggle]
                  [::events/users.logout]]}))
 
-(rf/reg-event-fx
- ::search
- (fn [{:keys [db]} [_ search]]
-   (if (empty? search)
-     {:db (update db state-key #(dissoc % :search))}
-     {:db (assoc-in db [state-key :search-query] search)
-      :dispatch [::backend/search
-                 {:params {:search search}
-                  :success [::events/db [state-key :search]]}]})))
-
-(defn- search-result-view [{:keys [id name image type slug]}]
-  [:div.search-result
-   (when-let [route (case type
-                      :product :frontend.product
-                      :category :frontend.category
-                      nil)]
-     {:on-click #(routes/go-to route :id (or slug id))})
-   (when image
-     [:img {:src (str "images/" (:id image) "/resize/header-search")}])
-   [:div.search-result__right
-    [:p.search-result__name name]
-    [:p.search-result__type (i18n (utils/ns-kw type))]]])
+(defn on-result-click [{:keys [type slug id]}]
+  (when-let [route (case type
+                     :product :frontend.product
+                     :category :frontend.category
+                     nil)]
+    (routes/go-to route :id (or slug id))))
 
 (defn header []
   [:div.skeleton-header
    [base/container
     [:div.skeleton-header__search
-     [base/dropdown {:placeholder (i18n ::search)
-                     :selection true
-                     :icon "search"
-                     :on-key-down (fn [e] (when (= (.-key e) "Enter")
-                                            (routes/go-to :frontend.search
-                                                          :search
-                                                          @(rf/subscribe [::events/db [state-key :search-query]]))))
-                     :search (fn [options _] options)
-                     :options (->> @(rf/subscribe [::events/db [state-key :search]])
-                                   (sort-by :type)
-                                   (reverse)
-                                   (map #(reagent/as-element [search-result-view %])))
-                     :on-search-change #(rf/dispatch [::search (-> % .-target .-value)])}]]
+     [search-box
+      {:id ::search-box
+       :options (->> @(rf/subscribe [::search-box/items ::search-box])
+                     (sort-by :type)
+                     (reverse)
+                     (search-box/->options on-result-click))
+       :on-key-down
+       (fn [e]
+         (when (= (.-key e) "Enter")
+           (when-let [search-query @(rf/subscribe [::search-box/query ::search-box])]
+             (routes/go-to :frontend.search :search search-query))))}]]
 
     [:div.skeleton-header__logo
      (let [{:customization/keys [logo] :as config} @(rf/subscribe [::events/db [:configuration]])]

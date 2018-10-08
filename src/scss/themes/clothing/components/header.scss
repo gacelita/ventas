@@ -132,33 +132,3 @@ $skeleton-header-logo-width: 60px;
         display: block;
     }
 }
-
-.search-result {
-    padding: 10px;
-    cursor: pointer;
-
-    &:hover {
-        background-color: #eaeaea;
-    }
-
-    img {
-        display: inline-block;
-        vertical-align: middle;
-        margin-right: 10px;
-        border-radius: 5px;
-    }
-
-}
-
-.search-result__right {
-    display: inline-block;
-    vertical-align: middle;
-
-    p {
-        margin: 0;
-    }
-}
-
-.search-result__name {
-    font-weight: bold;
-}
