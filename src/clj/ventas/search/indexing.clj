@@ -11,31 +11,45 @@
    [taoensso.timbre :as timbre]
    [clojure.set :as set]))
 
-(defn- ref->es [{:schema/keys [type] :as entity}]
-  (case type
-    :schema.type/i18n
-    (->> (entity/serialize entity)
-         (utils/mapm (fn [[culture value]]
-                       [(->> culture entity/find :i18n.culture/keyword)
-                        value])))
-    :schema.type/amount
-    (:amount/value entity)
+(defmulti transform-entity-by-type (fn [entity] (:schema/type entity)))
 
+(defmethod transform-entity-by-type :schema.type/i18n [entity]
+  (->> (entity/serialize entity)
+       (utils/mapm (fn [[culture value]]
+                     [(->> culture
+                           entity/find
+                           :i18n.culture/keyword)
+                      value]))))
+
+(defmethod transform-entity-by-type :schema.type/amount [entity]
+  (:amount/value entity))
+
+(defmethod transform-entity-by-type :schema.type/category [entity]
+  (assoc entity :category/full-name
+                (transform-entity-by-type
+                 (entities.category/full-name-i18n (:db/id entity)))))
+
+(defmethod transform-entity-by-type :schema.type/product [entity]
+  (update entity :product/categories #(set (mapcat entities.category/get-parents %))))
+
+(defmethod transform-entity-by-type :default [entity]
+  entity)
+
+(defn- ref->es [{:schema/keys [type] :as entity}]
+  (if (contains? #{:schema.type/i18n
+                   :schema.type/amount} type)
+    (transform-entity-by-type entity)
     (:db/id entity)))
 
-(defn- value->es [a v]
+(defn- value->es [v]
   (cond
-    (= a :product/categories)
-    (set (mapcat entities.category/get-parents v))
-
     (number? v)
     (if-let [entity (entity/find v)]
       (ref->es entity)
       v)
-
     :default v))
 
-(defn- filter-entity-attr [e [a v]]
+(defn- expand-i18n-entity [e [a v]]
   (if-not (map? v)
     (assoc e a v)
     (merge e
@@ -49,11 +63,22 @@
 
 (defn index-entity [eid]
   (let [doc (->> (entity/find eid)
+                 ;; Does transformations depending on the entity type
+                 transform-entity-by-type
+                 ;; Resolves value refs (currently i18n and amount)
                  (map (fn [[a v]]
-                        [a (value->es a v)]))
-                 (reduce filter-entity-attr
+                        [a (value->es v)]))
+                 ;; Expands i18n entities, such that this:
+                 ;; :product/name {:en_US "Shirt"
+                 ;;                :es_ES "Camiseta"}
+                 ;; turns into this:
+                 ;; :product/name__en_US "Shirt"
+                 ;; :product/name__es_ES "Camiseta"
+                 (reduce expand-i18n-entity
                          {})
+                 ;; Change :db/id to :document/id, as that's what the indexer expects
                  (db-id->document-id)
+                 ;; product.taxonomy/keyword -> product__taxonomy/keyword
                  (common.utils/map-keys search.schema/ident->property))]
     (search/document->indexing-queue doc)))
 

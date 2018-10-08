@@ -72,13 +72,13 @@
            slug)))
       entity)))
 
-(defn- category-options* [category-id culture & [cache]]
+(defn- options* [category-id culture & [cache]]
   (let [{:category/keys [parent name]} (entity/find category-id)
         name (entity/serialize (entity/find name) {:culture culture})]
     (if parent
       (let [result (if (get cache parent)
                      cache
-                     (category-options* parent culture))]
+                     (options* parent culture))]
         (merge cache
                result
                {category-id (str (get result parent) " / " name)}))
@@ -102,18 +102,43 @@
                   [_ :category/parent ?id]]}
         [:schema.type/category])))
 
-(defn category-options [culture]
+(defn options-without-branches
+  "Like options but excludes branches (categories that have children)"
+  [culture]
   (let [branches-map (->> (branches)
                           (reduce (fn [cache id]
-                                    (category-options* id culture cache))
+                                    (options* id culture cache))
                                   {})
                           (into {}))
         leaves-map (->> (leaves)
                         (reduce (fn [cache id]
-                                  (category-options* id culture cache))
+                                  (options* id culture cache))
                                 branches-map)
                         (into {}))]
     (first (data/diff leaves-map branches-map))))
+
+(defn options
+  "Returns a map of ids to the full names of the corresponding categories.
+   Given an example category 17592186046253, returns:
+   {17592186046253 'Women / Shirts'}"
+  [culture & [ids]]
+  (->> (or ids (leaves))
+       (reduce (fn [cache id]
+                 (options* id culture cache))
+               {})
+       (into {})))
+
+(defn full-name-i18n
+  "Returns an i18n entity representing the full name of a category"
+  [category-id]
+  (let [{:category/keys [parent name]} (entity/find category-id)
+        name (entity/find name)]
+    (if-not parent
+      name
+      (dissoc (entities.i18n/merge-i18ns-with #(str/join " / " [%1 %2])
+                                              (full-name-i18n parent)
+                                              name)
+              :db/id))))
 
 (entity/register-type!
  :category
@@ -151,7 +176,8 @@
   :serialize
   (fn [this params]
     (-> ((entity/default-attr :serialize) this params)
-        (assoc :image (get-image this params))))
+        (assoc :image (get-image this params))
+        (assoc :full-name (entity/serialize (full-name-i18n (:db/id this)) params))))
 
   :deserialize
   (fn [this]
