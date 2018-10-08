@@ -13,6 +13,7 @@
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
+   [ventas.entities.i18n :as entities.i18n]
    [ventas.database.generators :as db.generators]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.file :as entities.file]
@@ -52,8 +53,8 @@
 (defn serialize-with-session [session entity]
   (entity/serialize entity {:culture (get-culture session)}))
 
-(defn find-serialize-with-session [session entity]
-  (entity/find-serialize entity {:culture (get-culture session)}))
+(defn find-serialize-with-session [session eid]
+  (entity/find-serialize eid {:culture (get-culture session)}))
 
 (defn register-endpoint!
   ([kw f]
@@ -75,7 +76,8 @@
                               middlewares))
            (catch Throwable e
              (let [{:keys [type] :as data} (ex-data e)
-                   culture-kw (utils/swallow (:i18n.culture/keyword (entity/find (get-culture (:session state)))))]
+                   culture-kw (utils/swallow
+                               (entities.i18n/culture->kw (get-culture (:session state))))]
                (if-let [localized-message (when type
                                             (i18n (or culture-kw :en_US) type data))]
                  (throw+ (assoc data :message localized-message))
@@ -140,7 +142,7 @@
   :categories.options
   {:doc "Lists categories in a format suitable for a dropdown selector"}
   (fn [_ {:keys [session]}]
-    (entities.category/category-options (get-culture session))))
+    (entities.category/options (get-culture session))))
 
 (register-endpoint!
  :configuration.get
@@ -406,3 +408,9 @@
                entity)
        first? file-id
        :default true))))
+
+(register-endpoint!
+ :status
+ {:doc "Just a dummy status endpoint"}
+ (fn [_ _]
+  "ok"))
