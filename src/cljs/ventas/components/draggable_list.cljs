@@ -16,28 +16,37 @@
  ::on-drag-over
  (fn [db [_ id order position]]
    (let [{:keys [drag-index]} (get-in db [state-key id])]
-     (-> db
-         (assoc-in [state-key id :temp-order] (put-before order position drag-index))))))
+     (if-not drag-index
+       db
+       (-> db
+           (assoc-in [state-key id :hover-index] position)
+           (assoc-in [state-key id :temp-order] (put-before order position drag-index)))))))
 
-(defn main-view [_ _]
-  (let [id (gensym)]
-    (fn [{:keys [on-reorder]} items]
-      (let [items (vec items)
+(defn main-view [{:keys [id]} _]
+  (let [id (or id (gensym))]
+    (fn [{:keys [on-reorder on-drag-over props-fn]} items]
+      (let [{:keys [temp-order drag-index hover-index]} @(rf/subscribe [::events/db [state-key id]])
+            items (vec items)
             base-order (range (count items))
-            {:keys [temp-order drag-index]} @(rf/subscribe [::events/db [state-key id]])
             order (or temp-order base-order)]
         [:ul.draggable-list
          (for [[idx position] (zipmap order (range))]
            [:li.draggable-list__item
-            {:key idx
-             :class (when (= idx drag-index)
-                      "draggable-list__item--active")
-             :draggable true
-             :on-drag-start #(rf/dispatch [::events/db [state-key id :drag-index] idx])
-             :on-drag-over (utils.ui/with-handler
-                             #(rf/dispatch [::on-drag-over id order position]))
-             :on-drag-end (fn []
-                            (rf/dispatch [::events/db [state-key id] {}])
-                            (when on-reorder
-                              (on-reorder (map items order))))}
+            (merge
+             {:key idx
+              :class (condp = idx
+                       drag-index "draggable-list__item--active"
+                       hover-index "draggable-list__item--hovered"
+                       nil)
+              :draggable true
+              :on-drag-start #(rf/dispatch [::events/db [state-key id :drag-index] idx])
+              :on-drag-over (utils.ui/with-handler
+                             #(if on-drag-over
+                                (on-drag-over id order position)
+                                (rf/dispatch [::on-drag-over id order position])))
+              :on-drag-end (fn []
+                             (rf/dispatch [::events/db [state-key id] {}])
+                             (when on-reorder
+                               (on-reorder (map items order))))}
+             (props-fn idx))
             (get items idx)])]))))
