@@ -64,6 +64,11 @@
    #(= (set (keys %)) #{kw})
    @migrations))
 
+(defn remove-migration [kw]
+  (swap! migrations (fn [migrs]
+                      (remove #(= (set (keys %)) #{kw})
+                              migrs))))
+
 (defn register-migration!
   "Takes a list of attributes and an optional migration key.
    Migrations can be replaced if the same migration key is used, but
