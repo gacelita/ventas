@@ -82,13 +82,16 @@
 (defn type-exists?
   [type]
   {:pre [(keyword? type)]}
-  (not (nil? (get @registered-types type))))
+  (some? (get @registered-types type)))
 
 (defn type
   "Returns the type of an entity"
   [entity]
   {:pre [(entity? entity)]}
-  (keyword (name (:schema/type entity))))
+  (let [type (:schema/type entity)]
+    (cond
+      (keyword? type) (keyword (name type))
+      (:db/id type)   (db/ident (:db/id type)))))
 
 (defn type-properties
   "Returns the functions of an entity type"
@@ -112,9 +115,14 @@
   (call-type-fn :serialize entity options))
 
 (defn deserialize
+  "The inverse of serialize"
   [type data]
   (let [type-fn (type-property type :deserialize)]
     (type-fn data)))
+
+(defn filter-query [entity]
+  {:pre [(entity? entity)]}
+  (call-type-fn :filter-query entity))
 
 (defn filter-seed [entity]
   {:pre [(entity? entity)]}
@@ -156,7 +164,8 @@
   {:pre [(entity? entity)]}
   (call-type-fn :after-delete entity))
 
-(defn after-update [entity new-entity]
+(defn after-update
+  [entity new-entity]
   {:pre [(entity? entity)]}
   (call-type-fn :after-update entity new-entity))
 
@@ -175,7 +184,7 @@
   {:pre [(or (db/lookup-ref? eid) (number? eid))]}
   (let [result (db/touch-eid eid)]
     (when (entity? result)
-      result)))
+      (filter-query result))))
 
 (defn resolve-by-slug
   [slug]
@@ -341,6 +350,7 @@
   {:attributes []
    :serialize default-serialize
    :deserialize default-deserialize
+   :filter-query identity
    :filter-seed identity
    :filter-create identity
    :filter-update (fn [_ data] data)
