@@ -82,6 +82,13 @@
   [pred coll]
   (first (keep-indexed #(when (pred %2) %1) coll)))
 
+(defn remove-index
+  [idx coll]
+  (keep-indexed (fn [curr-idx itm]
+                  (when (not= curr-idx idx)
+                    itm))
+                coll))
+
 (defn deep-merge
   "Like merge, but merges maps recursively.
    See: https://dev.clojure.org/jira/browse/CLJ-1468"
