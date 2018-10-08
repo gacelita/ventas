@@ -12,6 +12,7 @@
    [ventas.entities.file]
    [ventas.entities.i18n]
    [ventas.entities.image-size]
+   [ventas.entities.menu]
    [ventas.entities.order]
    [ventas.entities.product-taxonomy]
    [ventas.entities.product-term]
