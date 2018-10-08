@@ -12,7 +12,7 @@
 
 (rf/reg-event-fx
  ::remove
- (fn [cofx [_ id]]
+ (fn [_ [_ id]]
    {:dispatch [::backend/admin.entities.remove
                {:params {:id id}
                 :success [::remove.next id]}]}))
@@ -61,7 +61,7 @@
 (defn- page []
   [admin.skeleton/skeleton
    [:div.admin__default-content.admin-users__page
-    [content action-column]]])
+    [content]]])
 
 (rf/reg-event-fx
  ::init

@@ -99,7 +99,7 @@
   (let [{:keys [hash]} @(rf/subscribe [::state db-path])]
     (with-meta content {:key hash})))
 
-(def ^:private known-keys #{:value :type :db-path :key :label :width :inline-label :on-change-fx})
+(def known-keys #{:value :type :db-path :key :label :width :inline-label :on-change-fx})
 
 (defmulti input (fn [{:keys [type]}] type) :default :default)
 

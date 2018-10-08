@@ -206,6 +206,11 @@
     :ventas.pages.admin.taxes/create "Create tax"
     :ventas.pages.admin.taxes/page "Taxes"
 
+    :ventas.components.crud-table/actions "Actions"
+    :ventas.components.crud-table/create "Create"
+
+    :ventas.components.crud-form/submit "Submit"
+
     :ventas.pages.admin.orders/user "User"
     :ventas.pages.admin.orders/page "Orders"
     :ventas.pages.admin.orders/status "Status"
