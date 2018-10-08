@@ -53,7 +53,7 @@
      [:h3 (i18n ::product-added)]
      [:div.cart-notification__inner
       [:div.cart-notification__image
-       [:img {:src (image/get-url (first images) :product-listing)}]]
+       [:img {:src (image/get-url (:id (first images)) :product-listing)}]]
       [:div.cart-notification__info
        [:h4 (:name product-variation)]
        [:h4 (utils.formatting/amount->str price)]
