@@ -39,7 +39,7 @@
           (rendered-db-script uri)
           [:div#app (rendered-file uri "html")]
           [:link {:rel "stylesheet" :href "https://cdn.jsdelivr.net/npm/semantic-ui@2.2.14/dist/semantic.min.css"}]
-          [:script {:src (str "files/js/compiled/" theme ".js") :type "text/javascript"}]
+          [:script {:src (str "files/js/compiled/" theme "/main.js") :type "text/javascript"}]
           [:script init-script]]])))
 
 (defn handle [uri theme init-script]

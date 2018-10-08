@@ -6,7 +6,7 @@
 (theme/register!
  :blank
  {:name "Blank"
-  :build {:main 'ventas.themes.blank.core}
+  :build {:modules {:main {:entries ['ventas.themes.blank.core]}}}
   :fixtures
   (fn []
     [])
