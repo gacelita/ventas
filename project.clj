@@ -3,7 +3,7 @@
    'ventas.core])
 
 (def prepare-uberjar
-  ["run" "-m" "ventas-devtools.uberjar/prepare" ":main" :project/main])
+  ["run" "-m" "ventas-devtools.uberjar/prepare" ":main" :project/main ":themes" "[:clothing :blank]"])
 
 (defproject ventas "0.0.11-SNAPSHOT"
   :description "The Ventas eCommerce platform"

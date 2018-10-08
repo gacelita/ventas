@@ -25,6 +25,7 @@
    [ventas.server.api.user]
    [ventas.server.api]
    [ventas.stats.indexer :as stats.indexer]
+   [ventas.themes.blank.core]
    [ventas.themes.clothing.core])
   (:gen-class))
 
