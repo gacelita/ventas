@@ -13,7 +13,7 @@
 (defn favorite-button [id]
   [base/icon {:name (if @(rf/subscribe [::events/users.favorites.favorited? id])
                       "heart"
-                      "empty heart")
+                      "heart outline")
               :on-click (utils.ui/with-handler
                          #(rf/dispatch [::events/users.favorites.toggle id]))}])
 
