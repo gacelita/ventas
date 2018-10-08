@@ -40,11 +40,15 @@
               [(:db/id culture) value]))
        (into {})))
 
+(defn ->string [entity culture]
+  (get (translation-map entity)
+       culture))
+
 (defn input [_]
   (let [id (gensym)]
     (fn [{:keys [label entity on-change culture control]}]
       (let [{:keys [focused?]} @(rf/subscribe [::events/db [state-key id]])
-            cultures (map :value @(rf/subscribe [::events/db :cultures]))
+            cultures (set (map :value @(rf/subscribe [::events/db :cultures])))
             translations (translation-map entity)]
         [:div.i18n-input {:class (when focused? "i18n-input--focused")
                           :on-focus #(rf/dispatch [::set-focus id true])
@@ -56,10 +60,17 @@
                         :on-change on-change
                         :label label}]
          [:div.i18n-input__cultures
-          (for [culture (rest cultures)]
+          (for [culture (disj cultures culture)]
             [culture-view {:culture culture
                            :control control
                            :translations translations
                            :id id
                            :on-change on-change
                            :key culture}])]]))))
+
+(defn anonymize
+  "Removes :db/id values from the i18n entity and its translations"
+  [entity]
+  (-> entity
+      (dissoc :db/id)
+      (update :i18n/translations (partial map #(dissoc % :db/id)))))
