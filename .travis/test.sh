@@ -6,4 +6,5 @@ npm install
 npm install -g karma-cli
 
 lein test
-lein doo chrome-headless test once
+lein compile-cljs-tests
+karma start --single-run

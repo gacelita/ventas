@@ -2,6 +2,9 @@
   ['clojure.tools.logging.impl
    'ventas.core])
 
+(def prepare-uberjar
+  ["run" "-m" "ventas-devtools.uberjar/prepare" ":main" :project/main])
+
 (defproject ventas "0.0.11-SNAPSHOT"
   :description "The Ventas eCommerce platform"
 
@@ -146,7 +149,6 @@
                  [com.grammarly/perseverance "0.1.3"]]
 
   :plugins [[lein-ancient "0.6.15"]
-            [lein-doo "0.1.10"]
             [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
             [com.gfredericks/how-to-ns "0.1.8"]
             [lein-cljfmt "0.5.7"]
@@ -186,21 +188,10 @@
             "install" ["do" ["clean"] ["with-profile" "datomic-pro,build-client" "install"]]
             "release" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "release"]]
             "deploy" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "deploy"]]
-            "prepare" ["do" ["clean"] ["with-profile" "development" "run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build :project/main]]
+            "prepare" ["do" ["clean"] ["with-profile" "ventas-devtools,cljs-deps,datomic-pro" ~prepare-uberjar]]
+            "compile-cljs-tests" ["do" ["clean"] ["with-profile" "ventas-devtools,cljs-deps,datomic-free" "run" "-m" "ventas-devtools.karma/compile"]]
             "test" ["with-profile" "datomic-free" "test"]
             "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
-
-  :cljsbuild {:builds
-              [{:id "test"
-                :source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc" "test/doo"]
-                :compiler {:output-to "resources/public/files/js/compiled/testable.js"
-                           :main ventas.test-runner
-                           :npm-deps {:js-image-zoom "0.5.0"}
-                           :install-deps true
-                           :optimizations :none
-                           :parallel-build true}}]}
-
-  :doo {:build "test"}
 
   :main ventas.core
 
@@ -230,9 +221,7 @@
                            :source-paths ["dev/clj" "dev/cljs"]}
 
              :fmt {:source-paths ^:replace ["dev/clj" "dev/cljs" "src/clj" "src/cljc" "src/cljs"]}
-             :build-client ^:leaky [:ventas-devtools :cljs-deps {:prep-tasks ["javac"
-                                                                              "compile"
-                                                                              ["run" "-m" "ventas-devtools.uberjar/prepare" :project/ventas-build :project/main]]}]
+             :build-client ^:leaky [:ventas-devtools :cljs-deps {:prep-tasks ["javac" "compile" ~prepare-uberjar]}]
              :repl ^:repl [:datomic-pro :development :ventas-devtools :cljs-deps]
              :uberjar [:datomic-pro :build-client {:source-paths ^:replace ["src/clj" "src/cljc"]
                                                    :omit-source true
