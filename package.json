@@ -1,9 +1,23 @@
 {
   "dependencies": {
-    "@cljs-oss/module-deps": "^1.1.1",
+    "chart.js": "^2.7.2",
+    "create-react-class": "^15.6.3",
     "js-image-zoom": "^0.5.0",
     "karma": "^2.0.2",
     "karma-chrome-launcher": "^2.2.0",
-    "karma-cljs-test": "^0.1.0"
+    "karma-cljs-test": "^0.1.0",
+    "moment": "^2.22.2",
+    "react": "^16.5.2",
+    "react-color": "^2.14.1",
+    "react-date-range": "^0.9.4",
+    "react-dom": "^16.5.2",
+    "react-sortable-tree": "^2.2.0",
+    "react-sortable-tree-theme-minimal": "0.0.14",
+    "react-stripe-elements": "^2.0.1",
+    "semantic-ui-react": "^0.82.5",
+    "showdown": "^1.8.6"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.6.10"
   }
 }

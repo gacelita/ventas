@@ -44,8 +44,7 @@
  :chrome-headless {:host nil
                    :port 4444}
 
- ;; recommended `false` for Emacs:
- :embed-figwheel? true
+ :themes #{}
 
  ;; recommended `true` for Emacs users:
  :strict-classloading false}

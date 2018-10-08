@@ -1,0 +1,3 @@
+{:source-paths ["dev/cljs" "src/cljs" "src/cljc" "src/clj" "test/cljs" "test/cljc"]
+ :nrepl {:port 4002
+         :init-ns repl}}

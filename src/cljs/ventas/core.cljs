@@ -147,7 +147,6 @@
          (reagent/render [error-view message] (app-element)))
        (do
          (debug "Init stage 3 - Rendering")
-         (rf/dispatch [::fetch])
          (accountant/dispatch-current!)
          (reagent/render [page] (app-element)))))))
 
@@ -155,7 +154,7 @@
   (info "Starting...")
   (init))
 
-(defn on-figwheel-reload []
+(defn on-reload []
   (debug "Reloading...")
   (when-let [element (app-element)]
     (reagent/render [page] element)))
