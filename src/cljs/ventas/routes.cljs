@@ -58,18 +58,20 @@
 
 (defn current
   "Returns the current route"
-  []
-  @(rf/subscribe [::events/db :route]))
+  [& [db]]
+  (if db
+    (:route db)
+    @(rf/subscribe [::events/db :route])))
 
 (defn handler
   "Returns the current route handler"
-  []
-  (first (current)))
+  [& [db]]
+  (first (current db)))
 
 (defn params
   "Returns the current route params"
-  []
-  (last (current)))
+  [& [db]]
+  (last (current db)))
 
 (defn route-name
   "Returns the name of a route"
@@ -91,8 +93,8 @@
    (when route
      (go-to route params))))
 
-(defn- ref-from-param [param-kw]
-  (let [params (params)
+(defn- ref-from-param [param-kw & [db]]
+  (let [params (params db)
         ref (get params param-kw)
         as-int (utils/parse-int ref)]
     (cond
@@ -100,6 +102,11 @@
       (pos? as-int) as-int
       (str/starts-with? ref "_") (keyword ref)
       :default ref)))
+
+(rf/reg-sub
+ ::ref-from-param
+ (fn [db [_ param-kw]]
+   (ref-from-param param-kw db)))
 
 (rf/reg-event-fx
  ::set
