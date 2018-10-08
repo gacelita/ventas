@@ -346,11 +346,13 @@
                                     :category/name
                                     :brand/name}
                                   culture)
-          (map (fn [{:keys [images] :as result}]
-                 (let [result (if images
-                                (assoc result :image (first images))
-                                result)]
-                   (select-keys result [:id :type :name :images :image]))))))))
+          (map (fn [{:keys [images type id name full-name] :as result}]
+                 {:image (first images)
+                  :id id
+                  :type type
+                  :name (case type
+                          :product name
+                          :category full-name)}))))))
 
 (register-endpoint!
  :stats.navigation
