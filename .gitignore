@@ -42,3 +42,4 @@ pom.xml.asc
 /docker-compose.prod.yml
 /rancher-compose.yml
 package-lock.json
+.shadow-cljs
