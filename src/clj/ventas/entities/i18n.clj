@@ -93,13 +93,16 @@
 (spec/def :schema.type/i18n
   (spec/keys :req [:i18n/translations]))
 
-(defn- normalize-i18n [i18n]
+(defn normalize-i18n [i18n]
+  "Normalizes the culture refs of the translations"
   (update i18n
           :i18n/translations
           #(map (fn [translation]
-                  (update translation
-                          :i18n.translation/culture
-                          db/normalize-ref))
+                  (-> (if (number? translation)
+                        (entity/find translation)
+                        translation)
+                      (update :i18n.translation/culture
+                              db/normalize-ref)))
                 %)))
 
 (defn- serialize-transacted [this & [culture]]
@@ -183,3 +186,6 @@
             (merge-i18ns-with* f acc itm))
           (first i18ns)
           (rest i18ns)))
+
+(defn culture->kw [eid]
+  (:i18n.culture/keyword (entity/find eid)))
