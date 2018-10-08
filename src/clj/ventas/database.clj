@@ -59,6 +59,11 @@
   [& args]
   (apply d/pull (db) args))
 
+(defn pull*
+  "pull [*]"
+  [eid]
+  (pull '[*] eid))
+
 (defn transact
   "transact wrapper"
   [& args]
