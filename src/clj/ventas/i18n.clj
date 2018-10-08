@@ -1,9 +1,10 @@
 (ns ventas.i18n
   "Server-side tongue wrapper"
   (:require
-   [tongue.core :as tongue]))
+   [tongue.core :as tongue]
+   [ventas.common.utils :as common.utils]))
 
-(def ^:private dicts
+(def ^:private base-dicts
   {:en_US
    {:ventas.email/new-pending-order "New pending order"
     :ventas.i18n/test-value "Test value"
@@ -76,4 +77,19 @@
                                           (str "File not found: " path))
     :ventas.utils/spec-invalid "Validation error"}})
 
-(def i18n (tongue/build-translate dicts))
+(def dicts (atom base-dicts))
+
+(defn- build-translation-fn* []
+  (tongue/build-translate @dicts))
+
+(def ^:private translation-fn (atom (build-translation-fn*)))
+
+(defn- build-translation-fn! []
+  (reset! translation-fn (build-translation-fn*)))
+
+(defn register-translations! [m]
+  (swap! dicts common.utils/deep-merge m)
+  (build-translation-fn!))
+
+(defn i18n [& args]
+  (apply @translation-fn args))
