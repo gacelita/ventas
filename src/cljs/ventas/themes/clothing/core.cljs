@@ -1,62 +1,50 @@
 (ns ventas.themes.clothing.core
   "See the docstring in the server version of this file"
   (:require
-   [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas.components.cookies :as cookies]
    [ventas.core]
    [ventas.events :as events]
    [ventas.i18n :as i18n :refer [i18n]]
    [ventas.routes :as routes]
-   [ventas.themes.clothing.pages.frontend]))
-
-(defmulti handle-event (fn [name] name))
-
-(defmethod handle-event ::events/session.start [_ {:keys [user]}]
-  (when (and (not (= (:status user) :user.status/unregistered))
-             (= (routes/handler) :frontend.login))
-    {:go-to [:frontend.profile]}))
-
-(defmethod handle-event :default [_]
-  {})
+   [ventas.themes.clothing.pages.frontend]
+   [ventas.themes.clothing.components.skeleton :as skeleton]))
 
 (rf/reg-event-fx
- ::handle-event
- (fn [_ [_ evt]]
-   (or (apply handle-event evt)
-       {})))
+ ::forward
+ (fn [_ [_ from to]]
+   {:forward-events {:register (hash [from to])
+                     :events #{from}
+                     :dispatch-to to}}))
 
 (rf/reg-event-fx
- ::listen-to-session-start
- (fn [_ _]
-   {:forward-events {:register ::session-listener
-                     :events #{::events/session.start}
-                     :dispatch-to [::handle-event]}}))
+ ::handle-session-start
+ (fn [_ [_ [_ {:keys [user]}]]]
+   (when (and (not (= (:status user) :user.status/unregistered))
+              (= (routes/handler) :frontend.login))
+     {:go-to [:frontend.profile]})))
 
-(rf/reg-event-fx
- ::listen-to-route-change
- (fn [_ _]
-   {:forward-events {:register ::route-listener
-                     :events #{::routes/set}
-                     :dispatch-to [::handle-route-change]}}))
+(rf/dispatch [::forward ::events/session.start [::handle-session-start]])
 
 (rf/reg-event-fx
  ::handle-route-change
  (fn [{:keys [db]} _]
    (if-not (get-in db [::state :init-done?])
-     {:dispatch-n [[::cookies/get-state-from-local-storage]
-                   [::events/configuration.get #{:customization/name
+     {:dispatch-n [[::events/configuration.get #{:customization/name
                                                  :customization/logo
                                                  :customization/header-image
                                                  :customization/background-color
                                                  :customization/foreground-color
                                                  :customization/product-listing-mode
-                                                 :customization/font-family}]]
+                                                 :customization/font-family}]
+                   [::events/categories.list]
+                   [::events/image-sizes.list]
+                   [::events/users.favorites.enumerate]
+                   [::skeleton/init]]
       :db (assoc-in db [::state :init-done?] true)}
      {})))
 
-(rf/dispatch [::listen-to-session-start])
-(rf/dispatch [::listen-to-route-change])
+(rf/dispatch [::forward ::routes/set [::handle-route-change]])
 
 (i18n/register-translations!
  {:en_US
@@ -75,7 +63,6 @@
    :ventas.themes.clothing.components.header/my-favorites "Favorites"
    :ventas.themes.clothing.components.header/my-account "Profile"
    :ventas.themes.clothing.components.header/logout "Logout"
-   :ventas.themes.clothing.components.header/search "Search"
    :ventas.themes.clothing.components.header/product "Product"
    :ventas.themes.clothing.components.header/category "Category"
 

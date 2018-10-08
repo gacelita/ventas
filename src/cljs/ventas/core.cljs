@@ -88,13 +88,6 @@
    {:dispatch-n [[::rendered-db]
                  [::events/users.session]]}))
 
-(rf/reg-event-fx
- ::fetch
- (fn [_ _]
-   {:dispatch-n [[::events/categories.list]
-                 [::events/image-sizes.list]
-                 [::events/users.favorites.enumerate]]}))
-
 (defn- page []
   (info "Rendering...")
   [page/main (routes/handler)])

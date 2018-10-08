@@ -65,3 +65,8 @@
     [:div.page-wrapper
      contents]
     [footer/footer]]])
+
+(rf/reg-event-fx
+ ::init
+ (fn [_ _]
+   {:dispatch-n [[::cookies/get-state-from-local-storage]]}))
