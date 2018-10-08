@@ -34,13 +34,16 @@
   (throw+ {:type ::api-call-not-found
            :name name}))
 
+(defn exception->message [e]
+  (or (ex-data e)
+      (utils/swallow (.getMessage e))
+      (str e)))
+
 (defn- error-response [{:keys [id]} e]
   {:type :response
    :id id
    :success false
-   :data (or (ex-data e)
-             (utils/swallow (.getMessage e))
-             (str e))})
+   :data (exception->message e)})
 
 (defn call-request-handler [{:keys [id throw? channel-key] :as message} & [state]]
   (try

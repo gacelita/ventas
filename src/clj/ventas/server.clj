@@ -1,11 +1,10 @@
 (ns ventas.server
   (:require
-   [cheshire.core :as cheshire]
+   [cheshire.generate :as cheshire-gen]
    [chord.format.fressian]
    [chord.http-kit]
-   [clojure.java.io :as io]
    [clojure.string :as str]
-   [compojure.core :refer [GET defroutes]]
+   [compojure.core :refer [GET POST defroutes] :as compojure]
    [compojure.route]
    [mount.core :refer [defstate]]
    [org.httpkit.server :as http-kit]
@@ -13,6 +12,8 @@
    [ring.middleware.defaults :as ring.defaults]
    [ring.middleware.gzip :as ring.gzip]
    [ring.middleware.params :as ring.params]
+   [ring.middleware.edn :as ring.edn]
+   [ring.middleware.json :as ring.json]
    [ring.middleware.session :as ring.session]
    [ring.util.mime-type :as ring.mime-type]
    [ring.util.response :as ring.response]
@@ -24,17 +25,17 @@
    [ventas.logging]
    [ventas.paths :as paths]
    [ventas.plugin :as plugin]
-   [ventas.server.ws :as server.ws]
    [ventas.server.spa :as server.spa]
+   [ventas.server.ws :as server.ws]
+   [ventas.server.http-ws :as server.http-ws]
    [ventas.site :as site]
    [ventas.stats :as stats]
-   [ventas.theme :as theme]
    [ventas.utils :as utils])
   (:import
    [clojure.lang Keyword])
   (:gen-class))
 
-(cheshire.generate/add-encoder Keyword cheshire.generate/encode-str)
+(cheshire-gen/add-encoder Keyword cheshire.generate/encode-str)
 
 (defn wrap-prone
   "If the debug mode is enabled, wraps a Ring request with the Prone library"
@@ -81,8 +82,19 @@
           (add-mime-type path)))
     (compojure.route/not-found "")))
 
+(defroutes api-routes
+  (POST "/http-ws/:name" req
+    (server.http-ws/handle req)))
+
+(def api-handler
+  (-> api-routes
+      (ring.edn/wrap-edn-params)
+      (ring.json/wrap-json-body {:keywords? true})
+      (ring.defaults/wrap-defaults ring.defaults/api-defaults)
+      (ring.gzip/wrap-gzip)))
+
 ;; All routes
-(defroutes routes
+(defroutes site-routes
   (GET "/ws/fressian" req
     (handle-websocket :fressian (select-keys req #{:server-name})))
   (GET "/ws/transit-json" req
@@ -100,8 +112,8 @@
   (GET "/*" _
     server.spa/handle-spa))
 
-(def http-handler
-  (-> routes
+(def site-handler
+  (-> site-routes
       (wrap-prone)
       (site/wrap-multisite)
       (stats/wrap-stats)
@@ -109,6 +121,11 @@
       (ring.params/wrap-params)
       (ring.defaults/wrap-defaults ring.defaults/site-defaults)
       (ring.gzip/wrap-gzip)))
+
+(def http-handler
+  (if-not (config/get :debug)
+    site-handler
+    (compojure/routes api-handler site-handler)))
 
 (defn stop-server! [stop-fn]
   (timbre/info "Stopping server")
