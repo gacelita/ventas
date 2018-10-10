@@ -36,13 +36,13 @@
   :dependencies [
                  ;; Clojure
                  [org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.339" :scope "provided"]
+                 [org.clojure/clojurescript "1.10.339"]
                  [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
                  [org.clojure/tools.nrepl "0.2.13"]
 
                  ;; Spec stuff
                  [expound "0.7.1"]
-                 [org.clojure/spec.alpha "0.1.143" :scope "provided"]
+                 [org.clojure/spec.alpha "0.1.143"]
                  [metosin/spec-tools "0.7.2"]
                  [org.clojure/test.check "0.9.0"]
                  [com.gfredericks/test.chuck "0.2.9"]
@@ -203,11 +203,11 @@
              :cljs-deps {:dependencies [[alandipert/storage-atom "2.0.1"]
                                         [bidi "2.1.4"]
                                         [day8.re-frame/forward-events-fx "0.0.6"]
-                                        [devcards "0.2.4" :exclusions [cljsjs/react]]
+                                        [devcards "0.2.4" :exclusions [cljsjs/react org.clojure/clojurescript]]
                                         [joelsanchez/ventas-bidi-syntax "0.1.2"]
                                         [reagent "0.8.1"]
                                         [re-frame "0.10.6"]
-                                        [soda-ash "0.82.2" :exclusions [cljsjs/react-dom cljsjs/react]]
+                                        [soda-ash "0.82.2" :exclusions [cljsjs/react-dom cljsjs/react org.clojure/clojurescript]]
                                         [thheller/shadow-cljs "2.6.10"]
                                         [venantius/accountant "0.2.4"]
                                         [com.cemerick/url "0.1.1"]]}
