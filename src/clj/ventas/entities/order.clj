@@ -92,19 +92,23 @@
   (utils/into-n
    [{:db/ident :order/user
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :user}
 
     {:db/ident :order/status
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :enum}
 
     {:db/ident :order/shipping-address
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :address}
 
     {:db/ident :order/billing-address
      :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+     :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :address}
 
     {:db/ident :order/shipping-method
      :db/valueType :db.type/ref
@@ -122,6 +126,7 @@
     {:db/ident :order/lines
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/many
+     :ventas/refEntityType :order.line
      :db/isComponent true}
 
     {:db/ident :order/payment-reference
@@ -131,6 +136,7 @@
     {:db/ident :order/payment-amount
      :db/valueType :db.type/ref
      :db/cardinality :db.cardinality/one
+     :ventas/refEntityType :amount
      :db/isComponent true}]
 
    (map #(hash-map :db/ident %) statuses))
