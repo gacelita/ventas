@@ -33,8 +33,8 @@
           [:meta {:charset "UTF-8"}]
           [:title "ventas"]
           [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-          [:link {:href "files/css/style.css" :rel "stylesheet" :type "text/css"}]
-          [:link {:href (str "files/css/themes/" theme ".css") :rel "stylesheet" :type "text/css"}]]
+          [:link {:href "/files/css/style.css" :rel "stylesheet" :type "text/css"}]
+          [:link {:href (str "/files/css/themes/" theme ".css") :rel "stylesheet" :type "text/css"}]]
          [:body
           (rendered-db-script uri)
           [:div#app (rendered-file uri "html")]
