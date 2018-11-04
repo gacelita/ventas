@@ -24,3 +24,12 @@
         ch (chan)]
     (core.async/tap (get data :mult) ch)
     ch))
+
+;; cljs
+(defmacro ns-subscribe [path]
+  (let [caller-ns (str (:name (:ns &env)))]
+    `(deref (re-frame.core/subscribe [:db (into [(keyword ~caller-ns "state")] ~path)]))))
+
+(defmacro ns-dispatch [path value]
+  (let [caller-ns (str (:name (:ns &env)))]
+    `(re-frame.core/dispatch [:db (into [(keyword ~caller-ns "state")] ~path) ~value])))
