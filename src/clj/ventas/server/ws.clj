@@ -7,8 +7,7 @@
    [slingshot.slingshot :refer [throw+]]
    [taoensso.timbre :as timbre]
    [ventas.database.entity :as entity]
-   [ventas.utils :as utils]
-   [ventas.site :as site])
+   [ventas.utils :as utils])
   (:import
    [com.cognitect.transit ReadHandler]
    [java.io ByteArrayInputStream]))
@@ -123,8 +122,7 @@
   (let [shared-channel (get-shared-channel)
         client-id (uuid/v4)
         session (atom {})
-        output-channel (chan)
-        site (site/by-hostname server-name)]
+        output-channel (chan)]
     (core.async/pipe shared-channel ws-channel)
     (core.async/pipe output-channel ws-channel)
     (go-loop []
@@ -133,7 +131,6 @@
           (handle-message
            message
            {:client-id client-id
-            :site site
             :session session
             :channel output-channel
             :request request})

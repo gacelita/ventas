@@ -13,22 +13,23 @@
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
-   [ventas.entities.i18n :as entities.i18n]
    [ventas.database.generators :as db.generators]
+   [ventas.entities.category :as entities.category]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.file :as entities.file]
+   [ventas.entities.i18n :as entities.i18n]
    [ventas.entities.product :as entities.product]
    [ventas.i18n :refer [i18n]]
    [ventas.paths :as paths]
-   [ventas.search :as search]
+   [ventas.search.entities :as search.entities]
    [ventas.search.products :as search.products]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
+   [ventas.site :as site]
    [ventas.stats :as stats]
+   [ventas.theme :as theme]
    [ventas.utils :as utils]
-   [ventas.search.entities :as search.entities]
-   [ventas.utils.slugs :as utils.slugs]
-   [ventas.entities.category :as entities.category]))
+   [ventas.utils.slugs :as utils.slugs]))
 
 (defonce available-requests (atom {}))
 
@@ -319,7 +320,7 @@
    (if-let [user (get-user session)]
      {:user (entity/serialize user)}
      (if-let [user (some->> (:token params)
-                             auth/token->user)]
+                            auth/token->user)]
        (do
          (set-user session user)
          {:user (entity/serialize user)})
@@ -367,20 +368,21 @@
 (register-endpoint!
  :site.create
  (fn [{{:keys [email password name]} :params} {:keys [session]}]
-   (let [user (entity/create* {:schema/type :schema.type/user
-                               :user/email email
-                               :user/password password
-                               :user/roles #{:user.role/administrator}})
-         token (auth/user->token user)
-         _ (set-user session user)
-         subdomain (utils.slugs/slug name)
+   (let [subdomain (utils.slugs/slug name)
          site (entity/create* {:schema/type :schema.type/site
-                               :site/user (:db/id user)
-                               :site/subdomain subdomain})]
-     (entity/update* (assoc user :ventas/site (:db/id site)))
-     (entities.configuration/set! :customization/name name (:db/id site))
+                               :site/subdomain subdomain})
+         user (site/with-site
+               site
+               (fn []
+                 (entities.configuration/set! :customization/name name)
+                 (let [user (entity/create* {:schema/type :schema.type/user
+                                             :user/email email
+                                             :user/password password
+                                             :user/roles #{:user.role/administrator}})]
+                   (set-user session user)
+                   user)))]
      {:user (entity/serialize user)
-      :token token
+      :token (auth/user->token user)
       :subdomain subdomain})))
 
 (defn- filename->extension [s]

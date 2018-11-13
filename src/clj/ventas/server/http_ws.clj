@@ -6,7 +6,6 @@
    [ventas.server.api.user :as server.api.user]
    [ventas.utils :as utils]
    [cheshire.core :as cheshire]
-   [ventas.site :as site]
    [slingshot.slingshot :refer [throw+]]
    [ventas.auth :as auth]))
 
@@ -31,8 +30,7 @@
        content-type
        {:status 200
         :body (server.ws/handle-request body
-                                        {:site (site/by-hostname server-name)
-                                         :session session})})
+                                        {:session session})})
       (catch Throwable e
         (let [type (:type (ex-data e))
               content-type (if (= type ::unsupported-content-type)

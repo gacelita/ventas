@@ -64,7 +64,7 @@
   [eid]
   (pull '[*] eid))
 
-(defn transact
+(defn transact*
   "transact wrapper"
   [& args]
   (try
@@ -73,6 +73,8 @@
       (throw+ {:type ::transact-exception
                :message (.getMessage e)
                :args args}))))
+
+(def ^:dynamic transact transact*)
 
 (defn history
   "history wrapper"

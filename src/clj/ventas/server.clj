@@ -88,6 +88,7 @@
 
 (def api-handler
   (-> api-routes
+      (site/wrap-multisite)
       (ring.edn/wrap-edn-params)
       (ring.json/wrap-json-body {:keywords? true})
       (ring.defaults/wrap-defaults ring.defaults/api-defaults)

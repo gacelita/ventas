@@ -9,12 +9,20 @@
 
 (def ^:dynamic *current* nil)
 
+(def shared-types
+  #{:schema.type/country
+    :schema.type/state
+    :schema.type/site
+    :schema.type/currency
+    :schema.type/i18n.culture})
+
 (defn site-db [site]
   (d/filter (d/db db/conn)
             (fn [_ ^Datom datom]
-              (let [entity (datomic.api/entity (d/db db/conn) (.e datom))
-                    entity-site (get-in entity [:ventas/site :db/id])]
-                (or (not entity-site)
+              (let [entity (d/entity (d/db db/conn) (.e datom))
+                    entity-site (get-in entity [:ventas/site :db/id])
+                    type (get-in entity [:schema/type])]
+                (or (contains? shared-types type)
                     (= entity-site site))))))
 
 (defn by-hostname [hostname]
@@ -23,14 +31,35 @@
                                first)]
     (entity/query-one :site {:subdomain subdomain})))
 
-(defn with-site [hostname f]
+(defn transact
+  "Adds :ventas/site if needed"
+  [items]
+  (db/transact*
+   (map (fn [item]
+          (if-not (map? item)
+            item
+            (let [type (:schema/type item)
+                  ref (db/normalize-ref type)
+                  ident (db/ident ref)]
+              (if (or (not *current*) (contains? shared-types ident))
+                item
+                (do
+                  (println "associng" *current*)
+                  (assoc item :ventas/site *current*))))))
+        items)))
+
+(defn with-site [site-id f]
+  (with-bindings {#'db/db #(site-db site-id)
+                  #'*current* site-id
+                  #'db/transact transact}
+    (f)))
+
+(defn with-hostname [hostname f]
   (if-let [site (by-hostname hostname)]
-    (with-bindings {#'ventas.database/db #(site-db (:db/id site))
-                    #'*current* (:db/id site)}
-      (f))
+    (with-site (:db/id site) f)
     (f)))
 
 (defn wrap-multisite
   [handler]
   (fn [{:keys [server-name] :as req}]
-    (with-site server-name #(handler req))))
+    (with-hostname server-name #(handler req))))

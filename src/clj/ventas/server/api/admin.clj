@@ -54,10 +54,8 @@
  {:spec ::entity/entity
   :doc "Saves an entity, updating it if it already exists.
         This is the preferred way of saving entities in the administration."}
- (fn [{entity :params} {:keys [site]}]
-   (entity/upsert* (if-not site
-                     entity
-                     (assoc entity :ventas/site site)))))
+ (fn [{entity :params} _]
+   (entity/upsert* entity)))
 
 (register-admin-endpoint!
  :admin.entities.remove
@@ -174,9 +172,9 @@
 (register-admin-endpoint!
  :admin.configuration.set
  {:doc "Sets the given configuration key to the given value."}
- (fn [{config :params} {:keys [site]}]
+ (fn [{config :params}]
    (doseq [[k v] config]
-     (entities.configuration/set! k v site))))
+     (entities.configuration/set! k v))))
 
 (defn time-series [topics {:keys [min max interval]}]
   (search/search
