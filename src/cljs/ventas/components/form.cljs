@@ -130,7 +130,8 @@
 (defmethod input :i18n [{:keys [value db-path key culture]}]
   [i18n-input/input
    {:entity value
-    :culture culture
+    :culture (or culture (get-in @(rf/subscribe [:db [:session]])
+                                 [:identity :culture]))
     :on-change #(rf/dispatch [::set-field db-path key %])}])
 
 (defmethod input :i18n-textarea [{:keys [value db-path key culture]}]
