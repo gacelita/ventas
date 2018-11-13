@@ -8,7 +8,8 @@
    [ventas.i18n :as i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.themes.clothing.pages.frontend]
-   [ventas.themes.clothing.components.skeleton :as skeleton]))
+   [ventas.themes.clothing.components.skeleton :as skeleton]
+   [ventas.widget :as widget]))
 
 (rf/reg-event-fx
  ::forward
@@ -46,9 +47,31 @@
 
 (rf/dispatch [::forward ::routes/set [::handle-route-change]])
 
+(widget/set-pages!
+ {:home {:name ::home
+         :route :frontend
+         :description ::home-description}
+  :product {:name ::product
+            :route :frontend.product}
+  :category {:name ::category
+             :route :frontend.category}
+  :cart {:name ::cart
+         :route :frontend.cart}
+  :footer {:name ::footer
+           :route :frontend}
+  :header {:name ::header
+           :route :frontend}})
+
 (i18n/register-translations!
  {:en_US
-  {:ventas.themes.clothing.components.address/address "Address"
+  {:ventas.themes.clothing.core/home "Home"
+   :ventas.themes.clothing.core/product "Product"
+   :ventas.themes.clothing.core/category "Category"
+   :ventas.themes.clothing.core/cart "Cart"
+   :ventas.themes.clothing.core/footer "Footer"
+   :ventas.themes.clothing.core/header "Header"
+
+   :ventas.themes.clothing.components.address/address "Address"
    :ventas.themes.clothing.components.address/address-second-line "Address (second line)"
    :ventas.themes.clothing.components.address/city "City"
    :ventas.themes.clothing.components.address/state "State"

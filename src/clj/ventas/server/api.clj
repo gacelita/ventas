@@ -336,6 +336,12 @@
    true))
 
 (register-endpoint!
+ :layout.get
+ (fn [_ _]
+   (let [theme (theme/current)]
+     (db/pull* (:db/id (entity/find [:layout/theme theme]))))))
+
+(register-endpoint!
  :search
  {:spec {:search ::string}
   :doc "Does a fulltext search for `search` in products, categories and brands"}

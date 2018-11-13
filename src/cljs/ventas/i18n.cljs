@@ -258,6 +258,7 @@
     :ventas.pages.admin.orders.edit/status-history "Status history"
     :ventas.pages.admin.orders.edit/nothing-yet "Nothing yet"
     :ventas.pages.admin.orders.edit/date "Date"
+    :ventas.pages.admin.orders.edit/page #(str "Editing order #" %)
 
     :ventas.pages.admin.taxes.edit/amount "Amount"
     :ventas.pages.admin.taxes.edit/page "Taxes"
@@ -286,6 +287,13 @@
     :ventas.pages.admin.activity-log/entity-type "Entity type"
     :ventas.pages.admin.activity-log/type "Event type"
     :ventas.pages.admin.activity-log/page "Activity log"
+
+    :ventas.plugins.slider.config/name "Name"
+    :ventas.plugins.slider.config/auto "Autoplay"
+    :ventas.plugins.slider.config/auto-speed "Autoplay speed"
+    :ventas.plugins.slider.config/submit "Submit"
+    :ventas.plugins.slider.config/slides "Slides"
+    :ventas.plugins.slider.config/add-slide "Add slide"
 
     :ventas.plugins.stripe.admin/stripe.public-key "Public key"
     :ventas.plugins.stripe.admin/stripe.private-key "Private key"

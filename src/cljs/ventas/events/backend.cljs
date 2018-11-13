@@ -29,6 +29,11 @@
    {:ws-request (merge {:name :configuration.get} options)}))
 
 (rf/reg-event-fx
+ ::layout.get
+ (fn [_ [_ options]]
+    {:ws-request (merge {:name :layout.get} options)}))
+
+(rf/reg-event-fx
  ::entities.find
  (fn [_ [_ id options]]
    {:ws-request (merge {:name :entities.find

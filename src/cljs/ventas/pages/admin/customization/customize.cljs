@@ -3,6 +3,7 @@
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.components.colorpicker :as colorpicker]
+   [goog.events]
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
    [ventas.components.popover :as popover]
@@ -12,7 +13,9 @@
    [ventas.page :as page]
    [ventas.pages.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
-   [ventas.utils.ui :as utils.ui])
+   [ventas.utils.ui :as utils.ui]
+   [ventas.widget :as widget]
+   [reagent.core :as reagent])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 
@@ -89,13 +92,13 @@
             :on-change #(let [new-value (-> % .-target .-value)]
                           (rf/dispatch [::set-field [state-key] key new-value]))}]])
 
-(defn- field [{:keys [key type] :as args}]
+(defn- field [state-path {:keys [key type] :as args}]
   [:div.customize-field
    [base/header {:as "h4"}
     (i18n (ns-kw key))]
    [:div.customize-field__input
     {:class (when type (str "customize-field__input--" (name type)))}
-    [input args (get @(rf/subscribe [::form/data [state-key]]) key)]]])
+    [input args (get @(rf/subscribe [::form/data state-path]) key)]]])
 
 (def ^:private fields
   (atom {:customization/name {:type :text}
@@ -116,21 +119,116 @@
 (defn remove-field! [key]
   (swap! fields dissoc key))
 
-(defn- content []
-  [form/form [state-key]
-   [:div.admin-customize__content
-    [:div.admin-customize__back
-     [base/button {:icon "chevron left"
-                   :content (i18n ::back)
-                   :labelPosition "left"
-                   :on-click #(routes/go-to :admin)}]]
-    [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
-     (for [[key field-config] @fields]
-       [field (assoc field-config :key key)])
-     [base/divider {:hidden true}]
+(defn theme-section []
+  [base/transition-group {:animation "fade left"
+                          :duration 400}
+   (let [state-path [state-key :settings]]
+     [form/form state-path
+      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+       (for [[key field-config] @fields]
+         [field state-path (assoc field-config :key key)])]])])
+
+(defn block-section []
+  (let [{:keys [block component]} @(rf/subscribe [::events/db [state-key :panel]])]
+    [component block]))
+
+(defn panel [title content]
+  [:div
+   [base/header {:as "h6"}
+    [base/icon {:name "chevron left"
+                :size "mini"
+                :link true
+                :on-click #(rf/dispatch [::events/db [state-key :panel] nil])}]
+    [base/header-content [:h4 title]]]
+   content])
+
+(rf/reg-event-fx
+ ::block.edit
+ (fn [{:keys [db]} [_ widget block]]
+   (let [event (get-in widget [:config :init])]
+     {:dispatch [event block]
+      :db (assoc-in db [state-key :panel] {:type :block
+                                           :name (i18n (:name widget))
+                                           :block block
+                                           :component (get-in widget [:config :component])})})))
+
+(defn- page-section []
+  [:div.admin-customize__page-section
+   (for [block (sort-by :layout.block/position
+                        @(rf/subscribe [:db [state-key :layout :layout/blocks]]))]
+     (let [widget (widget/find (:layout.block/widget block))]
+       [base/segment {:on-click #(rf/dispatch [::block.edit widget block])}
+        [:div.admin-customize__block
+         [:span.admin-customize__block-name
+          (i18n (:name widget))]
+         [base/icon {:name "eye" :link true}]
+         [base/icon {:name "sidebar" :link true :class "admin-customize__grab"}]]]))
+   [base/button {:fluid true
+                 :content "Add section"
+                 :on-click #(rf/dispatch [::block.add])}]
+   [:br]
+   [base/button {:fluid true
+                 :on-click #(rf/dispatch [::events/db [state-key :panel] :theme-settings])}
+    "Theme settings"]])
+
+(defn- sidebar []
+  [:div.admin-customize__sidebar
+   (let [{:keys [type name]} @(rf/subscribe [::events/db [state-key :panel]])]
+     (case type
+       :theme-settings [panel "Theme settings" [theme-section]]
+       :block [panel name [block-section]]
+       [page-section]))])
+
+(rf/reg-event-db
+ ::page.set
+ (fn [db [_ v]]
+   db))
+
+{:schema/type :schema.type/layout.block
+ :layout.block/config :ref-to-the-entity
+ :layout.block/position 0
+ :layout.block/section :clothing/home}
+
+(rf/reg-event-db
+ ::preview-size.set
+ (fn [db [_ preview-size]]
+   (assoc-in db [state-key :preview-size] preview-size)))
+
+(defn- top-bar []
+  [form/form [state-key :top-bar]
+   [:div.admin-customize__top-bar
+    [:div.admin-customize__page-combobox
+     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+      (js/console.log :data (->> @widget/pages
+                                 (map (fn [[k {:keys [name]}]]
+                                        {:value k
+                                         :text (i18n name)}))))
+      [form/field {:key :page
+                   :db-path [state-key :top-bar]
+                   :type :combobox
+                   :on-change-fx [::page.set]
+                   :default-value @(rf/subscribe [::events/db [state-key :page]])
+                   :options (->> (widget/get-pages)
+                                 (map (fn [[k {:keys [name]}]]
+                                        {:value k
+                                         :text (i18n name)})))}]]]
+    [:div.admin-customize__preview-size
+     [:div.admin-customize__preview-size-icons
+      [base/icon {:name "mobile alternate"
+                  :link true
+                  :on-click #(rf/dispatch [::preview-size.set :mobile])}]
+      [base/icon {:name "computer"
+                  :link true
+                  :on-click #(rf/dispatch [::preview-size.set :computer])}]
+      [base/icon {:name "expand arrows alternate"
+                  :link true
+                  :on-click #(rf/dispatch [::preview-size.set :fullwidth])}]]]
+    [:div.admin-customize__save
      [base/form-button
-      {:type "submit"}
-      (i18n ::save)]]]])
+      {:type "submit"
+       :size "small"}
+      (i18n ::save)]
+     ]]])
 
 (rf/reg-event-fx
  ::init
@@ -138,15 +236,52 @@
    {:dispatch-n [[::backend/configuration.get
                   {:params (set (keys @fields))
                    :success [::form/populate [state-key]]}]
-                 (:init-fx (routes/find-route :frontend.products))]
-    :db (assoc db :customization-route [:frontend])}))
+                 [::form/populate [state-key :top-bar] {:page (->> (widget/get-pages) (first) (key))}]
+                 [::backend/layout.get
+                  {:success [::events/db [state-key :layout]]}]
+                 (:init-fx (routes/find-route :frontend.products))]}))
+
+(rf/reg-sub
+ ::preview-size
+ (fn [db]
+   (get-in db [state-key :preview-size])))
+
+(rf/reg-sub
+ ::page
+ (fn [db]
+   (get (widget/get-pages)
+        (:page (form/get-data db [state-key :top-bar])))))
+
+(defn- preview []
+  (let [ref (reagent/atom nil)]
+    (reagent/create-class
+     {:component-did-mount
+      (fn [this]
+        (goog.events/listen
+         @ref
+         "click"
+         (fn [e]
+           (println "click")
+           (.stopPropagation e)
+           (.preventDefault e))))
+      :reagent-render
+      (fn []
+        [:div.admin-customize__preview {:ref #(reset! ref %)}
+         (when (= :mobile @(rf/subscribe [::preview-size]))
+           {:style {:width "375px"
+                    :max-height "667px"}})
+         [page/main (:route @(rf/subscribe [::page]))]])})))
 
 (defn- page []
   [:div.root--customize
    [admin.skeleton/skeleton
     [:div.admin__default-content.admin-customize__page
-     [content]
-     [page/main :frontend.products]]]])
+     (when (not= :fullwidth @(rf/subscribe [::preview-size]))
+       [sidebar])
+     [:div.admin-customize__content
+      [top-bar]
+      [:div.admin-customize__preview-wrapper
+       [preview]]]]]])
 
 (admin.skeleton/add-menu-item!
  {:route :admin.customization.customize

@@ -17,22 +17,97 @@
     padding: 0px;
     color: #2c3e50;
 
-    .admin-customize__content {
-        background-color: white;
-        width: 300px;
-        padding: 15px;
-        box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.52);
-        margin-right: 3px;
-        position: fixed;
-        overflow: visible;
-        height: 100vh;
-        z-index: 1;
-    }
-
     #main {
-        width: 100%;
-        margin-left: 303px;
+        width: auto;
+        background: white;
+
+        .ui.container {
+            width: auto;
+        }
     }
+}
+
+.admin-customize__sidebar {
+    background-color: white;
+    width: 300px;
+    padding: 15px;
+    box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.52);
+    margin-right: 3px;
+    overflow: visible;
+    height: calc(100vh - 35px);
+    z-index: 1;
+}
+
+.admin-customize__content {
+    width: 100%;
+    height: calc(100vh - 46px);
+    flex-direction: column;
+    display: flex;
+}
+
+.admin-customize__top-bar {
+    width: 100%;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    padding: 3px 8px;
+
+    .ui.dropdown {
+        width: auto !important;
+        display: inline-block !important;
+    }
+}
+
+.admin-customize__preview {
+    overflow: auto;
+    max-height: 100%;
+    box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.3215686274509804);
+}
+
+.admin-customize__preview-wrapper {
+    padding: 10px;
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    height: 100%;
+}
+
+.admin-customize__preview-size {
+    text-align: center;
+    flex: 1;
+}
+
+.admin-customize__preview-size-icons {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+
+    .icon {
+        margin: 0px 3px;
+    }
+}
+
+.admin-customize__grab {
+    cursor: -webkit-grab !important;
+    cursor: grab !important;
+}
+
+.admin-customize__block {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    .icon {
+        padding: 0px 12px;
+        height: 17px;
+    }
+}
+
+.admin-customize__block-name {
+    font-size: 1.2rem;
+    flex-grow: 1;
 }
 
 .customize-field {

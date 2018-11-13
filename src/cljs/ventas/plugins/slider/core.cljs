@@ -3,10 +3,13 @@
    [re-frame.core :as rf]
    [ventas.common.utils :as common.utils]
    [ventas.components.base :as base]
+   [ventas.plugins.slider.config :as slider.config]
    [ventas.components.slider :as components.slider]
    [ventas.events :as events]
    [ventas.plugins.slider.api :as slider.backend]
-   [ventas.seo :as seo]))
+   [ventas.widget :as widget]
+   [ventas.seo :as seo]
+   [ventas.i18n :as i18n]))
 
 (def state-key ::state)
 
@@ -73,3 +76,15 @@
   (let [slider-data @(rf/subscribe [::events/db [state-key kw]])]
     (when-let [kw (:keyword slider-data)]
       [slider* kw])))
+
+(i18n/register-translations!
+ {:en_US {::slider "Slider"}
+  :es_ES {::slider "Slider"}})
+
+(widget/register!
+ :slider
+ {:name ::slider
+  :frontend {:init ::sliders.get.next
+             :component slider}
+  :config {:init ::slider.config/init
+           :component slider.config/config}})

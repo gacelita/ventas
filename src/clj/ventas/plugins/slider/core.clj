@@ -62,7 +62,8 @@
     :db/isComponent true}
    {:db/ident :slider.slider/slides
     :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
    {:db/ident :slider.slider/keyword
     :db/valueType :db.type/keyword
     :db/cardinality :db.cardinality/one
@@ -78,6 +79,8 @@
 
   :dependencies
   #{:slider.slide :i18n}
+
+  :autoresolve? true
 
   :fixtures
   (fn []
