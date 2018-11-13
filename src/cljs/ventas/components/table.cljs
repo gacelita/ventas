@@ -51,6 +51,13 @@
                  (when-let [fetch-fx (:fetch-fx (get-state db state-path))]
                    (conj fetch-fx state-path))]}))
 
+(rf/reg-event-db
+ ::set-rows
+ (fn [db [_ state-path {:keys [total rows]}]]
+   (-> db
+       (assoc-in (conj state-path :rows) rows)
+       (assoc-in (conj state-path :total) total))))
+
 (rf/reg-event-fx
  ::sort
  (fn [{:keys [db]} [_ state-path column]]
