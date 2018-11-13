@@ -17,11 +17,14 @@
    [ventas.utils.logging :refer [debug error info trace warn]]
    [ventas.utils.ui :as utils.ui]
    [ventas.common.utils :as common.utils]
+   [ventas.utils.re-frame :refer [pure-reaction]]
    [ventas.components.image :as image])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))
 
 (def state-key ::state)
+
+(def lines-table-path [state-key :lines-table])
 
 (rf/reg-event-fx
  ::submit
@@ -88,7 +91,7 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::table/init [state-key :lines-table] table-config]
+   {:dispatch-n [[::table/init lines-table-path table-config]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/order}]
@@ -106,10 +109,10 @@
    {:dispatch-n [[::form/populate [state-key] order]
                  [::backend/admin.entities.find-serialize
                   {:params {:id (get-in order [:order/user :db/id])}
-                   :success [::events/db [state-key :user]]}]]
-    :db (-> db
-            (assoc-in [state-key :lines-table :rows] lines)
-            (assoc-in [state-key :status-history] status-history))}))
+                   :success [::events/db [state-key :user]]}]
+                 [::table/set-rows lines-table-path {:rows lines
+                                                     :total (count lines)}]]
+    :db (assoc-in db [state-key :status-history] status-history)}))
 
 (defn- field [{:keys [key] :as args}]
   [form/field (merge args
@@ -191,7 +194,7 @@
     [base/segment {:color "orange"
                    :title (i18n ::lines)}
 
-     [table/table [state-key :lines-table]]]
+     [table/table lines-table-path]]
 
     [base/form-button {:type "submit"} (i18n ::submit)]]])
 
@@ -200,9 +203,15 @@
    [:div.admin__default-content.admin-orders-edit__page
     [content]]])
 
+(rf/reg-sub
+ ::name
+ (fn [db]
+   (let [id (pure-reaction db [::routes/ref-from-param :id])]
+     (i18n ::name id))))
+
 (routes/define-route!
   :admin.orders.edit
-  {:name ::page
+  {:name [::name]
    :url [:id "/edit"]
    :component page
    :init-fx [::init]})
