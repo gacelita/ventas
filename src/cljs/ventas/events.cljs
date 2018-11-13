@@ -6,7 +6,9 @@
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.formatting :as formatting]
-   [ventas.utils.logging :refer [debug]]))
+   [ventas.utils.logging :refer [debug]])
+  (:require-macros
+   [ventas.events]))
 
 (defn- normalize-where [where]
   (if (keyword? where)
@@ -36,6 +38,19 @@
    (let [where (normalize-where where)]
      (debug ::db.update where what-fn)
      (update-in db where what-fn))))
+
+;; To avoid ::events/db noise, you can use this subscription and event
+;; In contrast with ::db, `where` must be a vector
+(rf/reg-sub
+ :db
+ (fn [db [_ where]]
+   (get-in db where)))
+
+(rf/reg-event-db
+ :db
+ (fn [db [_ where what]]
+   (debug :db where what)
+   (assoc-in db where what)))
 
 (rf/reg-event-fx
  ::categories.list
