@@ -172,7 +172,7 @@
 (register-admin-endpoint!
  :admin.configuration.set
  {:doc "Sets the given configuration key to the given value."}
- (fn [{config :params}]
+ (fn [{config :params} _]
    (doseq [[k v] config]
      (entities.configuration/set! k v))))
 
