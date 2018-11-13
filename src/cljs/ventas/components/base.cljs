@@ -142,6 +142,8 @@
 (def search-category sa/SearchCategory)
 (def search-result sa/SearchResult)
 (def search-results sa/SearchResults)
+(def transition sa/Transition)
+(def transition-group sa/TransitionGroup)
 
 (defn- semantic->css-color [color]
   (get {"red" "#DB2828"
