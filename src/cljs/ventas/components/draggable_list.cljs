@@ -48,5 +48,5 @@
                              (rf/dispatch [::events/db [state-key id] {}])
                              (when on-reorder
                                (on-reorder (map items order))))}
-             (props-fn idx))
+             (when props-fn (props-fn idx)))
             (get items idx)])]))))
