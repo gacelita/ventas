@@ -2,9 +2,6 @@
   ['clojure.tools.logging.impl
    'ventas.core])
 
-(def prepare-uberjar
-  ["run" "-m" "ventas-devtools.uberjar/prepare" ":main" :project/main ":themes" "[:clothing :blank]"])
-
 (defproject ventas "0.0.11-SNAPSHOT"
   :description "The Ventas eCommerce platform"
 
@@ -35,8 +32,7 @@
 
   :dependencies [
                  ;; Clojure
-                 [org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.339"]
+                 [org.clojure/clojure "1.9.0" :scope "provided"]
                  [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
                  [org.clojure/tools.nrepl "0.2.13"]
 
@@ -115,7 +111,7 @@
                  ;; Collection manipulation
                  [com.rpl/specter "1.1.1" :exclusions [riddley]]
 
-                 ;; Database
+                 ;; Database migrations
                  [io.rkn/conformity "0.5.1"]
 
                  ;; Text colors in the console
@@ -174,7 +170,6 @@
 
   :clean-targets ^{:protect false} [:target-path
                                     :compile-path
-                                    "resources/public/files/js"
                                     "storage/rendered"]
 
   :uberjar-name "ventas.jar"
@@ -184,14 +179,21 @@
                  :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
                  :timeout 120000}
 
-  :aliases {"nrepl" ["repl" ":connect" "localhost:4001"]
-            "install" ["do" ["clean"] ["with-profile" "datomic-pro,build-client" "install"]]
-            "release" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "release"]]
-            "deploy" ["do" ["clean"] ["with-profile" "datomic-free,build-client" "deploy"]]
-            "prepare" ["do" ["clean"] ["with-profile" "ventas-devtools,cljs-deps,datomic-pro" ~prepare-uberjar]]
-            "compile-cljs-tests" ["do" ["clean"] ["with-profile" "ventas-devtools,cljs-deps,datomic-free" "run" "-m" "ventas-devtools.karma/compile"]]
-            "test" ["with-profile" "datomic-free" "test"]
-            "fmt" ["with-profile" "fmt" "do" ["cljfmt" "fix"] ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
+  :aliases {"nrepl"              ["repl" ":connect" "localhost:4001"]
+            ;; release using datomic-free and with the compiled cljs and css
+            "release"            ["do" ["compile-frontend"] ["with-profile" "datomic-free" "release"]]
+            ;; same for deploy
+            "deploy"             ["do" ["compile-frontend"] ["with-profile" "datomic-free" "deploy"]]
+            ;; compiles cljs and sass. ventas-devtools does the actual job
+            "compile-frontend"   ["with-profile" "ventas-devtools,cljs-deps,datomic-free"
+                                  "run" "-m" "ventas-devtools.uberjar/prepare" ":main" :project/main ":themes" "[:clothing :blank]"]
+            "compile-cljs-tests" ["with-profile" "ventas-devtools,cljs-deps,datomic-free"
+                                  "run" "-m" "ventas-devtools.karma/compile"]
+            "test"               ["with-profile" "datomic-free" "test"]
+            "fmt"                ["with-profile" "fmt"
+                                  "do"
+                                    ["cljfmt" "fix"]
+                                    ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
   :main ventas.core
 
@@ -200,7 +202,8 @@
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :ventas-devtools {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT"]]}
-             :cljs-deps {:dependencies [[alandipert/storage-atom "2.0.1"]
+             :cljs-deps {:dependencies [[org.clojure/clojurescript "1.10.339" :scope "provided"]
+                                        [alandipert/storage-atom "2.0.1"]
                                         [bidi "2.1.4"]
                                         [day8.re-frame/forward-events-fx "0.0.6"]
                                         [devcards "0.2.4" :exclusions [cljsjs/react org.clojure/clojurescript]]
@@ -221,8 +224,7 @@
                            :source-paths ["dev/clj" "dev/cljs"]}
 
              :fmt {:source-paths ^:replace ["dev/clj" "dev/cljs" "src/clj" "src/cljc" "src/cljs"]}
-             :build-client ^:leaky [:ventas-devtools :cljs-deps {:prep-tasks ["javac" "compile" ~prepare-uberjar]}]
              :repl ^:repl [:datomic-pro :development :ventas-devtools :cljs-deps]
-             :uberjar [:datomic-pro :build-client {:source-paths ^:replace ["src/clj" "src/cljc"]
-                                                   :omit-source true
-                                                   :aot ~aot-namespaces}]})
+             :uberjar [:datomic-pro {:source-paths ^:replace ["src/clj" "src/cljc"]
+                                     :omit-source true
+                                     :aot ~aot-namespaces}]})
