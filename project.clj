@@ -9,6 +9,8 @@
 
   :scm {:url "git@github.com:joelsanchez/ventas.git"}
 
+  :pedantic? :abort
+
   :author {:name "Joel Sánchez"
            :email "webmaster@kazer.es"}
 
@@ -38,12 +40,14 @@
 
                  ;; Spec stuff
                  [expound "0.7.1"]
-                 [org.clojure/spec.alpha "0.1.143"]
-                 [metosin/spec-tools "0.7.2"]
-                 [org.clojure/test.check "0.9.0"]
+                 [org.clojure/spec.alpha "0.2.176"]
+                 [metosin/spec-tools "0.7.2" :exclusions [com.fasterxml.jackson.core/jackson-core]]
+                 [org.clojure/test.check "0.10.0-alpha3"]
                  [com.gfredericks/test.chuck "0.2.9"]
 
+                 ;; Transitive dependencies
                  [com.google.guava/guava "21.0"]
+                 [org.clojure/tools.reader "1.3.0-alpha3"]
 
                  ;; Namespace tools
                  [org.clojure/tools.namespace "0.3.0-alpha4"]
@@ -71,13 +75,13 @@
 
                  ;; HTTP server, routing
                  [http-kit "2.3.0"]
-                 [compojure "1.6.1"]
+                 [compojure "1.6.1" :exclusions [instaparse]]
 
                  ;; Authentication
-                 [buddy "2.0.0"]
+                 [buddy "2.0.0" :exclusions [instaparse]]
 
                  ;; Ring
-                 [ring "1.7.0"]
+                 [ring "1.6.3"]
                  [ring/ring-defaults "0.3.2"]
                  [bk/ring-gzip "0.3.0"]
                  [ring/ring-json "0.4.0" :exclusions [cheshire]]
@@ -127,10 +131,10 @@
                  [fivetonine/collage "0.2.1"]
 
                  ;; Elasticsearch
-                 [cc.qbits/spandex "0.6.4"]
+                 [cc.qbits/spandex "0.6.4" :exclusions [ring/ring-codec]]
 
                  ;; Server-side prerendering
-                 [etaoin "0.2.9"]
+                 [etaoin "0.2.9" :exclusions [org.clojure/tools.logging]]
 
                  ;; DateTime
                  [clj-time "0.14.4"]
@@ -139,7 +143,7 @@
                  [com.draines/postal "2.0.2"]
 
                  ;; Stripe
-                 [abengoa/clj-stripe "1.0.4"]
+                 [abengoa/clj-stripe "1.0.4" :exclusions [org.jsoup/jsoup]]
 
                  ;; Retry
                  [com.grammarly/perseverance "0.1.3"]]
@@ -147,7 +151,7 @@
   :plugins [[lein-ancient "0.6.15"]
             [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
             [com.gfredericks/how-to-ns "0.1.8"]
-            [lein-cljfmt "0.5.7"]
+            [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure]]
             [lein-cloverage "1.0.10"]]
 
   :how-to-ns {:require-docstring?      false
@@ -201,26 +205,28 @@
 
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :ventas-devtools {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT"]]}
-             :cljs-deps {:dependencies [[org.clojure/clojurescript "1.10.339" :scope "provided"]
-                                        [alandipert/storage-atom "2.0.1"]
+             :ventas-devtools {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT" :exclusions [thheller/shadow-cljs]]]}
+             :cljs-deps {:dependencies [[alandipert/storage-atom "2.0.1"]
                                         [bidi "2.1.4"]
                                         [day8.re-frame/forward-events-fx "0.0.6"]
-                                        [devcards "0.2.4" :exclusions [cljsjs/react org.clojure/clojurescript]]
-                                        [joelsanchez/ventas-bidi-syntax "0.1.2"]
-                                        [reagent "0.8.1"]
-                                        [re-frame "0.10.6"]
+                                        [devcards "0.2.4" :exclusions [cljsjs/react cljsjs/react-dom org.clojure/clojurescript]]
+                                        [joelsanchez/ventas-bidi-syntax "0.1.4"]
+                                        [re-frame "0.10.6" :exclusions [org.clojure/clojurescript
+                                                                        org.clojure/tools.logging]]
                                         [soda-ash "0.82.2" :exclusions [cljsjs/react-dom cljsjs/react org.clojure/clojurescript]]
-                                        [thheller/shadow-cljs "2.6.10"]
+                                        [thheller/shadow-cljs "2.6.24" :exclusions [ring/ring-core
+                                                                                    ring/ring-codec
+                                                                                    com.google.guava/guava
+                                                                                    org.clojure/tools.reader
+                                                                                    org.clojure/tools.logging]]
                                         [venantius/accountant "0.2.4"]
                                         [com.cemerick/url "0.1.1"]]}
              :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
                                           [cider/piggieback "0.3.9"]
-                                          [binaryage/devtools "0.9.10"]
-                                          [com.cemerick/pomegranate "1.0.0"]]
+                                          [binaryage/devtools "0.9.10"]]
                            :plugins [[cider/cider-nrepl "0.19.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
                                      [refactor-nrepl "2.4.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
-                                     [venantius/ultra "0.5.2"]]
+                                     [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
                            :source-paths ["dev/clj" "dev/cljs"]}
 
              :fmt {:source-paths ^:replace ["dev/clj" "dev/cljs" "src/clj" "src/cljc" "src/cljs"]}
