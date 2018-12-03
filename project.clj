@@ -35,7 +35,7 @@
   :dependencies [
                  ;; Clojure
                  [org.clojure/clojure "1.9.0" :scope "provided"]
-                 [org.clojure/core.async "0.4.474" :exclusions [org.clojure/tools.reader]]
+                 [org.clojure/core.async "0.4.474"]
                  [org.clojure/tools.nrepl "0.2.13"]
 
                  ;; Spec stuff
@@ -201,11 +201,13 @@
 
   :main ventas.core
 
-  :ultra {:repl false}
-
   :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
              :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :ventas-devtools {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT" :exclusions [thheller/shadow-cljs]]]}
+             :ventas-devtools {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT" :exclusions [ring/ring-core
+                                                                                              ring/ring-codec
+                                                                                              org.clojure/tools.cli
+                                                                                              org.clojure/tools.logging
+                                                                                              org.jboss.logging/jboss-logging]]]}
              :cljs-deps {:dependencies [[alandipert/storage-atom "2.0.1"]
                                         [bidi "2.1.4"]
                                         [day8.re-frame/forward-events-fx "0.0.6"]
@@ -214,21 +216,11 @@
                                         [re-frame "0.10.6" :exclusions [org.clojure/clojurescript
                                                                         org.clojure/tools.logging]]
                                         [soda-ash "0.82.2" :exclusions [cljsjs/react-dom cljsjs/react org.clojure/clojurescript]]
-                                        [thheller/shadow-cljs "2.6.24" :exclusions [ring/ring-core
-                                                                                    ring/ring-codec
-                                                                                    com.google.guava/guava
-                                                                                    org.clojure/tools.reader
-                                                                                    org.clojure/tools.logging]]
-                                        [venantius/accountant "0.2.4"]
+                                        [venantius/accountant "0.2.4" :exclusions [org.clojure/clojurescript]]
                                         [com.cemerick/url "0.1.1"]]}
-             :development {:dependencies [[org.codehaus.plexus/plexus-utils "3.0.15"]
-                                          [cider/piggieback "0.3.9"]
+             :development {:dependencies [[cider/piggieback "0.3.9" :exclusions [org.clojure/clojurescript org.clojure/tools.logging nrepl]]
                                           [binaryage/devtools "0.9.10"]]
-                           :plugins [[cider/cider-nrepl "0.19.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
-                                     [refactor-nrepl "2.4.0-SNAPSHOT" :exclusions [org.clojure/tools.nrepl]]
-                                     [venantius/ultra "0.5.2" :exclusions [org.clojure/clojure]]]
                            :source-paths ["dev/clj" "dev/cljs"]}
-
              :fmt {:source-paths ^:replace ["dev/clj" "dev/cljs" "src/clj" "src/cljc" "src/cljs"]}
              :repl ^:repl [:datomic-pro :development :ventas-devtools :cljs-deps]
              :uberjar [:datomic-pro {:source-paths ^:replace ["src/clj" "src/cljc"]

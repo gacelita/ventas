@@ -7,7 +7,6 @@
     [clojure.spec.alpha :as spec]
     [taoensso.timbre :as timbre]))
 
-(def add-dependency   devtools.repl/add-dependency)
 (def cljs-repl        devtools.repl/cljs-repl)
 (def init             devtools.repl/init)
 (def r                devtools.repl/r)
