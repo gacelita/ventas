@@ -21,7 +21,17 @@ For any questions I'm usually available at the `#ventas` channel in [clojurians]
 
 - [Swagger-like API tool](https://ventas2.kazer.es/api)
 
+---
 
+As of January 21, 2019, I'm refactoring this application into three different pieces:
+
+- `ventas-core`: core functionality
+- `ventas-clothing-theme`: the theme that is included in the main code at the moment
+- `ventas`: an example of how to use the application to run a demo store
+
+This will allow me to remove a lot of cruft from the core, and it will ease releasing new versions of the core, themes, etc. Stay tuned.
+
+---
 
 ### Motivation
 
