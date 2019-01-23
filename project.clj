@@ -69,7 +69,7 @@
                  [cprop "0.1.13"]
 
                  ;; i18n
-                 [tongue "0.2.5"]
+                 [tongue "0.2.6"]
 
                  ;; HTML templating
                  [selmer "1.12.5" :exclusions [cheshire joda-time]]
