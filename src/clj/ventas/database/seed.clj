@@ -2,13 +2,13 @@
   (:require
    [clojure.set :as set]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
    [ventas.plugin :as plugin]
    [ventas.theme :as theme]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [clojure.tools.logging :as log]))
 
 (defn- create*
   "Wraps create* with the seed lifecycle functions"
@@ -31,7 +31,7 @@
   (let [deps (entity/dependencies type)]
     (doseq [dep deps]
       (seed-type-with-deps dep 1))
-    (timbre/info "Seeding type:" type)
+    (log/info "Seeding type:" type)
     (seed-type type n)))
 
 (defn- get-sorted-types*
@@ -78,10 +78,10 @@
   [& {:keys [recreate? generate? minimal?]}]
 
   (schema/migrate :recreate? recreate?)
-  (timbre/info "Migrations done!")
+  (log/info "Migrations done!")
 
   (doseq [type (get-sorted-types)]
-    (timbre/info "Seeding type " type)
+    (log/info "Seeding type " type)
     (seed-type type (if generate? (entity/seed-number type) 0)))
 
   (when-not minimal?
@@ -91,10 +91,10 @@
                        (set)
                        (remove #(contains? themes %)))]
       (doseq [id themes]
-        (timbre/info "Installing theme " id)
+        (log/info "Installing theme " id)
         (doseq [fixture (plugin/fixtures id)]
           (create* fixture)))
       (doseq [id plugins]
-        (timbre/info "Installing plugin " id)
+        (log/info "Installing plugin " id)
         (doseq [fixture (plugin/fixtures id)]
           (create* fixture))))))

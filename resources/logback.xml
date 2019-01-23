@@ -1,0 +1,25 @@
+<configuration debug="false" scan="false">
+
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="stdout"/>
+    </root>
+
+    <logger name="datomic" level="WARN" additivity="false">
+        <appender-ref ref="stdout"/>
+    </logger>
+
+    <logger name="ventas" level="DEBUG" additivity="false">
+        <appender-ref ref="stdout"/>
+    </logger>
+
+</configuration>

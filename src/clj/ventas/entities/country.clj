@@ -9,14 +9,14 @@
 
 (entity/register-type!
  :country.group
- {:attributes
-  [{:db/ident :country.group/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :country.group/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}]
+ {:migrations
+  [[:base [{:db/ident :country.group/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :country.group/keyword
+            :db/valueType :db.type/keyword
+            :db/unique :db.unique/identity
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:i18n}
@@ -44,20 +44,20 @@
 
 (entity/register-type!
  :country
- {:attributes
-  [{:db/ident :country/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
-   {:db/ident :country/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :country/group
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :country.group}]
+ {:migrations
+  [[:base [{:db/ident :country/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
+           {:db/ident :country/keyword
+            :db/valueType :db.type/keyword
+            :db/unique :db.unique/identity
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :country/group
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :country.group}]]]
 
   :dependencies
   #{:i18n :country.group}

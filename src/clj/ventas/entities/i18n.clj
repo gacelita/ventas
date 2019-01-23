@@ -19,14 +19,14 @@
 
 (entity/register-type!
  :i18n.culture
- {:attributes
-  [{:db/ident :i18n.culture/keyword
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}
-   {:db/ident :i18n.culture/name
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}]
+ {:migrations
+  [[:base [{:db/ident :i18n.culture/keyword
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one
+            :db/unique :db.unique/identity}
+           {:db/ident :i18n.culture/name
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}]]]
 
   :fixtures
   (fn []
@@ -57,13 +57,13 @@
 
 (entity/register-type!
  :i18n.translation
- {:attributes
-  [{:db/ident :i18n.translation/value
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :i18n.translation/culture
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+ {:migrations
+  [[:base [{:db/ident :i18n.translation/value
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :i18n.translation/culture
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:i18n.culture}
@@ -124,11 +124,11 @@
 
 (entity/register-type!
  :i18n
- {:attributes
-  [{:db/ident :i18n/translations
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many
-    :db/isComponent true}]
+ {:migrations
+  [[:base [{:db/ident :i18n/translations
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/many
+            :db/isComponent true}]]]
 
   :dependencies
   #{:i18n.translation}

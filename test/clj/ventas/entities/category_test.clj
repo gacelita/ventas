@@ -1,7 +1,6 @@
 (ns ventas.entities.category-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.seed :as seed]
@@ -26,12 +25,10 @@
 
 (declare category)
 
-(use-fixtures :once #(with-redefs [db/conn (test-tools/test-conn)]
-                       (timbre/with-level
-                        :report
-                        (seed/seed :minimal? true)
-                        (with-redefs [category (entity/create* example-category)]
-                          (%)))))
+(use-fixtures :once #(test-tools/with-test-context
+                       (seed/seed :minimal? true)
+                       (with-redefs [category (entity/create* example-category)]
+                         (%))))
 
 (deftest serialization
   (is (= "jpg" (get-in (entity/serialize category) [:image :extension])))

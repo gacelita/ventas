@@ -2,30 +2,23 @@
   "Try to keep this namespace on a strict diet :)"
   (:require
    [accountant.core :as accountant]
-   [cljs.core.async :refer [<!]]
+   [cljs.core.async :refer [<! go]]
    [cljs.pprint :as pprint]
-   [cljs.reader :as reader]
+   [cognitect.transit :as transit]
    [re-frame.core :as rf]
    [re-frame.loggers :as rf.loggers]
    [reagent.core :as reagent]
    [ventas.components.base :as base]
-   [ventas.devcards.core]
    [ventas.events :as events]
    [ventas.events.backend]
    [ventas.local-storage :as storage]
    [ventas.page :as page]
    [ventas.pages.admin]
-   [ventas.pages.datadmin]
-   [ventas.plugins.api.core]
    [ventas.routes :as routes]
    [ventas.seo :as seo]
    [ventas.session :as session]
    [ventas.utils.logging :refer [debug info]]
-   [ventas.utils.logging :as log]
-   [ventas.ws :as ws]
-   [cognitect.transit :as transit])
-  (:require-macros
-   [cljs.core.async.macros :refer [go]]))
+   [ventas.ws :as ws]))
 
 (enable-console-print!)
 

@@ -65,14 +65,14 @@
 
 (entity/register-type!
  :file
- {:attributes
-  [{:db/ident :file/extension
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :file/keyword
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}]
+ {:migrations
+  [[:base [{:db/ident :file/extension
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :file/keyword
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one
+            :db/unique :db.unique/identity}]]]
 
   :after-seed
   (fn [{:file/keys [extension] :as this}]

@@ -19,7 +19,6 @@
    [ventas.pages.admin.products]
    [ventas.pages.admin.shipping-methods]
    [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.pages.admin.statistics]
    [ventas.pages.admin.taxes]
    [ventas.pages.admin.users.edit]
    [ventas.pages.admin.users]

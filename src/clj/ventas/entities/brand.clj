@@ -24,27 +24,27 @@
 
 (entity/register-type!
  :brand
- {:attributes
-  [{:db/ident :brand/name
-    :db/isComponent true
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :i18n}
+ {:migrations
+  [[:base [{:db/ident :brand/name
+            :db/isComponent true
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :i18n}
 
-   {:db/ident :brand/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :brand/keyword
+            :db/valueType :db.type/keyword
+            :db/unique :db.unique/identity
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :brand/description
-    :db/isComponent true
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :i18n}
+           {:db/ident :brand/description
+            :db/isComponent true
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :i18n}
 
-   {:db/ident :brand/logo
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+           {:db/ident :brand/logo
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}]]]
 
   :autoresolve? true
 

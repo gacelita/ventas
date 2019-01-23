@@ -21,13 +21,10 @@
    [ventas.entities.product :as entities.product]
    [ventas.i18n :refer [i18n]]
    [ventas.paths :as paths]
-   [ventas.search.entities :as search.entities]
    [ventas.search.products :as search.products]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
    [ventas.site :as site]
-   [ventas.stats :as stats]
-   [ventas.theme :as theme]
    [ventas.utils :as utils]
    [ventas.utils.slugs :as utils.slugs]))
 
@@ -228,6 +225,7 @@
      - Aggregated product terms and categories for the given category"}
  (fn [{{:keys [filters pagination]} :params} {:keys [session]}]
    (let [culture (get-culture session)
+         _ (println "Culture" culture)
          filters (-> filters
                      (common.utils/update-when-some :categories
                                                     (fn [categories]
@@ -334,36 +332,6 @@
  (fn [_ {:keys [session]}]
    (swap! session dissoc :user)
    true))
-
-(register-endpoint!
- :search
- {:spec {:search ::string}
-  :doc "Does a fulltext search for `search` in products, categories and brands"}
- (fn [{{:keys [search]} :params} {:keys [session]}]
-   (stats/record-search-event! search)
-   (let [culture (get-culture session)]
-     (->> (search.entities/search search
-                                  #{:product/name
-                                    :category/name
-                                    :brand/name}
-                                  culture)
-          (map (fn [{:keys [images type id name full-name] :as result}]
-                 {:image (first images)
-                  :id id
-                  :type type
-                  :name (case type
-                          :product name
-                          :category full-name)}))))))
-
-(register-endpoint!
- :stats.navigation
- (fn [{{:keys [handler params]} :params} {:keys [session]}]
-   (let [{:db/keys [id]} (get-user session)]
-     (stats/record-navigation-event!
-      {:handler handler
-       :params params
-       :user id})
-     nil)))
 
 (register-endpoint!
  :site.create

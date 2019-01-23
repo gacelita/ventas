@@ -54,8 +54,6 @@
                                                       (str "Payment method not found: " method))
     :ventas.plugin/plugin-not-found (fn [{:keys [keyword]}]
                                       (str "Plugin not found: " keyword))
-    :ventas.plugins.slider.core/slider-not-found (fn [{:keys [keyword]}]
-                                                   (str "Slider not found: " keyword))
     :ventas.search/elasticsearch-error "Elasticsearch error"
     :ventas.server.api.admin/unauthorized "Unauthorized: you need to be an administrator to do this"
     :ventas.server.api.user/authentication-required "Authentication required: your identity is invalid or missing"

@@ -11,27 +11,27 @@
 
 (entity/register-type!
  :state
- {:attributes
-  [{:db/ident :state/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}
+ {:migrations
+  [[:base [{:db/ident :state/keyword
+            :db/valueType :db.type/keyword
+            :db/unique :db.unique/identity
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :state/country
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :country}
+           {:db/ident :state/country
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :country}
 
-   {:db/ident :state/parent
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :ventas/refEntityType :state}
+           {:db/ident :state/parent
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :state}
 
-   {:db/ident :state/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}]
+           {:db/ident :state/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}]]]
 
   :autoresolve? true
   :dependencies #{:i18n :country}})

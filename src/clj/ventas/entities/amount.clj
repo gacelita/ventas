@@ -19,18 +19,18 @@
 
 (entity/register-type!
  :amount
- {:attributes
-  [{:db/ident :amount/keyword
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}
-   {:db/ident :amount/value
-    :db/valueType :db.type/bigdec
-    :db/cardinality :db.cardinality/one
-    :db/index true}
-   {:db/ident :amount/currency
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+ {:migrations
+  [[:base [{:db/ident :amount/keyword
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one
+            :db/unique :db.unique/identity}
+           {:db/ident :amount/value
+            :db/valueType :db.type/bigdec
+            :db/cardinality :db.cardinality/one
+            :db/index true}
+           {:db/ident :amount/currency
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:currency}

@@ -34,24 +34,24 @@
 
 (entity/register-type!
  :menu.item
- {:attributes
-  (utils/into-n
-   [{:db/ident :menu.item/name
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :i18n}
-    {:db/ident :menu.item/link
-     :db/valueType :db.type/string
-     :db/cardinality :db.cardinality/one}
-    {:db/ident :menu.item/position
-     :db/valueType :db.type/long
-     :db/cardinality :db.cardinality/one}
-    {:db/ident :menu.item/children
-     :db/valueType :db.type/ref
-     :db/isComponent true
-     :db/cardinality :db.cardinality/many
-     :ventas/refEntityType :menu.item}])
+ {:migrations
+  [[:base (utils/into-n
+           [{:db/ident :menu.item/name
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :i18n}
+            {:db/ident :menu.item/link
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one}
+            {:db/ident :menu.item/position
+             :db/valueType :db.type/long
+             :db/cardinality :db.cardinality/one}
+            {:db/ident :menu.item/children
+             :db/valueType :db.type/ref
+             :db/isComponent true
+             :db/cardinality :db.cardinality/many
+             :ventas/refEntityType :menu.item}])]]
 
   :autoresolve? true
 
@@ -77,19 +77,19 @@
 
 (entity/register-type!
  :menu
- {:attributes
-  (utils/into-n
-   [{:db/ident :menu/name
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :i18n}
+ {:migrations
+  [[:base (utils/into-n
+           [{:db/ident :menu/name
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :i18n}
 
-    {:db/ident :menu/items
-     :db/valueType :db.type/ref
-     :db/isComponent true
-     :db/cardinality :db.cardinality/many
-     :ventas/refEntityType :menu.item}])
+            {:db/ident :menu/items
+             :db/valueType :db.type/ref
+             :db/isComponent true
+             :db/cardinality :db.cardinality/many
+             :ventas/refEntityType :menu.item}])]]
 
   :autoresolve? true
 

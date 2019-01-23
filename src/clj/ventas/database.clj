@@ -7,11 +7,11 @@
    [io.rkn.conformity :as conformity]
    [mount.core :refer [defstate]]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre]
    [ventas.config :as config]
    [ventas.database.generators :as db.generators]
    [ventas.utils :as utils]
-   [perseverance.core :as p])
+   [perseverance.core :as p]
+   [clojure.tools.logging :as log])
   (:import
    [datomic Datom Connection]
    [datomic.query EntityMap]
@@ -23,7 +23,7 @@
    {:catch [ExceptionInfo]
     :tag ::connect-to-db}
    (let [url (config/get :database :url)]
-     (timbre/info (str "Starting database, URL: " url))
+     (log/info (str "Starting database, URL: " url))
      (try
        (d/create-database url)
        (d/connect url)
@@ -32,7 +32,7 @@
                   :message "Error connecting (database offline?)"}))))))
 
 (defn stop-db! [_]
-  (timbre/info "Stopping database"))
+  (log/info "Stopping database"))
 
 (defstate conn
   :start
@@ -309,14 +309,14 @@
   "Wrapper for d/delete-database"
   []
   (let [url (config/get :database :url)]
-    (timbre/info "Deleting database " url)
+    (log/info "Deleting database " url)
     (d/delete-database url)))
 
 (defn create
   "Wrapper for d/create-database"
   []
   (let [url (config/get :database :url)]
-    (timbre/info "Creating database " url)
+    (log/info "Creating database " url)
     (d/create-database url)))
 
 (defn recreate

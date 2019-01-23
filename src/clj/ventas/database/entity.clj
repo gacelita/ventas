@@ -7,12 +7,12 @@
    [clojure.test.check.generators :as gen]
    [datomic.api :as d]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.generators :as db.generators]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [clojure.tools.logging :as log]))
 
 (defn entity? [entity]
   (when (map? entity)
@@ -65,13 +65,15 @@
   "Registers an entity type
    Example: (register-entity-type! :user)"
   [kw & [m]]
-  {:pre [(keyword? kw) (or (nil? m)
-                           (and (map? m) (utils/check ::entity-type m)))]}
+  {:pre [(keyword? kw) (or (nil? m) (map? m))]}
   (let [m (or m {})]
     (schema/register-migration!
+     (keyword (name kw) "entity-type-ident")
      [{:db/ident (kw->type kw)}])
-    (schema/register-migration!
-     (or (:attributes m) []))
+    (doseq [[key attributes] (:migrations m)]
+      (schema/register-migration!
+       (keyword (name kw) (name key))
+       attributes))
     (swap! registered-types assoc kw m)))
 
 (defn types
@@ -225,7 +227,6 @@
 (defn create*
   "Creates an entity"
   [attrs]
-  (timbre/debug attrs)
   (spec! attrs)
   (check-db-migrated!)
   (before-create attrs)

@@ -1,16 +1,18 @@
 (ns ventas.server.ws
   (:require
-   [clj-uuid :as uuid]
    [clojure.core.async :as core.async :refer [<! >! chan go go-loop]]
    [clojure.core.async.impl.protocols :as core.async.protocols]
    [cognitect.transit :as transit]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre]
    [ventas.database.entity :as entity]
-   [ventas.utils :as utils])
+   [ventas.utils :as utils]
+   [clojure.tools.logging :as log])
   (:import
    [com.cognitect.transit ReadHandler]
    [java.io ByteArrayInputStream]))
+
+(defn- uuid-v4 []
+  (str (java.util.UUID/randomUUID)))
 
 (def ^:private shared-hub
   (atom nil))
@@ -92,7 +94,7 @@
 (defn handle-message [{{:keys [type] :as message} :message :as payload} {:keys [channel] :as state}]
   (if (:error payload)
     (do
-      (timbre/error payload)
+      (log/error payload)
       (-> (error-response (safely-transit-read (:invalid-msg payload)) payload)
           (send-message channel)))
     (case type
@@ -100,7 +102,7 @@
                  (send-message channel))
       :request (-> (call-request-handler message state)
                    (send-message channel))
-      (timbre/debug "Unhandled message: " message))))
+      (log/debug "Unhandled message: " message))))
 
 (defn get-shared-channel []
   (let [ch (chan)]
@@ -120,7 +122,7 @@
 
 (defmethod handle-messages :transit-json [_ {:keys [server-name]} {:keys [ws-channel] :as request}]
   (let [shared-channel (get-shared-channel)
-        client-id (uuid/v4)
+        client-id (uuid-v4)
         session (atom {})
         output-channel (chan)]
     (core.async/pipe shared-channel ws-channel)
@@ -142,10 +144,10 @@
     name))
 
 (defmethod handle-messages :fressian [_ _ {channel :ws-channel :as request}]
-  (let [client-id (uuid/v4)]
+  (let [client-id (uuid-v4)]
     (go-loop []
       (when-let [{{:keys [id] :as message} :message} (<! channel)]
-        (timbre/debug "Received binary message" message)
+        (log/debug "Received binary message" message)
         (let [response (handle-binary-request
                         message
                         {:client-id client-id

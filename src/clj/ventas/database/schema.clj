@@ -1,52 +1,41 @@
 (ns ventas.database.schema
   (:require
-   [taoensso.timbre :as timbre]
    [ventas.common.utils :as common.utils]
-   [ventas.database :as db]))
-
-(defn- make-migration [attrs]
-  {(keyword (str "hash-" (hash attrs))) attrs})
+   [ventas.database :as db]
+   [clojure.tools.logging :as log]))
 
 (defn- initial-migrations []
-  [(make-migration [{:db/ident :ventas/refEntityType
-                     :db/valueType :db.type/keyword
-                     :db/cardinality :db.cardinality/one}
+  [[:ref-entity-type [{:db/ident :ventas/refEntityType
+                       :db/valueType :db.type/keyword
+                       :db/cardinality :db.cardinality/one}]]
+   [:base [{:db/ident :schema/deprecated
+            :db/valueType :db.type/boolean
+            :db/cardinality :db.cardinality/one}
 
-                    {:db/ident :ventas/pluginId
-                     :db/valueType :db.type/keyword
-                     :db/cardinality :db.cardinality/one}
+           {:db/ident :schema/see-instead
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one}
 
-                    {:db/ident :ventas/pluginVersion
-                     :db/valueType :db.type/string
-                     :db/cardinality :db.cardinality/one}])
-   (make-migration [{:db/ident :schema/deprecated
-                     :db/valueType :db.type/boolean
-                     :db/cardinality :db.cardinality/one}
+           {:db/ident :schema/type
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :enum}
 
-                    {:db/ident :schema/see-instead
-                     :db/valueType :db.type/keyword
-                     :db/cardinality :db.cardinality/one}
+           {:db/ident :event/kind
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one}
 
-                    {:db/ident :schema/type
-                     :db/valueType :db.type/ref
-                     :db/cardinality :db.cardinality/one
-                     :ventas/refEntityType :enum}])
+           {:db/ident :ventas/slug
+            :db/unique :db.unique/identity
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
 
-   (make-migration [{:db/ident :event/kind
-                     :db/valueType :db.type/keyword
-                     :db/cardinality :db.cardinality/one}
-
-                    {:db/ident :ventas/slug
-                     :db/unique :db.unique/identity
-                     :db/valueType :db.type/ref
-                     :db/cardinality :db.cardinality/one
-                     :db/isComponent true
-                     :ventas/refEntityType :i18n}
-
-                    {:db/ident :ventas/site
-                     :db/valueType :db.type/ref
-                     :db/cardinality :db.cardinality/one
-                     :ventas/refEntityType :site}])])
+           {:db/ident :ventas/site
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :site}]]])
 
 (defonce ^:private migrations
   (atom (initial-migrations)))
@@ -55,34 +44,29 @@
   (reset! migrations (initial-migrations)))
 
 (defn get-migration [kw]
-  (common.utils/find-first
-   #(= (set (keys %)) #{kw})
-   @migrations))
+  (get (into {} @migrations) kw))
 
 (defn- migration-index [kw]
   (common.utils/find-index
-   #(= (set (keys %)) #{kw})
+   #(= (first %) kw)
    @migrations))
 
-(defn remove-migration [kw]
-  (swap! migrations (fn [migrs]
-                      (into {} (remove #(= (set (keys %)) #{kw})
-                                       migrs)))))
+(defn remove-migration! [kw]
+  (swap! migrations assoc (migration-index kw) nil))
 
 (defn register-migration!
-  "Takes a list of attributes and an optional migration key.
+  "Takes a migration key and a list of attributes.
    Migrations can be replaced if the same migration key is used, but
    note that migrations will only run once during the lifetime of a database
    (hence you'd need to use (seed/seed :recreate? true) or an equivalent).
    This is why doing so generates a warning."
-  [attributes & [key]]
-  {:pre [(coll? attributes)]}
-  (let [key (or key (keyword (str "hash-" (hash attributes))))
-        pair {key attributes}]
+  [key attributes]
+  {:pre [(coll? attributes) (keyword? key) (namespace key)]}
+  (let [pair [key attributes]]
     (if-let [migration (get-migration key)]
       (do
         (when (not= migration pair)
-          (timbre/warn "Replacing migration with key" key))
+          (log/warn "Replacing migration with key" key))
         (swap! migrations assoc (migration-index key) pair))
       (swap! migrations conj pair))))
 
@@ -97,8 +81,7 @@
     (db/recreate)
     (mount.core/start #'db/conn))
   (let [migrations (get-migrations)]
-    (timbre/info "Running migrations")
-    (doseq [migration migrations]
-      (doseq [[k v] migration]
-        (timbre/info "Migration " k)
-        (db/ensure-conforms k v)))))
+    (log/info "Running migrations")
+    (doseq [[key attributes] migrations]
+      (log/info "Migration " key)
+      (db/ensure-conforms key attributes))))

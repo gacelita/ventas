@@ -1,7 +1,6 @@
 (ns ventas.entities.file-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.file :as sut]
@@ -12,10 +11,9 @@
    :file/extension "jpg"
    :schema/type :schema.type/file})
 
-(use-fixtures :once #(with-redefs [db/conn (test-tools/test-conn)]
-                       (timbre/with-level :report
-                         (entity/create* example-file)
-                         (%))))
+(use-fixtures :once #(test-tools/with-test-context
+                       (entity/create* example-file)
+                       (%)))
 
 (deftest identifier
   (let [file (entity/find [:file/keyword (:file/keyword example-file)])]

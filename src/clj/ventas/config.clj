@@ -4,25 +4,27 @@
    [cprop.core :as cprop]
    [cprop.source]
    [mount.core :refer [defstate]]
-   [taoensso.timbre :as timbre]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [clojure.tools.logging :as log]))
 
 (defn- load-config []
   (let [custom-config (utils/swallow
                         (cprop.source/from-resource "config.edn"))]
     (apply cprop/load-config
-           :resource "default-config.edn"
+           :resource "ventas/config/base-config.edn"
            (when custom-config
              [:merge [custom-config]]))))
 
-(defonce ^:dynamic config (atom (load-config)))
-
-(defstate config-loader
+(defstate config
   :start
-  (let [config-data (load-config)]
-    (timbre/info "Loading configuration")
-    (timbre/debug config-data)
-    (reset! config config-data)))
+  (do
+    (log/info "Loading configuration")
+    (let [{:keys [auth-secret profile] :as config-data} (load-config)]
+      (log/debug config-data)
+      (when (and (= profile "prod") (or (empty? auth-secret) (= auth-secret "CHANGEME")))
+        (throw (Exception. (str ":auth-secret is empty or has not been changed.\n"
+                                "Either edit resources/config.edn or add an AUTH_SECRET environment variable, and try again."))))
+      (atom config-data))))
 
 (defn set
   [k-or-ks v]

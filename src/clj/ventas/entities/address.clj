@@ -2,7 +2,8 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
-   [ventas.database.generators :as generators]))
+   [ventas.database.generators :as generators]
+   [ventas.database.schema :as schema]))
 
 (spec/def :address/first-name ::generators/string)
 
@@ -47,50 +48,50 @@
 
 (entity/register-type!
  :address
- {:attributes
-  [{:db/ident :address/first-name
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+ {:migrations
+  [[:base [{:db/ident :address/first-name
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/last-name
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/last-name
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/company
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/company
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/phone
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/phone
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/address
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/address
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/address-second-line
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/address-second-line
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/zip
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/zip
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/city
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/city
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/country
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/country
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/state
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :address/state
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :address/user
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+           {:db/ident :address/user
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:country :state :user :i18n}})

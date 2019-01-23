@@ -1,15 +1,12 @@
 (ns ventas.database.entity-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as sut]
    [ventas.test-tools :as test-tools]))
 
-(use-fixtures :each #(with-redefs [db/conn (test-tools/test-conn)]
-                       (timbre/with-level
-                        :report
-                        (%))))
+(use-fixtures :each #(test-tools/with-test-context
+                       (%)))
 
 (deftest entity?
   (is (= (sut/entity? {:schema/type :any-kw}) true))

@@ -113,7 +113,4 @@
  (fn [{:keys [db]} [_ handler route-params]]
    {:db (assoc db :route [handler route-params])
     :document-title (route-name handler route-params)
-    :ws-request {:name :stats.navigation
-                 :params {:handler handler
-                          :params route-params}}
     :dispatch-n [(:init-fx (find-route handler))]}))

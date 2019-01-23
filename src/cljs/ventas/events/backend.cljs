@@ -133,11 +133,6 @@
    {:ws-request (merge {:name :admin.search} options)}))
 
 (rf/reg-event-fx
- ::admin.stats.realtime
- (fn [_ [_ options]]
-   {:ws-request (merge {:name :admin.stats.realtime} options)}))
-
-(rf/reg-event-fx
  ::users.login
  (fn [_ [_ options]]
    {:ws-request (merge {:name :users.login} options)}))

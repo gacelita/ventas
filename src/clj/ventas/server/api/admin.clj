@@ -1,7 +1,6 @@
 (ns ventas.server.api.admin
   (:require
-   [clojure.core.async :as core.async :refer [<! <!! >! chan go go-loop]]
-   [clojure.core.async.impl.protocols :as core.async.protocols]
+   [clojure.core.async :refer [<! <!! >! chan go go-loop]]
    [slingshot.slingshot :refer [throw+]]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
@@ -9,13 +8,10 @@
    [ventas.entities.image-size :as entities.image-size]
    [ventas.entities.order :as entities.order]
    [ventas.plugin :as plugin]
-   [ventas.search :as search]
    [ventas.server.api :as api]
    [ventas.search.entities :as search.entities]
    [ventas.server.pagination :as pagination]
-   [ventas.utils :as utils]
-   [ventas.kafka :as kafka]
-   [taoensso.timbre :as timbre]))
+   [ventas.utils :as utils]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -175,71 +171,3 @@
  (fn [{config :params} _]
    (doseq [[k v] config]
      (entities.configuration/set! k v))))
-
-(defn time-series [topics {:keys [min max interval]}]
-  (search/search
-   {:query {:bool {:must [{:terms {:topic topics}}
-                          {:range {:timestamp {:gte min
-                                               :lt max}}}]}}
-    :aggs (->> topics
-               (utils/mapm (fn [topic]
-                             [(keyword topic)
-                              {:filter {:term {:topic topic}}
-                               :aggs {:events {:date_histogram {:field "timestamp"
-                                                                :min_doc_count 0
-                                                                :extended_bounds {:min min
-                                                                                  :max (dec max)}
-                                                                :interval interval}}}}])))}))
-
-(defn- extract-bucket-data [response topic]
-  (let [data (get-in response
-                     [:body :aggregations (keyword topic) :events :buckets])]
-    (zipmap (map :key data) (map :doc_count data))))
-
-(defn- get-last-key [response]
-  (->> response
-       (vals)
-       (first)
-       (sort-by first)
-       (last)
-       (key)))
-
-(register-admin-endpoint!
- :admin.stats.realtime
- {:doc "Returns statistics for the given topics.
-        `min` and `max` should be millisecond timestamps.
-        `interval` can be:
-           - an amount in milliseconds
-           - a valid ES interval (see date_histogram docs)
-        Continuous updates will be sent if `max` is nil and `interval` is a millisecond amount."}
- (fn [{{:keys [topics min max interval]} :params} {:keys [channel]}]
-   {:pre [min interval (or (not max) (< min max))]}
-   (when (kafka/enabled?)
-()     (let [realtime? (and (not max) (number? interval))
-           max (or max (System/currentTimeMillis))
-           make-request (fn [{:keys [min max]}]
-                          (let [params {:min min
-                                        :max max
-                                        :interval interval}
-                                response (time-series topics params)]
-                            (utils/mapm
-                             (fn [topic]
-                               [topic (extract-bucket-data response topic)])
-                             topics)))]
-       (if-not realtime?
-         (make-request {:min min :max max})
-         (let [response-ch (chan)
-               response (make-request {:min min :max max})]
-           (go
-             (>! response-ch response)
-             (<! (core.async/timeout 1000))
-             (loop [last-key (get-last-key response)]
-               (<! (core.async/timeout interval))
-               (when (and (not (core.async.protocols/closed? response-ch))
-                          (not (core.async.protocols/closed? channel)))
-                 (let [new-key (+ last-key interval)]
-                   (>! response-ch
-                       (make-request {:min new-key
-                                      :max (+ new-key interval)}))
-                   (recur new-key)))))
-           response-ch))))))

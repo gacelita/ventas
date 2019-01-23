@@ -1,0 +1,59 @@
+body {
+  margin: 0;
+  padding: 0; }
+
+img {
+  border: 0 none;
+  height: auto;
+  line-height: 100%;
+  outline: none;
+  text-decoration: none; }
+
+a img {
+  border: 0 none; }
+
+.imageFix {
+  display: block; }
+
+table, td {
+  border-collapse: collapse; }
+
+.order__total,
+.order__image {
+  padding: 10px 0px; }
+
+.table-header {
+  padding: 10px 0px;
+  font-size: 15px; }
+
+.logo {
+  padding-bottom: 40px; }
+
+#bodyTable {
+  height: 100% !important;
+  margin: 0;
+  padding: 0;
+  width: 100% !important;
+  font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #212121;
+  font-smoothing: antialiased; }
+
+h1, h2, h3, h4, h5 {
+  line-height: 23px;
+  margin-bottom: 14px;
+  font-weight: bold;
+  padding: 0; }
+
+p {
+  margin-bottom: 14px;
+  line-height: 20px; }
+
+.email-templates {
+  margin: 20px; }
+
+.email-template-wrapper {
+  width: 560px;
+  border: solid 1px #e0e0e0;
+  margin-bottom: 30px; }

@@ -24,23 +24,23 @@
 
 (entity/register-type!
  :shipping-method.price
- {:attributes
-  [{:db/ident :shipping-method.price/min-value
-    :db/valueType :db.type/bigdec
-    :db/cardinality :db.cardinality/one}
+ {:migrations
+  [[:base [{:db/ident :shipping-method.price/min-value
+            :db/valueType :db.type/bigdec
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :shipping-method.price/max-value
-    :db/valueType :db.type/bigdec
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :shipping-method.price/max-value
+            :db/valueType :db.type/bigdec
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :shipping-method.price/amount
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+           {:db/ident :shipping-method.price/amount
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true}
 
-   {:db/ident :shipping-method.price/country-groups
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}]
+           {:db/ident :shipping-method.price/country-groups
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/many}]]]
 
   :dependencies
   #{:amount :country.group}
@@ -75,34 +75,34 @@
 
 (entity/register-type!
  :shipping-method
- {:attributes
-  [{:db/ident :shipping-method/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
+ {:migrations
+  [[:base [{:db/ident :shipping-method/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
 
-   {:db/ident :shipping-method/default?
-    :db/valueType :db.type/boolean
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :shipping-method/default?
+            :db/valueType :db.type/boolean
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :shipping-method/manipulation-fee
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+           {:db/ident :shipping-method/manipulation-fee
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true}
 
-   {:db/ident :shipping-method/pricing
-    :db/valueType :db.type/ref
-    :ventas/refEntityType :enum
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :shipping-method/pricing
+            :db/valueType :db.type/ref
+            :ventas/refEntityType :enum
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :shipping-method.pricing/price}
-   {:db/ident :shipping-method.pricing/weight}
+           {:db/ident :shipping-method.pricing/price}
+           {:db/ident :shipping-method.pricing/weight}
 
-   {:db/ident :shipping-method/prices
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many
-    :db/isComponent true}]
+           {:db/ident :shipping-method/prices
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/many
+            :db/isComponent true}]]]
 
   :dependencies
   #{:i18n :amount :shipping-method.price}

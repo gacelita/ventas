@@ -2,7 +2,6 @@
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
    [spec-tools.data-spec :as data-spec]
-   [taoensso.timbre :as timbre]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.server.api :as api]
@@ -19,11 +18,9 @@
 
 (declare user)
 
-(use-fixtures :once #(with-redefs [db/conn (test-tools/test-conn)]
-                       (timbre/with-level
-                        :report
-                        (with-redefs [user (entity/create* (example-user))]
-                          (%)))))
+(use-fixtures :once #(test-tools/with-test-context
+                      (with-redefs [user (entity/create* (example-user))]
+                        (%))))
 
 (deftest describe
   (with-redefs [api/available-requests (atom {:test {:binary? false

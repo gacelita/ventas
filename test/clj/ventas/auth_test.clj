@@ -1,17 +1,14 @@
 (ns ventas.auth-test
   (:require
    [clojure.test :refer [deftest is use-fixtures]]
-   [taoensso.timbre :as timbre]
    [ventas.auth :as sut]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.test-tools :as test-tools]))
 
 (use-fixtures :once
-              #(with-redefs [db/conn (test-tools/test-conn)]
-                 (timbre/with-level
-                  :report
-                  (%))))
+              #(test-tools/with-test-context
+                (%)))
 
 (def test-user-attrs
   {:email "email@email.com"})

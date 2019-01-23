@@ -88,58 +88,58 @@
 
 (entity/register-type!
  :order
- {:attributes
-  (utils/into-n
-   [{:db/ident :order/user
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :user}
+ {:migrations
+  [[:base (utils/into-n
+           [{:db/ident :order/user
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :user}
 
-    {:db/ident :order/status
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :enum}
+            {:db/ident :order/status
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :enum}
 
-    {:db/ident :order/shipping-address
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :address}
+            {:db/ident :order/shipping-address
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :address}
 
-    {:db/ident :order/billing-address
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :address}
+            {:db/ident :order/billing-address
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :address}
 
-    {:db/ident :order/shipping-method
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :shipping-method}
+            {:db/ident :order/shipping-method
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :shipping-method}
 
-    {:db/ident :order/payment-method
-     :db/valueType :db.type/keyword
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :order/payment-method
+             :db/valueType :db.type/keyword
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :order/shipping-comments
-     :db/valueType :db.type/string
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :order/shipping-comments
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :order/lines
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many
-     :ventas/refEntityType :order.line
-     :db/isComponent true}
+            {:db/ident :order/lines
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/many
+             :ventas/refEntityType :order.line
+             :db/isComponent true}
 
-    {:db/ident :order/payment-reference
-     :db/valueType :db.type/string
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :order/payment-reference
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :order/payment-amount
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :amount
-     :db/isComponent true}]
+            {:db/ident :order/payment-amount
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :amount
+             :db/isComponent true}]
 
-   (map #(hash-map :db/ident %) statuses))
+           (map #(hash-map :db/ident %) statuses))]]
 
   :dependencies
   #{:address :user :amount :shipping-method}
@@ -174,18 +174,18 @@
 
 (entity/register-type!
  :order.line
- {:attributes
-  [{:db/ident :order.line/product-variation
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+ {:migrations
+  [[:base [{:db/ident :order.line/product-variation
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order.line/quantity
-    :db/valueType :db.type/long
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :order.line/quantity
+            :db/valueType :db.type/long
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :order.line/discount
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+           {:db/ident :order.line/discount
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}]]]
 
   :autoresolve? true
 

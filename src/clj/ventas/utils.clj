@@ -5,8 +5,8 @@
    [clojure.spec.alpha :as spec]
    [expound.alpha :as expound]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre]
-   [ventas.common.utils :as common.utils])
+   [ventas.common.utils :as common.utils]
+   [clojure.tools.logging :as log])
   (:import
    [clojure.lang IAtom]
    [java.io File]))
@@ -36,7 +36,7 @@
          (.interrupt (Thread/currentThread)))
        ~@additional-exceptions
        (catch Throwable ~'e
-         (timbre/error (class ~'e) (.getMessage ~'e))))))
+         (log/error (class ~'e) (.getMessage ~'e))))))
 
 (defn spec-exists? [v]
   (swallow

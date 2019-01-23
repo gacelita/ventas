@@ -9,9 +9,9 @@
 
 (spec/def :product.term/keyword ::generators/keyword)
 
-(spec/def  :product.term/taxonomy
+(spec/def :product.term/taxonomy
   (spec/with-gen ::entity/ref
-    #(entity/ref-generator :product.taxonomy)))
+                 #(entity/ref-generator :product.taxonomy)))
 
 (spec/def :schema.type/product.term
   (spec/keys :req [:product.term/name
@@ -20,21 +20,21 @@
 
 (entity/register-type!
  :product.term
- {:attributes
-  [{:db/ident :product.term/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
+ {:migrations
+  [[:base [{:db/ident :product.term/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
 
-   {:db/ident :product.term/taxonomy
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :product.term/taxonomy
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :product.term/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}]
+           {:db/ident :product.term/keyword
+            :db/valueType :db.type/keyword
+            :db/unique :db.unique/identity
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:product.taxonomy :i18n}

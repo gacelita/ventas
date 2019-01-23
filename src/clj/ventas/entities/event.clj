@@ -9,7 +9,4 @@
 (spec/def :schema.type/event
   (spec/keys :req [:event/kind]))
 
-(entity/register-type!
- :event
- {:attributes
-  []})
+(entity/register-type! :event)

@@ -8,10 +8,10 @@
 
 (entity/register-type!
  :site
- {:attributes
-  [{:db/ident :site/subdomain
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}]
+ {:migrations
+  [[:base [{:db/ident :site/subdomain
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one
+            :db/unique :db.unique/identity}]]]
 
   :autoresolve? true})

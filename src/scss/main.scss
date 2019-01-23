@@ -1,6 +1,6 @@
 @charset "UTF-8";
 
-@import '../lib/normalize-css/normalize.css';
+@import '../node_modules/normalize.css/normalize.css';
 
 $red            : #B03060;
 $orange         : #FE9A76;
@@ -84,7 +84,4 @@ body.animating.in.dimmable, body.dimmed.dimmable {
 @import "./ventas/components/table";
 @import "./ventas/components/term";
 @import "./ventas/components/breadcrumbs";
-@import "./ventas/plugins/slider/core";
-@import "./ventas/plugins/stripe/frontend";
-@import "./ventas/plugins/api/core";
 @import "./ventas/pages/admin";

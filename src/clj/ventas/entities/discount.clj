@@ -48,55 +48,55 @@
 
 (entity/register-type!
  :discount
- {:attributes
-  (utils/into-n
-   [{:db/ident :discount/name
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :i18n}
+ {:migrations
+  [[:base (utils/into-n
+           [{:db/ident :discount/name
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :i18n}
 
-    {:db/ident :discount/code
-     :db/valueType :db.type/string
-     :db/cardinality :db.cardinality/one
-     :db/unique :db.unique/identity}
+            {:db/ident :discount/code
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one
+             :db/unique :db.unique/identity}
 
-    {:db/ident :discount/max-uses
-     :db/valueType :db.type/long
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :discount/max-uses
+             :db/valueType :db.type/long
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :discount/max-uses-per-customer
-     :db/valueType :db.type/long
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :discount/max-uses-per-customer
+             :db/valueType :db.type/long
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :discount/active?
-     :db/valueType :db.type/boolean
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :discount/active?
+             :db/valueType :db.type/boolean
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :discount/free-shipping?
-     :db/valueType :db.type/boolean
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :discount/free-shipping?
+             :db/valueType :db.type/boolean
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :discount/product
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :discount/product
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :discount/amount
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :amount}
+            {:db/ident :discount/amount
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :amount}
 
-    {:db/ident :discount/amount.tax-included?
-     :db/valueType :db.type/boolean
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :discount/amount.tax-included?
+             :db/valueType :db.type/boolean
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :discount/amount.kind
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :enum}]
+            {:db/ident :discount/amount.kind
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :enum}]
 
-   (map #(hash-map :db/ident %) amount-kinds))
+           (map #(hash-map :db/ident %) amount-kinds))]]
 
   :autoresolve? true
 

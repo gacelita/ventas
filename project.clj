@@ -1,11 +1,7 @@
-(def aot-namespaces
-  ['clojure.tools.logging.impl
-   'ventas.core])
+(defproject ventas-core "0.0.12-SNAPSHOT"
+  :description "Shared code for ventas components"
 
-(defproject ventas "0.0.11-SNAPSHOT"
-  :description "The Ventas eCommerce platform"
-
-  :url "https://github.com/JoelSanchez/ventas"
+  :url "https://github.com/joelsanchez/ventas-core"
 
   :scm {:url "git@github.com:joelsanchez/ventas.git"}
 
@@ -24,46 +20,26 @@
                           password (System/getenv "DATOMIC__PASSWORD")]
                       (when (and username password)
                         {:username username
-                         :password password})))
-                 "releases"
-                 {:url "https://repo.clojars.org"
-                  :creds :gpg}
-                 "snapshots"
-                 {:url "https://repo.clojars.org"
-                  :creds :gpg}}
+                         :password password})))}
 
-  :dependencies [
-                 ;; Clojure
-                 [org.clojure/clojure "1.9.0" :scope "provided"]
-                 [org.clojure/core.async "0.4.474"]
-                 [org.clojure/tools.nrepl "0.2.13"]
+  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
+                 [org.clojure/core.async "0.4.490"]
+
+                 [com.google.guava/guava "21.0"]
 
                  ;; Spec stuff
-                 [expound "0.7.1"]
+                 [expound "0.7.2"]
                  [org.clojure/spec.alpha "0.2.176"]
-                 [metosin/spec-tools "0.7.2" :exclusions [com.fasterxml.jackson.core/jackson-core]]
+                 [metosin/spec-tools "0.8.3" :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  [org.clojure/test.check "0.10.0-alpha3"]
                  [com.gfredericks/test.chuck "0.2.9"]
 
-                 ;; Transitive dependencies
-                 [com.google.guava/guava "21.0"]
-                 [org.clojure/tools.reader "1.3.0-alpha3"]
+                 ;; Logging (via logback)
+                 [ch.qos.logback/logback-classic "1.2.3"]
+                 [ch.qos.logback/logback-core "1.2.3"]
+                 [org.clojure/tools.logging "0.4.1"]
 
-                 ;; Namespace tools
-                 [org.clojure/tools.namespace "0.3.0-alpha4"]
-
-                 ;; Logging
-                 ;; We use timbre for logging, so we redirect everything to slf4j
-                 ;; and then we redirect slf4j to timbre
-                 [com.fzakaria/slf4j-timbre "0.3.12"]
-                 [com.taoensso/timbre       "4.10.0"]
-                 [org.slf4j/log4j-over-slf4j "1.7.25"]
-                 [org.slf4j/jul-to-slf4j "1.7.25"]
-                 [org.slf4j/jcl-over-slf4j "1.7.25"]
-
-                 ;; JSON, Transit and Fressian
-                 [jarohen/chord "0.8.1" :exclusions [net.unit8/fressian-cljs]]
-                 [org.clojure/data.json "0.2.6"]
+                 [jarohen/chord "0.8.1" :exclusions [net.unit8/fressian-cljs org.clojure/tools.reader]]
                  [cheshire "5.8.1"]
                  [com.cognitect/transit-clj "0.8.313"]
                  [com.cognitect/transit-cljs "0.8.256"]
@@ -85,23 +61,21 @@
                  [ring/ring-defaults "0.3.2"]
                  [bk/ring-gzip "0.3.0"]
                  [ring/ring-json "0.4.0" :exclusions [cheshire]]
+
                  [fogus/ring-edn "0.3.0"]
-                 [prone "1.6.0"]
+                 [prone "1.6.1"]
 
                  ;; Configuration
                  [cprop "0.1.13"]
 
                  ;; i18n
-                 [tongue "0.2.4"]
-
-                 ;; kafka
-                 [spootnik/kinsky "0.1.22"]
+                 [tongue "0.2.5"]
 
                  ;; HTML templating
-                 [selmer "1.12.1" :exclusions [cheshire joda-time]]
+                 [selmer "1.12.5" :exclusions [cheshire joda-time]]
 
                  ;; component alternative
-                 [mount "0.1.13"]
+                 [mount "0.1.15"]
 
                  ;; Filesystem utilities
                  [me.raynes/fs "1.4.6"]
@@ -110,19 +84,14 @@
                  [slingshot "0.12.2"]
 
                  ;; String manipulation
-                 [funcool/cuerdas "2.0.6"]
+                 [funcool/cuerdas "2.1.0"]
 
                  ;; Collection manipulation
-                 [com.rpl/specter "1.1.1" :exclusions [riddley]]
+                 [com.rpl/specter "1.1.2" :exclusions [riddley]]
 
-                 ;; Database migrations
+                 ;; Database
+                 [com.datomic/datomic-free "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [io.rkn/conformity "0.5.1"]
-
-                 ;; Text colors in the console
-                 [io.aviso/pretty "0.1.35"]
-
-                 ;; UUIDs
-                 [danlentz/clj-uuid "0.1.7" :exclusions [primitive-math]]
 
                  ;; Uploads
                  [byte-streams "0.2.4"]
@@ -130,23 +99,31 @@
                  ;; Image processing
                  [fivetonine/collage "0.2.1"]
 
+                 ;; ZIP
+                 [net.lingala.zip4j/zip4j "1.3.2"]
+
                  ;; Elasticsearch
                  [cc.qbits/spandex "0.6.4" :exclusions [ring/ring-codec]]
 
-                 ;; Server-side prerendering
-                 [etaoin "0.2.9" :exclusions [org.clojure/tools.logging]]
-
                  ;; DateTime
-                 [clj-time "0.14.4"]
+                 [clj-time "0.15.1"]
 
                  ;; Email
-                 [com.draines/postal "2.0.2"]
-
-                 ;; Stripe
-                 [abengoa/clj-stripe "1.0.4" :exclusions [org.jsoup/jsoup]]
+                 [com.draines/postal "2.0.3"]
 
                  ;; Retry
-                 [com.grammarly/perseverance "0.1.3"]]
+                 [com.grammarly/perseverance "0.1.3"]
+
+                 ;; CLJS
+                 [alandipert/storage-atom "2.0.1"]
+                 [bidi "2.1.5"]
+                 [day8.re-frame/forward-events-fx "0.0.6"]
+                 [joelsanchez/ventas-bidi-syntax "0.1.4" :exclusions [org.clojure/core.async]]
+                 [re-frame "0.10.6" :exclusions [org.clojure/clojurescript
+                                                 org.clojure/tools.logging]]
+                 [soda-ash "0.82.2" :exclusions [cljsjs/react-dom cljsjs/react org.clojure/clojurescript]]
+                 [venantius/accountant "0.2.4" :exclusions [org.clojure/clojurescript]]
+                 [com.cemerick/url "0.1.1"]]
 
   :plugins [[lein-ancient "0.6.15"]
             [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
@@ -167,62 +144,26 @@
 
   :test-paths ["test/clj" "test/cljc"]
 
-  :jvm-opts ["-Xverify:none"
-             "-XX:-OmitStackTraceInFastThrow"
+  :jvm-opts ["-XX:-OmitStackTraceInFastThrow"
              ;; Disable empty/useless menu item in OSX
              "-Dapple.awt.UIElement=true"]
 
-  :clean-targets ^{:protect false} [:target-path
-                                    :compile-path
-                                    "storage/rendered"]
+  :aliases {"fmt" ["with-profile" "dev"
+                   "do"
+                   ["cljfmt" "fix"]
+                   ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
-  :uberjar-name "ventas.jar"
-
-  :repl-options {:init-ns repl
-                 :port 4001
-                 :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
-                 :timeout 120000}
-
-  :aliases {"nrepl"              ["repl" ":connect" "localhost:4001"]
-            ;; release using datomic-free and with the compiled cljs and css
-            "release"            ["do" ["compile-frontend"] ["with-profile" "datomic-free" "release"]]
-            ;; same for deploy
-            "deploy"             ["do" ["compile-frontend"] ["with-profile" "datomic-free" "deploy"]]
-            ;; compiles cljs and sass. ventas-devtools does the actual job
-            "compile-frontend"   ["with-profile" "ventas-devtools,cljs-deps,datomic-free"
-                                  "run" "-m" "ventas-devtools.uberjar/prepare" ":main" :project/main ":themes" "[:clothing :blank]"]
-            "compile-cljs-tests" ["with-profile" "ventas-devtools,cljs-deps,datomic-free"
-                                  "run" "-m" "ventas-devtools.karma/compile"]
-            "test"               ["with-profile" "datomic-free" "test"]
-            "fmt"                ["with-profile" "fmt"
-                                  "do"
-                                    ["cljfmt" "fix"]
-                                    ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
-
-  :main ventas.core
-
-  :profiles {:datomic-pro ^:leaky {:dependencies [[com.datomic/datomic-pro "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :datomic-free ^:leaky {:dependencies [[com.datomic/datomic-free "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]]}
-             :ventas-devtools {:dependencies [[ventas/devtools "0.0.11-SNAPSHOT" :exclusions [ring/ring-core
-                                                                                              ring/ring-codec
-                                                                                              org.clojure/tools.cli
-                                                                                              org.clojure/tools.logging
-                                                                                              org.jboss.logging/jboss-logging]]]}
-             :cljs-deps {:dependencies [[alandipert/storage-atom "2.0.1"]
-                                        [bidi "2.1.4"]
-                                        [day8.re-frame/forward-events-fx "0.0.6"]
-                                        [devcards "0.2.4" :exclusions [cljsjs/react cljsjs/react-dom org.clojure/clojurescript]]
-                                        [joelsanchez/ventas-bidi-syntax "0.1.4"]
-                                        [re-frame "0.10.6" :exclusions [org.clojure/clojurescript
-                                                                        org.clojure/tools.logging]]
-                                        [soda-ash "0.82.2" :exclusions [cljsjs/react-dom cljsjs/react org.clojure/clojurescript]]
-                                        [venantius/accountant "0.2.4" :exclusions [org.clojure/clojurescript]]
-                                        [com.cemerick/url "0.1.1"]]}
-             :development {:dependencies [[cider/piggieback "0.3.9" :exclusions [org.clojure/clojurescript org.clojure/tools.logging nrepl]]
-                                          [binaryage/devtools "0.9.10"]]
-                           :source-paths ["dev/clj" "dev/cljs"]}
-             :fmt {:source-paths ^:replace ["dev/clj" "dev/cljs" "src/clj" "src/cljc" "src/cljs"]}
-             :repl ^:repl [:datomic-pro :development :ventas-devtools :cljs-deps]
-             :uberjar [:datomic-pro {:source-paths ^:replace ["src/clj" "src/cljc"]
-                                     :omit-source true
-                                     :aot ~aot-namespaces}]})
+  :profiles {:dev {:repl-options {:init-ns repl
+                                  :port 4001
+                                  :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
+                                  :timeout 120000}
+                   :dependencies [[ventas/devtools "0.0.11-SNAPSHOT" :exclusions [ring/ring-core
+                                                                                  ring/ring-codec
+                                                                                  org.clojure/tools.cli
+                                                                                  org.clojure/tools.logging
+                                                                                  org.jboss.logging/jboss-logging]]
+                                  [cider/piggieback "0.3.10" :exclusions [org.clojure/clojurescript org.clojure/tools.logging nrepl]]
+                                  [binaryage/devtools "0.9.10"]
+                                  [org.clojure/tools.namespace "0.3.0-alpha4"]
+                                  [devcards "0.2.4" :exclusions [cljsjs/react cljsjs/react-dom org.clojure/clojurescript]]]
+                   :source-paths ["dev/clj" "dev/cljs"]}})

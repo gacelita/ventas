@@ -21,11 +21,10 @@
 (defn register! [kw {:keys [migrations] :as attrs}]
   {:pre [(keyword? kw) (utils/check ::attrs attrs)]}
   (swap! plugins assoc kw attrs)
-  (doseq [migration migrations]
-    (schema/register-migration! migration)))
+  (doseq [[key attributes] migrations]
+    (schema/register-migration! (keyword (name kw) (name key)) attributes)))
 
 (defn find [kw]
-  {:pre [(keyword? kw)]}
   (get @plugins kw))
 
 (defn all []

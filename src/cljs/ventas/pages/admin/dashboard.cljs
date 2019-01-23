@@ -11,7 +11,6 @@
    [ventas.i18n :refer [i18n]]
    [ventas.pages.admin.orders.edit :as admin.orders.edit]
    [ventas.pages.admin.skeleton :as admin.skeleton]
-   [ventas.pages.admin.statistics :as admin.statistics]
    [ventas.routes :as routes]
    [ventas.utils.formatting :as utils.formatting]))
 
@@ -179,22 +178,8 @@
            [base/table-cell (utils.formatting/format-date (:created-at order))]
            [base/table-cell (i18n (:status order))]])))]])
 
-(defn- traffic-statistics []
-  (if (= :error @(rf/subscribe [::events/db [admin.statistics/state-key :status]]))
-    [segment {:label (i18n ::traffic-statistics)}
-     [:p (i18n ::statistics-disabled)]]
-    [:div.admin-dashboard__traffic-statistics
-     [segment {:label (i18n ::traffic-statistics)}
-      [admin.statistics/view-options [[:24h (i18n ::admin.statistics/twenty-four-hours)]
-                                      [:week (i18n ::admin.statistics/week)]
-                                      [:month (i18n ::admin.statistics/month)]]]
-      [admin.statistics/traffic-stats-chart]]]))
-
 (defn- content []
   [base/grid {:stackable true :columns 2}
-   [base/grid-column
-    [base/grid-row
-     [traffic-statistics]]]
    [base/grid-column
     [base/grid-row
      [segment {:label (i18n ::pending-orders)}
@@ -215,5 +200,4 @@
  (fn [_ _]
    {:dispatch-n [[::backend/admin.users.list
                   {:success [::events/db [state-key :users]]}]
-                 [::pending-orders.init]
-                 [::admin.statistics/view.select :24h]]}))
+                 [::pending-orders.init]]}))

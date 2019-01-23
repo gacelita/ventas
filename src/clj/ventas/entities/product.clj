@@ -111,78 +111,78 @@
 
 (entity/register-type!
  :product
- {:attributes
-  (utils/into-n
-   [{:db/ident :product/price
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true}
+ {:migrations
+  [[:base (utils/into-n
+           [{:db/ident :product/price
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true}
 
-    {:db/ident :product/name
-     :db/valueType :db.type/ref
-     :db/index true
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :i18n}
+            {:db/ident :product/name
+             :db/valueType :db.type/ref
+             :db/index true
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :i18n}
 
-    {:db/ident :product/keyword
-     :db/valueType :db.type/keyword
-     :db/unique :db.unique/identity
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :product/keyword
+             :db/valueType :db.type/keyword
+             :db/unique :db.unique/identity
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :product/reference
-     :db/valueType :db.type/string
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :product/reference
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :product/ean13
-     :db/valueType :db.type/string
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :product/ean13
+             :db/valueType :db.type/string
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :product/active
-     :db/valueType :db.type/boolean
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :product/active
+             :db/valueType :db.type/boolean
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :product/description
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :i18n}
+            {:db/ident :product/description
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :i18n}
 
-    {:db/ident :product/tax
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :product/tax
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :product/brand
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :product/brand
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :product/condition
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :enum}
+            {:db/ident :product/condition
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :enum}
 
-    {:db/ident :product/categories
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many}
+            {:db/ident :product/categories
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/many}
 
-    {:db/ident :product/terms
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many}
+            {:db/ident :product/terms
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/many}
 
-    {:db/ident :product/images
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many
-     :db/isComponent true}
+            {:db/ident :product/images
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/many
+             :db/isComponent true}
 
-    {:db/ident :product/variation-terms
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many}
+            {:db/ident :product/variation-terms
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/many}
 
-    {:db/ident :product/parent
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one}]
+            {:db/ident :product/parent
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one}]
 
-   (map #(hash-map :db/ident %) conditions))
+           (map #(hash-map :db/ident %) conditions))]]
 
   :dependencies
   #{:brand :tax :file :category :product.term :amount}
@@ -231,13 +231,13 @@
 
 (entity/register-type!
  :product.image
- {:attributes
-  [{:db/ident :product.image/position
-    :db/valueType :db.type/long
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :product.image/file
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}]
+ {:migrations
+  [[:base [{:db/ident :product.image/position
+            :db/valueType :db.type/long
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :product.image/file
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:file}
@@ -269,16 +269,16 @@
 
 (entity/register-type!
  :product.variation
- {:attributes
-  [{:db/ident :product.variation/parent
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :product.variation/terms
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many}
-   {:db/ident :product.variation/default?
-    :db/valueType :db.type/boolean
-    :db/cardinality :db.cardinality/one}]
+ {:migrations
+  [[:base [{:db/ident :product.variation/parent
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :product.variation/terms
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/many}
+           {:db/ident :product.variation/default?
+            :db/valueType :db.type/boolean
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:product :product.term}

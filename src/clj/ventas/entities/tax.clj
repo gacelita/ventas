@@ -34,31 +34,31 @@
 
 (entity/register-type!
  :tax
- {:attributes
-  (utils/into-n
-   [{:db/ident :tax/name
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :i18n}
+ {:migrations
+  [[:base (utils/into-n
+           [{:db/ident :tax/name
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :i18n}
 
-    {:db/ident :tax/keyword
-     :db/valueType :db.type/keyword
-     :db/unique :db.unique/identity
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :tax/keyword
+             :db/valueType :db.type/keyword
+             :db/unique :db.unique/identity
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :tax/amount
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :db/isComponent true
-     :ventas/refEntityType :amount}
+            {:db/ident :tax/amount
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :db/isComponent true
+             :ventas/refEntityType :amount}
 
-    {:db/ident :tax/kind
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :enum}]
+            {:db/ident :tax/kind
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :enum}]
 
-   (map #(hash-map :db/ident %) kinds))
+           (map #(hash-map :db/ident %) kinds))]]
 
   :autoresolve? true
 

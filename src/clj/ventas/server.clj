@@ -17,20 +17,18 @@
    [ring.middleware.session :as ring.session]
    [ring.util.mime-type :as ring.mime-type]
    [ring.util.response :as ring.response]
-   [taoensso.timbre :as timbre]
    [ventas.config :as config]
    [ventas.database.entity :as entity]
    [ventas.entities.file :as entities.file]
    [ventas.entities.image-size :as entities.image-size]
-   [ventas.logging]
    [ventas.paths :as paths]
    [ventas.plugin :as plugin]
    [ventas.server.spa :as server.spa]
    [ventas.server.ws :as server.ws]
    [ventas.server.http-ws :as server.http-ws]
    [ventas.site :as site]
-   [ventas.stats :as stats]
-   [ventas.utils :as utils])
+   [ventas.utils :as utils]
+   [clojure.tools.logging :as log])
   (:import
    [clojure.lang Keyword])
   (:gen-class))
@@ -108,39 +106,40 @@
     (handle-image (utils/->number image) :size (keyword size)))
   (GET "/plugins/:plugin/*" {{path :* plugin :plugin} :route-params}
     (plugin/handle-request (keyword plugin) path))
-  (GET "/devcards" _
-    server.spa/handle-devcards)
   (GET "/*" _
     server.spa/handle-spa))
+
+(defroutes dev-site-routes
+  (GET "/devcards" _
+    server.spa/handle-devcards))
 
 (def site-handler
   (-> site-routes
       (wrap-prone)
       (site/wrap-multisite)
-      (stats/wrap-stats)
       (ring.session/wrap-session)
       (ring.params/wrap-params)
       (ring.defaults/wrap-defaults ring.defaults/site-defaults)
       (ring.gzip/wrap-gzip)))
 
 (def http-handler
-  (if-not (config/get :debug)
+  (if (= "prod" (config/get :profile))
     site-handler
-    (compojure/routes api-handler site-handler)))
+    (compojure/routes api-handler dev-site-routes site-handler)))
 
 (defn stop-server! [stop-fn]
-  (timbre/info "Stopping server")
+  (log/info "Stopping server")
   (when (ifn? stop-fn)
     (try
       (stop-fn)
       (catch Throwable e
         ;; Avoids occasional ConcurrentModificationException, which is a bug in httpkit
-        (timbre/info ::stop-server! " - Caught exception while stopping the server:" (pr-str e))))))
+        (log/info ::stop-server! " - Caught exception while stopping the server:" (pr-str e))))))
 
 (defn start-server! []
-  (timbre/info "Starting server")
+  (log/info "Starting server")
   (let [{:keys [host port]} (config/get :server)]
-    (timbre/info "Starting server on" (str host ":" port))
+    (log/info "Starting server on" (str host ":" port))
     (http-kit/run-server http-handler
                          {:ip host
                           :port port

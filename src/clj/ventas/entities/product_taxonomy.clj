@@ -15,17 +15,17 @@
 
 (entity/register-type!
  :product.taxonomy
- {:attributes
-  [{:db/ident :product.taxonomy/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
+ {:migrations
+  [[:base [{:db/ident :product.taxonomy/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
 
-   {:db/ident :product.taxonomy/keyword
-    :db/valueType :db.type/keyword
-    :db/unique :db.unique/identity
-    :db/cardinality :db.cardinality/one}]
+           {:db/ident :product.taxonomy/keyword
+            :db/valueType :db.type/keyword
+            :db/unique :db.unique/identity
+            :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:i18n}

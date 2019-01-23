@@ -19,14 +19,14 @@
 
 (entity/register-type!
  :configuration
- {:attributes
-  [{:db/ident :configuration/keyword
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one}
+ {:migrations
+  [[:base [{:db/ident :configuration/keyword
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :configuration/value
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}]
+           {:db/ident :configuration/value
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}]]]
 
   :fixtures
   (fn []
@@ -41,15 +41,15 @@
 
 (entity/register-type!
  :configuration.acl
- {:attributes
-  [{:db/ident :configuration.acl/allowed-user-roles
-    :db/valueType :db.type/ref
-    :ventas/refEntityType :enum
-    :db/cardinality :db.cardinality/many}
-   {:db/ident :configuration.acl/keyword
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}]})
+ {:migrations
+  [[:base [{:db/ident :configuration.acl/allowed-user-roles
+            :db/valueType :db.type/ref
+            :ventas/refEntityType :enum
+            :db/cardinality :db.cardinality/many}
+           {:db/ident :configuration.acl/keyword
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one
+            :db/unique :db.unique/identity}]]]})
 
 (defn- get* [key user]
   (when (entity/db-migrated?)

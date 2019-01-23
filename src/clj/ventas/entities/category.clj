@@ -142,25 +142,25 @@
 
 (entity/register-type!
  :category
- {:attributes
-  [{:db/ident :category/parent
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+ {:migrations
+  [[:base [{:db/ident :category/parent
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :category/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
+           {:db/ident :category/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
 
-   {:db/ident :category/image
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one}
+           {:db/ident :category/image
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-   {:db/ident :category/keyword
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}]
+           {:db/ident :category/keyword
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one
+            :db/unique :db.unique/identity}]]]
 
   :filter-create
   (fn [this]

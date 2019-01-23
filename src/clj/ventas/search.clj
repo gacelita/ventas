@@ -4,9 +4,9 @@
    [mount.core :refer [defstate]]
    [qbits.spandex :as spandex]
    [slingshot.slingshot :refer [throw+]]
-   [taoensso.timbre :as timbre]
    [ventas.config :as config]
-   [ventas.utils :as utils])
+   [ventas.utils :as utils]
+   [clojure.tools.logging :as log])
   (:import
    [clojure.lang ExceptionInfo]
    (java.net ConnectException)))
@@ -20,7 +20,7 @@
 (defstate elasticsearch
   :start
   (let [url (get-url)]
-    (timbre/info "Connecting to Elasticsearch at" url)
+    (log/info "Connecting to Elasticsearch at" url)
     (spandex/client {:hosts [url]})))
 
 (def batch-size 5)
@@ -51,7 +51,7 @@
    #(spandex/bulk-chan elasticsearch config)))
 
 (defn create-index [mapping]
-  (timbre/debug mapping)
+  (log/debug mapping)
   (request {:url (make-url)
             :method :put
             :body mapping}))
@@ -78,7 +78,7 @@
 
 (defn index-document [doc & {:keys [channel]}]
   {:pre [(map? doc)]}
-  (timbre/debug :es-indexer doc)
+  (log/debug :es-indexer doc)
   (let [f (if-not channel request request-async)]
     (f (merge {:url (make-url "doc/" (get doc "document/id"))
                :method :put
@@ -93,7 +93,7 @@
               :body q})
     (catch Throwable e
       (let [message (get-in (ex-data e) [:body :error])]
-        (taoensso.timbre/error message)
+        (log/error message)
         (throw+ {:type ::elasticsearch-error
                  :error message})))))
 
@@ -107,7 +107,7 @@
          (let [[_ result] (<! output-ch)]
            (doseq [{:keys [index]} (:items (:body result))]
              (when (:error index)
-               (timbre/error (:error index))))
+               (log/error (:error index))))
            (recur))))
      (go-loop []
        (when-not (Thread/interrupted)
@@ -131,11 +131,11 @@
 (defstate indexer
   :start
   (do
-    (timbre/info "Starting indexer")
+    (log/info "Starting indexer")
     (start-indexer!))
   :stop
   (do
-    (timbre/info "Stopping indexer")
+    (log/info "Stopping indexer")
     ((:stop-fn indexer))))
 
 (defn document->indexing-queue [doc]

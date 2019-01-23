@@ -60,9 +60,9 @@
      [{:match {(i18n-field :product/name culture-kw) name}}])))
 
 (defn search [filters {:keys [items-per-page page sorting]} culture]
-  (let [culture-kw (-> culture
-                       entity/find
-                       :i18n.culture/keyword)
+  (let [culture-kw (some-> culture
+                           entity/find
+                           :i18n.culture/keyword)
         items-per-page (or items-per-page 10)
         page (or page 0)
         results (search/search

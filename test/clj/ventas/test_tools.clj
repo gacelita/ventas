@@ -1,9 +1,10 @@
 (ns ventas.test-tools
   (:require
    [datomic.api :as d]
-   [taoensso.timbre :as timbre]
    [ventas.database :as db]
-   [ventas.database.schema :as schema]))
+   [ventas.database.schema :as schema])
+  (:import [ch.qos.logback.classic Logger Level]
+           [org.slf4j LoggerFactory]))
 
 (defn create-test-uri [& [id]]
   (str "datomic:mem://" (or id (gensym "test"))))
@@ -13,6 +14,13 @@
     (d/create-database uri)
     (let [c (d/connect uri)]
       (with-redefs [db/conn c]
-        (timbre/with-level :report
-          (schema/migrate)))
+        (schema/migrate))
       c)))
+
+(defmacro with-test-context [& body]
+  `(with-redefs [db/conn (test-conn)]
+     (let [~'logger (LoggerFactory/getLogger (Logger/ROOT_LOGGER_NAME))
+           ~'log-level (.getLevel ~'logger)]
+       (.setLevel ~'logger Level/ERROR)
+       ~@body
+       (.setLevel ~'logger ~'log-level))))

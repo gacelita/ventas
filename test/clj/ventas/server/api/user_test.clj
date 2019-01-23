@@ -1,7 +1,6 @@
 (ns ventas.server.api.user-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [taoensso.timbre :as timbre]
    [ventas.core]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
@@ -18,11 +17,9 @@
    :user/first-name "Test user"
    :user/email (str (gensym "test-user") "@test.com")})
 
-(use-fixtures :once #(with-redefs [db/conn (test-tools/test-conn)]
-                       (timbre/with-level
-                        :report
-                        (seed/seed :minimal? true)
-                        (%))))
+(use-fixtures :once #(test-tools/with-test-context
+                       (seed/seed :minimal? true)
+                       (%)))
 
 (defn example-address [user-email]
   {:schema/type :schema.type/address

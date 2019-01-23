@@ -9,10 +9,7 @@
   {:db '[ventas.database/conn]
    :indexer '[ventas.search/indexer]
    :server '[ventas.server/server]
-   :config '[ventas.config/config-loader]
-   :kafka '[ventas.kafka.registry/registry
-            ventas.kafka.producer/producer
-            ventas.stats.indexer/indexer]})
+   :config '[ventas.config/config]})
 
 (defn get-states [subsystems & {:keys [mapping] :or {mapping default-subsystem-mapping}}]
   (->> subsystems

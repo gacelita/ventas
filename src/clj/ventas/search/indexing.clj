@@ -8,8 +8,8 @@
    [ventas.search.schema :as search.schema]
    [ventas.database :as db]
    [mount.core :refer [defstate]]
-   [taoensso.timbre :as timbre]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [clojure.tools.logging :as log]))
 
 (defmulti transform-entity-by-type (fn [entity] (:schema/type entity)))
 
@@ -126,9 +126,9 @@
 (defstate tx-report-queue-loop
   :start
   (do
-    (timbre/info "Starting tx-report-queue loop")
+    (log/info "Starting tx-report-queue loop")
     (start-tx-report-queue-loop!))
   :stop
   (do
-    (timbre/info "Stopping tx-report-queue loop")
+    (log/info "Stopping tx-report-queue loop")
     (future-cancel tx-report-queue-loop)))

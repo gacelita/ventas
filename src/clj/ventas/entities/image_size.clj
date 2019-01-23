@@ -10,7 +10,7 @@
    [ventas.utils.images :as utils.images]
    [ventas.utils :as utils]
    [clojure.java.io :as io]
-   [taoensso.timbre :as timbre]))
+   [clojure.tools.logging :as log]))
 
 (spec/def :image-size/keyword ::generators/keyword)
 
@@ -66,36 +66,36 @@
 
 (entity/register-type!
  :image-size
- {:attributes
-  (utils/into-n
-   [{:db/ident :image-size/keyword
-     :db/valueType :db.type/keyword
-     :db/unique :db.unique/identity
-     :db/cardinality :db.cardinality/one}
+ {:migrations
+  [[:base (utils/into-n
+           [{:db/ident :image-size/keyword
+             :db/valueType :db.type/keyword
+             :db/unique :db.unique/identity
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :image-size/width
-     :db/valueType :db.type/long
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :image-size/width
+             :db/valueType :db.type/long
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :image-size/height
-     :db/valueType :db.type/long
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :image-size/height
+             :db/valueType :db.type/long
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :image-size/algorithm
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/one
-     :ventas/refEntityType :enum}
+            {:db/ident :image-size/algorithm
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/one
+             :ventas/refEntityType :enum}
 
-    {:db/ident :image-size/quality
-     :db/valueType :db.type/float
-     :db/cardinality :db.cardinality/one}
+            {:db/ident :image-size/quality
+             :db/valueType :db.type/float
+             :db/cardinality :db.cardinality/one}
 
-    {:db/ident :image-size/entities
-     :db/valueType :db.type/ref
-     :db/cardinality :db.cardinality/many
-     :ventas/refEntityType :enum}]
+            {:db/ident :image-size/entities
+             :db/valueType :db.type/ref
+             :db/cardinality :db.cardinality/many
+             :ventas/refEntityType :enum}]
 
-   (map #(hash-map :db/ident %) algorithms))
+           (map #(hash-map :db/ident %) algorithms))]]
 
   :fixtures
   (fn []
@@ -161,7 +161,7 @@
 (defn transform-all []
   (future
    (doseq [{:keys [image-size file]} (get-pending-images)]
-     (timbre/debug {:transforming {:file (:db/id file)
+     (log/debug {:transforming {:file (:db/id file)
                                    :image-size (:db/id image-size)}})
      @(transform file image-size))))
 

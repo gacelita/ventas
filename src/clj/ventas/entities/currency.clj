@@ -18,24 +18,24 @@
 
 (entity/register-type!
  :currency
- {:attributes
-  [{:db/ident :currency/name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
-   {:db/ident :currency/plural-name
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true
-    :ventas/refEntityType :i18n}
-   {:db/ident :currency/symbol
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one}
-   {:db/ident :currency/keyword
-    :db/valueType :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity}]
+ {:migrations
+  [[:base [{:db/ident :currency/name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
+           {:db/ident :currency/plural-name
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :db/isComponent true
+            :ventas/refEntityType :i18n}
+           {:db/ident :currency/symbol
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :currency/keyword
+            :db/valueType :db.type/keyword
+            :db/cardinality :db.cardinality/one
+            :db/unique :db.unique/identity}]]]
 
   :seed-number 0
 

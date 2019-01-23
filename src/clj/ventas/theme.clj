@@ -13,5 +13,4 @@
 
 (defn current []
   (or (entities.configuration/get :theme)
-      (config/get :theme)
-      (some-> (all) (first) (key))))
+      (config/get :theme)))

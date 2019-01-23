@@ -2,7 +2,6 @@
   (:require
    [clojure.set :as set]
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [taoensso.timbre :as timbre]
    [ventas.auth :as auth]
    [ventas.core]
    [ventas.database :as db]
@@ -13,15 +12,12 @@
    [ventas.search :as search]
    [ventas.server.api :as sut]
    [ventas.server.ws :as server.ws]
-   [ventas.stats :as stats]
    [ventas.test-tools :as test-tools])
   (:import [org.elasticsearch.client RestClient]))
 
-(use-fixtures :once #(with-redefs [db/conn (test-tools/test-conn)]
-                       (timbre/with-level
-                        :report
-                        (seed/seed :minimal? true)
-                        (%))))
+(use-fixtures :once #(test-tools/with-test-context
+                       (seed/seed :minimal? true)
+                       (%)))
 
 (defn- create-test-category! [& [kw]]
   (entity/create :category
@@ -405,8 +401,7 @@
 (deftest search
   (let [search-params (atom nil)
         stat-params (atom nil)]
-    (with-redefs [search/search (fn [& args] (reset! search-params args))
-                  stats/record-search-event! (fn [& args] (reset! stat-params args))]
+    (with-redefs [search/search (fn [& args] (reset! search-params args))]
       (server.ws/call-request-handler {:name :search
                                        :params {:search "Test"}})
       (is (= [{:_source false
@@ -417,11 +412,3 @@
       (is (= ["Test"]
              @stat-params)))))
 
-(deftest stats-navigation
-  (let [stat-params (atom nil)]
-    (with-redefs [stats/record-navigation-event! (fn [& args] (reset! stat-params args))]
-      (server.ws/call-request-handler {:name :stats.navigation
-                                       :params {:handler :test
-                                                :params {:id 1}}})
-      (is (= [{:handler :test :params {:id 1} :user nil}]
-             @stat-params)))))
