@@ -34,13 +34,14 @@
           [:meta {:charset "UTF-8"}]
           [:title "ventas"]
           [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-          [:link {:href "/files/css/style.css" :rel "stylesheet" :type "text/css"}]
-          [:link {:href (str "/files/css/themes/" theme ".css") :rel "stylesheet" :type "text/css"}]]
+          [:link {:rel "stylesheet" :type "text/css" :href "https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"}]
+          [:link {:rel "stylesheet" :type "text/css" :href "/files/css/style.css"}]
+          [:link {:rel "stylesheet" :type "text/css" :href (str "/files/css/themes/" theme ".css") }]]
          [:body
           (rendered-db-script uri)
           [:div#app (rendered-file uri "html")]
-          [:link {:rel "stylesheet" :href "https://cdn.jsdelivr.net/npm/semantic-ui@2.2.14/dist/semantic.min.css"}]
-          [:script {:src (str "files/js/compiled/" theme "/main.js") :type "text/javascript"}]
+          [:link {:rel "stylesheet" :type "text/css" :href "https://cdn.jsdelivr.net/npm/semantic-ui@2.2.14/dist/semantic.min.css"}]
+          [:script {:type "text/javascript" :src (str "files/js/compiled/" theme "/main.js")}]
           [:script init-script]]])))
 
 (defn handle [uri theme init-script]
