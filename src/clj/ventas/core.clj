@@ -6,11 +6,12 @@
    [mount.core :as mount]
    [ventas.config :as config]
    [ventas.database :as db]
-   [ventas.database.seed]
+   [ventas.database.schema :as schema]
+   [ventas.database.seed :as seed]
    [ventas.email.templates.core]
    [ventas.entities.core]
    [ventas.events :as events]
-   [ventas.i18n.cldr]
+   [ventas.i18n.cldr :as cldr]
    [ventas.search :as search]
    [ventas.search.indexing :as search.indexing]
    [ventas.server :as server]
@@ -33,3 +34,12 @@
 (defn -main [& args]
   (log/info "Starting up...")
   (start-system!))
+
+(defn setup-db!
+  "- Migrates the db
+   - Imports CLDR data
+   - Transacts entity and plugin fixtures"
+  [& {:keys [recreate?]}]
+  (schema/migrate :recreate? recreate?)
+  (cldr/import-cldr!)
+  (seed/seed))
