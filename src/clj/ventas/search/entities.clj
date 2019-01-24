@@ -6,28 +6,29 @@
    [ventas.utils :as utils]
    [ventas.search :as search]))
 
-(defn- prepare-search-attrs [attrs culture-kw]
+(defn- prepare-search-attrs
+  "Applies the culture to the idents that refer to i18n entities.
+   :product/name -> :product/name__en_US
+   :product/reference -> :product/reference"
+  [attrs culture-kw]
   (for [attr attrs]
     (let [{:ventas/keys [refEntityType]} (db/touch-eid attr)]
-      (cond
-        (= refEntityType :i18n)
+      (if-not (= refEntityType :i18n)
+        attr
         (keyword (namespace attr)
-                 (str (name attr) "__" (name culture-kw)))
-
-        :else attr))))
+                 (str (name attr) "__" (name culture-kw)))))))
 
 (defn search
   "Fulltext search for `search` in the given `attrs`"
   [text attrs culture-id]
   {:pre [(utils/check ::entity/ref culture-id)]}
-  (let [culture (entity/find culture-id)]
-    (let [shoulds (for [attr (prepare-search-attrs attrs (:i18n.culture/keyword culture))]
-                    {:match {attr text}})
-          hits (-> (search/search {:query {:bool {:should shoulds}}
-                                   :_source false})
-                   (get-in [:body :hits :hits]))]
-      (->> hits
-           (map :_id)
-           (map (fn [v] (Long/parseLong v)))
-           (map #(entity/find-serialize % {:culture (:db/id culture)
-                                           :keep-type? true}))))))
+  (let [culture (entity/find culture-id)
+        shoulds (for [attr (prepare-search-attrs attrs (:i18n.culture/keyword culture))]
+                  {:match {attr text}})]
+    (->> (get-in (search/search {:query {:bool {:should shoulds}}
+                                 :_source false})
+                 [:body :hits :hits])
+         (map :_id)
+         (map (fn [v] (Long/parseLong v)))
+         (map #(entity/find-serialize % {:culture (:db/id culture)
+                                         :keep-type? true})))))

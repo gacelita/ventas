@@ -10,12 +10,10 @@
    [ventas.entities.user :as entities.user]))
 
 (defn amount->str [{:amount/keys [value currency]}]
-  (println {:value value :currency currency})
   (str value " " (:currency/symbol (entity/find currency))))
 
 (defn- order-line [user {:order.line/keys [quantity product-variation]}]
   (let [{:product/keys [name price] :as product} (entities.product/normalize-variation product-variation)]
-    (println :product product)
     [:tr
      [:td.order__image
       [:img {:width 20

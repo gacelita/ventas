@@ -34,9 +34,8 @@
                   (term-aggregation->json (:terms aggs) json-opts)
                   (term-aggregation->json (:variation-terms aggs) json-opts))))
 
-(defn sorting-field->es [field]
-  (get {:price "product/price"}
-       field))
+(def sorting-field->es
+  {:price "product/price"})
 
 (defn i18n-field [field culture-kw]
   (keyword (namespace field)

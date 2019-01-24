@@ -2,7 +2,6 @@
   (:require
    [ventas.common.utils :as common.utils]
    [ventas.database.entity :as entity]
-   [ventas.entities.category :as entities.category]
    [ventas.utils :as utils]
    [ventas.search :as search]
    [ventas.search.schema :as search.schema]
@@ -11,26 +10,10 @@
    [clojure.set :as set]
    [clojure.tools.logging :as log]))
 
-(defmulti transform-entity-by-type (fn [entity] (:schema/type entity)))
-
-(defmethod transform-entity-by-type :schema.type/i18n [entity]
-  (->> (entity/serialize entity)
-       (utils/mapm (fn [[culture value]]
-                     [(->> culture
-                           entity/find
-                           :i18n.culture/keyword)
-                      value]))))
-
-(defmethod transform-entity-by-type :schema.type/amount [entity]
-  (:amount/value entity))
-
-(defmethod transform-entity-by-type :schema.type/category [entity]
-  (assoc entity :category/full-name
-                (transform-entity-by-type
-                 (entities.category/full-name-i18n (:db/id entity)))))
-
-(defmethod transform-entity-by-type :schema.type/product [entity]
-  (update entity :product/categories #(set (mapcat entities.category/get-parents %))))
+(defmulti transform-entity-by-type
+          "Transforms `entity` depending on its :schema/type.
+           The result will be indexed in ES."
+          (fn [entity] (:schema/type entity)))
 
 (defmethod transform-entity-by-type :default [entity]
   entity)
@@ -93,7 +76,7 @@
   []
   (utils/swallow
    (search/remove-index))
-  (search.schema/setup)
+  (search.schema/setup!)
   (let [types (indexable-types)]
     (doseq [type types]
       (let [entities (entity/query type)]

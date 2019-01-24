@@ -142,15 +142,6 @@
      (search.entities/search search attrs culture))))
 
 (register-admin-endpoint!
- :admin.datadmin.datoms
- {:middlewares [pagination/wrap-sort
-                pagination/wrap-paginate]
-  :doc "Returns Datomic datoms. Currently abandoned."}
- (fn [_ _]
-   (->> (db/datoms :eavt)
-        (map db/datom->map))))
-
-(register-admin-endpoint!
  :admin.plugins.list
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]

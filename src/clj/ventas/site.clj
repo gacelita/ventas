@@ -43,9 +43,7 @@
                   ident (db/ident ref)]
               (if (or (not *current*) (contains? shared-types ident))
                 item
-                (do
-                  (println "associng" *current*)
-                  (assoc item :ventas/site *current*))))))
+                (assoc item :ventas/site *current*)))))
         items)))
 
 (defn with-site [site-id f]

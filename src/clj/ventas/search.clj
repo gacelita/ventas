@@ -8,7 +8,6 @@
    [ventas.utils :as utils]
    [clojure.tools.logging :as log])
   (:import
-   [clojure.lang ExceptionInfo]
    (java.net ConnectException)))
 
 (defn- get-url []
@@ -69,8 +68,8 @@
             :method :post
             :body doc}))
 
-(defn remove-document [doc]
-  (request {:url (make-url "doc")
+(defn remove-document [id]
+  (request {:url (make-url "doc/" id)
             :method :delete}))
 
 (defn get-document [id]

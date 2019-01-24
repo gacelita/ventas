@@ -7,7 +7,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils :refer [mapm]]
+   [ventas.search.indexing :as search.indexing]))
 
 (spec/def :i18n.culture/keyword ::generators/keyword)
 
@@ -29,6 +30,7 @@
             :db/cardinality :db.cardinality/one}]]]
 
   :fixtures
+  ;; @TODO Remove
   (fn []
     [{:i18n.culture/keyword :en_US
       :i18n.culture/name "English (US)"}
@@ -98,16 +100,14 @@
   (update i18n
           :i18n/translations
           #(map (fn [translation]
-                  (-> (if (number? translation)
-                        (entity/find translation)
-                        translation)
-                      (update :i18n.translation/culture
-                              db/normalize-ref)))
+                  (update (if (number? translation) (entity/find translation) translation)
+                          :i18n.translation/culture
+                          db/normalize-ref))
                 %)))
 
 (defn- serialize-transacted [this & [culture]]
-  (let [translations (->> (:i18n/translations this)
-                          (utils/mapm (comp entity/serialize entity/find)))]
+  (let [translations (mapm (comp entity/serialize entity/find)
+                           (:i18n/translations this))]
     (if-not culture
       translations
       (or (get translations culture)
@@ -115,9 +115,9 @@
 
 (defn- serialize-literal [this & [culture]]
   (let [this (normalize-i18n this)
-        serialized (->> (:i18n/translations this)
-                        (utils/mapm (fn [{:i18n.translation/keys [culture value]}]
-                                      [culture value])))]
+        serialized (mapm (fn [{:i18n.translation/keys [culture value]}]
+                           [culture value])
+                         (:i18n/translations this))]
     (if-not culture
       serialized
       (get serialized culture))))
@@ -154,6 +154,14 @@
 
   :autoresolve? true
   :component? true})
+
+(defmethod search.indexing/transform-entity-by-type :schema.type/i18n [entity]
+  (mapm (fn [[culture value]]
+          [(->> culture
+                entity/find
+                :i18n.culture/keyword)
+           value])
+        (entity/serialize entity)))
 
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :i18n :new? true)))

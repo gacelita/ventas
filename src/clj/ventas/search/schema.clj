@@ -58,7 +58,7 @@
                                               culture-kws)))))
                  {}))))
 
-(defn setup []
+(defn setup! []
   (search/create-index
    {:mappings {:doc {:properties (attributes->mapping (db/schema))}}
     :settings {:analysis {:filter {:autocomplete_filter {:type "edge_ngram"

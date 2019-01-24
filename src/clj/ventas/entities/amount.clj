@@ -3,7 +3,8 @@
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.search.indexing :as search.indexing]))
 
 (spec/def :amount/keyword ::generators/keyword)
 
@@ -39,7 +40,10 @@
   :autoresolve? true
   :component? true})
 
-(defn get-entity
+(defmethod search.indexing/transform-entity-by-type :schema.type/amount [entity]
+  (:amount/value entity))
+
+(defn ->entity
   "Creates an amount entity from the given parameters. Meant for quick creation
   of amount entities"
   [amount currency-kw]

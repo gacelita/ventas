@@ -120,7 +120,7 @@
   (fn [format _ _]
     format))
 
-(defmethod handle-messages :transit-json [_ {:keys [server-name]} {:keys [ws-channel] :as request}]
+(defmethod handle-messages :transit-json [_ _ {:keys [ws-channel] :as request}]
   (let [shared-channel (get-shared-channel)
         client-id (uuid-v4)
         session (atom {})

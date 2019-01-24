@@ -4,21 +4,21 @@
    [ventas.i18n :refer [i18n]]
    [ventas.common.utils :refer [find-first]]))
 
-(defonce config (atom {}))
+(defonce ^:private config (atom {}))
 
-(defn setup! [m]
+(defn- setup! [m]
   (reset! config m))
 
-(defn call-fn [kw & args]
+(defn- call-fn [kw & args]
   (let [f (get @config kw)]
     (when-not f
       (throw (Exception. "Menu has not been set up")))
     (apply f args)))
 
-(defn find-routes [input culture]
+(defn- find-routes [input culture]
   (call-fn :find-routes input culture))
 
-(defn route->name [route culture]
+(defn- route->name [route culture]
   (call-fn :route->name route culture))
 
 (api/register-endpoint!

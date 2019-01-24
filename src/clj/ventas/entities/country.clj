@@ -25,6 +25,7 @@
 
   :fixtures
   (fn []
+    ;; @TODO Remove
     [{:country.group/name (entities.i18n/get-i18n-entity {:en_US "Europe"
                                                           :es_ES "Europa"})
       :country.group/keyword :europe}
@@ -65,6 +66,7 @@
   :autoresolve? true
 
   :fixtures
+  ;; @TODO Remove
   (fn []
     [{:country/keyword :es
       :country/group [:country.group/keyword :europe]

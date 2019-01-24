@@ -224,7 +224,6 @@
      - Aggregated product terms and categories for the given category"}
  (fn [{{:keys [filters pagination]} :params} {:keys [session]}]
    (let [culture (get-culture session)
-         _ (println "Culture" culture)
          filters (-> filters
                      (common.utils/update-when-some :categories
                                                     (fn [categories]

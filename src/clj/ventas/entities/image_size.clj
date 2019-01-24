@@ -98,6 +98,7 @@
            (map #(hash-map :db/ident %) algorithms))]]
 
   :fixtures
+  ;; @TODO Move to admin theme
   (fn []
     [{:schema/type :schema.type/image-size
       :image-size/keyword :admin-products-edit

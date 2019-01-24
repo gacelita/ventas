@@ -4,7 +4,6 @@
    [clojure.set :as set]
    [clojure.spec.alpha :as spec]
    [slingshot.slingshot :refer [throw+]]
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.utils :as utils]
@@ -26,12 +25,7 @@
 
            {:db/ident :configuration/value
             :db/valueType :db.type/string
-            :db/cardinality :db.cardinality/one}]]]
-
-  :fixtures
-  (fn []
-    [{:configuration/keyword :customization/name
-      :configuration/value "Ventas"}])})
+            :db/cardinality :db.cardinality/one}]]]})
 
 (spec/def :configuration.acl/allowed-user-roles
   (spec/coll-of keyword?))

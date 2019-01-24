@@ -13,7 +13,9 @@
    [ventas.utils :as utils]
    [ventas.utils.files :as utils.files]
    [ventas.utils.slugs :as utils.slugs]
-   [ventas.entities.image-size :as entities.image-size]))
+   [ventas.entities.image-size :as entities.image-size]
+   [ventas.search.indexing :as search.indexing]
+   [ventas.entities.category :as entities.category]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -301,11 +303,13 @@
           (dissoc :variation-terms)
           (assoc :id (:db/id this)))))})
 
+(defmethod search.indexing/transform-entity-by-type :schema.type/product [entity]
+  (update entity :product/categories #(set (mapcat entities.category/get-parents %))))
+
 (defn add-image
   "Meant for development"
   [product-eid path]
-  (let [product (entity/find product-eid)
-        file {:file/extension (utils.files/extension path)
+  (let [file {:file/extension (utils.files/extension path)
               :schema/type :schema.type/file}
         image {:schema/type :schema.type/product.image
                :product.image/position 0
