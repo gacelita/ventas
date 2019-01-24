@@ -17,7 +17,7 @@
                  [::crud-form/init state-path :tax]]}))
 
 (defn content []
-  (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
+  (let [{{:keys [culture]} :identity} @(rf/subscribe [:db [:session]])]
     [base/segment {:color "orange"
                    :title "Tax"}
      (crud-form/field
@@ -35,7 +35,7 @@
       state-path
       {:key [:tax/kind :db/id]
        :type :combobox
-       :options @(rf/subscribe [::events/db [:enums :tax.kind]])})]))
+       :options @(rf/subscribe [:db [:enums :tax.kind]])})]))
 
 (defn page []
   [admin.skeleton/skeleton

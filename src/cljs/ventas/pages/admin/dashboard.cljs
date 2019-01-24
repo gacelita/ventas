@@ -20,7 +20,7 @@
  ::pending-orders.init
  (fn [_ _]
    {:dispatch [::backend/admin.orders.list-pending
-               {:success [::events/db [state-key :pending-orders]]}]}))
+               {:success [:db [state-key :pending-orders]]}]}))
 
 (defn- segment [{:keys [label]} & children]
   [base/grid-column
@@ -38,7 +38,7 @@
     [:p (utils.formatting/format-date created-at)]]])
 
 (defn- latest-users []
-  (let [{:keys [users]} @(rf/subscribe [::events/db [state-key]])]
+  (let [{:keys [users]} @(rf/subscribe [:db [state-key]])]
     [:ul.admin-dashboard__users
      (doall
       (for [user users]
@@ -83,14 +83,14 @@
 (rf/reg-event-fx
  ::modal.init.next
  (fn [_ [_ modal-content {:keys [lines] :as order}]]
-   {:dispatch-n [[::events/db [state-key :order] order]
+   {:dispatch-n [[:db [state-key :order] order]
                  [::table/init [state-key :order-lines-table]
                   (merge admin.orders.edit/table-config
                          {:rows lines})]
                  [::modal.toggle modal-content]]}))
 
 (defn modal []
-  (let [{:keys [visible? content]} @(rf/subscribe [::events/db [state-key :order-modal]])]
+  (let [{:keys [visible? content]} @(rf/subscribe [:db [state-key :order-modal]])]
     [base/modal {:size "small"
                  :open visible?
                  :on-close #(rf/dispatch [::modal.toggle])}
@@ -99,7 +99,7 @@
         [content])]]))
 
 (defn payment-info-modal []
-  (let [data @(rf/subscribe [::events/db [state-key :order]])]
+  (let [data @(rf/subscribe [:db [state-key :order]])]
     [:div
      [base/header "Payment info"]
      [:p "Payment method: " (i18n (keyword "payment-method" (get-in data [:order :order/payment-method])))]]))
@@ -110,7 +110,7 @@
    [table/table [state-key :order-lines-table]]])
 
 (defn shipping-info-modal []
-  (let [{:keys [method address]} (:shipping @(rf/subscribe [::events/db [state-key :order]]))]
+  (let [{:keys [method address]} (:shipping @(rf/subscribe [:db [state-key :order]]))]
     [:div
      [base/header "Shipping info"]
      [:p [:strong "Method: "] (:name method)]
@@ -134,7 +134,7 @@
      [base/table-header-cell
       [:span "Status"]]]]
    [base/table-body
-    (let [orders @(rf/subscribe [::events/db [state-key :pending-orders]])]
+    (let [orders @(rf/subscribe [:db [state-key :pending-orders]])]
       (if (empty? orders)
         [base/table-row
          [base/table-cell {:col-span 4}
@@ -199,5 +199,5 @@
  ::init
  (fn [_ _]
    {:dispatch-n [[::backend/admin.users.list
-                  {:success [::events/db [state-key :users]]}]
+                  {:success [:db [state-key :users]]}]
                  [::pending-orders.init]]}))

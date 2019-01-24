@@ -60,7 +60,7 @@
      [field {:key :user/email}]
      [field {:key [:user/status :db/id]
              :type :combobox
-             :options @(rf/subscribe [::events/db [:enums :user.status]])}]]
+             :options @(rf/subscribe [:db [:enums :user.status]])}]]
 
     [base/divider {:hidden true}]
 
@@ -75,13 +75,13 @@
                    :title "Configuration"}
      [field {:key :user/culture
              :type :combobox
-             :options @(rf/subscribe [::events/db :cultures])}]
+             :options @(rf/subscribe [:db :cultures])}]
      [field {:key :user/roles
              :type :tags
              :xform {:in #(map :db/id %)
                      :out #(map (fn [v] {:db/id v}) %)}
              :forbid-additions true
-             :options @(rf/subscribe [::events/db [:enums :user.role]])}]]
+             :options @(rf/subscribe [:db [:enums :user.role]])}]]
 
     [base/divider {:hidden true}]
 

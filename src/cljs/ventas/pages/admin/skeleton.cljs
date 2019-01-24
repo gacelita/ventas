@@ -180,13 +180,13 @@
  (fn [_ _]
    {:dispatch-n [[::backend/admin.entities.list
                   {:params {:type :brand}
-                   :success [::events/db [:admin :brands]]}]
+                   :success [:db [:admin :brands]]}]
                  [::backend/admin.entities.list
                   {:params {:type :tax}
-                   :success [::events/db [:admin :taxes]]}]
+                   :success [:db [:admin :taxes]]}]
                  [::backend/admin.entities.list
                   {:params {:type :currency}
-                   :success [::events/db [:admin :currencies]]}]
+                   :success [:db [:admin :currencies]]}]
                  [::events/i18n.cultures.list]]}))
 
 (defn- content-view [content]
@@ -202,7 +202,7 @@
     [base/loader {:active (boolean (seq @(rf/subscribe [::ws/pending-requests])))
                   :inverted true
                   :size "small"}]
-    (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
+    (let [{:keys [identity]} @(rf/subscribe [:db [:session]])]
       [:div.admin__userbar-profile
        [base/dropdown {:text (:first-name identity)
                        :class "dropdown--align-right"}
@@ -223,7 +223,7 @@
   [:div.root
    [notificator/notificator]
    [popup/popup]
-   (let [{:keys [identity]} @(rf/subscribe [::events/db [:session]])]
+   (let [{:keys [identity]} @(rf/subscribe [:db [:session]])]
      (if-not (contains? (set (:roles identity)) :user.role/administrator)
        [login]
        [content-view content]))])

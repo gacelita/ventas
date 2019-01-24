@@ -70,5 +70,5 @@
 
 (defn product-list [products]
   [:div.product-list
-   (let [{:customization/keys [product-listing-mode]} @(rf/subscribe [::events/db [:configuration]])]
+   (let [{:customization/keys [product-listing-mode]} @(rf/subscribe [:db [:configuration]])]
      [catalog product-listing-mode products])])

@@ -5,7 +5,6 @@
    [re-frame.core :as rf]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.formatting :as formatting]
    [ventas.utils.logging :refer [debug]])
   (:require-macros
    [ventas.events]))
@@ -39,7 +38,7 @@
      (debug ::db.update where what-fn)
      (update-in db where what-fn))))
 
-;; To avoid ::events/db noise, you can use this subscription and event
+;; To avoid :db noise, you can use this subscription and event
 ;; In contrast with ::db, `where` must be a vector
 (rf/reg-sub
  :db

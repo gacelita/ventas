@@ -1,8 +1,7 @@
 (ns ventas.components.slider
   (:require
    [cljs.core.async :refer [<! >! alts! chan go timeout]]
-   [re-frame.core :as rf]
-   [ventas.events :as events]))
+   [re-frame.core :as rf]))
 
 (def transition-duration-ms 250)
 
@@ -44,7 +43,7 @@
         (do
           (reset! update-stage :started)
           (go (<! (timeout transition-duration-ms))
-              (rf/dispatch [::events/db.update
+              (rf/dispatch [:db.update
                             state-path
                             (fn [state]
                               (-> state

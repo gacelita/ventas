@@ -21,7 +21,8 @@
  (fn [_ [_ options]]
    {:ws-request (common.utils/deep-merge
                  {:name :categories.list
-                  :params {:pagination {:page 0 :items-per-page 5}}} options)}))
+                  :params {:pagination {:page 0 :items-per-page 5}}}
+                 options)}))
 
 (rf/reg-event-fx
  ::configuration.get
@@ -50,7 +51,8 @@
  (fn [_ [_ options]]
    {:ws-request (common.utils/deep-merge
                  {:name :products.list
-                  :params {:pagination {:page 0 :items-per-page 5}}} options)}))
+                  :params {:pagination {:page 0 :items-per-page 5}}}
+                 options)}))
 
 (rf/reg-event-fx
  ::products.aggregations

@@ -14,7 +14,7 @@
    {:dispatch [::backend/admin.search
                {:params {:search search
                          :attrs attrs}
-                :success [::events/db [state-key :search-results key]]}]}))
+                :success [:db [state-key :search-results key]]}]}))
 
 (defn entity->option [entity]
   (-> entity
@@ -28,7 +28,7 @@
                :key key
                :type :entity
                :on-search-change #(rf/dispatch [::search key attrs (-> % .-target .-value)])
-               :options (->> @(rf/subscribe [::events/db [state-key :search-results key]])
+               :options (->> @(rf/subscribe [:db [state-key :search-results key]])
                              (map entity->option)
                              (into (if selected-option
                                      [(entity->option selected-option)]

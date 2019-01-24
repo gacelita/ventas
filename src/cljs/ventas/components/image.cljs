@@ -1,8 +1,7 @@
 (ns ventas.components.image
   (:require
    [re-frame.core :as rf]
-   [ventas.components.base :as base]
-   [ventas.events :as events]))
+   [ventas.components.base :as base]))
 
 (def state-key ::state)
 
@@ -13,8 +12,8 @@
 
 (defn image [id size]
   {:pre [(keyword? size)]}
-  (let [loaded? @(rf/subscribe [::events/db [state-key [id size]]])]
-    (when-let [{:keys [width height]} @(rf/subscribe [::events/db [:image-sizes size]])]
+  (let [loaded? @(rf/subscribe [:db [state-key [id size]]])]
+    (when-let [{:keys [width height]} @(rf/subscribe [:db [:image-sizes size]])]
       [:div.image-component {:style {:width (dec width)
                                      :height height}}
        (when-not loaded?
@@ -22,5 +21,5 @@
           [base/loading]])
        [:div.image-component__inner
         [:img {:style (when-not loaded? {:display "none"})
-               :on-load #(rf/dispatch [::events/db [state-key [id size]] true])
+               :on-load #(rf/dispatch [:db [state-key [id size]] true])
                :src (get-url id size)}]]])))

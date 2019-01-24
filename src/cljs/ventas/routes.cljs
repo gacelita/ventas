@@ -7,7 +7,6 @@
    [clojure.string :as str]
    [re-frame.core :as rf]
    [ventas-bidi-syntax.core :as bidi-syntax]
-   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.page :as page]
    [ventas.utils :as utils]
@@ -61,7 +60,7 @@
   [& [db]]
   (if db
     (:route db)
-    @(rf/subscribe [::events/db :route])))
+    @(rf/subscribe [:db :route])))
 
 (defn handler
   "Returns the current route handler"

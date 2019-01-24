@@ -1,10 +1,8 @@
 (ns ventas.seo
   "Prerendering stuff"
   (:require
-   [cljs.pprint :as pprint]
    [cljs.reader :as reader]
    [re-frame.core :as rf]
-   [ventas.events :as events]
    [ventas.routes :as routes]
    [ventas.ws :as ws]
    [cognitect.transit :as transit]))
@@ -24,7 +22,7 @@
 
 (defn ^:export dump-db []
   (let [writer (transit/writer :json)]
-    (transit/write writer @(re-frame.core/subscribe [::events/db]))))
+    (transit/write writer @(re-frame.core/subscribe [:db]))))
 
 (defonce ^:private prerendering-hooks (atom {}))
 

@@ -47,7 +47,7 @@
                  (when-let [product (get-in data [:discount/product :db/id])]
                    [::backend/admin.entities.find-serialize
                     {:params {:id product}
-                     :success [::events/db [state-key :product]]}])]}))
+                     :success [:db [state-key :product]]}])]}))
 
 (defn- field [{:keys [key] :as args}]
   [form/field (merge args
@@ -58,7 +58,7 @@
 
 (defn- content []
   [form/form [state-key]
-   (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])
+   (let [{{:keys [culture]} :identity} @(rf/subscribe [:db [:session]])
          data @(rf/subscribe [::form/data [state-key]])]
 
      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
@@ -90,7 +90,7 @@
          :db-path [state-key]
          :key [:discount/product :db/id]
          :attrs #{:product/name}
-         :selected-option @(rf/subscribe [::events/db [state-key :product]])}]
+         :selected-option @(rf/subscribe [:db [state-key :product]])}]
 
        [field {:key :discount/amount
                :type :amount}]
@@ -100,7 +100,7 @@
 
        [field {:key [:discount/amount.kind :db/id]
                :type :combobox
-               :options @(rf/subscribe [::events/db [:enums :discount.amount.kind]])}]
+               :options @(rf/subscribe [:db [:enums :discount.amount.kind]])}]
 
        [base/form-button {:type "submit"} (i18n ::submit)]]])])
 

@@ -2,8 +2,7 @@
   (:require
    [re-frame.core :as rf]
    [ventas.common.utils :as common.utils]
-   [ventas.components.base :as base]
-   [ventas.events :as events]))
+   [ventas.components.base :as base]))
 
 (rf/reg-event-fx
  ::set-field
@@ -31,7 +30,7 @@
       :options (map (fn [v]
                       {:text (:symbol v)
                        :value (:id v)})
-                    @(rf/subscribe [::events/db [:admin :currencies]]))
+                    @(rf/subscribe [:db [:admin :currencies]]))
       :default-value (get-in amount [:amount/currency :db/id])
       :on-change #(rf/dispatch [::set-currency amount (js/parseFloat (.-value %2)) on-change-fx])}]]])
 

@@ -4,7 +4,6 @@
    [re-frame.core :as rf]
    [reagent.ratom :refer [atom]]
    [ventas.components.base :as base]
-   [ventas.events :as events]
    [ventas.utils :as utils]
    [reagent.core :as reagent]))
 
@@ -14,7 +13,7 @@
  ::set-value
  (fn [_ [_ id on-change-fx {:strs [startDate endDate]}]]
    {:dispatch-n
-    [[::events/db [state-key id] (str (.format startDate "YYYY-MM-DD")
+    [[:db [state-key id] (str (.format startDate "YYYY-MM-DD")
                                       " / "
                                       (.format endDate "YYYY-MM-DD"))]
      (conj on-change-fx {:start startDate
@@ -48,7 +47,7 @@
          [base/input
           [:input {:on-focus #(reset! focused? true)
                    :readOnly true
-                   :value (or @(rf/subscribe [::events/db [state-key id]])
+                   :value (or @(rf/subscribe [:db [state-key id]])
                               "")
                    :placeholder placeholder}]]
          (when @focused?

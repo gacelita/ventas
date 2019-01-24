@@ -1,14 +1,11 @@
 (ns ventas.components.notificator
   (:require
-   [cljs.core.async :refer [<! timeout]]
+   [cljs.core.async :refer [<! timeout go]]
    [cljs.pprint :as pprint]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
-   [ventas.seo :as seo])
-  (:require-macros
-   [cljs.core.async.macros :refer [go]]))
+   [ventas.seo :as seo]))
 
 (seo/add-prerendering-hook
  ::hook
@@ -52,7 +49,7 @@
   "Displays notifications"
   []
   [:div.notificator
-   (let [notifications @(rf/subscribe [::events/db [:notifications]])]
+   (let [notifications @(rf/subscribe [:db [:notifications]])]
      (for [{:keys [theme message icon id component]} notifications]
        [:div.notificator__item {:key id
                                 :class theme

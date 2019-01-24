@@ -125,9 +125,9 @@
                              :key [idx :min-value]
                              :placeholder "Minimum"
                              :on-change-fx [::field-changed idx]}]])
-             (range (inc @(rf/subscribe [::events/db [state-key :price-index]]))))]]
+             (range (inc @(rf/subscribe [:db [state-key :price-index]]))))]]
       [base/table-body
-       (let [rows @(rf/subscribe [::events/db [state-key :country.groups]])]
+       (let [rows @(rf/subscribe [:db [state-key :country.groups]])]
          (doall
           (for [{:keys [name id]} rows]
             [base/table-row {:key id}
@@ -138,7 +138,7 @@
                                   :key [idx :country-groups id]
                                   :placeholder "Price"
                                   :on-change-fx [::field-changed idx]}]])
-                  (range (inc @(rf/subscribe [::events/db [state-key :price-index]]))))])))]]]))
+                  (range (inc @(rf/subscribe [:db [state-key :price-index]]))))])))]]]))
 
 (defn- field [{:keys [key] :as args}]
   [form/field (merge args
@@ -149,7 +149,7 @@
 
 (defn content []
   [form/form [state-key]
-   (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])]
+   (let [{{:keys [culture]} :identity} @(rf/subscribe [:db [:session]])]
      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
       [base/segment {:color "orange"
@@ -167,7 +167,7 @@
 
        [field {:key [:shipping-method/pricing :db/id]
                :type :combobox
-               :options @(rf/subscribe [::events/db [:enums :shipping-method.pricing]])}]
+               :options @(rf/subscribe [:db [:enums :shipping-method.pricing]])}]
 
        [prices-table]]
 

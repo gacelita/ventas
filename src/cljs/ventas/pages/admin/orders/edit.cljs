@@ -43,7 +43,7 @@
   [::backend/admin.entities.list
    {:params {:filters {:user user}
              :type :address}
-    :success [::events/db [state-key :user-addresses]]}])
+    :success [:db [state-key :user-addresses]]}])
 
 (defn- image-column [row]
   (when-let [image (first (get-in row [:product-variation :images]))]
@@ -53,7 +53,7 @@
 (rf/reg-sub
  ::user-addresses
  (fn [_]
-   (rf/subscribe [::events/db [state-key :user-addresses]]))
+   (rf/subscribe [:db [state-key :user-addresses]]))
  (fn [addresses]
    (map (fn [address]
           {:text (reagent/as-element
@@ -101,7 +101,7 @@
                  [::events/enums.get :order.status]
                  [::backend/admin.entities.list
                   {:params {:type :shipping-method}
-                   :success [::events/db [state-key :shipping-methods]]}]]}))
+                   :success [:db [state-key :shipping-methods]]}]]}))
 
 (rf/reg-event-fx
  ::init.next
@@ -109,7 +109,7 @@
    {:dispatch-n [[::form/populate [state-key] order]
                  [::backend/admin.entities.find-serialize
                   {:params {:id (get-in order [:order/user :db/id])}
-                   :success [::events/db [state-key :user]]}]
+                   :success [:db [state-key :user]]}]
                  [::table/set-rows lines-table-path {:rows lines
                                                      :total (count lines)}]]
     :db (assoc-in db [state-key :status-history] status-history)}))
@@ -134,14 +134,14 @@
        :key [:order/user :db/id]
        :attrs #{:user/first-name
                 :user/last-name}
-       :selected-option @(rf/subscribe [::events/db [state-key :user]])}]
+       :selected-option @(rf/subscribe [:db [state-key :user]])}]
 
      [field {:key [:order/status :db/id]
              :type :combobox
-             :options @(rf/subscribe [::events/db [:enums :order.status]])}]
+             :options @(rf/subscribe [:db [:enums :order.status]])}]
 
      [:h5 (i18n ::status-history)]
-     (let [lines @(rf/subscribe [::events/db [state-key :status-history]])]
+     (let [lines @(rf/subscribe [:db [state-key :status-history]])]
        (if (empty? lines)
          [:p (i18n ::nothing-yet)]
          [base/table

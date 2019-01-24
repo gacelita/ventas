@@ -5,7 +5,6 @@
    [ventas.components.notificator :as notificator]
    [ventas.components.term :as term]
    [ventas.components.image :as image]
-   [ventas.events :as events]
    [ventas.events.backend :as backend]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.formatting :as utils.formatting]

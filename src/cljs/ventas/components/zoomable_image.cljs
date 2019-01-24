@@ -2,9 +2,7 @@
   (:require
    [js-image-zoom :as zoom]
    [re-frame.core :as rf]
-   [reagent.core :as reagent]
-   [ventas.components.base :as base]
-   [ventas.events :as events]))
+   [reagent.core :as reagent]))
 
 (def state-key ::state)
 
@@ -34,7 +32,7 @@
 
 (defn main-view [id size-kw zoomed-size-kw]
   {:pre [(keyword? size-kw)]}
-  (let [size @(rf/subscribe [::events/db [:image-sizes size-kw]])
+  (let [size @(rf/subscribe [:db [:image-sizes size-kw]])
         loaded? @(rf/subscribe [::loaded? id])]
     (when size
       [:div.zoomable-image (when-not loaded? {:style {:position "absolute"

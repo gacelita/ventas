@@ -1,7 +1,6 @@
 (ns ventas.components.draggable-list
   (:require
    [re-frame.core :as rf]
-   [ventas.events :as events]
    [ventas.utils.ui :as utils.ui]))
 
 (def state-key ::state)
@@ -25,7 +24,7 @@
 (defn main-view [{:keys [id]} _]
   (let [id (or id (gensym))]
     (fn [{:keys [on-reorder on-drag-over props-fn]} items]
-      (let [{:keys [temp-order drag-index hover-index]} @(rf/subscribe [::events/db [state-key id]])
+      (let [{:keys [temp-order drag-index hover-index]} @(rf/subscribe [:db [state-key id]])
             items (vec items)
             base-order (range (count items))
             order (or temp-order base-order)]
@@ -39,13 +38,13 @@
                        hover-index "draggable-list__item--hovered"
                        nil)
               :draggable true
-              :on-drag-start #(rf/dispatch [::events/db [state-key id :drag-index] idx])
+              :on-drag-start #(rf/dispatch [:db [state-key id :drag-index] idx])
               :on-drag-over (utils.ui/with-handler
                              #(if on-drag-over
                                 (on-drag-over id order position)
                                 (rf/dispatch [::on-drag-over id order position])))
               :on-drag-end (fn []
-                             (rf/dispatch [::events/db [state-key id] {}])
+                             (rf/dispatch [:db [state-key id] {}])
                              (when on-reorder
                                (on-reorder (map items order))))}
              (when props-fn (props-fn idx)))

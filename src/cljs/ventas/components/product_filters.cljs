@@ -5,7 +5,6 @@
    [ventas.components.base :as base]
    [ventas.components.sidebar :as sidebar]
    [ventas.components.term :as term]
-   [ventas.events :as events]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.utils :as utils :include-macros true]))
@@ -72,7 +71,7 @@
 
 (defn- categories-view [{:keys [filters terms event]}]
   (let [terms (common.utils/index-by :id terms)
-        categories @(rf/subscribe [::events/db :categories])]
+        categories @(rf/subscribe [:db :categories])]
     [sidebar/sidebar-section {:name (i18n ::category)}
      (for [[category children] (common.utils/tree-by :id :parent categories)]
        [category-term

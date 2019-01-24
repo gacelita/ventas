@@ -70,9 +70,9 @@
  (fn [_ _]
    {:dispatch-n [[::backend/admin.entities.list
                   {:params {:type :product.term}
-                   :success [::events/db [state-key :product.terms]]}]
+                   :success [:db [state-key :product.terms]]}]
                  [::backend/categories.options
-                  {:success [::events/db [state-key :categories]]}]
+                  {:success [:db [state-key :categories]]}]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/product}]
@@ -89,7 +89,7 @@
 
 (defn product-form []
   [form/form [state-key]
-   (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])
+   (let [{{:keys [culture]} :identity} @(rf/subscribe [:db [:session]])
          form @(rf/subscribe [::form/data [state-key]])]
      [:div
       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
@@ -121,7 +121,7 @@
                 :options (map (fn [{:keys [name id]}]
                                 {:text name
                                  :value id})
-                              @(rf/subscribe [::events/db [:admin :taxes]]))}]]
+                              @(rf/subscribe [:db [:admin :taxes]]))}]]
 
        [base/divider {:hidden true}]
 
@@ -137,7 +137,7 @@
                 :options (map (fn [{:keys [name id]}]
                                 {:text name
                                  :value id})
-                              @(rf/subscribe [::events/db [:admin :brands]]))}]]
+                              @(rf/subscribe [:db [:admin :brands]]))}]]
 
        [base/divider {:hidden true}]
 
@@ -163,7 +163,7 @@
                 :type :tags
                 :xform {:in #(map :db/id %)
                         :out #(map (fn [v] {:db/id v}) %)}
-                :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
+                :options (->> @(rf/subscribe [:db [state-key :product.terms]])
                               (map (fn [v]
                                      {:value (:id v)
                                       :text (str (get-in v [:taxonomy :name]) ": " (:name v))}))
@@ -175,7 +175,7 @@
                 :xform {:in #(map :db/id %)
                         :out #(map (fn [v] {:db/id v}) %)}
                 :forbid-additions true
-                :options (->> @(rf/subscribe [::events/db [state-key :product.terms]])
+                :options (->> @(rf/subscribe [:db [state-key :product.terms]])
                               (map (fn [v]
                                      {:text (str (get-in v [:taxonomy :name]) ": " (:name v))
                                       :value (:id v)}))
@@ -187,7 +187,7 @@
                 :type :tags
                 :xform {:in #(map :db/id %)
                         :out #(map (fn [v] {:db/id v}) %)}
-                :options (->> @(rf/subscribe [::events/db [state-key :categories]])
+                :options (->> @(rf/subscribe [:db [state-key :categories]])
                               (map (fn [v]
                                      {:text (val v)
                                       :value (key v)}))

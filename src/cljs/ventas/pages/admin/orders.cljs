@@ -45,13 +45,13 @@
      {:dispatch-n (for [user users]
                     [::backend/admin.entities.find-serialize
                      {:params {:id user}
-                      :success [::events/db [state-key :users user]]}])
+                      :success [:db [state-key :users user]]}])
       :db (-> db
               (assoc-in [state-key :table :rows] items)
               (assoc-in [state-key :table :total] total))})))
 
 (defn- user-column [{:keys [user id]}]
-  (when-let [data @(rf/subscribe [::events/db [state-key :users user]])]
+  (when-let [data @(rf/subscribe [:db [state-key :users user]])]
     [:a {:href (routes/path-for :admin.orders.edit :id id)}
      (str/join " " [(:first-name data) (:last-name data)])]))
 

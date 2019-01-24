@@ -154,7 +154,7 @@
                                               items)]}))
 
 (defn item-modal [culture]
-  (let [{:keys [open path]} @(rf/subscribe [::events/db [state-key :item-modal]])]
+  (let [{:keys [open path]} @(rf/subscribe [:db [state-key :item-modal]])]
     [base/modal {:size "small"
                  :open open
                  :centered false
@@ -224,7 +224,7 @@
     [base/icon {:name "remove"}]]])
 
 (defn content []
-  (let [{{:keys [culture]} :identity} @(rf/subscribe [::events/db [:session]])
+  (let [{{:keys [culture]} :identity} @(rf/subscribe [:db [:session]])
         form @(rf/subscribe [::form/data state-path])]
     [:div
      [base/segment {:color "orange"
@@ -250,7 +250,7 @@
                                                   {:buttons [(r/as-element (node-buttons path))]})))
                           :onChange (fn [items]
                                       (let [items (js->clj items :keywordize-keys true)]
-                                        (rf/dispatch [::events/db [state-key :form :form :menu/items]
+                                        (rf/dispatch [:db [state-key :form :form :menu/items]
                                                       (<-sortable-tree items (index-menu field-data))])))
                           :theme react-sortable-tree-theme-minimal}]]
          [base/button {:size "small"
