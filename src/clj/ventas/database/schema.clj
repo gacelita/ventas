@@ -73,6 +73,12 @@
 (defn get-migrations []
   @migrations)
 
+(defn migrate-one! [key]
+  (let [migration (get-migration key)]
+    (when-not migration
+      (throw (Exception. (str "Migration " key " not found"))))
+    (db/ensure-conforms key migration)))
+
 (defn migrate
   "Migrates the database."
   [& {:keys [recreate?]}]
