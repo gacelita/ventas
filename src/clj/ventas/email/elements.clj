@@ -27,7 +27,7 @@
   [:html {:xmlns "http://www.w3.org/1999/xhtml"}
    [:head
     [:style {:type "text/css"}
-     (slurp (io/resource "public/files/css/email.css"))]]
+     (slurp (io/resource "ventas/email/elements/email.css"))]]
    [:body
     (table
      {:width "100%"
