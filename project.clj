@@ -87,7 +87,7 @@
                  [funcool/cuerdas "2.1.0"]
 
                  ;; Collection manipulation
-                 [com.rpl/specter "1.1.2" :exclusions [riddley]]
+                 [com.rpl/specter "1.1.3-SNAPSHOT" :exclusions [riddley]]
 
                  ;; Database
                  [com.datomic/datomic-free "0.9.5697" :exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
