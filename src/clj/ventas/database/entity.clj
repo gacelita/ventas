@@ -233,11 +233,6 @@
                (utils/qualify-map-keywords type)
                (assoc :schema/type (kw->type type)))))
 
-(defn attributes
-  "@TODO Remove ASAP"
-  [type]
-  (type-property type :attributes))
-
 (defn fixtures
   [type]
   (when-let [fixtures-fn (type-property type :fixtures)]
@@ -259,13 +254,6 @@
 (defn seed-number
   [type]
   (or (type-property type :seed-number) 30))
-
-(defn attributes-by-ident
-  [type]
-  "Returns a map whose keys are idents and whose values are the properties of each ident"
-  (utils/mapm (fn [attr]
-                [(:db/ident attr) attr])
-              (attributes type)))
 
 (defn idents-with-value-type
   "Returns the idents of an entity with the given valueType"
@@ -355,29 +343,31 @@
   (when-not (map? refs)
     (map db/normalize-ref refs)))
 
-(defn- get-enum-retractions
+(defn- enum-retractions
+  "Retracts no longer present enum values:
+   (enum-retractions {:db/id 17592186045691
+                      :user/favorites [17592186045648 17592186045679]}
+                     {:db/id 17592186045691
+                      :user/favorites [17592186045648]})
+   => ([:db/retract 17592186045691 :user/favorites 17592186045679])"
   [old-values new-values]
-  (let [relevant-attrs (filter #(contains? (set (keys new-values)) (:db/ident %))
-                               (attributes (type old-values)))
-        enum-attrs (filter #(and (= (:db/cardinality %) :db.cardinality/many)
-                                 (= (:db/valueType %) :db.type/ref))
-                           relevant-attrs)
-        enum-idents (map :db/ident enum-attrs)
-        enum-vals (utils/mapm (fn [ident]
-                                [ident (->> (get old-values ident)
-                                            (map db/normalize-ref)
-                                            (set))])
-                              enum-idents)]
-    (mapcat (fn [{:keys [ident new-val]}]
-              (let [diff (set/difference (get enum-vals ident)
-                                         new-val)]
-                (map (fn [val-to-retract]
-                       [:db/retract (:db/id new-values) ident val-to-retract])
-                     diff)))
-            (map #(hash-map :ident % :new-val (->> (get new-values %)
-                                                   normalize-refs
-                                                   (set)))
-                 enum-idents))))
+  (let [ident->values-set (fn [ident values]
+                            (->> (get values ident)
+                                 (normalize-refs)
+                                 (set)
+                                 (not-empty)))]
+    (->> (set (keys new-values))
+         (map db/touch-eid)
+         (filter #(and (= (:db/cardinality %) :db.cardinality/many)
+                       (= (:db/valueType %) :db.type/ref)))
+         (map :db/ident)
+         (mapcat (fn [ident]
+                   (let [new-vals (ident->values-set ident new-values)
+                         old-vals (ident->values-set ident old-values)
+                         diff (set/difference old-vals new-vals)]
+                     (map (fn [val-to-retract]
+                            [:db/retract (:db/id new-values) ident val-to-retract])
+                          diff)))))))
 
 (defn update*
   "Updates an entity.
@@ -392,7 +382,7 @@
     (db/transact (utils/into-n
                   [attrs]
                   (when-not append?
-                    (get-enum-retractions entity attrs))
+                    (enum-retractions entity attrs))
                   [{:db/id (d/tempid :db.part/tx)
                     :event/kind :entity.update}]))
     (let [result (find id)]

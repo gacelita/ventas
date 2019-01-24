@@ -46,3 +46,11 @@
   (let [{id :db/id :as user} (sut/create :user test-user-attrs)]
     (is (= user (sut/find id)))
     (sut/delete id)))
+
+(deftest enum-retractions
+  (is (= [[:db/retract 17592186045648 :user/favorites 17592186045691]
+          [:db/retract 17592186045648 :user/favorites 17592186045679]]
+         (sut/enum-retractions {:db/id 17592186045648
+                                :user/favorites [17592186045648 17592186045679 17592186045691]}
+                               {:db/id 17592186045648
+                                :user/favorites [17592186045648]}))))
