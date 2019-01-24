@@ -208,20 +208,23 @@
                   (assoc :db/id (or initial-tempid (db/tempid)))
                   (filter-create))))
 
-(defn create*
-  "Creates an entity"
-  [attrs]
+(defn lifecycle-create [attrs transact-fn]
   (spec! attrs)
-  (check-db-migrated!)
   (before-create attrs)
   (let [tempid (db/tempid)
         pre-entity (prepare-creation-attrs attrs tempid)
-        tx (db/transact [pre-entity
+        tx (transact-fn [pre-entity
                          {:db/id (d/tempid :db.part/tx)
                           :event/kind :entity.create}])
         entity (transaction->entity tx tempid)]
     (after-create entity)
     entity))
+
+(defn create*
+  "Creates an entity"
+  [attrs]
+  (check-db-migrated!)
+  (lifecycle-create attrs db/transact))
 
 (defn create
   "Creates an entity from unqualified attributes.
@@ -232,6 +235,17 @@
                common.utils/remove-nil-vals
                (utils/qualify-map-keywords type)
                (assoc :schema/type (kw->type type)))))
+
+(defn lifecycle-seed [attrs transact-fn]
+  (let [attrs (filter-seed attrs)
+        _ (before-seed attrs)
+        entity (lifecycle-create attrs transact-fn)]
+    (after-seed entity)))
+
+(defn seed*
+  [attrs]
+  (check-db-migrated!)
+  (lifecycle-seed attrs db/transact))
 
 (defn fixtures
   [type]
@@ -369,17 +383,11 @@
                             [:db/retract (:db/id new-values) ident val-to-retract])
                           diff)))))))
 
-(defn update*
-  "Updates an entity.
-   Example usage:
-   (update* {:db/id 1234567
-             :user/first-name `Other name`})"
-  [{:db/keys [id] :as attrs} & {:keys [append?]}]
-  (check-db-migrated!)
+(defn lifecycle-update [{:db/keys [id] :as attrs} {:keys [append?]} transact-fn]
   (let [entity (find id)
         attrs (filter-update entity attrs)]
     (before-update entity attrs)
-    (db/transact (utils/into-n
+    (transact-fn (utils/into-n
                   [attrs]
                   (when-not append?
                     (enum-retractions entity attrs))
@@ -388,6 +396,15 @@
     (let [result (find id)]
       (after-update entity result)
       result)))
+
+(defn update*
+  "Updates an entity.
+   Example usage:
+   (update* {:db/id 1234567
+             :user/first-name `Other name`})"
+  [attrs & opts]
+  (check-db-migrated!)
+  (lifecycle-update attrs opts db/transact))
 
 (defn update
   "Updates an entity from unqualified attributes.

@@ -153,6 +153,7 @@
                  :where [[?id :ventas.cldr/cldr-import? true]]})))
 
 (defn import-cldr! [& [download-url]]
+  (schema/migrate-one! ::base)
   (let [import-id (existing-import-id)]
     (if import-id
      (log/info "An import already exists. Aborting. Import ID:" import-id)
@@ -160,6 +161,7 @@
         (download-cldr-file! download-url)
         (let [data (cldr->data extraction-target)
               entities (data->entities data)]
+          (log/info "Importing" (count entities) "CLDR entities")
           (db/transact (conj entities
                              {:db/id (d/tempid :db.part/tx)
                               :ventas.cldr/cldr-import? true})))

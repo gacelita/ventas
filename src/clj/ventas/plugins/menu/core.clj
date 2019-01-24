@@ -6,7 +6,7 @@
 
 (defonce ^:private config (atom {}))
 
-(defn- setup! [m]
+(defn setup! [m]
   (reset! config m))
 
 (defn- call-fn [kw & args]
