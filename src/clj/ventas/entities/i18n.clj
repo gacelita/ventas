@@ -166,7 +166,7 @@
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :i18n :new? true)))
 
-(defn get-i18n-entity [translations]
+(defn ->entity [translations]
   {:schema/type :schema.type/i18n
    :i18n/translations (map (fn [[culture-kw value]]
                              {:schema/type :schema.type/i18n.translation

@@ -22,7 +22,7 @@
 (defn- create-test-category! [& [kw]]
   (entity/create :category
                  {:keyword (or kw :test-category)
-                  :name (entities.i18n/get-i18n-entity {:en_US "Test category"})}))
+                  :name (entities.i18n/->entity {:en_US "Test category"})}))
 
 (deftest categories-get
   (let [category (create-test-category!)]
@@ -141,36 +141,36 @@
 (def test-taxonomies
   [{:schema/type :schema.type/product.taxonomy
     :product.taxonomy/keyword :test-term-a
-    :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "test-taxonomy-a"})}
+    :product.taxonomy/name (entities.i18n/->entity {:en_US "test-taxonomy-a"})}
    {:schema/type :schema.type/product.taxonomy
     :product.taxonomy/keyword :test-term-b
-    :product.taxonomy/name (entities.i18n/get-i18n-entity {:en_US "test-taxonomy-b"})}])
+    :product.taxonomy/name (entities.i18n/->entity {:en_US "test-taxonomy-b"})}])
 
 (def test-terms
   [{:schema/type :schema.type/product.term
     :product.term/keyword :test-term-a-1
-    :product.term/name (entities.i18n/get-i18n-entity {:en_US "test-term-a-1"})
+    :product.term/name (entities.i18n/->entity {:en_US "test-term-a-1"})
     :product.term/taxonomy [:product.taxonomy/keyword :test-term-a]}
 
    {:schema/type :schema.type/product.term
     :product.term/keyword :test-term-a-2
-    :product.term/name (entities.i18n/get-i18n-entity {:en_US "test-term-a-2"})
+    :product.term/name (entities.i18n/->entity {:en_US "test-term-a-2"})
     :product.term/taxonomy [:product.taxonomy/keyword :test-term-a]}
 
    {:schema/type :schema.type/product.term
     :product.term/keyword :test-term-b-1
-    :product.term/name (entities.i18n/get-i18n-entity {:en_US "test-term-b-1"})
+    :product.term/name (entities.i18n/->entity {:en_US "test-term-b-1"})
     :product.term/taxonomy [:product.taxonomy/keyword :test-term-b]}
 
    {:schema/type :schema.type/product.term
     :product.term/keyword :test-term-b-2
-    :product.term/name (entities.i18n/get-i18n-entity {:en_US "test-term-b-2"})
+    :product.term/name (entities.i18n/->entity {:en_US "test-term-b-2"})
     :product.term/taxonomy [:product.taxonomy/keyword :test-term-b]}])
 
 (def test-products
   [{:schema/type :schema.type/product
     :product/keyword :server-api-product
-    :product/name (entities.i18n/get-i18n-entity {:en_US "Example product"})
+    :product/name (entities.i18n/->entity {:en_US "Example product"})
     :product/variation-terms #{[:product.term/keyword :test-term-a-1]
                                [:product.term/keyword :test-term-a-2]
                                [:product.term/keyword :test-term-b-1]
@@ -245,7 +245,7 @@
         (is (= ::search/elasticsearch-error result)))))
   (doseq [entity (concat test-taxonomies test-terms test-products test-product-variations)]
     (entity/create* entity))
-  (entity/create :category {:name (entities.i18n/get-i18n-entity {:en_US "Test category"})
+  (entity/create :category {:name (entities.i18n/->entity {:en_US "Test category"})
                             :keyword :test-category})
   (let [params (atom nil)]
     (with-redefs [search/search (fn [& args] (reset! params args))]
@@ -387,9 +387,9 @@
 (deftest states-list
   (doseq [entity (entity/query :state)]
     (entity/delete (:db/id entity)))
-  (entity/create :country {:name (entities.i18n/get-i18n-entity {:en_US "Test country"})
+  (entity/create :country {:name (entities.i18n/->entity {:en_US "Test country"})
                            :keyword :test-country})
-  (let [state (entity/create :state {:name (entities.i18n/get-i18n-entity {:en_US "Test state"})
+  (let [state (entity/create :state {:name (entities.i18n/->entity {:en_US "Test state"})
                                      :country [:country/keyword :test-country]})]
     (is (= "Test state"
            (->> (server.ws/call-request-handler {:name :states.list

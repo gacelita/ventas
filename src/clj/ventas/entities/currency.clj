@@ -47,15 +47,15 @@
   :fixtures
   ;; @TODO Allow the user to select which langs to support
   (fn []
-    [{:currency/name (entities.i18n/get-i18n-entity {:en_US "euro"
-                                                     :es_ES "euro"})
-      :currency/plural-name (entities.i18n/get-i18n-entity {:en_US "euros"
-                                                            :es_ES "euros"})
+    [{:currency/name (entities.i18n/->entity {:en_US "euro"
+                                              :es_ES "euro"})
+      :currency/plural-name (entities.i18n/->entity {:en_US "euros"
+                                                     :es_ES "euros"})
       :currency/keyword :eur
       :currency/symbol "€"}
-     {:currency/name (entities.i18n/get-i18n-entity {:en_US "dollar"
-                                                     :es_ES "dólar"})
-      :currency/plural-name (entities.i18n/get-i18n-entity {:en_US "dollars"
-                                                            :es_ES "dólares"})
+     {:currency/name (entities.i18n/->entity {:en_US "dollar"
+                                              :es_ES "dólar"})
+      :currency/plural-name (entities.i18n/->entity {:en_US "dollars"
+                                                     :es_ES "dólares"})
       :currency/keyword :usd
       :currency/symbol "$"}])})

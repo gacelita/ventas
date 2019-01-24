@@ -9,15 +9,15 @@
    [ventas.test-tools :as test-tools]))
 
 (def example-category
-  {:category/name (entities.i18n/get-i18n-entity {:en_US "Example category"})
+  {:category/name (entities.i18n/->entity {:en_US "Example category"})
    :category/keyword :example-category
    :category/image {:schema/type :schema.type/file
                     :file/extension "jpg"}
-   :category/parent {:category/name (entities.i18n/get-i18n-entity {:en_US "Example parent category"})
+   :category/parent {:category/name (entities.i18n/->entity {:en_US "Example parent category"})
                      :category/keyword :example-category-parent
                      :category/image {:schema/type :schema.type/file
                                       :file/extension "jpg"}
-                     :category/parent {:category/name (entities.i18n/get-i18n-entity {:en_US "Example root category"})
+                     :category/parent {:category/name (entities.i18n/->entity {:en_US "Example root category"})
                                        :category/keyword :example-category-root
                                        :schema/type :schema.type/category}
                      :schema/type :schema.type/category}

@@ -16,7 +16,11 @@
            {:db/ident :country.group/keyword
             :db/valueType :db.type/keyword
             :db/unique :db.unique/identity
-            :db/cardinality :db.cardinality/one}]]]
+            :db/cardinality :db.cardinality/one}]]
+   [:add-missing-is-component [{:db/ident :country.group/name
+                                :db/valueType :db.type/ref
+                                :db/isComponent true
+                                :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:i18n}
@@ -26,16 +30,16 @@
   :fixtures
   (fn []
     ;; @TODO Remove
-    [{:country.group/name (entities.i18n/get-i18n-entity {:en_US "Europe"
-                                                          :es_ES "Europa"})
+    [{:country.group/name (entities.i18n/->entity {:en_US "Europe"
+                                                   :es_ES "Europa"})
       :country.group/keyword :europe}
 
-     {:country.group/name (entities.i18n/get-i18n-entity {:en_US "North America"
-                                                          :es_ES "Norteamérica"})
+     {:country.group/name (entities.i18n/->entity {:en_US "North America"
+                                                   :es_ES "Norteamérica"})
       :country.group/keyword :north-america}
 
-     {:country.group/name (entities.i18n/get-i18n-entity {:en_US "Europe (non-EU)"
-                                                          :es_ES "Europe (fuera de la UE)"})
+     {:country.group/name (entities.i18n/->entity {:en_US "Europe (non-EU)"
+                                                   :es_ES "Europe (fuera de la UE)"})
       :country.group/keyword :europe-non-eu}])})
 
 (spec/def :country/name ::entities.i18n/ref)
@@ -70,9 +74,9 @@
   (fn []
     [{:country/keyword :es
       :country/group [:country.group/keyword :europe]
-      :country/name (entities.i18n/get-i18n-entity {:en_US "Spain"
+      :country/name (entities.i18n/->entity {:en_US "Spain"
                                                     :es_ES "España"})}
      {:country/keyword :us
       :country/group [:country.group/keyword :north-america]
-      :country/name (entities.i18n/get-i18n-entity {:en_US "United States"
+      :country/name (entities.i18n/->entity {:en_US "United States"
                                                     :es_ES "Estados Unidos"})}])})

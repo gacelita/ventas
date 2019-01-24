@@ -29,10 +29,10 @@
    :address/zip "67943"
    :address/city "Test City"
    :address/country {:schema/type :schema.type/country
-                     :country/name (entities.i18n/get-i18n-entity {:en_US "Test country"})
+                     :country/name (entities.i18n/->entity {:en_US "Test country"})
                      :country/keyword :test-country}
    :address/state {:schema/type :schema.type/state
-                   :state/name (entities.i18n/get-i18n-entity {:en_US "Test state"})
+                   :state/name (entities.i18n/->entity {:en_US "Test state"})
                    :state/keyword :test-state}
    :address/user (db/normalize-ref [:user/email user-email])})
 
@@ -82,7 +82,7 @@
 
 (def example-product
   {:schema/type :schema.type/product
-   :product/name (entities.i18n/get-i18n-entity {:en_US "Example product"})
+   :product/name (entities.i18n/->entity {:en_US "Example product"})
    :product/price {:schema/type :schema.type/amount
                    :amount/value 21.0M
                    :amount/currency [:currency/keyword :eur]}})

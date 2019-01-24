@@ -37,8 +37,8 @@
              :type))))
 
 (def example-brand
-  {:brand/name (entities.i18n/get-i18n-entity {:en_US "Example brand"})
-   :brand/description (entities.i18n/get-i18n-entity {:en_US "The best brand ever"})
+  {:brand/name (entities.i18n/->entity {:en_US "Example brand"})
+   :brand/description (entities.i18n/->entity {:en_US "The best brand ever"})
    :brand/keyword :example-brand
    :schema/type :schema.type/brand})
 

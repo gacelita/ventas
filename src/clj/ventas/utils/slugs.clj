@@ -15,7 +15,7 @@
   (if (:db/id i18n)
     (->> (entity/serialize i18n)
          (common.utils/map-vals slug)
-         (entities.i18n/get-i18n-entity))
+         (entities.i18n/->entity))
     (update i18n
             :i18n/translations
             (fn [translations]
