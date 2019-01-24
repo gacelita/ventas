@@ -11,8 +11,7 @@
    [ventas.database :as db]
    [ventas.database.generators :as db.generators]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]
-   [clojure.tools.logging :as log]))
+   [ventas.utils :as utils]))
 
 (defn entity? [entity]
   (when (map? entity)
@@ -57,9 +56,9 @@
   []
   (when-not (db-migrated?)
     (throw+ {:type ::database-not-migrated
-             :message "The database needs to be migrated before doing this"})))
+             :message "The database needs to be migrated"})))
 
-(defonce registered-types (atom {}))
+(defonce ^:private registered-types (atom {}))
 
 (defn register-type!
   "Registers an entity type
@@ -96,7 +95,7 @@
       (:db/id type)   (db/ident (:db/id type)))))
 
 (defn type-properties
-  "Returns the functions of an entity type"
+  "Returns the properties of an entity type"
   [type]
   (get @registered-types type))
 
@@ -188,22 +187,8 @@
     (when (entity? result)
       (filter-query result))))
 
-(defn resolve-by-slug
-  [slug]
-  (db/nice-query-attr
-   {:find '[?id]
-    :in {'?slug slug}
-    :where '[[?translation :i18n.translation/value ?slug]
-             [?i18n :i18n/translations ?translation]
-             [?id :ventas/slug ?i18n]]}))
-
-(defn find-by-slug
-  [slug]
-  (-> (resolve-by-slug slug)
-      (find)))
-
 (defn find-serialize
-  "Same as doing (serialize (find eid) params), which is a very common thing to do"
+  "Shortcut for (serialize (find eid) params)"
   [eid & [params]]
   (when-let [entity (find eid)]
     (serialize entity params)))
@@ -211,8 +196,7 @@
 (defn transaction->entity
   "Returns an entity from a transaction"
   [tx tempid]
-  (-> (db/resolve-tempid (:tempids tx) tempid)
-      (find)))
+  (find (db/resolve-tempid (:tempids tx) tempid)))
 
 (defn- prepare-creation-attrs [pre-entity & [initial-tempid]]
   (utils/mapm (fn [[k v]]
@@ -244,20 +228,21 @@
    Example usage:
    (create :user {:name `Joel` :email `test@test.com`})"
   [type attributes]
-  (let [entity
-        (-> (utils/qualify-map-keywords (common.utils/remove-nil-vals attributes) type)
-            (assoc :schema/type (kw->type type)))]
-    (create* entity)))
+  (create* (-> attributes
+               common.utils/remove-nil-vals
+               (utils/qualify-map-keywords type)
+               (assoc :schema/type (kw->type type)))))
 
 (defn attributes
+  "@TODO Remove ASAP"
   [type]
   (type-property type :attributes))
 
 (defn fixtures
   [type]
   (when-let [fixtures-fn (type-property type :fixtures)]
-    (->> (fixtures-fn)
-         (map #(assoc % :schema/type (kw->type type))))))
+    (map #(assoc % :schema/type (kw->type type))
+         (fixtures-fn))))
 
 (defn autoresolve?
   [type]
@@ -293,7 +278,7 @@
        (set)))
 
 (defn- autoresolve-ref [ref & [options]]
-  (let [subentity (-> ref find)]
+  (let [subentity (find ref)]
     (if (and subentity (autoresolve? (type->kw (:schema/type subentity))))
       (serialize subentity options)
       ref)))
@@ -303,22 +288,21 @@
    property with a truthy value"
   [entity & [options]]
   (let [ref-idents (idents-with-value-type entity :db.type/ref)]
-    (->> entity
-         (utils/mapm (fn [[ident value]]
-                       [ident (if-not (contains? ref-idents ident)
-                                value
-                                (cond
-                                  (spec/valid? (spec/coll-of number?) value)
-                                  (map #(autoresolve-ref % options) value)
+    (utils/mapm (fn [[ident value]]
+                  [ident (if-not (contains? ref-idents ident)
+                           value
+                           (cond
+                             (spec/valid? (spec/coll-of number?) value)
+                             (map #(autoresolve-ref % options) value)
 
-                                  (spec/valid? number? value)
-                                  (autoresolve-ref value options)
+                             (spec/valid? number? value)
+                             (autoresolve-ref value options)
 
-                                  :else value))])))))
+                             :else value))])
+                entity)))
 
 (defn default-serialize [entity & [{:keys [keep-type?] :as options}]]
-  (let [result (-> (autoresolve entity options)
-                   (utils/dequalify-keywords))]
+  (let [result (utils/dequalify-keywords (autoresolve entity options))]
     (if keep-type?
       (clojure.core/update result :type #(keyword (name %)))
       (dissoc result :type))))
@@ -509,7 +493,8 @@
   "Generates one sample of a given entity type"
   [type]
   (let [db-type (kw->type type)]
-    (-> (gen/generate (spec/gen db-type))
+    (-> (spec/gen db-type)
+        (gen/generate)
         (assoc :schema/type db-type))))
 
 (defn generate

@@ -113,7 +113,7 @@
   (let [result (cond
                  (number? ref) ref
                  (keyword? ref) (when kw-ident (:db/id (db/entity [kw-ident ref])))
-                 (string? ref) (entity/resolve-by-slug ref)
+                 (string? ref) (utils.slugs/resolve-by-slug ref)
                  (db/lookup-ref? ref) (:db/id (db/entity ref)))]
     (when-not result
       (throw+ {:type ::invalid-ref
