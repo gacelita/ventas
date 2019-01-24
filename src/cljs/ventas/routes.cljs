@@ -60,7 +60,7 @@
   [& [db]]
   (if db
     (:route db)
-    @(rf/subscribe [:db :route])))
+    @(rf/subscribe [:db [:route]])))
 
 (defn handler
   "Returns the current route handler"

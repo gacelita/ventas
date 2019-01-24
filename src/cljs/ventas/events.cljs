@@ -9,53 +9,31 @@
   (:require-macros
    [ventas.events]))
 
-(defn- normalize-where [where]
-  (if (keyword? where)
-    [where]
-    where))
-
-;; Universal subscription
-(rf/reg-sub
- ::db
- (fn [db [_ where]]
-   (get-in db (normalize-where where))))
-
-;; Universal event
-;; Same as with the subscription: use a more specific one if possible
-(rf/reg-event-db
- ::db
- (fn [db [_ where what]]
-   (let [where (normalize-where where)]
-     (debug ::db where what)
-     (assoc-in db where what))))
-
-;; Same as ::db but accepts a function
-(rf/reg-event-db
- ::db.update
- (fn [db [_ where what-fn]]
-   {:pre [(ifn? what-fn)]}
-   (let [where (normalize-where where)]
-     (debug ::db.update where what-fn)
-     (update-in db where what-fn))))
-
-;; To avoid :db noise, you can use this subscription and event
-;; In contrast with ::db, `where` must be a vector
 (rf/reg-sub
  :db
  (fn [db [_ where]]
+   {:pre [(sequential? where)]}
    (get-in db where)))
 
 (rf/reg-event-db
  :db
  (fn [db [_ where what]]
+   {:pre [(sequential? where)]}
    (debug :db where what)
    (assoc-in db where what)))
+
+(rf/reg-event-db
+ :db.update
+ (fn [db [_ where what-fn]]
+   {:pre [(ifn? what-fn) (sequential? where)]}
+   (debug :db.update where what-fn)
+   (update-in db where what-fn)))
 
 (rf/reg-event-fx
  ::categories.list
  (fn [_ _]
    {:dispatch [::backend/categories.list
-               {:success [::db :categories]}]}))
+               {:success [:db [:categories]]}]}))
 
 (rf/reg-event-fx
  ::configuration.get
@@ -76,7 +54,7 @@
                {:params {:type type}
                 :success
                 (fn [options]
-                  (rf/dispatch [::db [:enums type]
+                  (rf/dispatch [:db [:enums type]
                                 (map (fn [{:keys [ident id]}]
                                        {:text (i18n (keyword ident))
                                         :value id})
@@ -87,13 +65,13 @@
  (fn [_ [_ eid]]
    {:dispatch [::backend/entities.find eid
                {:sync true
-                :success [::db [:entities eid]]}]}))
+                :success [:db [:entities eid]]}]}))
 
 (rf/reg-event-fx
  ::image-sizes.list
  (fn [_ [_]]
    {:dispatch [::backend/image-sizes.list
-               {:success [::db :image-sizes]}]}))
+               {:success [:db [:image-sizes]]}]}))
 
 (rf/reg-event-fx
  ::admin.entities.sync
@@ -101,7 +79,7 @@
    {:dispatch [::backend/admin.entities.find
                {:sync true
                 :params {:id eid}
-                :success [::db [:admin-entities eid]]}]}))
+                :success [:db [:admin-entities eid]]}]}))
 
 (rf/reg-event-fx
  ::admin.entities.remove
@@ -195,13 +173,13 @@
  ::shipping-methods.list
  (fn [_ _]
    {:dispatch [::backend/shipping-methods.list
-               {:success [::db :shipping-methods]}]}))
+               {:success [:db [:shipping-methods]]}]}))
 
 (rf/reg-event-fx
  ::users.favorites.enumerate
  (fn [_ _]
    {:dispatch [::backend/users.favorites.enumerate
-               {:success [::db :users.favorites]}]}))
+               {:success [:db [:users.favorites]]}]}))
 
 (rf/reg-event-fx
  ::users.favorites.toggle
@@ -211,11 +189,11 @@
                   [::backend/users.favorites.remove
                    {:params {:id id}
                     :success (fn [favorites]
-                               (rf/dispatch [::db.update :users.favorites #(disj (set favorites) id)]))}]
+                               (rf/dispatch [:db.update :users.favorites #(disj (set favorites) id)]))}]
                   [::backend/users.favorites.add
                    {:params {:id id}
                     :success (fn [favorites]
-                               (rf/dispatch [::db.update :users.favorites #(conj (set favorites) id)]))}])
+                               (rf/dispatch [:db.update :users.favorites #(conj (set favorites) id)]))}])
       :db (update db :users.favorites #(if (contains? favorites id)
                                          (disj (set %) id)
                                          (conj (set %) id)))})))
@@ -223,7 +201,7 @@
 (rf/reg-sub
  ::users.favorites.favorited?
  (fn [_]
-   (rf/subscribe [::db :users.favorites]))
+   (rf/subscribe [:db [:users.favorites]]))
  (fn [favorites [_ id]]
    (contains? (set favorites) id)))
 

@@ -75,7 +75,7 @@
                    :title "Configuration"}
      [field {:key :user/culture
              :type :combobox
-             :options @(rf/subscribe [:db :cultures])}]
+             :options @(rf/subscribe [:db [:cultures]])}]
      [field {:key :user/roles
              :type :tags
              :xform {:in #(map :db/id %)

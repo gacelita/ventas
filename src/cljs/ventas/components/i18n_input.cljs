@@ -23,7 +23,7 @@
 (defn- culture-view [{:keys [translations culture id label on-change control]}]
   [base/form-input {:label label}
    [:div.i18n-input__culture
-    (let [culture-data (->> @(rf/subscribe [:db :cultures])
+    (let [culture-data (->> @(rf/subscribe [:db [:cultures]])
                             (filter #(= (:value %) culture))
                             first)]
       [:span (when culture-data (name (:keyword culture-data)))])]
@@ -47,7 +47,7 @@
   (let [id (gensym)]
     (fn [{:keys [label entity on-change culture control]}]
       (let [{:keys [focused?]} @(rf/subscribe [:db [state-key id]])
-            cultures (set (map :value @(rf/subscribe [:db :cultures])))
+            cultures (set (map :value @(rf/subscribe [:db [:cultures]])))
             translations (translation-map entity)]
         [:div.i18n-input {:class (when focused? "i18n-input--focused")
                           :on-focus #(rf/dispatch [::set-focus id true])

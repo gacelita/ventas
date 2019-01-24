@@ -71,7 +71,7 @@
 
 (defn- categories-view [{:keys [filters terms event]}]
   (let [terms (common.utils/index-by :id terms)
-        categories @(rf/subscribe [:db :categories])]
+        categories @(rf/subscribe [:db [:categories]])]
     [sidebar/sidebar-section {:name (i18n ::category)}
      (for [[category children] (common.utils/tree-by :id :parent categories)]
        [category-term
