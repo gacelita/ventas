@@ -2,7 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [ventas.config :as config]
-   [ventas.database.entity :as entity]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.user :as entities.user]
    [ventas.i18n :refer [i18n]]))
@@ -49,11 +48,8 @@
   [:th.table-header attrs
    name])
 
-(defn get-user-culture [user]
-  (:i18n.culture/keyword (entity/find (:user/culture user))))
-
 (defn skeleton [user & content]
-  (let [culture-kw (get-user-culture user)]
+  (let [culture-kw (entities.user/get-culture user)]
     [:div
      (wrapper
       (table

@@ -1,14 +1,14 @@
 (ns ventas.email.templates.password-forgotten
   (:require
-   [clojure.string :as str]
    [ventas.auth :as auth]
    [ventas.email.elements :as elements]
    [ventas.email.templates :as templates]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.entities.user :as entities.user]))
 
 (defmethod templates/template :password-forgotten [_ {:keys [user]}]
   {:body
-   (let [culture-kw (elements/get-user-culture user)]
+   (let [culture-kw (entities.user/get-culture user)]
      (elements/skeleton
       user
       [:p

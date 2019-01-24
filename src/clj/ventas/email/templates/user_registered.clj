@@ -3,11 +3,12 @@
    [ventas.email.elements :as elements]
    [ventas.email.templates :as templates]
    [ventas.entities.configuration :as entities.configuration]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.entities.user :as entities.user]))
 
 (defmethod templates/template :user-registered [_ {:keys [user]}]
   {:body
-   (let [culture-kw (elements/get-user-culture user)]
+   (let [culture-kw (entities.user/get-culture user)]
      (elements/skeleton
       user
       [:p (i18n culture-kw ::welcome (entities.configuration/get :customization/name))]

@@ -2,7 +2,6 @@
   (:require
    [clojure.set :as set]
    [slingshot.slingshot :refer [throw+]]
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
    [ventas.plugin :as plugin]

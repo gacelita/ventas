@@ -18,6 +18,7 @@
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.file :as entities.file]
    [ventas.entities.i18n :as entities.i18n]
+   [ventas.entities.user :as entities.user]
    [ventas.entities.product :as entities.product]
    [ventas.i18n :refer [i18n]]
    [ventas.paths :as paths]
@@ -44,9 +45,7 @@
 (defn get-culture
   "Returns the eid of the session culture"
   [session]
-  (let [user (get-user session)]
-    (or (:user/culture user)
-        (:db/id (db/entity [:i18n.culture/keyword :en_US])))))
+  (entities.user/get-culture (get-user session)))
 
 (defn serialize-with-session [session entity]
   (entity/serialize entity {:culture (get-culture session)}))
