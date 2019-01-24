@@ -65,7 +65,7 @@
 (defn get-sorted-types
   "Returns the types in dependency order"
   []
-  (let [types (entity/types)]
+  (let [types (set (keys (entity/types)))]
     (detect-circular-dependencies! types)
     (get-sorted-types* [] types)))
 

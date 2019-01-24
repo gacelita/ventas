@@ -1,7 +1,6 @@
 (ns ventas.database.entity-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.database :as db]
    [ventas.database.entity :as sut]
    [ventas.test-tools :as test-tools]))
 
@@ -31,13 +30,12 @@
     (sut/delete (:db/id user))))
 
 (deftest register-type!
-  (with-redefs [sut/registered-types (atom {})]
-    (is (do (sut/register-type! :new-type {:attributes []})
-            (= @sut/registered-types {:new-type {:attributes []}})))
-    (is (let [properties {:filter-json (fn [])
-                          :attributes []}]
-          (sut/register-type! :new-type properties)
-          (= @sut/registered-types {:new-type properties})))))
+  (sut/register-type! :new-type {:attributes []})
+  (is (= (:new-type (sut/types)) {:attributes []}))
+  (let [properties {:filter-json (fn [])
+                    :attributes []}]
+    (sut/register-type! :new-type properties)
+    (is (= (:new-type (sut/types)) properties))))
 
 (deftest entities-remove
   (let [{id :db/id} (sut/create :user test-user-attrs)]

@@ -8,7 +8,6 @@
    [ventas.themes.devcards.core]
    [ventas.server]
    [clojure.spec.alpha :as spec]
-   [compojure.core :as compojure]
    [ventas.server.spa]))
 
 (def cljs-repl        devtools.repl/cljs-repl)

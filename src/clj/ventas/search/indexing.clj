@@ -83,7 +83,7 @@
     (search/document->indexing-queue doc)))
 
 (defn- indexable-types []
-  (->> @ventas.database.entity/registered-types
+  (->> (entity/types)
        (filter (fn [[k v]]
                  (not (:component? v))))
        (keys)))

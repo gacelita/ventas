@@ -78,7 +78,7 @@
 (defn types
   "Returns all types"
   []
-  (set (keys @registered-types)))
+  @registered-types)
 
 (defn type-exists?
   [type]
