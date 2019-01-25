@@ -34,8 +34,9 @@
 
 (defn create-from-file!
   "Creates a :file entity from an existing file"
-  [source-path extension]
-  (let [entity (entity/create :file {:extension extension})]
+  [source-path extension & [kw]]
+  (let [entity (entity/create :file {:extension extension
+                                     :keyword kw})]
     (copy-file! entity source-path)
     entity))
 

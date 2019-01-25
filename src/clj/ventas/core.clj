@@ -19,7 +19,9 @@
    [ventas.server.api.description]
    [ventas.server.api.user]
    [ventas.server.api]
-   [ventas.themes.admin.core])
+   [ventas.themes.admin.core]
+   [ventas.entities.file :as entities.file]
+   [clojure.java.io :as io])
   (:gen-class))
 
 (defn start-system! [& [states]]
@@ -36,11 +38,13 @@
   (log/info "Starting up...")
   (start-system!))
 
-(defn setup-db!
+(defn setup!
   "- Migrates the db
    - Imports CLDR data
-   - Transacts entity and plugin fixtures"
+   - Transacts entity and plugin fixtures
+   - Sets the ventas logo as the logo"
   [& {:keys [recreate?]}]
   (schema/migrate :recreate? recreate?)
   (cldr/import-cldr!)
-  (seed/seed))
+  (seed/seed)
+  (entities.file/create-from-file! (io/file (io/resource "ventas/logo.png")) "png" :logo))

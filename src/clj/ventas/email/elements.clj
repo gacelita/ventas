@@ -10,10 +10,6 @@
   (let [{:keys [host port]} (config/get :server)]
     (str "http://" host ":" port s)))
 
-(defn logo-html []
-  [:img {:width 60
-         :src (get-url "/files/logo")}])
-
 (defn table [args & content]
   [:table (merge {:cellSpacing 0
                   :cellPadding 0
