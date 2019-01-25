@@ -3,10 +3,11 @@
   (:require
    [chord.client :as chord]
    [chord.format.fressian]
-   [cljs.core.async :refer [<! >! chan close!]]
+   [cljs.core.async :refer [<! >! chan close! timeout]]
    [re-frame.core :as rf]
    [reagent.core :as reagent]
    [reagent.ratom :as ratom]
+   [ventas.events :as events]
    [ventas.utils.logging :as log])
   (:require-macros
    [cljs.core.async.macros :refer [go go-loop]]))
@@ -62,8 +63,15 @@
 
 (declare init)
 
-(defmethod ws-event-dispatch :server-restarted [_]
-  (init))
+(declare start-websocket)
+
+(defn restart
+  "Restarts a websocket"
+  [format]
+  (go
+   (<! (start-websocket format))
+   (when (= :transit-json format)
+     (rf/dispatch [::events/users.session]))))
 
 (defmethod ws-event-dispatch :default [event]
   (log/debug "Unhandled event: " event))
@@ -79,7 +87,9 @@
         (log/warn "Unhandled websocket message" message))
       (if (seq message)
         (recur)
-        (init)))))
+        (do
+          (<! (timeout 1000))
+          (<! (restart format)))))))
 
 (defn- send-messages!
   "Receives messages from output-channel and send them to the server"
