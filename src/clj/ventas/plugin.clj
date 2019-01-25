@@ -5,16 +5,29 @@
    [clojure.spec.alpha :as spec]
    [slingshot.slingshot :refer [throw+]]
    [ventas.database.schema :as schema]
-   [ventas.entities.i18n :as entities.i18n]
    [ventas.events :as events]
    [ventas.utils :as utils]))
 
-(spec/def ::name
-  (spec/or :string string?
-           :i18n ::entities.i18n/ref))
+(spec/def ::plugin
+  (spec/keys :req-un [::type]
+             :opt-un [::fixtures
+                      ::migrations]))
+
+(defmulti plugin-types :type)
+
+(defmethod plugin-types :theme [_]
+  (spec/and
+   ::plugin
+   (spec/keys :req-un [::build]
+              :opt-un [::init-script
+                       ::default?
+                       ::should-load?])))
+
+(defmethod plugin-types :default [_]
+  ::plugin)
 
 (spec/def ::attrs
-  (spec/keys :req-un [::name]))
+  (spec/multi-spec plugin-types :type))
 
 (defonce plugins (atom {}))
 

@@ -109,10 +109,6 @@
   (GET "/*" _
     server.spa/handle-spa))
 
-(defroutes dev-site-routes
-  (GET "/devcards" _
-    server.spa/handle-devcards))
-
 (def site-handler
   (-> site-routes
       (wrap-prone)
@@ -125,7 +121,7 @@
 (def http-handler
   (if (= "prod" (config/get :profile))
     site-handler
-    (compojure/routes api-handler dev-site-routes site-handler)))
+    (compojure/routes api-handler site-handler)))
 
 (defn stop-server! [stop-fn]
   (log/info "Stopping server")

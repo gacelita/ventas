@@ -13,7 +13,6 @@
    [ventas.events.backend]
    [ventas.local-storage :as storage]
    [ventas.page :as page]
-   [ventas.pages.admin]
    [ventas.routes :as routes]
    [ventas.seo :as seo]
    [ventas.session :as session]

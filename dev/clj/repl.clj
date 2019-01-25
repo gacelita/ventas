@@ -17,6 +17,6 @@
 (def tn-refresh       tn/refresh)
 
 (defn init []
-  (set-themes! #{:dev :devcards})
-  (devtools.repl/init))
+  (devtools.repl/init)
+  (set-themes! #{:dev :devcards :admin}))
 

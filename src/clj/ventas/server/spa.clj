@@ -6,7 +6,8 @@
    [ventas.paths :as paths]
    [clojure.java.io :as io]
    [clojure.tools.logging :as log]
-   [ventas.plugin :as plugin]))
+   [ventas.plugin :as plugin]
+   [ventas.common.utils :as common.utils]))
 
 (defn rendered-file [path extension]
   (let [path (if (= path "/")
@@ -50,14 +51,18 @@
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body (get-html uri (name theme) init-script)})
 
-(defn handle-spa [{:keys [uri]}]
-  (let [theme-id (theme/current)]
-    (when-not theme-id
-      (throw (Exception. "No active theme! Set it in config.edn or with (ventas.entities.configuration/set! :theme ...)")))
-    (let [{:keys [init-script]} (plugin/find theme-id)]
-      (when-not init-script
-        (throw (Exception. "No :init-script defined for the current theme. The theme won't be able to start.")))
-      (handle uri (theme/current) init-script))))
+(def request->theme
+  (memoize
+   (fn [request]
+     (let [themes (theme/all)]
+       (or (common.utils/find-first
+            (fn [[_ v]]
+              (and (not (:default? v)) (:should-load? v) ((:should-load? v) request)))
+            themes)
+           (common.utils/find-first (comp :default? second) themes))))))
 
-(defn handle-devcards [{:keys [uri]}]
-  (handle uri :devcards "devcards.core.start_devcard_ui_BANG__STAR_();"))
+(defn handle-spa [{:keys [uri] :as request}]
+  (let [[theme-id {:keys [init-script]}] (request->theme request)]
+    (when-not theme-id
+      (throw (Exception. "None of the themes wanted to load, and there is no default theme. Please check the registered themes")))
+    (handle uri theme-id (or init-script "ventas.core.start();"))))

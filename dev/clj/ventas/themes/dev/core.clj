@@ -4,9 +4,5 @@
 
 (theme/register!
  :dev
- {:name "Dev"
-  :build {:modules {:main {:entries ['ventas.themes.dev.core]}}}
-  :fixtures
-  (fn []
-    [])
-  :migrations []})
+ {:build {:modules {:main {:entries ['ventas.themes.dev.core]}}}
+  :default? true})

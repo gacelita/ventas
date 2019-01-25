@@ -18,7 +18,8 @@
    [ventas.server.api.admin]
    [ventas.server.api.description]
    [ventas.server.api.user]
-   [ventas.server.api])
+   [ventas.server.api]
+   [ventas.themes.admin.core])
   (:gen-class))
 
 (defn start-system! [& [states]]
