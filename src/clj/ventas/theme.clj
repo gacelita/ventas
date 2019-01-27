@@ -10,7 +10,3 @@
 
 (defn all []
   (plugin/by-type :theme))
-
-(defn current []
-  (or (entities.configuration/get :theme)
-      (config/get :theme)))

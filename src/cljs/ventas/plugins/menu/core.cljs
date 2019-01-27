@@ -32,5 +32,5 @@
 (defn menu [state-id]
   [menu/menu
    {:items @(rf/subscribe [::items state-id])
-    ;; @todo Figure this out using the current route
+    ;; @TODO Figure this out using the current route
     :current-fn (constantly nil)}])

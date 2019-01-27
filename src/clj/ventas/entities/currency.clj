@@ -45,7 +45,7 @@
   #{:i18n}
 
   :fixtures
-  ;; @TODO Allow the user to select which langs to support
+  ;; @TODO Import from CLDR?
   (fn []
     [{:currency/name (entities.i18n/->entity {:en_US "euro"
                                               :es_ES "euro"})

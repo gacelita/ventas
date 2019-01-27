@@ -95,24 +95,7 @@
              :db/cardinality :db.cardinality/many
              :ventas/refEntityType :enum}]
 
-           (map #(hash-map :db/ident %) algorithms))]]
-
-  :fixtures
-  ;; @TODO Move to admin theme
-  (fn []
-    [{:schema/type :schema.type/image-size
-      :image-size/keyword :admin-products-edit
-      :image-size/width 150
-      :image-size/height 150
-      :image-size/algorithm :image-size.algorithm/crop-and-resize
-      :image-size/entities #{:schema.type/product}}
-
-     {:schema/type :schema.type/image-size
-      :image-size/keyword :admin-orders-edit-line
-      :image-size/width 80
-      :image-size/height 80
-      :image-size/algorithm :image-size.algorithm/crop-and-resize
-      :image-size/entities #{:schema.type/product}}])})
+           (map #(hash-map :db/ident %) algorithms))]]})
 
 (defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]
   (let [algorithm (name algorithm)]

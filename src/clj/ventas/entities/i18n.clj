@@ -30,7 +30,6 @@
             :db/cardinality :db.cardinality/one}]]]
 
   :fixtures
-  ;; @TODO Remove
   (fn []
     [{:i18n.culture/keyword :en_US
       :i18n.culture/name "English (US)"}

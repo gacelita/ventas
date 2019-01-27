@@ -19,6 +19,8 @@
 
     :ventas.components.table/no-rows "No items to show"
 
+    :ventas.components.crud-table/actions "Actions"
+
     :ventas.components.search-box/search "Search"
     :ventas.components.search-box/product "Product"
     :ventas.components.search-box/category "Category"

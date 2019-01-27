@@ -66,12 +66,16 @@
 (spec/def :shipping-method/prices
   (spec/with-gen ::entity/refs #(entity/refs-generator :shipping-method.price)))
 
+(spec/def :shipping-method/logo
+  (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
+
 (spec/def :schema.type/shipping-method
   (spec/keys :req [:shipping-method/name
                    :shipping-method/default?
                    :shipping-method/manipulation-fee
                    :shipping-method/pricing
-                   :shipping-method/prices]))
+                   :shipping-method/prices
+                   :shipping-method/logo]))
 
 (entity/register-type!
  :shipping-method
@@ -102,6 +106,11 @@
            {:db/ident :shipping-method/prices
             :db/valueType :db.type/ref
             :db/cardinality :db.cardinality/many
+            :db/isComponent true}]]
+   [:logo [{:db/ident :shipping-method/logo
+            :db/valueType :db.type/ref
+            :ventas/refEntityType :file
+            :db/cardinality :db.cardinality/one
             :db/isComponent true}]]]
 
   :dependencies

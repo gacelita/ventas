@@ -169,7 +169,10 @@
                :type :combobox
                :options @(rf/subscribe [:db [:enums :shipping-method.pricing]])}]
 
-       [prices-table]]
+       [prices-table]
+
+       [field {:key :shipping-method/logo
+               :type :image}]]
 
       [base/form-button {:type "submit"}
        (i18n ::submit)]])])

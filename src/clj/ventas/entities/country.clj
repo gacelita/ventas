@@ -25,22 +25,7 @@
   :dependencies
   #{:i18n}
 
-  :autoresolve? true
-
-  :fixtures
-  (fn []
-    ;; @TODO Remove
-    [{:country.group/name (entities.i18n/->entity {:en_US "Europe"
-                                                   :es_ES "Europa"})
-      :country.group/keyword :europe}
-
-     {:country.group/name (entities.i18n/->entity {:en_US "North America"
-                                                   :es_ES "Norteamérica"})
-      :country.group/keyword :north-america}
-
-     {:country.group/name (entities.i18n/->entity {:en_US "Europe (non-EU)"
-                                                   :es_ES "Europe (fuera de la UE)"})
-      :country.group/keyword :europe-non-eu}])})
+  :autoresolve? true})
 
 (spec/def :country/name ::entities.i18n/ref)
 
@@ -67,16 +52,4 @@
   :dependencies
   #{:i18n :country.group}
 
-  :autoresolve? true
-
-  :fixtures
-  ;; @TODO Remove
-  (fn []
-    [{:country/keyword :es
-      :country/group [:country.group/keyword :europe]
-      :country/name (entities.i18n/->entity {:en_US "Spain"
-                                                    :es_ES "España"})}
-     {:country/keyword :us
-      :country/group [:country.group/keyword :north-america]
-      :country/name (entities.i18n/->entity {:en_US "United States"
-                                                    :es_ES "Estados Unidos"})}])})
+  :autoresolve? true})

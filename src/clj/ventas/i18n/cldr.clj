@@ -130,6 +130,7 @@
    considered."
   [path]
   (let [cultures (entity/query :i18n.culture)]
+    (log/info "Cultures found:" (map :i18n.culture/name cultures))
     {:countries
      (reduce (partial accumulate-culture get-country-names (str path "/common/main"))
              {}

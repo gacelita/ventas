@@ -45,6 +45,7 @@
    - Sets the ventas logo as the logo"
   [& {:keys [recreate?]}]
   (schema/migrate :recreate? recreate?)
-  (cldr/import-cldr!)
   (seed/seed)
-  (entities.file/create-from-file! (io/file (io/resource "ventas/logo.png")) "png" :logo))
+  (cldr/import-cldr!)
+  (entities.file/create-from-file! (io/file (io/resource "ventas/logo.png")) "png" :logo)
+  :done)

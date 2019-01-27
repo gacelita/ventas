@@ -26,3 +26,13 @@
         z-index: unset;
     }
 }
+
+.image-component__error {
+    text-align: center;
+    display: flex;
+    align-items: center;
+
+    > div {
+        width: 100%;
+    }
+}

@@ -141,10 +141,17 @@
     :control :textarea
     :on-change #(rf/dispatch [::set-field db-path key %])}])
 
+(rf/reg-event-fx
+ ::image.set
+ (fn [_ [_ db-path key value]]
+   {:dispatch [::set-field db-path key {:db/id value
+                                        :schema/type :schema.type/file
+                                        :file/extension "jpg"}]}))
+
 (defmethod input :image [{:keys [value db-path key]}]
   [image-input/image-input
-   {:on-change [::set-field db-path key]
-    :value value}])
+   {:on-change [::image.set db-path key]
+    :value (:db/id value)}])
 
 (rf/reg-event-fx
  ::on-color-change
