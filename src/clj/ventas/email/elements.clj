@@ -4,7 +4,8 @@
    [ventas.config :as config]
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.user :as entities.user]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (defn get-url [s]
   (let [{:keys [host port]} (config/get :server)]
@@ -45,7 +46,8 @@
    name])
 
 (defn skeleton [user & content]
-  (let [culture-kw (entities.user/get-culture user)]
+  (let [culture-kw (entities.i18n/culture->kw
+                    (entities.user/get-culture user))]
     [:div
      (wrapper
       (table

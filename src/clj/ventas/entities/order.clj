@@ -27,6 +27,12 @@
              (reduce +)
              (bigdec))))))
 
+(defn get-amount!
+  "Same as get-amount, but throws if there's no amount"
+  [order]
+  (or (get-amount order)
+      (throw (Exception. "The cart is empty"))))
+
 (spec/def :order/user
   (spec/with-gen ::entity/ref #(entity/ref-generator :user)))
 

@@ -1,8 +1,8 @@
-version: '2'
+version: '3'
 services:
 
   datomic:
-    image: datomic
+    image: akiel/datomic-free:0.9.5561
     ports:
       - 4334:4334
       - 4335:4335
@@ -12,15 +12,15 @@ services:
     environment:
       - XMX=-Xmx512M
       - XMS=-Xms512M
+      - ALT_HOST=127.0.0.1
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
-    container_name: elasticsearch
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
-      - cluster.routing.allocation.disk.watermark.high=0.95
+      - cluster.routing.allocation.disk.threshold_enabled=false
     ulimits:
       memlock:
         soft: -1

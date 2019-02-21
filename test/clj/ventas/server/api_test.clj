@@ -27,18 +27,18 @@
 (deftest categories-get
   (let [category (create-test-category!)]
     (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
-           (-> (server.ws/call-request-handler {:name :categories.get
+           (-> (server.ws/call-request-handler {:name ::sut/categories.get
                                                 :params {:id :test-category}}
                                                {})
                :data)))
     (is (= ::sut/invalid-ref
-           (-> (server.ws/call-request-handler {:name :categories.get
+           (-> (server.ws/call-request-handler {:name ::sut/categories.get
                                                 :params {:id :DOES-NOT-EXIST}}
                                                {})
                :data
                :type)))
     (is (= ::sut/category-not-found
-           (-> (server.ws/call-request-handler {:name :categories.get
+           (-> (server.ws/call-request-handler {:name ::sut/categories.get
                                                 :params {:id 1112984712}}
                                                {})
                :data
@@ -52,7 +52,7 @@
                 (map #(entity/serialize % {:culture [:i18n.culture/keyword :en_US]}))
                 (map #(dissoc % :id))
                 (sort-by :keyword))
-           (->> (server.ws/call-request-handler {:name :categories.list}
+           (->> (server.ws/call-request-handler {:name ::sut/categories.list}
                                                {})
                 :data
                 (map #(dissoc % :id))
@@ -65,7 +65,7 @@
       (doseq [[k v] data]
         (entities.configuration/set! k v))
       (is (= data
-             (-> (server.ws/call-request-handler {:name :configuration.get
+             (-> (server.ws/call-request-handler {:name ::sut/configuration.get
                                                   :params #{:stripe.publishable-key
                                                             :site.title}}
                                                  {})
@@ -76,7 +76,7 @@
       (doseq [[k v] data]
         (entities.configuration/set! k v))
       (is (= data
-             (-> (server.ws/call-request-handler {:name :configuration.get
+             (-> (server.ws/call-request-handler {:name ::sut/configuration.get
                                                   :params #{:site.title
                                                             :made.up}}
                                                  {})
@@ -86,31 +86,31 @@
   (let [category (create-test-category!)]
     (testing "by eid"
       (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
-             (-> (server.ws/call-request-handler {:name :entities.find
+             (-> (server.ws/call-request-handler {:name ::sut/entities.find
                                                   :params {:id (:db/id category)}})
                  :data))))
     (testing "by lookup-ref"
       (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
-             (-> (server.ws/call-request-handler {:name :entities.find
+             (-> (server.ws/call-request-handler {:name ::sut/entities.find
                                                   :params {:id [:category/keyword (:category/keyword category)]}})
                  :data))))
     (testing "by slug"
       (let [slug (entity/serialize (entity/find (:ventas/slug category))
                                    {:culture [:i18n.culture/keyword :en_US]})]
         (is (= (entity/serialize category {:culture [:i18n.culture/keyword :en_US]})
-               (-> (server.ws/call-request-handler {:name :entities.find
+               (-> (server.ws/call-request-handler {:name ::sut/entities.find
                                                     :params {:id slug}})
                    :data)))))
     (testing "unexistent id"
       (is (= ::sut/entity-not-found
-             (-> (server.ws/call-request-handler {:name :entities.find
+             (-> (server.ws/call-request-handler {:name ::sut/entities.find
                                                   :params {:id 1}})
                  :data
                  :type))))))
 
 (deftest enums-get
   (is (= (db/enum-values (name :order.status) :eids? true)
-         (:data (server.ws/call-request-handler {:name :enums.get
+         (:data (server.ws/call-request-handler {:name ::sut/enums.get
                                                  :params {:type :order.status}})))))
 
 (deftest i18n-cultures-list
@@ -118,7 +118,7 @@
                       (map #(dissoc % :schema/type))
                       (set))]
     (is (= fixtures
-           (->> (server.ws/call-request-handler {:name :i18n.cultures.list})
+           (->> (server.ws/call-request-handler {:name ::sut/i18n.cultures.list})
                 :data
                 (map #(dissoc % :id))
                 (map #(set/rename-keys % {:keyword :i18n.culture/keyword
@@ -136,7 +136,7 @@
                                                :width 40})]
     (is (= {:test-size (-> (entity/serialize image-size {:culture [:i18n.culture/keyword :en_US]})
                            (dissoc :keyword))}
-           (:data (server.ws/call-request-handler {:name :image-sizes.list}))))))
+           (:data (server.ws/call-request-handler {:name ::sut/image-sizes.list}))))))
 
 (def test-taxonomies
   [{:schema/type :schema.type/product.taxonomy
@@ -197,7 +197,7 @@
   (testing "terms for default variation"
     (is (= #{(db/normalize-ref [:product.term/keyword :test-term-a-1])
              (db/normalize-ref [:product.term/keyword :test-term-b-1])}
-           (->> (server.ws/call-request-handler {:name :products.get
+           (->> (server.ws/call-request-handler {:name ::sut/products.get
                                                  :params {:id [:product/keyword :server-api-product]}})
                 :data
                 :variation
@@ -207,7 +207,7 @@
   (testing "terms for non-default variation"
     (is (= #{(db/normalize-ref [:product.term/keyword :test-term-a-2])
              (db/normalize-ref [:product.term/keyword :test-term-b-2])}
-           (->> (server.ws/call-request-handler {:name :products.get
+           (->> (server.ws/call-request-handler {:name ::sut/products.get
                                                  :params {:id [:product/keyword :server-api-product]
                                                           :terms #{[:product.term/keyword :test-term-a-2]
                                                                    [:product.term/keyword :test-term-b-2]}}})
@@ -219,7 +219,7 @@
   (testing "terms for nonexisting variation"
     (is (= #{(db/normalize-ref [:product.term/keyword :test-term-a-2])
              (db/normalize-ref [:product.term/keyword :test-term-b-1])}
-           (->> (server.ws/call-request-handler {:name :products.get
+           (->> (server.ws/call-request-handler {:name ::sut/products.get
                                                  :params {:id [:product/keyword :server-api-product]
                                                           :terms #{[:product.term/keyword :test-term-a-2]
                                                                    [:product.term/keyword :test-term-b-1]}}})
@@ -231,12 +231,12 @@
 
 (deftest products-list
   (testing "works without passing params"
-    (is (:success (server.ws/call-request-handler {:name :products.list}
+    (is (:success (server.ws/call-request-handler {:name ::sut/products.list}
                                                   {})))))
 
 (deftest products-aggregations
   (testing "spec does not fail when not passing params"
-    (let [result (-> (server.ws/call-request-handler {:name :products.aggregations}
+    (let [result (-> (server.ws/call-request-handler {:name ::sut/products.aggregations}
                                                      {})
                      :data
                      :type)]
@@ -249,7 +249,7 @@
                             :keyword :test-category})
   (let [params (atom nil)]
     (with-redefs [search/search (fn [& args] (reset! params args))]
-      (server.ws/call-request-handler {:name :products.aggregations
+      (server.ws/call-request-handler {:name ::sut/products.aggregations
                                        :params {:filters {:categories #{:test-category}
                                                           :price {:min 0
                                                                   :max 10}
@@ -267,7 +267,7 @@
              (first @params))))))
 
 (deftest users-register
-  (server.ws/call-request-handler {:name :users.register
+  (server.ws/call-request-handler {:name ::sut/users.register
                                    :params {:email "test@test.com"
                                             :password "test"
                                             :name "Test user"}})
@@ -292,7 +292,7 @@
   (let [user (entity/create* test-user)]
     (let [session (atom nil)]
       (testing "unexistent user"
-        (is (not (:success (server.ws/call-request-handler {:name :users.login
+        (is (not (:success (server.ws/call-request-handler {:name ::sut/users.login
                                                             :params {:email "doesnotexist@test.com"
                                                                      :password "test"}}
                                                            {:session session}))))
@@ -306,7 +306,7 @@
                        :last-name "User"
                        :name "Test User"
                        :status :user.status/active}}
-               (-> (server.ws/call-request-handler {:name :users.login
+               (-> (server.ws/call-request-handler {:name ::sut/users.login
                                                     :params {:email "test2@test.com"
                                                              :password "test"}}
                                                    {:session session})
@@ -318,7 +318,7 @@
     (let [session (atom nil)]
       (testing "invalid credentials"
         (is (= ::sut/invalid-credentials
-               (-> (server.ws/call-request-handler {:name :users.login
+               (-> (server.ws/call-request-handler {:name ::sut/users.login
                                                     :params {:email "test2@test.com"
                                                              :password "INVALID"}}
                                                    {:session session})
@@ -345,7 +345,7 @@
 
 (defn- run-temporary-user-test [token]
   (let [session (atom nil)
-        result (:data (server.ws/call-request-handler {:name :users.session
+        result (:data (server.ws/call-request-handler {:name ::sut/users.session
                                                        :params {:token token}}
                                                       {:session session}))]
     (is (= (:token result)
@@ -360,7 +360,7 @@
     (testing "user in session"
       (let [session (atom {:user (:db/id user)})]
         (is (= {:user (entity/serialize user)}
-               (:data (server.ws/call-request-handler {:name :users.session
+               (:data (server.ws/call-request-handler {:name ::sut/users.session
                                                        :params {}}
                                                       {:session session}))))
         (is (= {:user (:db/id user)}
@@ -368,7 +368,7 @@
     (testing "user not in session but token present"
       (let [session (atom nil)]
         (is (= {:user (entity/serialize user)}
-               (:data (server.ws/call-request-handler {:name :users.session
+               (:data (server.ws/call-request-handler {:name ::sut/users.session
                                                        :params {:token (auth/user->token user)}}
                                                       {:session session}))))
         (is (= {:user (:db/id user)}
@@ -380,7 +380,7 @@
 
 (deftest users-logout
   (let [session (atom {:user true})]
-    (server.ws/call-request-handler {:name :users.logout}
+    (server.ws/call-request-handler {:name ::sut/users.logout}
                                     {:session session})
     (is (not (:user @session)))))
 
@@ -392,23 +392,20 @@
   (let [state (entity/create :state {:name (entities.i18n/->entity {:en_US "Test state"})
                                      :country [:country/keyword :test-country]})]
     (is (= "Test state"
-           (->> (server.ws/call-request-handler {:name :states.list
+           (->> (server.ws/call-request-handler {:name ::sut/states.list
                                                  :params {:country :test-country}})
                 :data
                 first
                 :name)))))
 
 (deftest search
-  (let [search-params (atom nil)
-        stat-params (atom nil)]
+  (let [search-params (atom nil)]
     (with-redefs [search/search (fn [& args] (reset! search-params args))]
-      (server.ws/call-request-handler {:name :search
+      (server.ws/call-request-handler {:name ::sut/search
                                        :params {:search "Test"}})
       (is (= [{:_source false
                :query {:bool {:should [{:match {:brand/name__en_US "Test"}}
                                        {:match {:category/name__en_US "Test"}}
                                        {:match {:product/name__en_US "Test"}}]}}}]
-             @search-params))
-      (is (= ["Test"]
-             @stat-params)))))
+             @search-params)))))
 

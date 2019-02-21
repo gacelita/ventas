@@ -17,7 +17,7 @@
     (when-not id
       (throw+ {:type ::authentication-required}))))
 
-(defn- register-user-endpoint!
+(defn register-user-endpoint!
   ([kw f]
    (register-user-endpoint! kw {} f))
   ([kw opts f]
@@ -29,14 +29,14 @@
       (f request state)))))
 
 (register-user-endpoint!
- :users.addresses
+ ::users.addresses
  (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]
      (->> (entity/query :address {:user (:db/id user)})
           (map (partial api/serialize-with-session session))))))
 
 (register-user-endpoint!
- :users.addresses.save
+ ::users.addresses.save
  (fn [{address :params} {:keys [session]}]
    (let [user (api/get-user session)]
      (->> (entity/upsert :address (merge address
@@ -44,20 +44,20 @@
           (api/serialize-with-session session)))))
 
 (register-user-endpoint!
- :users.save
+ ::users.save
  (fn [{user :params} {:keys [session]}]
    (entity/update (merge {:id (:db/id (api/get-user session))}
                          (select-keys user #{:first-name :last-name :company :email :phone})))))
 
 (register-user-endpoint!
- :users.change-password
+ ::users.change-password
  (fn [{{:keys [password]} :params} {:keys [session]}]
    (let [{id :db/id} (api/get-user session)]
      (entity/update* {:db/id id
                       :user/password (hashers/derive password)}))))
 
 (register-user-endpoint!
- :users.addresses.remove
+ ::users.addresses.remove
  {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [user (api/get-user session)
@@ -68,7 +68,7 @@
      (entity/delete id))))
 
 (register-user-endpoint!
- :users.cart.get
+ ::users.cart.get
  (fn [_ {:keys [session]}]
    (when-let [user (api/get-user session)]
      (let [cart (entities.user/get-cart user)]
@@ -76,7 +76,7 @@
 
 ;; @TODO Test and finish this
 (register-user-endpoint!
- :users.cart.shipping-methods
+ ::users.cart.shipping-methods
  (fn [_ {:keys [session]}]
    (when-let [user (api/get-user session)]
      (let [cart (entities.user/get-cart user)
@@ -91,7 +91,7 @@
             (map (partial api/serialize-with-session session)))))))
 
 (register-user-endpoint!
- :users.cart.payment-methods
+ ::users.cart.payment-methods
  {:doc "Gets the payment methods that apply to the current cart
         (For now, that means all the payment methods)"}
  (fn [_ {:keys [session]}]
@@ -113,7 +113,7 @@
     (entity/find id)))
 
 (register-user-endpoint!
- :users.cart.add
+ ::users.cart.add
  {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (when-let [user (api/get-user session)]
@@ -128,7 +128,7 @@
        (api/find-serialize-with-session session (:db/id cart))))))
 
 (register-user-endpoint!
- :users.cart.remove
+ ::users.cart.remove
  {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (when-let [user (api/get-user session)]
@@ -138,7 +138,7 @@
        (api/find-serialize-with-session session (:db/id cart))))))
 
 (register-user-endpoint!
- :users.cart.set-quantity
+ ::users.cart.set-quantity
  {:spec {:id ::api/ref
          :quantity number?}}
  (fn [{{:keys [id quantity]} :params} {:keys [session]}]
@@ -153,7 +153,7 @@
        (api/find-serialize-with-session session (:db/id cart))))))
 
 (register-user-endpoint!
- :users.cart.add-discount
+ ::users.cart.add-discount
  {:spec {:code string?}}
  (fn [{{:keys [code]} :params} {:keys [session]}]
    (when-let [user (api/get-user session)]
@@ -165,7 +165,7 @@
                 :code code})))))
 
 (register-user-endpoint!
- :users.cart.order
+ ::users.cart.order
  {:doc "Makes an order from the current cart"}
  (fn [{{:keys [email shipping-address shipping-method payment-method payment-params]} :params} {:keys [session]}]
    (let [user (api/get-user session)
@@ -185,7 +185,7 @@
        (payment-method/pay! cart payment-params)))))
 
 (register-user-endpoint!
- :users.orders.list
+ ::users.orders.list
  {:doc "Lists the orders of an user (excluding drafts)"}
  (fn [_ {:keys [session]}]
    (let [user (api/get-user-id session)]
@@ -195,13 +195,13 @@
                   (merge order (entity/dates (:db/id %)))))))))
 
 (register-user-endpoint!
- :users.favorites.enumerate
+ ::users.favorites.enumerate
  (fn [_ {:keys [session]}]
    (let [user (api/get-user session)]
      (:user/favorites user))))
 
 (register-user-endpoint!
- :users.favorites.list
+ ::users.favorites.list
  {:middleware [pagination/wrap-sort
                pagination/wrap-paginate]}
  (fn [_ {:keys [session]}]
@@ -217,13 +217,13 @@
       favorites)))
 
 (register-user-endpoint!
- :users.favorites.add
+ ::users.favorites.add
  {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (toggle-favorite session id conj)))
 
 (register-user-endpoint!
- :users.favorites.remove
+ ::users.favorites.remove
  {:spec {:id ::api/ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (toggle-favorite session id disj)))

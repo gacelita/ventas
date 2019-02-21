@@ -18,10 +18,11 @@
    [ventas.entities.configuration :as entities.configuration]
    [ventas.entities.file :as entities.file]
    [ventas.entities.i18n :as entities.i18n]
-   [ventas.entities.user :as entities.user]
    [ventas.entities.product :as entities.product]
+   [ventas.entities.user :as entities.user]
    [ventas.i18n :refer [i18n]]
    [ventas.paths :as paths]
+   [ventas.search.entities :as search.entities]
    [ventas.search.products :as search.products]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
@@ -57,7 +58,7 @@
   ([kw f]
    (register-endpoint! kw {:binary? false} f))
   ([kw opts f]
-   {:pre [(keyword? kw) (ifn? f) (map? opts)]}
+   {:pre [(keyword? kw) (namespace kw) (ifn? f) (map? opts)]}
    (let [{:keys [binary? middlewares spec] :or {middlewares []}} opts]
      (swap! available-requests assoc kw opts)
      (cond
@@ -120,7 +121,7 @@
     result))
 
 (register-endpoint!
- :categories.get
+ ::categories.get
  {:spec {:id ::ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [category (entity/find (resolve-ref id :category/keyword))]
@@ -130,25 +131,25 @@
      (serialize-with-session session category))))
 
 (register-endpoint!
- :categories.list
+ ::categories.list
  (fn [_ {:keys [session]}]
    (->> (entity/query :category)
         (map (partial serialize-with-session session)))))
 
 (register-endpoint!
-  :categories.options
+ ::categories.options
   {:doc "Lists categories in a format suitable for a dropdown selector"}
   (fn [_ {:keys [session]}]
     (entities.category/options (get-culture session))))
 
 (register-endpoint!
- :configuration.get
+ ::configuration.get
  {:spec [::keyword]}
  (fn [{ids :params} _]
    (entities.configuration/get ids)))
 
 (register-endpoint!
- :entities.find
+ ::entities.find
  {:spec {:id ::ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [entity (entity/find (resolve-ref id))]
@@ -158,13 +159,13 @@
      (serialize-with-session session entity))))
 
 (register-endpoint!
- :enums.get
+ ::enums.get
  {:spec {:type ::keyword}}
  (fn [{{:keys [type]} :params} _]
    (db/enum-values (name type) :eids? true)))
 
 (register-endpoint!
- :i18n.cultures.list
+ ::i18n.cultures.list
  (fn [_ _]
    (->> (entity/query :i18n.culture)
         (map (fn [{:i18n.culture/keys [keyword name] :db/keys [id]}]
@@ -173,14 +174,14 @@
                 :id id})))))
 
 (register-endpoint!
- :image-sizes.list
+ ::image-sizes.list
  (fn [_ {:keys [session]}]
    (->> (entity/query :image-size)
         (map (partial serialize-with-session session))
         (common.utils/index-by :keyword))))
 
 (register-endpoint!
- :products.get
+ ::products.get
  {:spec {:id ::ref
          (opt :terms) (maybe [::ref])}}
  (fn [{{:keys [id terms]} :params} {:keys [session]}]
@@ -190,7 +191,7 @@
         (entities.product/find-variation terms)))))
 
 (register-endpoint!
-  :realtime-test
+  ::realtime-test
   {:doc "A very simple test for realtime capabilities.
          Will send (inc n) every two seconds."}
   (fn [_ _]
@@ -202,7 +203,7 @@
       ch)))
 
 (register-endpoint!
- :products.list
+ ::products.list
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]}
  (fn [_ {:keys [session]}]
@@ -210,7 +211,7 @@
         (map (partial serialize-with-session session)))))
 
 (register-endpoint!
- :products.aggregations
+ ::products.aggregations
  {:spec
   (maybe {(opt :filters) {(opt :categories) [::ref]
                           (opt :price) {(opt :min) number?
@@ -234,24 +235,25 @@
                                                       (map #(resolve-ref % :product.term/keyword)
                                                            terms))))
          {:keys [items can-load-more?]} (search.products/search filters pagination culture)]
+     (def f filters)
      {:items items
       :can-load-more? can-load-more?
       :taxonomies (search.products/aggregate (:categories filters) culture)})))
 
 (register-endpoint!
-  :shipping-methods.list
+  ::shipping-methods.list
   (fn [_ {:keys [session]}]
     (->> (entity/query :shipping-method)
          (map (partial serialize-with-session session)))))
 
 (register-endpoint!
-  :payment-methods.list
+  ::payment-methods.list
   (fn [_ {:keys [session]}]
     (->> (entity/query :payment-method)
          (map (partial serialize-with-session session)))))
 
 (register-endpoint!
-  :states.list
+  ::states.list
   {:middlewares [pagination/wrap-paginate]
    :spec {:country ::ref}}
   (fn [{{:keys [country]} :params} {:keys [session]}]
@@ -260,7 +262,7 @@
          (map #(dissoc % :country)))))
 
 (register-endpoint!
-  :countries.list
+  ::countries.list
   (fn [_ {:keys [session]}]
     (->> (entity/query :country)
          (map (partial serialize-with-session session)))))
@@ -277,7 +279,7 @@
      :token token}))
 
 (register-endpoint!
- :users.register
+ ::users.register
  {:spec {:email ::string
          :password ::string
          :name ::string}}
@@ -293,7 +295,7 @@
       :token token})))
 
 (register-endpoint!
- :users.login
+ ::users.login
  {:spec {:email ::string
          :password ::string}}
  (fn [{{:keys [email password]} :params} {:keys [session]}]
@@ -310,7 +312,7 @@
         :token token}))))
 
 (register-endpoint!
- :users.session
+ ::users.session
  {:spec {(opt :token) (maybe ::string)}}
  (fn [{:keys [params]} {:keys [session]}]
    (if-let [user (get-user session)]
@@ -326,13 +328,32 @@
           :token token})))))
 
 (register-endpoint!
- :users.logout
+ ::users.logout
  (fn [_ {:keys [session]}]
    (swap! session dissoc :user)
    true))
 
 (register-endpoint!
- :site.create
+  ::search
+  {:spec {:search ::string}
+   :doc "Does a fulltext search for `search` in products, categories and brands"}
+  (fn [{{:keys [search]} :params} {:keys [session]}]
+    (let [culture (get-culture session)]
+      (->> (search.entities/search search
+                                   #{:product/name
+                                     :category/name
+                                     :brand/name}
+                                   culture)
+           (map (fn [{:keys [images type id name full-name]}]
+                  {:image (first images)
+                   :id id
+                   :type type
+                   :name (case type
+                           :product name
+                           :category full-name)}))))))
+
+(register-endpoint!
+ ::site.create
  (fn [{{:keys [email password name]} :params} {:keys [session]}]
    (let [subdomain (utils.slugs/slug name)
          site (entity/create* {:schema/type :schema.type/site
@@ -358,7 +379,7 @@
       (last)))
 
 (register-endpoint!
- :upload
+ ::upload
  {:binary? true
   :spec {:first? boolean?
          :last? boolean?
@@ -380,7 +401,7 @@
        :default true))))
 
 (register-endpoint!
- :status
+ ::status
  {:doc "Just a dummy status endpoint"}
  (fn [_ _]
   "ok"))

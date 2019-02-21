@@ -4,7 +4,7 @@
    [re-frame.core :as rf]
    [ventas.routes :as routes]
    [ventas.i18n :refer [i18n]]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.components.notificator :as notificator]
    [ventas.components.base :as base]
    [ventas.utils.ui :as utils.ui]
@@ -18,7 +18,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} [_ state-path list-route]]
-   {:dispatch [::backend/admin.entities.save
+   {:dispatch [::api.admin/admin.entities.save
                {:params (get-in db (conj state-path :form))
                 :success [::submit.next list-route]}]}))
 
@@ -34,7 +34,7 @@
    {:dispatch (let [id (routes/ref-from-param :id)]
                 (if-not (pos? id)
                   [::form/populate state-path {:schema/type (keyword "schema.type" (name entity-type))}]
-                  [::backend/admin.entities.pull
+                  [::api.admin/admin.entities.pull
                    {:params {:id id}
                     :success [::init.next state-path next-event]}]))}))
 

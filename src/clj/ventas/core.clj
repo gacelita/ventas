@@ -15,13 +15,8 @@
    [ventas.search :as search]
    [ventas.search.indexing :as search.indexing]
    [ventas.server :as server]
-   [ventas.server.api.admin]
-   [ventas.server.api.description]
-   [ventas.server.api.user]
-   [ventas.server.api]
-   [ventas.themes.admin.core]
-   [ventas.entities.file :as entities.file]
-   [clojure.java.io :as io])
+   [ventas.server.api.core]
+   [ventas.entities.file :as entities.file])
   (:gen-class))
 
 (defn start-system! [& [states]]
@@ -38,6 +33,10 @@
   (log/info "Starting up...")
   (start-system!))
 
+(defn resource-as-stream [s]
+  (let [loader (.getContextClassLoader (Thread/currentThread))]
+    (.getResourceAsStream loader s)))
+
 (defn setup!
   "- Migrates the db
    - Imports CLDR data
@@ -47,5 +46,5 @@
   (schema/migrate :recreate? recreate?)
   (seed/seed)
   (cldr/import-cldr!)
-  (entities.file/create-from-file! (io/file (io/resource "ventas/logo.png")) "png" :logo)
+  (entities.file/create-from-file! (resource-as-stream "ventas/logo.png") "png" :logo)
   :done)

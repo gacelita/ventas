@@ -4,7 +4,7 @@
    [ventas.i18n :refer [i18n]]
    [re-frame.core :as rf]
    [reagent.core :as r]
-   [ventas.events.backend :as backend]
+   [ventas.server.api :as backend]
    [ventas.components.image :as image])
   (:require-macros
    [ventas.utils :refer [ns-kw]]))

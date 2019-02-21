@@ -12,8 +12,7 @@
    [ventas.components.form :as form]
    [ventas.components.i18n-input :as i18n-input]
    [ventas.components.search-box :as search-box :refer [search-box]]
-   [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.plugins.menu.api :as menu.api]
@@ -281,8 +280,8 @@
                    (update :menu/items menu->db))
           retract-ids (get-in db [state-key :menu-item-ids])]
       {:dispatch-n (into (for [retract-id retract-ids]
-                           [::backend/admin.entities.remove {:params {:id retract-id}}])
-                         [[::backend/admin.entities.save
+                           [::api.admin/admin.entities.remove {:params {:id retract-id}}])
+                         [[::api.admin/admin.entities.save
                            {:params data
                             :success [::crud-form/submit.next :admin.customization.menus]}]])})))
 

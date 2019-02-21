@@ -22,8 +22,6 @@
     (log/info "Connecting to Elasticsearch at" url)
     (spandex/client {:hosts [url]})))
 
-(def batch-size 5)
-
 (defn make-url [& url]
   (let [index (config/get :elasticsearch :index)]
     (if url
@@ -96,10 +94,13 @@
         (throw+ {:type ::elasticsearch-error
                  :error message})))))
 
+(def flush-threshold 50)
+(def flush-interval 500)
+
 (defn- indexing-loop [indexing-chan]
   (future
-   (let [{:keys [input-ch output-ch]} (bulk-chan {:flush-threshold 50
-                                                  :flush-interval 3000
+   (let [{:keys [input-ch output-ch]} (bulk-chan {:flush-threshold flush-threshold
+                                                  :flush-interval flush-interval
                                                   :max-concurrent-requests 3})]
      (go-loop []
        (when-not (Thread/interrupted)
@@ -120,7 +121,7 @@
            (recur)))))))
 
 (defn start-indexer! []
-  (let [indexing-chan (chan (core.async/buffer (* 10 batch-size)))
+  (let [indexing-chan (chan (core.async/buffer (* 100 flush-threshold)))
         indexing-future (indexing-loop indexing-chan)]
     {:future indexing-future
      :chan indexing-chan

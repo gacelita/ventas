@@ -154,6 +154,7 @@
    :ventas.themes.admin.shipping-methods.edit/default? "Default?"
    :ventas.themes.admin.shipping-methods.edit/manipulation-fee "Manipulation fee"
    :ventas.themes.admin.shipping-methods.edit/logo "Logo"
+   :ventas.themes.admin.shipping-methods.edit/shipping-method "Shipping method"
 
    :ventas.themes.admin.payment-methods/page "Billing"
 

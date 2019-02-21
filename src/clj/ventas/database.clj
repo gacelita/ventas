@@ -328,8 +328,12 @@
 (defn ensure-conforms
   "conformity/ensure-conforms wrapper"
   [id migration]
-  {:pre [(keyword? id) (coll? migration)]}
-  (conformity/ensure-conforms conn {id {:txes [migration]}}))
+  {:pre [(keyword? id) (or (coll? migration) (fn? migration))]}
+  (conformity/ensure-conforms
+   conn
+   {id (if (fn? migration)
+         {:txes-fn migration}
+         {:txes    [migration]})}))
 
 (spec/def :db/id number?)
 

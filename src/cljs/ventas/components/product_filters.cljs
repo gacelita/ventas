@@ -48,7 +48,8 @@
                                     :event event}]])
 
 (defn- ns-kw [a]
-  (utils/ns-kw a))
+  (when a
+    (utils/ns-kw a)))
 
 (defn- category-term [{:keys [category children terms event current outside-branch?]}]
   (let [count (get-in terms [(:id category) :count])

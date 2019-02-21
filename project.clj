@@ -42,9 +42,7 @@
                  [jarohen/chord "0.8.1" :exclusions [net.unit8/fressian-cljs org.clojure/tools.reader]]
                  [cheshire "5.8.1"]
                  [com.cognitect/transit-clj "0.8.313"]
-                 [com.cognitect/transit-cljs "0.8.256"]
                  [org.clojure/data.fressian "0.2.1"]
-                 [joelsanchez/fressian-cljs "0.2.1"]
 
                  ;; Server-side HTTP requests
                  [clj-http "3.9.1" :exclusions [riddley]]
@@ -114,9 +112,14 @@
                  ;; Retry
                  [com.grammarly/perseverance "0.1.3"]
 
+                 ;; transitive
+                 [org.clojure/tools.reader "1.3.0-alpha3"]
+
                  ;; CLJS
                  [alandipert/storage-atom "2.0.1"]
                  [bidi "2.1.5"]
+                 [com.cognitect/transit-cljs "0.8.256"]
+                 [joelsanchez/fressian-cljs "0.2.1"]
                  [day8.re-frame/forward-events-fx "0.0.6"]
                  [joelsanchez/ventas-bidi-syntax "0.1.4" :exclusions [org.clojure/core.async]]
                  [re-frame "0.10.6" :exclusions [org.clojure/clojurescript
@@ -126,6 +129,7 @@
                  [com.cemerick/url "0.1.1"]]
 
   :plugins [[lein-ancient "0.6.15"]
+            [deraen/lein-sass4clj "0.3.1" :exclusions [org.apache.commons/commons-compress]]
             [com.gfredericks/lein-all-my-files-should-end-with-exactly-one-newline-character "0.1.0"]
             [com.gfredericks/how-to-ns "0.1.8"]
             [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure]]
@@ -153,17 +157,23 @@
                    ["cljfmt" "fix"]
                    ["all-my-files-should-end-with-exactly-one-newline-character" "so-fix-them"]]}
 
+  :sass {:source-paths ["src/scss"]
+         :target-path "resources/public/files/css"
+         :source-map true}
+
   :profiles {:dev {:repl-options {:init-ns repl
-                                  :port 4001
                                   :nrepl-middleware [cider.piggieback/wrap-cljs-repl]
                                   :timeout 120000}
-                   :dependencies [[ventas/devtools "0.0.11-SNAPSHOT" :exclusions [ring/ring-core
-                                                                                  ring/ring-codec
-                                                                                  org.clojure/tools.cli
-                                                                                  org.clojure/tools.logging
-                                                                                  org.jboss.logging/jboss-logging]]
-                                  [cider/piggieback "0.3.10" :exclusions [org.clojure/clojurescript org.clojure/tools.logging nrepl]]
+                   :dependencies [[cider/piggieback "0.3.10" :exclusions [org.clojure/clojurescript org.clojure/tools.logging]]
                                   [binaryage/devtools "0.9.10"]
                                   [org.clojure/tools.namespace "0.3.0-alpha4"]
-                                  [devcards "0.2.4" :exclusions [cljsjs/react cljsjs/react-dom org.clojure/clojurescript]]]
+                                  [deraen/sass4clj "0.3.1" :exclusions [org.apache.commons/commons-compress]]
+                                  [devcards "0.2.4" :exclusions [cljsjs/react cljsjs/react-dom org.clojure/clojurescript]]
+                                  [thheller/shadow-cljs "2.7.21" :exclusions [org.clojure/tools.reader
+                                                                              com.google.guava/guava
+                                                                              org.clojure/tools.cli
+                                                                              commons-codec
+                                                                              commons-io
+                                                                              ring/ring-core
+                                                                              nrepl]]]
                    :source-paths ["dev/clj" "dev/cljs"]}})

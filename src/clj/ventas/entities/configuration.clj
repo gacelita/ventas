@@ -1,4 +1,6 @@
 (ns ventas.entities.configuration
+  "Don't use this namespace, as it's on the way out.
+   Create an entity type if you want to store config in the db."
   (:refer-clojure :exclude [get])
   (:require
    [clojure.set :as set]
@@ -69,19 +71,6 @@
          (remove nil?)
          (into {}))
     (get* k-or-ks user)))
-
-(defn register-key!
-  "Registers a configuration key.
-   Only needed if you want to define `allowed-user-roles`, which makes the given
-   key private except for the given roles."
-  [k & [{:keys [allowed-user-roles]}]]
-  {:pre [(or (not allowed-user-roles) (set allowed-user-roles))]}
-  (when (entity/db-migrated?)
-    (entity/create* (merge
-                     {:schema/type :schema.type/configuration.acl
-                      :configuration.acl/keyword k}
-                     (when allowed-user-roles
-                       {:configuration.acl/allowed-user-roles allowed-user-roles})))))
 
 (defn set! [k v]
   {:pre [(keyword? k)]}

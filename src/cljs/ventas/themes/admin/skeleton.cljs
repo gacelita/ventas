@@ -7,14 +7,13 @@
    [ventas.components.notificator :as notificator]
    [ventas.components.popup :as popup]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.routes :as routes]
    [ventas.utils :as utils]
    [ventas.utils.ui :as utils.ui]
    [ventas.ws :as ws]
-   [reagent.core :as reagent]
-   [ventas.common.utils :as common.utils]))
+   [reagent.core :as reagent]))
 
 (def state-key ::state)
 
@@ -173,13 +172,13 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::backend/admin.entities.list
+   {:dispatch-n [[::api.admin/admin.entities.list
                   {:params {:type :brand}
                    :success [:db [:admin :brands]]}]
-                 [::backend/admin.entities.list
+                 [::api.admin/admin.entities.list
                   {:params {:type :tax}
                    :success [:db [:admin :taxes]]}]
-                 [::backend/admin.entities.list
+                 [::api.admin/admin.entities.list
                   {:params {:type :currency}
                    :success [:db [:admin :currencies]]}]
                  [::events/i18n.cultures.list]]}))

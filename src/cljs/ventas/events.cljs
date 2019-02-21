@@ -3,9 +3,11 @@
   (:require
    [day8.re-frame.forward-events-fx]
    [re-frame.core :as rf]
-   [ventas.events.backend :as backend]
+   [ventas.server.api :as backend]
+   [ventas.server.api.admin :as api.admin]
+   [ventas.server.api.user :as api.user]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.logging :refer [debug]])
+   [ventas.utils.logging :as log])
   (:require-macros
    [ventas.events]))
 
@@ -19,14 +21,14 @@
  :db
  (fn [db [_ where what]]
    {:pre [(sequential? where)]}
-   (debug :db where what)
+   (log/debug :db where what)
    (assoc-in db where what)))
 
 (rf/reg-event-db
  :db.update
  (fn [db [_ where what-fn]]
    {:pre [(ifn? what-fn) (sequential? where)]}
-   (debug :db.update where what-fn)
+   (log/debug :db.update where what-fn)
    (update-in db where what-fn)))
 
 (rf/reg-event-fx
@@ -76,7 +78,7 @@
 (rf/reg-event-fx
  ::admin.entities.sync
  (fn [_ [_ eid]]
-   {:dispatch [::backend/admin.entities.find
+   {:dispatch [::api.admin/admin.entities.find
                {:sync true
                 :params {:id eid}
                 :success [:db [:admin-entities eid]]}]}))
@@ -84,7 +86,7 @@
 (rf/reg-event-fx
  ::admin.entities.remove
  (fn [_ [_ db-path eid]]
-   {:dispatch [::backend/admin.entities.remove
+   {:dispatch [::api.admin/admin.entities.remove
                {:params {:id eid}
                 :success [::admin.entities.remove.next db-path eid]}]}))
 
@@ -178,7 +180,7 @@
 (rf/reg-event-fx
  ::users.favorites.enumerate
  (fn [_ _]
-   {:dispatch [::backend/users.favorites.enumerate
+   {:dispatch [::api.user/users.favorites.enumerate
                {:success [:db [:users.favorites]]}]}))
 
 (rf/reg-event-fx

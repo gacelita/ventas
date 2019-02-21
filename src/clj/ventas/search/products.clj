@@ -15,6 +15,8 @@
   (entities.product/serialize-terms
    (for [{:keys [key doc_count]} buckets]
      (let [{:keys [taxonomy] :as term} (entity/find-serialize key json-opts)]
+       (def j json-opts)
+       (def k key)
        (merge (dissoc term :keyword)
               {:count doc_count
                :taxonomy (or taxonomy

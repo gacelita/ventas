@@ -6,8 +6,7 @@
    [ventas.components.base :as base]
    [ventas.components.notificator :as notificator]
    [ventas.components.table :as table]
-   [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.orders.edit :as admin.orders.edit]
    [ventas.themes.admin.skeleton :as admin.skeleton]
@@ -19,7 +18,7 @@
 (rf/reg-event-fx
  ::pending-orders.init
  (fn [_ _]
-   {:dispatch [::backend/admin.orders.list-pending
+   {:dispatch [::api.admin/admin.orders.list-pending
                {:success [:db [state-key :pending-orders]]}]}))
 
 (defn- segment [{:keys [label]} & children]
@@ -54,7 +53,7 @@
 (rf/reg-event-fx
  ::order.set-status
  (fn [_ [_ id status]]
-   {:dispatch [::backend/admin.entities.save
+   {:dispatch [::api.admin/admin.entities.save
                {:params {:db/id id
                          :schema/type :schema.type/order
                          :order/status status}
@@ -76,7 +75,7 @@
 (rf/reg-event-fx
  ::modal.init
  (fn [_ [_ id modal-content]]
-   {:dispatch [::backend/admin.orders.get
+   {:dispatch [::api.admin/admin.orders.get
                {:params {:id id}
                 :success [::modal.init.next modal-content]}]}))
 
@@ -198,6 +197,6 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::backend/admin.users.list
+   {:dispatch-n [[::api.admin/admin.users.list
                   {:success [:db [state-key :users]]}]
                  [::pending-orders.init]]}))

@@ -29,7 +29,7 @@
     (defmethod sut/handle-request :handle-json-messages-test [message {:keys [channel client-id request session]}]
       (is (= test-message message))
       (is (utils/chan? channel))
-      (is (uuid? client-id))
+      (is client-id)
       (is (= [:ws-channel] (keys request)))
       (is (= @session {})))
 

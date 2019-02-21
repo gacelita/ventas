@@ -7,7 +7,8 @@
    [ventas.entities.product :as entities.product]
    [ventas.i18n :refer [i18n]]
    [ventas.entities.order :as entities.order]
-   [ventas.entities.user :as entities.user]))
+   [ventas.entities.user :as entities.user]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (defn amount->str [{:amount/keys [value currency]}]
   (str value " " (:currency/symbol (entity/find currency))))
@@ -23,7 +24,8 @@
      [:td {:align "right"} (amount->str (entity/find price))]]))
 
 (defmethod templates/template :order-status-changed [_ {:keys [user order]}]
-  (let [culture-kw (entities.user/get-culture user)
+  (let [culture-kw (entities.i18n/culture->kw
+                    (entities.user/get-culture user))
         {:order/keys [shipping-address lines status] :db/keys [id]} order]
     {:subject (i18n culture-kw ::subject status id)
      :body

@@ -22,7 +22,18 @@
  (fn [cofxs _]
    (assoc cofxs :url (url/url js/document.location.href))))
 
+(defn find-route
+  "Finds a route by its id"
+  [id]
+  (first (filter #(= (:handler %) id) @route-data)))
+
+(defn remove-route!
+  [id]
+  (swap! route-data (fn [data] (remove #(= (:handler %) id) data))))
+
 (defn define-route! [name {:keys [component] :as attrs}]
+  (when (find-route name)
+    (remove-route! name))
   (swap! route-data conj (assoc attrs :handler name))
   (reset! routes (bidi-syntax/to-bidi @route-data))
   (when component
@@ -32,11 +43,6 @@
 (defn define-routes! [new-routes]
   (swap! route-data concat new-routes)
   (reset! routes (bidi-syntax/to-bidi @route-data)))
-
-(defn find-route
-  "Finds a route by its id"
-  [id]
-  (first (filter #(= (:handler %) id) @route-data)))
 
 (defn path-for
   "bidi/path-for wrapper"

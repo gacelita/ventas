@@ -1,0 +1,10 @@
+language: clojure
+script: "./.travis/test.sh"
+cache:
+  directories:
+  - $HOME/.m2
+jdk:
+- oraclejdk8
+after_success:
+- CLOVERAGE_VERSION=1.0.10 lein cloverage --codecov
+- bash <(curl -s https://codecov.io/bash)

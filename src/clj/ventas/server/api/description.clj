@@ -289,12 +289,12 @@
                                :doc doc}]))))
 
 (api/register-endpoint!
- :api.describe
+ ::api.describe
  (fn [_ _]
    (describe-api)))
 
 (api/register-endpoint!
- :api.generate-params
+ ::api.generate-params
  {:spec {:request ::api/keyword}}
  (fn [{{:keys [request]} :params} _]
    (when-let [{:keys [spec]} (get @api/available-requests request)]

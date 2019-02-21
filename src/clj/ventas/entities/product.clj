@@ -354,3 +354,6 @@
         _ (assert (= type :schema.type/product.variation))
         product (entity/find parent)]
     (merge product {:product/variation-terms terms})))
+
+(defn products-with-images []
+  (entity/query :product {:product/images :any}))

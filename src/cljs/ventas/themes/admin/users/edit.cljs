@@ -5,7 +5,7 @@
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
@@ -19,7 +19,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.entities.save
+   {:dispatch [::api.admin/admin.entities.save
                {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
@@ -35,7 +35,7 @@
    {:dispatch-n [(let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/user}]
-                     [::backend/admin.entities.pull
+                     [::api.admin/admin.entities.pull
                       {:params {:id id}
                        :success [::form/populate [state-key]]}]))
                  [::events/enums.get :user.role]

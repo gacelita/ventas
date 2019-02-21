@@ -6,7 +6,7 @@
    [ventas.components.base :as base]
    [ventas.components.table :as table]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]))
@@ -30,7 +30,7 @@
  ::fetch
  (fn [{:keys [db]} [_ state-path]]
    (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
-     {:dispatch [::backend/admin.entities.list
+     {:dispatch [::api.admin/admin.entities.list
                  {:success ::fetch.next
                   :params {:type :order
                            :pagination {:page page
@@ -43,7 +43,7 @@
  (fn [{:keys [db]} [_ {:keys [items total]}]]
    (let [users (map :user items)]
      {:dispatch-n (for [user users]
-                    [::backend/admin.entities.find-serialize
+                    [::api.admin/admin.entities.find-serialize
                      {:params {:id user}
                       :success [:db [state-key :users user]]}])
       :db (-> db

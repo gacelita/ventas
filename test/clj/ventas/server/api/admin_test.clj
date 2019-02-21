@@ -44,20 +44,20 @@
 
 (deftest admin-entities-find-serialize
   (is (= (entity/serialize user {:culture [:i18n.culture/keyword :en_US]})
-         (-> (server.ws/call-handler-with-user :admin.entities.find-serialize {:id (:db/id user)} user)
+         (-> (server.ws/call-handler-with-user ::sut/admin.entities.find-serialize {:id (:db/id user)} user)
              :data))))
 
 (deftest admin-entities-pull
   (is (= (db/pull '[*] (:db/id user))
-         (-> (server.ws/call-handler-with-user :admin.entities.pull {:id (:db/id user)} user)
+         (-> (server.ws/call-handler-with-user ::sut/admin.entities.pull {:id (:db/id user)} user)
              :data)))
   (is (= (db/pull '[* {:user/culture [*]}] (:db/id user))
-         (-> (server.ws/call-handler-with-user :admin.entities.pull {:id (:db/id user)} user)
+         (-> (server.ws/call-handler-with-user ::sut/admin.entities.pull {:id (:db/id user)} user)
              :data))))
 
 (deftest admin-entities-save
   (let [new-company "New Company Inc."]
-    (server.ws/call-handler-with-user :admin.entities.save
+    (server.ws/call-handler-with-user ::sut/admin.entities.save
                                       (-> (db/pull '[*] (:db/id user))
                                           (assoc :user/company new-company))
                                       user)
@@ -66,7 +66,7 @@
 
 (deftest admin-entities-remove
   (let [new-entity (entity/create :user {:first-name "Test user"})]
-    (server.ws/call-handler-with-user :admin.entities.remove
+    (server.ws/call-handler-with-user ::sut/admin.entities.remove
                                       {:id (:db/id new-entity)}
                                       user)
     (is (not (entity/find (:db/id new-entity))))))
@@ -75,7 +75,7 @@
   (let [brand (entity/create* example-brand)]
     (is (= [(-> (entity/serialize brand {:culture [:i18n.culture/keyword :en_US]})
                 (dissoc :id))]
-           (->> (server.ws/call-handler-with-user :admin.entities.list {:type :brand} user)
+           (->> (server.ws/call-handler-with-user ::sut/admin.entities.list {:type :brand} user)
                 :data
                 (map #(dissoc % :id)))))))
 
@@ -86,9 +86,9 @@
                                                      :type :theme}})]
     (is (= [{:id :test :name "Test plugin"}
             {:id :theme :name "Test theme" :type :theme}]
-           (-> (server.ws/call-handler-with-user :admin.plugins.list {} user)
+           (-> (server.ws/call-handler-with-user ::sut/admin.plugins.list {} user)
                :data)))))
 
 (deftest admin-configuration-set
-  (server.ws/call-handler-with-user :admin.configuration.set {:test3 "value3"} user)
+  (server.ws/call-handler-with-user ::sut/admin.configuration.set {:test3 "value3"} user)
   (is (= "value3" (entities.configuration/get :test3))))

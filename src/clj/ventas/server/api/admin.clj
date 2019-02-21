@@ -18,7 +18,7 @@
     (when-not (contains? roles :user.role/administrator)
       (throw+ {:type ::unauthorized}))))
 
-(defn- register-admin-endpoint!
+(defn register-admin-endpoint!
   ([kw f]
    (register-admin-endpoint! kw {} f))
   ([kw opts f]
@@ -30,7 +30,7 @@
       (f request state)))))
 
 (register-admin-endpoint!
- :admin.entities.find-serialize
+ ::admin.entities.find-serialize
  {:spec {:id ::api/ref}
   :doc "Returns a serialized entity. Should be used for read-only access to
         entity data."}
@@ -38,7 +38,7 @@
    (api/find-serialize-with-session session id)))
 
 (register-admin-endpoint!
- :admin.entities.pull
+ ::admin.entities.pull
  {:spec {:id ::api/ref}
   :doc "Returns an entity by using the pull API.
         This is the preferred way of getting entities in the administration."}
@@ -46,7 +46,7 @@
    (db/pull (or expr '[*]) id)))
 
 (register-admin-endpoint!
- :admin.entities.save
+ ::admin.entities.save
  {:spec ::entity/entity
   :doc "Saves an entity, updating it if it already exists.
         This is the preferred way of saving entities in the administration."}
@@ -54,14 +54,14 @@
    (entity/upsert* entity)))
 
 (register-admin-endpoint!
- :admin.entities.remove
+ ::admin.entities.remove
  {:spec {:id ::api/ref}
   :doc "Removes the given entity."}
  (fn [{{:keys [id]} :params} _]
    (entity/delete id)))
 
 (register-admin-endpoint!
- :admin.entities.list
+ ::admin.entities.list
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]
   :spec {:type keyword?}
@@ -71,7 +71,7 @@
         (map (partial api/serialize-with-session session)))))
 
 (register-admin-endpoint!
- :admin.users.list
+ ::admin.users.list
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]}
  (fn [_ {:keys [session]}]
@@ -82,7 +82,7 @@
                      (entity/dates (:db/id %)))))))
 
 (register-admin-endpoint!
- :admin.orders.list-pending
+ ::admin.orders.list-pending
  {:doc "Returns a coll of orders with these statuses:
         - acknowledged
         - paid
@@ -102,13 +102,13 @@
                                 (api/serialize-with-session session)))))))))
 
 (register-admin-endpoint!
- :admin.image-sizes.entities.list
+ ::admin.image-sizes.entities.list
  (fn [_ _]
    (->> entities.image-size/entities
         (map (comp utils/dequalify-keywords db/touch-eid)))))
 
 (register-admin-endpoint!
- :admin.events.list
+ ::admin.events.list
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]
   :doc "Returns a coll of Datomic transactions. Meant for the activity log section."}
@@ -119,7 +119,7 @@
         (filter :entity-id))))
 
 (register-admin-endpoint!
- :admin.orders.get
+ ::admin.orders.get
  {:spec {:id ::api/ref}
   :doc "Like doing admin.entities.pull on an order, but also returns the lines
         of the order, serialized."}
@@ -133,7 +133,7 @@
                   lines)})))
 
 (register-admin-endpoint!
- :admin.search
+ ::admin.search
  {:spec {:search string?
          :attrs #{keyword?}}
   :doc "Does a fulltext search for `search` in the given `attrs`"}
@@ -142,7 +142,7 @@
      (search.entities/search search attrs culture))))
 
 (register-admin-endpoint!
- :admin.plugins.list
+ ::admin.plugins.list
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]
   :doc "Returns the list of registered plugins."}
@@ -157,8 +157,9 @@
                    (assoc :id id)))))))
 
 (register-admin-endpoint!
- :admin.configuration.set
- {:doc "Sets the given configuration key to the given value."}
+ ::admin.configuration.set
+ {:doc "Sets the given configuration key to the given value."
+  :deprecated true}
  (fn [{config :params} _]
    (doseq [[k v] config]
      (entities.configuration/set! k v))))

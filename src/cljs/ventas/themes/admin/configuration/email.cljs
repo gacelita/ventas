@@ -5,7 +5,8 @@
    [ventas.components.base :as base]
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
-   [ventas.events.backend :as backend]
+   [ventas.server.api :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
@@ -18,7 +19,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.configuration.set
+   {:dispatch [::api.admin/admin.configuration.set
                {:params (get-in db [state-key :form])
                 :success [::notificator/notify-saved]}]}))
 

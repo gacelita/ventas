@@ -2,12 +2,12 @@
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
    [spec-tools.data-spec :as data-spec]
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.server.api :as api]
    [ventas.server.pagination :as pagination]
    [ventas.server.ws :as server.ws]
    [ventas.test-tools :as test-tools]
+   [ventas.server.api.description :as sut]
    [ventas.utils :as utils]))
 
 (defn example-user []
@@ -31,18 +31,20 @@
                                                      :middlewares [pagination/paginate]}})]
     (is (= {:test {:doc "Documentation!"
                    :spec {:keys {:some {:type :number}
-                                 :stuff {:items {:type :number} :type :vector}
+                                 :stuff {:items {:type :number
+                                                 :title :api$test/stuff} :type :vector}
                                  :thing {:type :string}}
                           :required [:some :thing :stuff]
+                          :title :api/test
                           :type :map}}}
-           (-> (server.ws/call-handler-with-user :api.describe {} user)
+           (-> (server.ws/call-handler-with-user ::sut/api.describe {} user)
                :data)))))
 
 (deftest generate-params
   (dotimes [n 10]
     (is (utils/check
-         (data-spec/spec :api/products.aggregations (get-in @api/available-requests [:products.aggregations :spec]))
-         (-> (server.ws/call-handler-with-user :api.generate-params
-                                               {:request :products.aggregations}
-                                               user)
-             :data)))))
+         (data-spec/spec :api/products.aggregations (get-in @api/available-requests [::api/products.aggregations :spec]))
+         (:data
+          (server.ws/call-handler-with-user ::sut/api.generate-params
+                                            {:request :products.aggregations}
+                                            user))))))

@@ -6,10 +6,17 @@
    [clojure.core.async :as core.async]))
 
 (def default-subsystem-mapping
-  {:db '[ventas.database/conn]
-   :indexer '[ventas.search/indexer]
-   :server '[ventas.server/server]
-   :config '[ventas.config/config]})
+  {:config '[ventas.config/config]
+   :db '[ventas.database/conn]
+   :es-client '[ventas.search/elasticsearch]
+   :es-db-tx-indexer '[ventas.search.indexing/tx-report-queue-loop]
+   :es-indexer '[ventas.search/indexer]
+   :server '[ventas.server/server]})
+
+(def default-states
+  (->> default-subsystem-mapping
+       (vals)
+       (map (comp (partial ns-resolve *ns*) first))))
 
 (defn get-states [subsystems & {:keys [mapping] :or {mapping default-subsystem-mapping}}]
   (->> subsystems

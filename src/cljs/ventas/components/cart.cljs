@@ -5,7 +5,7 @@
    [ventas.components.notificator :as notificator]
    [ventas.components.term :as term]
    [ventas.components.image :as image]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.user :as api.user]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.formatting :as utils.formatting]
    [ventas.utils.ui :refer [with-handler]]))
@@ -37,14 +37,14 @@
 (rf/reg-event-fx
  ::get
  (fn [_ _]
-   {:dispatch [::backend/users.cart.get {:success ::cart
-                                         :error ::cart}]}))
+   {:dispatch [::api.user/users.cart.get {:success ::cart
+                                          :error ::cart}]}))
 
 (rf/reg-event-fx
  ::add
  (fn [db [_ eid]]
-   {:dispatch [::backend/users.cart.add {:success [::add.next eid]
-                                         :params {:id eid}}]}))
+   {:dispatch [::api.user/users.cart.add {:success [::add.next eid]
+                                          :params {:id eid}}]}))
 
 (defn- notification-view [{:keys [product-variation]}]
   (let [{:keys [images price variation]} product-variation]
@@ -76,15 +76,15 @@
 (rf/reg-event-fx
  ::remove
  (fn [db [_ eid]]
-   {:dispatch [::backend/users.cart.remove {:success ::cart
-                                            :params {:id eid}}]}))
+   {:dispatch [::api.user/users.cart.remove {:success ::cart
+                                             :params {:id eid}}]}))
 
 (rf/reg-event-fx
  ::set-quantity
  (fn [db [_ eid quantity]]
-   {:dispatch [::backend/users.cart.set-quantity {:success ::cart
-                                                  :params {:id eid
-                                                           :quantity quantity}}]}))
+   {:dispatch [::api.user/users.cart.set-quantity {:success ::cart
+                                                   :params {:id eid
+                                                            :quantity quantity}}]}))
 
 (rf/reg-event-fx
  ::clear

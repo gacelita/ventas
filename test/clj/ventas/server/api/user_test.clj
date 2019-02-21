@@ -53,7 +53,7 @@
   (let [user (entity/create* (example-user))
         address (entity/create* (example-address (:user/email user)))]
     (is (= [(entity/serialize address {:culture [:i18n.culture/keyword :en_US]})]
-           (-> (server.ws/call-handler-with-user :users.addresses
+           (-> (server.ws/call-handler-with-user ::sut/users.addresses
                                                  {}
                                                  user)
                :data)))))
@@ -63,7 +63,7 @@
     (is (= (-> (example-address (:user/email user))
                (dissoc :address/country :address/state)
                (entity/serialize {:culture [:i18n.culture/keyword :en_US]}))
-           (-> (server.ws/call-handler-with-user :users.addresses.save
+           (-> (server.ws/call-handler-with-user ::sut/users.addresses.save
                                                  (-> (example-address (:user/email user))
                                                      (utils/dequalify-keywords)
                                                      (dissoc :type))
@@ -75,7 +75,7 @@
   (let [user (entity/create* (example-user))
         address (entity/create* (example-address (:user/email user)))]
     (is (= true
-           (-> (server.ws/call-handler-with-user :users.addresses.remove
+           (-> (server.ws/call-handler-with-user ::sut/users.addresses.remove
                                                  {:id (:db/id address)}
                                                  user)
                :data)))))
@@ -95,7 +95,7 @@
         variation-json (entity/serialize variation {:culture [:i18n.culture/keyword :en_US]})]
 
     (testing "cart add"
-      (server.ws/call-handler-with-user :users.cart.add
+      (server.ws/call-handler-with-user ::sut/users.cart.add
                                         {:id (:db/id variation)}
                                         user)
       (is (= {:amount (:price variation-json)
@@ -103,7 +103,7 @@
                        :quantity 1}]
               :status :order.status/draft
               :user (:db/id user)}
-             (-> (server.ws/call-handler-with-user :users.cart.get
+             (-> (server.ws/call-handler-with-user ::sut/users.cart.get
                                                    {}
                                                    user)
                  :data
@@ -111,20 +111,20 @@
                  (update :lines (fn [lines] (map #(dissoc % :id) lines)))))))
 
     (testing "cart remove"
-      (server.ws/call-handler-with-user :users.cart.remove
+      (server.ws/call-handler-with-user ::sut/users.cart.remove
                                         {:id (:db/id variation)}
                                         user)
       (is (= {:amount nil
               :status :order.status/draft
               :user (:db/id user)}
-             (-> (server.ws/call-handler-with-user :users.cart.get
+             (-> (server.ws/call-handler-with-user ::sut/users.cart.get
                                                    {}
                                                    user)
                  :data
                  (dissoc :id)))))
 
     (testing "cart set-quantity"
-      (server.ws/call-handler-with-user :users.cart.set-quantity
+      (server.ws/call-handler-with-user ::sut/users.cart.set-quantity
                                         {:id (:db/id variation)
                                          :quantity 5}
                                         user)
@@ -134,7 +134,7 @@
                        :quantity 5}]
               :status :order.status/draft
               :user (:db/id user)}
-             (-> (server.ws/call-handler-with-user :users.cart.get
+             (-> (server.ws/call-handler-with-user ::sut/users.cart.get
                                                    {}
                                                    user)
                  :data
@@ -148,28 +148,28 @@
                                                      :terms #{}})
         variation-json (entity/serialize variation {:culture [:i18n.culture/keyword :en_US]})]
 
-    (server.ws/call-handler-with-user :users.favorites.add
+    (server.ws/call-handler-with-user ::sut/users.favorites.add
                                       {:id (:db/id variation)}
                                       user)
 
     (is (= [(:db/id variation)]
-           (-> (server.ws/call-handler-with-user :users.favorites.enumerate
+           (-> (server.ws/call-handler-with-user ::sut/users.favorites.enumerate
                                                  {}
                                                  user)
                :data)))
 
     (is (= [variation-json]
-           (-> (server.ws/call-handler-with-user :users.favorites.list
+           (-> (server.ws/call-handler-with-user ::sut/users.favorites.list
                                                  {}
                                                  user)
                :data)))
 
-    (server.ws/call-handler-with-user :users.favorites.remove
+    (server.ws/call-handler-with-user ::sut/users.favorites.remove
                                       {:id (:db/id variation)}
                                       user)
 
     (is (= nil
-           (-> (server.ws/call-handler-with-user :users.favorites.enumerate
+           (-> (server.ws/call-handler-with-user ::sut/users.favorites.enumerate
                                                  {}
                                                  user)
                :data)))))

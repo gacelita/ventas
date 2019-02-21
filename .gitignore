@@ -15,6 +15,6 @@ pom.xml.asc
 node_modules
 .shadow-cljs
 .env
-/resources/public/files/js/compiled/**
+/resources/public/files/js
 /resources/public/files/css
 /storage

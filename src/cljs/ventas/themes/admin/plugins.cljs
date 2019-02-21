@@ -2,7 +2,7 @@
   (:require
    [re-frame.core :as rf]
    [ventas.components.table :as table]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]))
@@ -13,7 +13,7 @@
  ::fetch
  (fn [{:keys [db]} [_ state-path]]
    (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
-     {:dispatch [::backend/admin.plugins.list
+     {:dispatch [::api.admin/admin.plugins.list
                  {:success ::fetch.next
                   :params {:pagination {:page page
                                         :items-per-page items-per-page}

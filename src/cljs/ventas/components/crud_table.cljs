@@ -5,7 +5,7 @@
    [re-frame.core :as rf]
    [ventas.i18n :refer [i18n]]
    [ventas.components.base :as base]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.routes :as routes]
    [ventas.components.table :as table]))
 
@@ -14,7 +14,7 @@
 (rf/reg-event-fx
  ::remove
  (fn [_ [_ state-path id]]
-   {:dispatch [::backend/admin.entities.remove
+   {:dispatch [::api.admin/admin.entities.remove
                {:params {:id id}
                 :success [::remove.next state-path id]}]}))
 
@@ -47,7 +47,7 @@
  ::fetch
  (fn [{:keys [db]} [_ entity-type state-path]]
    (let [{:keys [page items-per-page sort-direction sort-column]} (table/get-state db state-path)]
-     {:dispatch [::backend/admin.entities.list
+     {:dispatch [::api.admin/admin.entities.list
                  {:success [::fetch.next state-path]
                   :params {:type entity-type
                            :pagination {:page page

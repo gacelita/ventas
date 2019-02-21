@@ -1,7 +1,7 @@
 (ns ventas.utils.jar
   "See https://stackoverflow.com/questions/22363010/get-list-of-embedded-resources-in-uberjar")
 
-(def ^:private running-jar
+(def running-jar
   "Resolves the path to the current running jar file."
   (-> :keyword class (.. getProtectionDomain getCodeSource getLocation getPath)))
 

@@ -7,7 +7,7 @@
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
@@ -52,7 +52,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.entities.save
+   {:dispatch [::api.admin/admin.entities.save
                {:params (-> (form/get-data db [state-key])
                             (assoc :shipping-method/prices (table->prices (form/get-data db [state-key :prices-table]))))
                 :success ::submit.next}]}))
@@ -69,13 +69,13 @@
    {:db (-> db
             (assoc-in [state-key :price-index] 1))
     :dispatch-n [[::events/enums.get :shipping-method.pricing]
-                 [::backend/admin.entities.list
+                 [::api.admin/admin.entities.list
                   {:success [::init.groups]
                    :params {:type :country.group}}]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/shipping-method}]
-                     [::backend/admin.entities.pull
+                     [::api.admin/admin.entities.pull
                       {:params {:id id}
                        :success [::init.next]}]))]}))
 
@@ -153,7 +153,7 @@
      [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
       [base/segment {:color "orange"
-                     :title "Shipping method"}
+                     :title (i18n ::shipping-method)}
 
        [field {:key :shipping-method/name
                :type :i18n

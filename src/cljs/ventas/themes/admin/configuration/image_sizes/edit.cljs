@@ -1,12 +1,11 @@
 (ns ventas.themes.admin.configuration.image-sizes.edit
   (:require
-   [clojure.set :as set]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
@@ -20,7 +19,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]}]
-   {:dispatch [::backend/admin.entities.save
+   {:dispatch [::api.admin/admin.entities.save
                {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
@@ -36,10 +35,10 @@
    {:dispatch-n [(let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/image-size}]
-                     [::backend/admin.entities.pull
+                     [::api.admin/admin.entities.pull
                       {:params {:id id}
                        :success [::form/populate [state-key]]}]))
-                 [::backend/admin.image-sizes.entities.list
+                 [::api.admin/admin.image-sizes.entities.list
                   {:success [:db [state-key :entities]]}]
                  [::events/enums.get :image-size.algorithm]]}))
 

@@ -6,7 +6,7 @@
    [clojure.string :as str]
    [compojure.core :refer [GET POST defroutes] :as compojure]
    [compojure.route]
-   [mount.core :refer [defstate]]
+   [mount.core :as mount :refer [defstate]]
    [org.httpkit.server :as http-kit]
    [prone.middleware :as prone]
    [ring.middleware.defaults :as ring.defaults]
@@ -23,7 +23,7 @@
    [ventas.entities.image-size :as entities.image-size]
    [ventas.paths :as paths]
    [ventas.plugin :as plugin]
-   [ventas.server.spa :as server.spa]
+   [ventas.server.admin-spa :as admin-spa]
    [ventas.server.ws :as server.ws]
    [ventas.server.http-ws :as server.http-ws]
    [ventas.site :as site]
@@ -105,12 +105,10 @@
   (GET "/images/:image/resize/:size" [image size]
     (handle-image (utils/->number image) :size (keyword size)))
   (GET "/plugins/:plugin/*" {{path :* plugin :plugin} :route-params}
-    (plugin/handle-request (keyword plugin) path))
-  (GET "/*" _
-    server.spa/handle-spa))
+    (plugin/handle-request (keyword plugin) path)))
 
 (def site-handler
-  (-> site-routes
+  (-> (compojure/routes site-routes admin-spa/handler)
       (wrap-prone)
       (site/wrap-multisite)
       (ring.session/wrap-session)
@@ -119,9 +117,7 @@
       (ring.gzip/wrap-gzip)))
 
 (def http-handler
-  (if (= "prod" (config/get :profile))
-    site-handler
-    (compojure/routes api-handler site-handler)))
+  (compojure/routes api-handler site-handler))
 
 (defn stop-server! [stop-fn]
   (log/info "Stopping server")
@@ -132,11 +128,13 @@
         ;; Avoids occasional ConcurrentModificationException, which is a bug in httpkit
         (log/info ::stop-server! " - Caught exception while stopping the server:" (pr-str e))))))
 
-(defn start-server! []
+(defn start-server! [& [args]]
   (log/info "Starting server")
   (let [{:keys [host port]} (config/get :server)]
     (log/info "Starting server on" (str host ":" port))
-    (http-kit/run-server http-handler
+    (http-kit/run-server (if (::handler args)
+                           (compojure/routes http-handler (::handler args))
+                           http-handler)
                          {:ip host
                           :port port
                           :join? false})))
@@ -145,7 +143,7 @@
   :start
   (do
     (server.ws/start!)
-    (start-server!))
+    (start-server! (mount/args)))
   :stop
   (do
     (server.ws/stop!)

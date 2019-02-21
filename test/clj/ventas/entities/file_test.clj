@@ -1,7 +1,6 @@
 (ns ventas.entities.file-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.entities.file :as sut]
    [ventas.test-tools :as test-tools]))
@@ -36,10 +35,6 @@
           :schema/type :schema.type/file}
          (-> (sut/create-from-file! "storage/logo.png" "png")
              (dissoc :db/id)))))
-
-(deftest get-seed-files
-  (is (= ["resources/seeds/placeholder.png"]
-         (map str (#'sut/get-seed-files "png")))))
 
 (deftest normalization
   (let [file (entity/find [:file/keyword (:file/keyword example-file)])]

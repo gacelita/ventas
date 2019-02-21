@@ -177,6 +177,6 @@
                            :user id})))
 
 (defn get-culture [user]
-  {:pre [(utils/check :schema.type/user user)]}
+  {:pre [(or (not user) (utils/check :schema.type/user user))]}
   (or (:user/culture user)
       (:db/id (db/entity [:i18n.culture/keyword :en_US]))))

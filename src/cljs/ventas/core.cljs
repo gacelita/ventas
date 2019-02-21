@@ -10,7 +10,7 @@
    [reagent.core :as reagent]
    [ventas.components.base :as base]
    [ventas.events :as events]
-   [ventas.events.backend]
+   [ventas.server.api]
    [ventas.local-storage :as storage]
    [ventas.page :as page]
    [ventas.routes :as routes]

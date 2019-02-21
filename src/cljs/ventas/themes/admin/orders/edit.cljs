@@ -9,7 +9,7 @@
    [ventas.components.notificator :as notificator]
    [ventas.components.table :as table]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.common :as admin.common]
    [ventas.themes.admin.skeleton :as admin.skeleton]
@@ -29,7 +29,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.entities.save
+   {:dispatch [::api.admin/admin.entities.save
                {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
@@ -40,7 +40,7 @@
     :go-to [:admin.orders]}))
 
 (defn- on-user-change [user]
-  [::backend/admin.entities.list
+  [::api.admin/admin.entities.list
    {:params {:filters {:user user}
              :type :address}
     :success [:db [state-key :user-addresses]]}])
@@ -95,11 +95,11 @@
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/order}]
-                     [::backend/admin.orders.get
+                     [::api.admin/admin.orders.get
                       {:params {:id id}
                        :success ::init.next}]))
                  [::events/enums.get :order.status]
-                 [::backend/admin.entities.list
+                 [::api.admin/admin.entities.list
                   {:params {:type :shipping-method}
                    :success [:db [state-key :shipping-methods]]}]]}))
 
@@ -107,7 +107,7 @@
  ::init.next
  (fn [{:keys [db]} [_ {:keys [order lines status-history]}]]
    {:dispatch-n [[::form/populate [state-key] order]
-                 [::backend/admin.entities.find-serialize
+                 [::api.admin/admin.entities.find-serialize
                   {:params {:id (get-in order [:order/user :db/id])}
                    :success [:db [state-key :user]]}]
                  [::table/set-rows lines-table-path {:rows lines

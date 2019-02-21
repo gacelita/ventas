@@ -4,11 +4,13 @@
    [ventas.email.elements :as elements]
    [ventas.email.templates :as templates]
    [ventas.i18n :refer [i18n]]
-   [ventas.entities.user :as entities.user]))
+   [ventas.entities.user :as entities.user]
+   [ventas.entities.i18n :as entities.i18n]))
 
 (defmethod templates/template :password-forgotten [_ {:keys [user]}]
   {:body
-   (let [culture-kw (entities.user/get-culture user)]
+   (let [culture-kw (entities.i18n/culture->kw
+                     (entities.user/get-culture user))]
      (elements/skeleton
       user
       [:p

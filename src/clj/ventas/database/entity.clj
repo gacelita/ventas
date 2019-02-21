@@ -1,6 +1,7 @@
 (ns ventas.database.entity
   (:refer-clojure :exclude [find type update])
   (:require
+   [clojure.core :as clj]
    [clojure.core.async :refer [<! go go-loop]]
    [clojure.set :as set]
    [clojure.spec.alpha :as spec]
@@ -64,7 +65,7 @@
   "Registers an entity type
    Example: (register-entity-type! :user)"
   [kw & [m]]
-  {:pre [(keyword? kw) (or (nil? m) (map? m))]}
+  {:pre [(keyword? kw) (not (namespace kw)) (or (nil? m) (map? m))]}
   (let [m (or m {})]
     (schema/register-migration!
      (keyword (name kw) "entity-type-ident")
@@ -250,7 +251,8 @@
 (defn fixtures
   [type]
   (when-let [fixtures-fn (type-property type :fixtures)]
-    (map #(assoc % :schema/type (kw->type type))
+    (map (fn [fixture]
+           (clj/update fixture :schema/type #(or % (kw->type type))))
          (fixtures-fn))))
 
 (defn autoresolve?

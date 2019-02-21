@@ -34,7 +34,9 @@
            {:db/ident :product.term/keyword
             :db/valueType :db.type/keyword
             :db/unique :db.unique/identity
-            :db/cardinality :db.cardinality/one}]]]
+            :db/cardinality :db.cardinality/one}]]
+   [:missing-ref-entity-type [{:db/ident :product.term/taxonomy
+                               :ventas/refEntityType :product.taxonomy}]]]
 
   :dependencies
   #{:product.taxonomy :i18n}

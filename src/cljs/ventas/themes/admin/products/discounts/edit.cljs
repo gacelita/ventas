@@ -5,7 +5,7 @@
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
    [ventas.events :as events]
-   [ventas.events.backend :as backend]
+   [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.common :as admin.common]
    [ventas.themes.admin.skeleton :as admin.skeleton]
@@ -19,7 +19,7 @@
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::backend/admin.entities.save
+   {:dispatch [::api.admin/admin.entities.save
                {:params (get-in db [state-key :form])
                 :success ::submit.next}]}))
 
@@ -36,7 +36,7 @@
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/discount}]
-                     [::backend/admin.entities.pull
+                     [::api.admin/admin.entities.pull
                       {:params {:id id}
                        :success ::init.next}]))]}))
 
@@ -45,7 +45,7 @@
  (fn [_ [_ data]]
    {:dispatch-n [[::form/populate [state-key] data]
                  (when-let [product (get-in data [:discount/product :db/id])]
-                   [::backend/admin.entities.find-serialize
+                   [::api.admin/admin.entities.find-serialize
                     {:params {:id product}
                      :success [:db [state-key :product]]}])]}))
 

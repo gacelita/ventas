@@ -5,8 +5,11 @@
    [clojure.spec.alpha :as spec]
    [slingshot.slingshot :refer [throw+]]
    [ventas.database.schema :as schema]
+   [hiccup.compiler :refer [compile-html]]
    [ventas.events :as events]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [hiccup.core :as hiccup]
+   [clojure.string :as str]))
 
 (spec/def ::plugin
   (spec/keys :req-un [::type]

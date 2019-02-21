@@ -93,8 +93,7 @@
 
 (defn- data->entities [data]
   (reduce into [] [(countries->entities (:countries data))
-                   (states->entities (:states data))
-                   (states-hierarchy->entities (:states-hierarchy data))]))
+                   (states->entities (:states data))]))
 
 (defn- accumulate-translation [culture-kw acc {:keys [keyword name]}]
   (update acc
@@ -161,9 +160,13 @@
       (do
         (download-cldr-file! download-url)
         (let [data (cldr->data extraction-target)
-              entities (data->entities data)]
-          (log/info "Importing" (count entities) "CLDR entities")
-          (db/transact (conj entities
+              entities (data->entities data)
+              _ (db/transact (conj entities
+                                   {:db/id (d/tempid :db.part/tx)
+                                    :ventas.cldr/cldr-import? true}))
+              hierarchy (states-hierarchy->entities (:states-hierarchy data))]
+          (db/transact (conj hierarchy
                              {:db/id (d/tempid :db.part/tx)
-                              :ventas.cldr/cldr-import? true})))
-        :done))))
+                              :ventas.cldr/cldr-import? true}))
+          (log/info "Imported" (count entities) "CLDR entities")
+          :done)))))

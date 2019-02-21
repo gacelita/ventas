@@ -4,8 +4,6 @@
    [slingshot.slingshot :refer [throw+]]
    [ventas.database.entity :as entity]
    [ventas.database.schema :as schema]
-   [ventas.plugin :as plugin]
-   [ventas.theme :as theme]
    [ventas.utils :as utils]
    [clojure.tools.logging :as log]))
 
@@ -72,28 +70,10 @@
   "Migrates the database and transacts the fixtures.
    Options:
      recreate? - removes the db and creates a new one
-     generate? - seeds the database with randomly generated entities
-     minimal?  - seeds only the entity fixtures, ignoring plugin fixtures"
-  [& {:keys [recreate? generate? minimal?]}]
-
+     generate? - seeds the database with randomly generated entities"
+  [& {:keys [recreate? generate?]}]
   (schema/migrate :recreate? recreate?)
   (log/info "Migrations done!")
-
   (doseq [type (get-sorted-types)]
     (log/info "Seeding type " type)
-    (seed-type type (if generate? (entity/seed-number type) 0)))
-
-  (when-not minimal?
-    (let [themes (->> (theme/all) (keys) (set))
-          plugins (->> (plugin/all)
-                       (keys)
-                       (set)
-                       (remove #(contains? themes %)))]
-      (doseq [id themes]
-        (log/info "Installing theme " id)
-        (doseq [fixture (plugin/fixtures id)]
-          (create* fixture)))
-      (doseq [id plugins]
-        (log/info "Installing plugin " id)
-        (doseq [fixture (plugin/fixtures id)]
-          (create* fixture))))))
+    (seed-type type (if generate? (entity/seed-number type) 0))))

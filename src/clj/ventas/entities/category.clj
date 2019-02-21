@@ -39,6 +39,14 @@
                                     [?image :product.image/file ?id]]})]
       (entity/find-serialize image-eid params))))
 
+(defn categories-with-products []
+  (->> (db/nice-query
+        {:find ['?id]
+         :where '[[?id :schema/type :schema.type/category]
+                  [?product :product/categories ?id]]})
+       (map :id)
+       (map entity/find)))
+
 (defn get-parents [id]
   (let [id (db/normalize-ref id)
         {:category/keys [parent]} (entity/find id)]

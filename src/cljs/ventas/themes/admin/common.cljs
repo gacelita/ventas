@@ -3,15 +3,14 @@
    [clojure.set :as set]
    [re-frame.core :as rf]
    [ventas.components.form :as form]
-   [ventas.events :as events]
-   [ventas.events.backend :as backend]))
+   [ventas.server.api.admin :as api.admin]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
  ::search
  (fn [_ [_ key attrs search]]
-   {:dispatch [::backend/admin.search
+   {:dispatch [::api.admin/admin.search
                {:params {:search search
                          :attrs attrs}
                 :success [:db [state-key :search-results key]]}]}))

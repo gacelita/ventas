@@ -1,3 +1,22 @@
 {:source-paths ["dev/cljs" "src/cljs" "src/cljc" "src/clj" "test/cljs" "test/cljc"]
- :nrepl {:port 4002
-         :init-ns repl}}
+ :nrepl {:port 4002}
+ :dependencies [[ventas-core "0.0.12-SNAPSHOT"]]
+ :builds {:admin {:target :browser
+                  :asset-path "files/js/admin"
+                  :output-to "resources/public/files/js/admin/main.js"
+                  :output-dir "resources/public/files/js/admin"
+                  :modules {:main {:entries [ventas.themes.admin.core]}}
+                  :devtools {:after-load ventas.core/on-reload
+                             :watch-dir "resources/public"}
+                  :dev {:preloads [devtools.preload]
+                        :compiler-options {:devcards true}}
+                  :release {:pretty-print false}}
+          :admin-test {:target :karma
+                       :output-to "target/karma.cljs"}
+          :devcards {:target :browser
+                     :asset-path "files/js/devcards"
+                     :output-to "resources/public/files/js/devcards/main.js"
+                     :output-dir "resources/public/files/js/devcards"
+                     :dev {:preloads [devtools.preload]
+                           :compiler-options {:devcards true}}
+                     :modules {:main {:entries [ventas.devcards.core]}}}}}
