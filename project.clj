@@ -13,10 +13,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :deploy-repositories [["releases"  {:sign-releases false :url "https://clojars.org/repo"}]
-                        ["snapshots" {:sign-releases false :url "https://clojars.org/repo"}]]
-
-  :repositories {"my.datomic.com"
+  :repositories {"clojars" {:url "https://clojars.org/repo"
+                            :sign-releases false}
+                 "my.datomic.com"
                  ~(merge
                     {:url "https://my.datomic.com/repo"}
                     (let [username (System/getenv "DATOMIC__USERNAME")
