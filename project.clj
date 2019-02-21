@@ -1,4 +1,4 @@
-(defproject ventas-core "0.0.12"
+(defproject ventas-core "0.0.13-SNAPSHOT"
   :description "Shared code for ventas components"
 
   :url "https://github.com/joelsanchez/ventas-core"
