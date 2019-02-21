@@ -2,6 +2,7 @@
 # ventas
 
 [![Build Status](https://travis-ci.org/JoelSanchez/ventas.svg?branch=master)](https://travis-ci.org/JoelSanchez/ventas)
+[![Clojars Project](https://img.shields.io/clojars/v/ventas-core.svg)](https://clojars.org/ventas-core)
 [![License](https://img.shields.io/badge/License-EPL%201.0-red.svg)](https://opensource.org/licenses/EPL-1.0)
 
 ventas is a WIP ecommerce platform written entirely in Clojure.
