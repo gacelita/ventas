@@ -11,7 +11,7 @@ For any questions I'm usually available at the `#ventas` channel in [clojurians]
 
 [Documentation](./doc)
 
-[Demo instance](https://ventas.kazer.es)
+[Demo instance](https://ventas.kazer.es) and [source for the demo instance](https://github.com/joelsanchez/ventas-demo)
 
 ### Motivation
 
