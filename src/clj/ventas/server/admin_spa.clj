@@ -1,25 +1,28 @@
 (ns ventas.server.admin-spa
   (:require
-   [ventas.database.schema :as schema]
    [ventas.html :as html]
    [compojure.core :refer [GET POST defroutes] :as compojure]
-   [hiccup.core :as hiccup]))
+   [hiccup.core :as hiccup]
+   [ventas.database.entity :as entity]))
 
-(schema/register-migration!
- ::fixtures
- [{:schema/type :schema.type/image-size
-   :image-size/keyword :admin-products-edit
-   :image-size/width 150
-   :image-size/height 150
-   :image-size/algorithm :image-size.algorithm/crop-and-resize
-   :image-size/entities #{:schema.type/product}}
+(entity/register-type!
+ :admin-spa
+ {:fixtures
+  (fn []
+    [{:schema/type :schema.type/image-size
+      :image-size/keyword :admin-products-edit
+      :image-size/width 150
+      :image-size/height 150
+      :image-size/algorithm :image-size.algorithm/crop-and-resize
+      :image-size/entities #{:schema.type/product}}
 
-  {:schema/type :schema.type/image-size
-   :image-size/keyword :admin-orders-edit-line
-   :image-size/width 80
-   :image-size/height 80
-   :image-size/algorithm :image-size.algorithm/crop-and-resize
-   :image-size/entities #{:schema.type/product}}])
+     {:schema/type :schema.type/image-size
+      :image-size/keyword :admin-orders-edit-line
+      :image-size/width 80
+      :image-size/height 80
+      :image-size/algorithm :image-size.algorithm/crop-and-resize
+      :image-size/entities #{:schema.type/product}}])})
+
 
 (defn- get-html [req]
   (str "<!DOCTYPE html>\n"
