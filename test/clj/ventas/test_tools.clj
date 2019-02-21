@@ -2,7 +2,8 @@
   (:require
    [datomic.api :as d]
    [ventas.database :as db]
-   [ventas.database.schema :as schema])
+   [ventas.database.schema :as schema]
+   [clojure.java.io :as io])
   (:import [ch.qos.logback.classic Logger Level]
            [org.slf4j LoggerFactory]))
 
@@ -24,3 +25,9 @@
        (.setLevel ~'logger Level/ERROR)
        ~@body
        (.setLevel ~'logger ~'log-level))))
+
+(defn with-test-image [f]
+  (with-open [is (io/input-stream (io/resource "ventas/logo.png"))]
+    (let [temp-file (java.io.File/createTempFile "ventas-logo" ".png")]
+      (io/copy is temp-file)
+      (f temp-file))))

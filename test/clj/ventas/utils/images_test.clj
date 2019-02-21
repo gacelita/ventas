@@ -2,7 +2,9 @@
   (:require
    [clojure.test :refer [deftest is testing]]
    [fivetonine.collage.core :as collage]
-   [ventas.utils.images :as sut])
+   [ventas.utils.images :as sut]
+   [ventas.test-tools :refer [with-test-image]]
+   [clojure.java.io :as io])
   (:import
    [java.awt.image BufferedImage]))
 
@@ -17,13 +19,15 @@
         scale-args (atom nil)]
     (with-redefs [collage/crop (fn [& args] (reset! crop-args args) (first args))
                   collage/scale (fn [& args] (reset! scale-args args) (first args))]
-      (sut/transform-image "storage/logo.png"
-                           nil
-                           (cond-> {:quality (rand)
-                                    :progressive true
-                                    :resize {:width 50
-                                             :height 50}
-                                    :crop {:relation 1}}))
+      (with-test-image
+       (fn [image]
+         (sut/transform-image (str image)
+                              nil
+                              (cond-> {:quality (rand)
+                                       :progressive true
+                                       :resize {:width 50
+                                                :height 50}
+                                       :crop {:relation 1}}))))
       (is (= (rest @crop-args) [2.5 0.0 95.0 95.0]))
       (is (= (rest @scale-args) [1/2])))))
 

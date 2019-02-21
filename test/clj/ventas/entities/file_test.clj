@@ -3,7 +3,7 @@
    [clojure.test :refer [deftest is testing use-fixtures]]
    [ventas.database.entity :as entity]
    [ventas.entities.file :as sut]
-   [ventas.test-tools :as test-tools]))
+   [ventas.test-tools :as test-tools :refer [with-test-image]]))
 
 (def example-file
   {:file/keyword :example-file
@@ -31,10 +31,12 @@
     (is (= "storage/example-file.jpg" (sut/filepath file)))))
 
 (deftest create-from-file!
-  (is (= {:file/extension "png"
-          :schema/type :schema.type/file}
-         (-> (sut/create-from-file! "storage/logo.png" "png")
-             (dissoc :db/id)))))
+  (with-test-image
+   (fn [image]
+     (is (= {:file/extension "png"
+             :schema/type :schema.type/file}
+            (-> (sut/create-from-file! (str image) "png")
+                (dissoc :db/id)))))))
 
 (deftest normalization
   (let [file (entity/find [:file/keyword (:file/keyword example-file)])]
