@@ -73,12 +73,6 @@
   (find-files* path
                #(re-matches pattern (.getName ^File %))))
 
-(defn transform
-  "Applies the given transformation functions to `data`"
-  [data xforms]
-  (let [f (apply comp (reverse xforms))]
-    (f data)))
-
 (defn check [& args]
   "([spec x] [spec x form])
      Returns true when x is valid for spec. Throws an Error if validation fails."
