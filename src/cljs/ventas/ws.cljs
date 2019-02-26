@@ -6,6 +6,7 @@
    [cljs.core.async :refer [<! >! chan close! timeout]]
    [re-frame.core :as rf]
    [reagent.core :as reagent]
+   [ventas.server.api :as api]
    [reagent.ratom :as ratom]
    [ventas.events :as events]
    [ventas.utils.logging :as log])
@@ -173,7 +174,7 @@
         first? (zero? start)
         end (if last? data-length raw-end)]
     (send-request!
-     {:name :upload
+     {:name ::api/upload 
       :params {:bytes (.slice array-buffer start end)
                :last? last?
                :first? first?
