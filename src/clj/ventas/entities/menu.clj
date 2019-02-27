@@ -63,14 +63,11 @@
   (fn [_ attrs]
     (update attrs :menu.item/link pr-str))
 
-  :filter-query
-  (fn [this]
-    (update this :menu.item/link read-string))
-
   :serialize
   (fn [this params]
     (-> ((entity/default-attr :serialize) this params)
-        (update :children #(sort-by :position %))))
+        (update :children #(sort-by :position %))
+        (update :link read-string)))
 
   :dependencies
   #{:i18n}})
