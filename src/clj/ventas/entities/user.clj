@@ -85,6 +85,8 @@
   (let [{:user/keys [first-name last-name]} (entity/find id)]
     (str/join " " [first-name last-name])))
 
+(def default-culture [:i18n.culture/keyword :en_US])
+
 (entity/register-type!
  :user
  {:migrations
@@ -159,12 +161,9 @@
 
   :filter-create
   (fn [this]
-    (utils/transform
-     this
-     [(fn [user]
-        (if (:user/password user)
-          (update user :user/password hashers/derive)
-          user))]))})
+    (cond-> this
+            (:user/password this) (update :user/password hashers/derive)
+            (not (:user/culture this)) (assoc :user/culture default-culture)))})
 
 (defn get-cart
   "Gets the user's cart if it exists, creates it otherwise"
@@ -179,4 +178,4 @@
 (defn get-culture [user]
   {:pre [(or (not user) (utils/check :schema.type/user user))]}
   (or (:user/culture user)
-      (:db/id (db/entity [:i18n.culture/keyword :en_US]))))
+      (:db/id (db/entity default-culture))))

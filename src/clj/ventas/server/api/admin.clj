@@ -157,6 +157,16 @@
                    (assoc :id id)))))))
 
 (register-admin-endpoint!
+  ::admin.products.save
+  (fn [{{:keys [product variations]} :params} _]
+    (when (:db/id product)
+      (doseq [variation (entity/query :product.variation {:parent (:db/id product)})]
+        (entity/delete (:db/id variation))))
+    (let [product (entity/upsert* product)]
+      (doseq [variation variations]
+        (entity/upsert* (assoc variation :product.variation/parent (:db/id product)))))))
+
+(register-admin-endpoint!
  ::admin.configuration.set
  {:doc "Sets the given configuration key to the given value."
   :deprecated true}

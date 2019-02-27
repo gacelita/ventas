@@ -33,18 +33,6 @@
                                     :c :d}
                                    (namespace ::kw)))))
 
-(deftest transform
-  (is (= {:n 0
-          :more :data}
-         (sut/transform
-          {:n 0}
-          [(fn [data]
-             (update data :n inc))
-           (fn [data]
-             (assoc data :more :data))
-           (fn [data]
-             (update data :n dec))]))))
-
 (deftest check
   (spec/def ::test-spec.a integer?)
   (spec/def ::test-spec

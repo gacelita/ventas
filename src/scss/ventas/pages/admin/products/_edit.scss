@@ -32,3 +32,14 @@
         margin: 0px;
     }
 }
+
+.admin-products-edit__variations {
+    .field {
+        width: 80px;
+
+        .ui.input input {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+    }
+}
