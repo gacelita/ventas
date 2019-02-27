@@ -74,7 +74,8 @@
       (schema/register-migration!
        (keyword (name kw) (name key))
        attributes))
-    (swap! registered-types assoc kw m)))
+    (swap! registered-types assoc kw m))
+  :done)
 
 (defn types
   "Returns all types"
