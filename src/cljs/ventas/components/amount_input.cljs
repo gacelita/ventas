@@ -6,33 +6,45 @@
 
 (rf/reg-event-fx
  ::set-field
- (fn [_ [_ amount k v on-change-fx]]
+ (fn [_ [_ amount ks v on-change-fx]]
    {:dispatch (conj on-change-fx
-                    (assoc amount k v
-                                  :schema/type :schema.type/amount))}))
+                    (-> amount
+                        (assoc :schema/type :schema.type/amount)
+                        (assoc-in ks v)))}))
 
 (rf/reg-event-fx
  ::set-currency
  (fn [_ [_ amount v on-change-fx]]
-   {:dispatch [::set-field amount :amount/currency v on-change-fx]}))
+   {:dispatch [::set-field amount [:amount/currency :db/id] v on-change-fx]}))
 
 (rf/reg-event-fx
  ::set-value
  (fn [_ [_ amount v on-change-fx]]
-   {:dispatch [::set-field amount :amount/value v on-change-fx]}))
+   {:dispatch [::set-field amount [:amount/value] v on-change-fx]}))
+
+(rf/reg-sub
+ ::default-currency
+ :<- [:db [:admin :general-config]]
+ :<- [:db [:admin :currencies]]
+ (fn [[{:general-config/keys [culture]} currencies]]
+   (or (->> currencies (filter #(= (-> % :culture :id) culture)) first :id)
+       (:id (first currencies)))))
 
 (defn- dropdown [{:keys [amount on-change-fx]}]
-  [:div.amount-input__currency
-   [base/form-field
-    [base/dropdown
-     {:fluid true
-      :selection true
-      :options (map (fn [v]
-                      {:text (:symbol v)
-                       :value (:id v)})
-                    @(rf/subscribe [:db [:admin :currencies]]))
-      :default-value (get-in amount [:amount/currency :db/id])
-      :on-change #(rf/dispatch [::set-currency amount (js/parseFloat (.-value %2)) on-change-fx])}]]])
+  (let [default-currency @(rf/subscribe [::default-currency])]
+    ^{:key default-currency}
+    [:div.amount-input__currency
+     [base/form-field
+      [base/dropdown
+       {:fluid true
+        :selection true
+        :options (map (fn [v]
+                        {:text (:symbol v)
+                         :value (:id v)})
+                      @(rf/subscribe [:db [:admin :currencies]]))
+        :default-value (or (get-in amount [:amount/currency :db/id])
+                           default-currency)
+        :on-change #(rf/dispatch [::set-currency amount (js/parseFloat (.-value %2)) on-change-fx])}]]]))
 
 (defn input [{:keys [amount control label on-change-fx]}]
   [base/form-input {:label label :key (boolean amount)}

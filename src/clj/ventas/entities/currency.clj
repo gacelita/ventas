@@ -9,9 +9,12 @@
 (spec/def :currency/plural-name ::entities.i18n/ref)
 (spec/def :currency/keyword ::generators/keyword)
 (spec/def :currency/symbol ::generators/string)
+(spec/def :currency/culture
+  (spec/with-gen ::entity/ref #(entity/ref-generator :i18n.culture)))
 
 (spec/def :schema.type/currency
-  (spec/keys :req [:currency/name]
+  (spec/keys :req [:currency/name
+                   :currency/culture]
              :opt [:currency/keyword
                    :currency/plural-name
                    :currency/symbol]))
@@ -35,7 +38,11 @@
            {:db/ident :currency/keyword
             :db/valueType :db.type/keyword
             :db/cardinality :db.cardinality/one
-            :db/unique :db.unique/identity}]]]
+            :db/unique :db.unique/identity}]]
+   [:culture [{:db/ident :currency/culture
+               :db/valueType :db.type/ref
+               :ventas/refEntityType :i18n.culture
+               :db/cardinality :db.cardinality/one}]]]
 
   :seed-number 0
 
@@ -52,10 +59,12 @@
       :currency/plural-name (entities.i18n/->entity {:en_US "euros"
                                                      :es_ES "euros"})
       :currency/keyword :eur
-      :currency/symbol "€"}
+      :currency/symbol "€"
+      :currency/culture [:i18n.culture/keyword :es_ES]}
      {:currency/name (entities.i18n/->entity {:en_US "dollar"
                                               :es_ES "dólar"})
       :currency/plural-name (entities.i18n/->entity {:en_US "dollars"
                                                      :es_ES "dólares"})
       :currency/keyword :usd
+      :currency/culture [:i18n.culture/keyword :en_US]
       :currency/symbol "$"}])})
