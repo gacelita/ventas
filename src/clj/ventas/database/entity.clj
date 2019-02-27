@@ -184,7 +184,7 @@
   "Finds an entity by eid or lookup ref
    Returns nil if no entity was found"
   [eid]
-  {:pre [(or (db/lookup-ref? eid) (number? eid))]}
+  {:pre [(or (db/lookup-ref? eid) (number? eid) (keyword? eid))]}
   (let [result (db/touch-eid eid)]
     (when (entity? result)
       (filter-query result))))
