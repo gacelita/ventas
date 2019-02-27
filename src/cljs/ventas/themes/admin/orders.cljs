@@ -21,11 +21,6 @@
 (defn- status-column [{:keys [status]}]
   [:span (i18n status)])
 
-(defn- footer []
-  [base/button
-   {:on-click #(routes/go-to :admin.orders.edit :id 0)}
-   (i18n ::create)])
-
 (rf/reg-event-fx
  ::fetch
  (fn [{:keys [db]} [_ state-path]]
@@ -80,8 +75,7 @@
                            :component status-column}
                           {:id :actions
                            :label (i18n ::actions)
-                           :component action-column}]
-                :footer footer}]}))
+                           :component action-column}]}]}))
 
 (routes/define-route!
   :admin.orders

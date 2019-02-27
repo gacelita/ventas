@@ -1,4 +1,5 @@
 (ns ventas.themes.admin.configuration
+  "Mobile-only page listing configuration sections"
   (:require
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]

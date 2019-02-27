@@ -5,7 +5,9 @@
    [re-frame.core :as rf]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.activity-log]
+   [ventas.routes :as routes]
    [ventas.themes.admin.configuration.email]
+   [ventas.themes.admin.configuration.general]
    [ventas.themes.admin.configuration.image-sizes]
    [ventas.themes.admin.configuration]
    [ventas.themes.admin.customization]
@@ -23,7 +25,6 @@
    [ventas.themes.admin.taxes]
    [ventas.themes.admin.users.edit]
    [ventas.themes.admin.users]
-   [ventas.routes :as routes]
    [ventas.i18n :as i18n]))
 
 (rf/reg-event-fx
@@ -66,6 +67,11 @@
    :ventas.themes.admin.configuration.email/tls "TLS"
    :ventas.themes.admin.configuration.email/saved "Saved!"
    :ventas.themes.admin.configuration.email/page "Email configuration"
+
+   :ventas.themes.admin.configuration.general/culture "Default culture"
+   :ventas.themes.admin.configuration.general/page "General configuration"
+   :ventas.themes.admin.configuration.general/submit "Submit"
+
 
    :ventas.themes.admin.configuration.image-sizes/page "Image sizes"
    :ventas.themes.admin.configuration.image-sizes/actions "Actions"
@@ -214,6 +220,7 @@
    :ventas.themes.admin.skeleton/payment-methods "Billing"
    :ventas.themes.admin.skeleton/shipping-methods "Shipping"
    :ventas.themes.admin.skeleton/customization "Customization"
+   :ventas.themes.admin.skeleton/configuration.general "Configuration"
 
    :ventas.themes.admin.taxes/name "Name"
    :ventas.themes.admin.taxes/amount "Amount"

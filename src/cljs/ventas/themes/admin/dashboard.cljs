@@ -84,7 +84,7 @@
  (fn [_ [_ modal-content {:keys [lines] :as order}]]
    {:dispatch-n [[:db [state-key :order] order]
                  [::table/init [state-key :order-lines-table]
-                  (merge admin.orders.edit/table-config
+                  (merge (admin.orders.edit/table-config)
                          {:rows lines})]
                  [::modal.toggle modal-content]]}))
 

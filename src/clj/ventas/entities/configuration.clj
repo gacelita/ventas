@@ -83,3 +83,17 @@
         {:schema/type :schema.type/configuration
          :configuration/keyword k
          :configuration/value (pr-str v)})))))
+
+(entity/register-type!
+ :general-config
+ {:migrations
+  [[:base [{:db/ident :general-config/culture
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :i18n.culture}]]]})
+
+(defn set-general-config! [config]
+  (entity/create*
+   (merge {:schema/type :schema.type/general-config
+           :db/ident :general-config}
+          config)))

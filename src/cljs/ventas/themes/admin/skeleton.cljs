@@ -78,7 +78,13 @@
     {:route :admin.customization
      :icon "edit"
      :mobile? false
-     :label ::customization}]))
+     :label ::customization}
+
+    {:route :admin.configuration.general
+     :icon "configure"
+     :mobile? false
+     :configuration? true
+     :label ::configuration.general}]))
 
 (rf/reg-sub-raw
  ::menu-items
@@ -181,6 +187,8 @@
                  [::api.admin/admin.entities.list
                   {:params {:type :currency}
                    :success [:db [:admin :currencies]]}]
+                 [::api.admin/admin.general-config.get
+                  {:success [:db [:admin :general-config]]}]
                  [::events/i18n.cultures.list]]}))
 
 (defn- content-view [content]

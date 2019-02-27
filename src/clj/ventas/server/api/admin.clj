@@ -163,3 +163,14 @@
  (fn [{config :params} _]
    (doseq [[k v] config]
      (entities.configuration/set! k v))))
+
+(register-admin-endpoint!
+ ::admin.general-config.get
+ (fn [_ _]
+   (entity/find :general-config)))
+
+(register-admin-endpoint!
+ ::admin.general-config.set
+ (fn [{config :params} _]
+   (entities.configuration/set-general-config! config)
+   nil))

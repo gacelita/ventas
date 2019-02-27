@@ -70,7 +70,7 @@
  (fn [db]
    (get-in db [state-key :shipping-methods])))
 
-(def table-config
+(defn- table-config []
   {:items-per-page 5
    :columns [{:id :image
               :label (i18n ::image)
@@ -91,7 +91,7 @@
 (rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::table/init lines-table-path table-config]
+   {:dispatch-n [[::table/init lines-table-path (table-config)]
                  (let [id (routes/ref-from-param :id)]
                    (if-not (pos? id)
                      [::form/populate [state-key] {:schema/type :schema.type/order}]

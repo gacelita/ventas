@@ -36,14 +36,6 @@
      {:i18n.culture/keyword :es_ES
       :i18n.culture/name "Español (España)"}])
 
-  :serialize
-  (fn [this _]
-    (:db/id this))
-
-  :deserialize
-  (fn [this]
-    (entity/find this))
-
   :seed-number 0
   :autoresolve? true})
 
