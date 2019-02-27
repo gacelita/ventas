@@ -174,7 +174,7 @@
         first? (zero? start)
         end (if last? data-length raw-end)]
     (send-request!
-     {:name ::api/upload 
+     {:name ::api/upload
       :params {:bytes (.slice array-buffer start end)
                :last? last?
                :first? first?
