@@ -61,8 +61,6 @@
 
 (defonce ^:private registered-types (atom {}))
 
-(declare ref-generator)
-
 (defn register-type!
   "Registers an entity type
    Example: (register-entity-type! :user)"
@@ -72,9 +70,6 @@
     (schema/register-migration!
      (keyword (name kw) "entity-type-ident")
      [{:db/ident (kw->type kw)}])
-    (spec/def
-      (keyword "ventas.database.generators" (name kw))
-      (spec/with-gen ::ref (partial ref-generator kw)))
     (doseq [[key attributes] (:migrations m)]
       (schema/register-migration!
        (keyword (name kw) (name key))
