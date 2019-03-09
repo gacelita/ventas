@@ -2,6 +2,7 @@
   (:require
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
+   [ventas.search :as search]
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
@@ -58,3 +59,6 @@
 
   :dependencies
   #{:file :i18n}})
+
+(search/configure-idents!
+ {:brand/name {:autocomplete? true}})

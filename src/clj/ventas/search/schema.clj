@@ -26,18 +26,14 @@
     :db.type/string "text"
     "text"))
 
-(def ^:private autocomplete-idents
-  #{:product/name
-    :category/name
-    :brand/name})
-
 (defn- with-culture [ident culture-kw]
   (keyword (namespace ident)
            (str (name ident) "." (name culture-kw))))
 
 (defn- attributes->mapping [attrs]
   (let [culture-kws (->> (entity/query :i18n.culture)
-                         (map :i18n.culture/keyword))]
+                         (map :i18n.culture/keyword))
+        autocomplete-idents (search/autocomplete-idents)]
     (->> attrs
          (filter :db/valueType)
          (map (fn [{:db/keys [ident valueType] :ventas/keys [refEntityType] :as attr}]

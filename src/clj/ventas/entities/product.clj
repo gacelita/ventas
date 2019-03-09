@@ -15,7 +15,8 @@
    [ventas.utils.slugs :as utils.slugs]
    [ventas.entities.image-size :as entities.image-size]
    [ventas.search.indexing :as search.indexing]
-   [ventas.entities.category :as entities.category]))
+   [ventas.entities.category :as entities.category]
+   [ventas.search :as search]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -357,3 +358,6 @@
 
 (defn products-with-images []
   (entity/query :product {:product/images :any}))
+
+(search/configure-idents!
+ {:product/name {:autocomplete? true}})

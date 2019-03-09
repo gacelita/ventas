@@ -25,8 +25,8 @@
 (defn make-url [& url]
   (let [index (config/get :elasticsearch :index)]
     (if url
-      (apply str index "/" url)
-      index)))
+      (apply str "/" index "/" url)
+      (str "/" index))))
 
 (defn- wrap-connect-exception [f]
   (try
@@ -140,3 +140,14 @@
 
 (defn document->indexing-queue [doc]
   (core.async/put! (:chan indexer) doc))
+
+(defonce ^:private ident-config (atom {}))
+
+(defn configure-idents! [config]
+  (swap! ident-config merge config))
+
+(defn autocomplete-idents []
+  (->> @ident-config
+       (filter (comp :autocomplete? val))
+       (map key)
+       (set)))

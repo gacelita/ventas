@@ -10,7 +10,8 @@
    [ventas.utils.slugs :as utils.slugs]
    [ventas.entities.image-size :as entities.image-size]
    [clojure.data :as data]
-   [ventas.search.indexing :as search.indexing]))
+   [ventas.search.indexing :as search.indexing]
+   [ventas.search :as search]))
 
 (spec/def :category/name ::entities.i18n/ref)
 
@@ -200,3 +201,6 @@
   ::entities.image-size/list-images
   (fn [{:keys [:category/image]}]
     [image])})
+
+(search/configure-idents!
+ {:category/name {:autocomplete? true}})
