@@ -136,7 +136,7 @@
   (let [{:keys [host port]} (config/get :server)]
     (log/info "Starting server on" (str host ":" port))
     (http-kit/run-server (if (::handler args)
-                           (compojure/routes http-handler (::handler args))
+                           (compojure/routes (::handler args) http-handler)
                            http-handler)
                          {:ip host
                           :port port
