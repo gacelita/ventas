@@ -235,7 +235,6 @@
                                                       (map #(resolve-ref % :product.term/keyword)
                                                            terms))))
          {:keys [items can-load-more?]} (search.products/search filters pagination culture)]
-     (def f filters)
      {:items items
       :can-load-more? can-load-more?
       :taxonomies (search.products/aggregate (:categories filters) culture)})))
