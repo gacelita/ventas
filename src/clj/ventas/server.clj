@@ -70,15 +70,18 @@
    {:format format}))
 
 (defn- handle-image [eid & {:keys [size]}]
-  (if-let [image (entity/find eid)]
-    (let [path (if size
-                 (let [size (entity/find [:image-size/keyword size])]
-                   @(entities.image-size/transform image size))
-                 (entities.file/filepath image))]
-      (-> path
-          (ring.response/file-response)
-          (add-mime-type path)))
-    (compojure.route/not-found "")))
+  (let [image (entity/find eid)
+        size-entity (and size (entity/find [:image-size/keyword size]))]
+    (cond
+      (not image) (compojure.route/not-found "Image not found")
+      (and size (not size-entity)) (compojure.route/not-found "Size not found")
+      :else
+      (let [path (if size-entity
+                   @(entities.image-size/transform image size-entity)
+                   (entities.file/filepath image))]
+        (-> path
+            (ring.response/file-response)
+            (add-mime-type path))))))
 
 (defroutes api-routes
   (POST "/http-ws/:name" req
