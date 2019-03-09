@@ -12,7 +12,8 @@
    [ventas.search :as search]
    [ventas.server.api :as sut]
    [ventas.server.ws :as server.ws]
-   [ventas.test-tools :as test-tools])
+   [ventas.test-tools :as test-tools]
+   [ventas.entities.user :as user])
   (:import [org.elasticsearch.client RestClient]))
 
 (use-fixtures :once #(test-tools/with-test-context
@@ -274,7 +275,8 @@
   (is (= {:schema/type :schema.type/user
           :user/email "test@test.com"
           :user/first-name "Test"
-          :user/last-name "user"}
+          :user/last-name "user"
+          :user/culture (:db/id (db/entity user/default-culture))}
          (-> (entity/find [:user/email "test@test.com"])
              (dissoc :user/password)
              (dissoc :db/id)))))
@@ -300,7 +302,7 @@
     (let [session (atom nil)]
       (testing "valid credentials"
         (is (= {:token (auth/user->token user)
-                :user {:culture (:user/culture user)
+                :user {:culture (entity/find-serialize (:user/culture user))
                        :email "test2@test.com"
                        :first-name "Test"
                        :last-name "User"

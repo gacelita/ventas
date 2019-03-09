@@ -185,4 +185,5 @@
                                                                               commons-io
                                                                               ring/ring-core
                                                                               nrepl]]]
-                   :source-paths ["dev/clj" "dev/cljs"]}})
+                   :source-paths ["dev/clj" "dev/cljs"]}
+             :test {:resource-paths ["test-resources"]}})

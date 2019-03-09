@@ -52,7 +52,8 @@
          (-> (server.ws/call-handler-with-user ::sut/admin.entities.pull {:id (:db/id user)} user)
              :data)))
   (is (= (db/pull '[* {:user/culture [*]}] (:db/id user))
-         (-> (server.ws/call-handler-with-user ::sut/admin.entities.pull {:id (:db/id user)} user)
+         (-> (server.ws/call-handler-with-user ::sut/admin.entities.pull {:id (:db/id user)
+                                                                          :expr '[* {:user/culture [*]}]} user)
              :data))))
 
 (deftest admin-entities-save

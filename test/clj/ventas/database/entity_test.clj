@@ -2,7 +2,9 @@
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
    [ventas.database.entity :as sut]
-   [ventas.test-tools :as test-tools]))
+   [ventas.test-tools :as test-tools]
+   [ventas.entities.user :as user]
+   [ventas.database :as db]))
 
 (use-fixtures :each #(test-tools/with-test-context
                        (%)))
@@ -26,7 +28,8 @@
            {:schema/type :schema.type/user
             :user/first-name "Test user"
             :user/email "email@email.com"
-            :user/status :user.status/active}))
+            :user/status :user.status/active
+            :user/culture (:db/id (db/entity user/default-culture))}))
     (sut/delete (:db/id user))))
 
 (deftest register-type!
