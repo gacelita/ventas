@@ -207,7 +207,7 @@
                      (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
                      :else v)])
               (-> pre-entity
-                  (assoc :db/id (or initial-tempid (db/tempid)))
+                  (clj/update :db/id #(or % initial-tempid (db/tempid)))
                   (filter-create))))
 
 (defn lifecycle-create [attrs transact-fn]
