@@ -111,6 +111,13 @@
   (let [type-fn (type-property (type entity) property)]
     (apply type-fn entity args)))
 
+(defn types-with-property [property]
+  (->> @registered-types
+       (filter (fn [[_ properties]]
+                 (contains? (set (keys properties)) property)))
+       (map key)
+       (set)))
+
 (defn serialize
   "Transforms an entity into a stripped map, suitable for sending to the outside"
   [entity & [options]]

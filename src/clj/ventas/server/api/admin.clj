@@ -104,7 +104,7 @@
 (register-admin-endpoint!
  ::admin.image-sizes.entities.list
  (fn [_ _]
-   (->> entities.image-size/entities
+   (->> (entities.image-size/entities)
         (map (comp utils/dequalify-keywords db/touch-eid)))))
 
 (register-admin-endpoint!

@@ -41,7 +41,7 @@
        :min 0.0
        :max 1.0})))
 
-(def entities
+(def ^:private gen-entities
   #{:schema.type/brand
     :schema.type/category
     :schema.type/product
@@ -50,8 +50,8 @@
 (spec/def ::entity
   (spec/with-gen
    (spec/or :pull-eid ::db/pull-eid
-            :entity entities)
-   #(gen/elements entities)))
+            :entity :schema/type)
+   #(gen/elements gen-entities)))
 
 (spec/def :image-size/entities
   (spec/coll-of ::entity))
@@ -153,3 +153,6 @@
   (doseq [file (.listFiles (io/file (paths/resolve ::paths/resized)))]
     (io/delete-file file))
   true)
+
+(defn entities []
+  (entity/types-with-property ::list-images))
