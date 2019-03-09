@@ -73,7 +73,8 @@
                            :label (i18n ::name)
                            :component (partial table/link-column :admin.users.edit :id :first-name)}
                           {:id :email
-                           :label (i18n ::email)}
+                           :label (i18n ::email)
+                           :component (partial table/link-column :admin.users.edit :id :email)}
                           {:id :actions
                            :label (i18n ::actions)
                            :component action-column}]
