@@ -1,19 +1,9 @@
 {:database {:url "datomic:free://localhost:4334/ventas"}
-
  :server {:port 3450
-          :host "localhost"
-          ;; chrome-headless needs this in production to be able to
-          ;; access the http server
-          ;; in production this should be the name given in docker-compose.yml
-          ;; to the ventas container
-          :docker-host nil}
-
+          :host "localhost"}
  :elasticsearch {:index "ventas"
                  :port 9200
                  :host "127.0.0.1"}
 
  ;; used for JWTs
- :auth-secret "CHANGEME"
-
- ;; recommended `true` for Emacs users:
- :strict-classloading false}
+ :auth-secret "CHANGEME"}
