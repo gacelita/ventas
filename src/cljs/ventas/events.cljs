@@ -51,16 +51,19 @@
 
 (rf/reg-event-fx
  ::enums.get
- (fn [_ [_ type]]
+ (fn [_ [_ type next-event]]
    {:dispatch [::backend/enums.get
                {:params {:type type}
                 :success
                 (fn [options]
-                  (rf/dispatch [:db [:enums type]
-                                (map (fn [{:keys [ident id]}]
-                                       {:text (i18n (keyword ident))
-                                        :value id})
-                                     options)]))}]}))
+                  (let [values (map (fn [{:keys [name id ident]}]
+                                      {:text name
+                                       :value id
+                                       :ident ident})
+                                    options)]
+                    (rf/dispatch [:db [:enums type] values])
+                    (when next-event
+                      (rf/dispatch (conj next-event values)))))}]}))
 
 (rf/reg-event-fx
  ::entities.sync
