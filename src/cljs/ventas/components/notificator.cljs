@@ -4,12 +4,7 @@
    [cljs.pprint :as pprint]
    [re-frame.core :as rf]
    [ventas.components.base :as base]
-   [ventas.i18n :refer [i18n]]
-   [ventas.seo :as seo]))
-
-(seo/add-prerendering-hook
- ::hook
- #(assoc % :notifications []))
+   [ventas.i18n :refer [i18n]]))
 
 (rf/reg-event-db
  ::add

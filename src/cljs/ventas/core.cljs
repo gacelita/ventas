@@ -14,7 +14,6 @@
    [ventas.local-storage :as storage]
    [ventas.page :as page]
    [ventas.routes :as routes]
-   [ventas.seo :as seo]
    [ventas.session :as session]
    [ventas.utils.logging :refer [debug info]]
    [ventas.ws :as ws]))
@@ -67,18 +66,9 @@
    (apply aset args)))
 
 (rf/reg-event-fx
- ::rendered-db
- (fn [_ _]
-   (when-let [rendered (aget js/window "__rendered_db")]
-     (let [reader (transit/reader :json)]
-       {:db (transit/read reader rendered)
-        :aset [js/window "__rendered_db" nil]}))))
-
-(rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch-n [[::rendered-db]
-                 [::events/users.session]]}))
+   {:dispatch [::events/users.session]}))
 
 (defn- page []
   (info "Rendering...")
@@ -107,21 +97,20 @@
   (.addEventListener js/window
                      "resize"
                      #(rf/dispatch [:db [:window] {:width js/window.innerWidth
-                                                           :height js/window.innerHeight}]))
+                                                   :height js/window.innerHeight}]))
   (accountant/configure-navigation!
    {:nav-handler #'nav-handler
     :path-exists?
     (fn [path]
       (boolean (routes/match-route path)))})
   (go
-   (when-not (seo/rendered?)
-     (reagent/render [base/loading] (app-element)))
+   (reagent/render [base/loading] (app-element))
 
    (debug "Init stage 1 - Starting websockets")
    (when-not (<! (ws/init))
      (throw (js/Error. "Websocket initialization problem")))
 
-   (debug "Init stage 2- Syncing rendered db, starting WS session")
+   (debug "Init stage 2 - Syncing rendered db, starting WS session")
    (rf/dispatch-sync [::init])
 
    (let [{:keys [success message]} (<! session/ready)]

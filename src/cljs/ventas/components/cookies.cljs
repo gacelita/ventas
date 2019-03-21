@@ -1,14 +1,9 @@
 (ns ventas.components.cookies
   (:require
    [re-frame.core :as rf]
-   [ventas.components.base :as base]
-   [ventas.seo :as seo]))
+   [ventas.components.base :as base]))
 
 (def state-key ::state)
-
-(seo/add-prerendering-hook
- ::hook
- #(assoc % state-key true))
 
 (rf/reg-event-fx
  ::get-state-from-local-storage
