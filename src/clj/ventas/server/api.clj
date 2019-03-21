@@ -48,6 +48,13 @@
   [session]
   (entities.user/get-culture (get-user session)))
 
+(defn session-i18n
+  "Uses the culture in the session to call i18n"
+  [session & args]
+  (let [culture-kw (or (utils/swallow
+                        (entities.i18n/culture->kw (get-culture session))) :en_US)]
+    (apply i18n culture-kw args)))
+
 (defn serialize-with-session [session entity]
   (entity/serialize entity {:culture (get-culture session)}))
 
@@ -73,11 +80,9 @@
                               {:request request :state state :response (f request state)}
                               middlewares))
            (catch Throwable e
-             (let [{:keys [type] :as data} (ex-data e)
-                   culture-kw (utils/swallow
-                               (entities.i18n/culture->kw (get-culture (:session state))))]
+             (let [{:keys [type] :as data} (ex-data e)]
                (if-let [localized-message (when type
-                                            (i18n (or culture-kw :en_US) type data))]
+                                            (session-i18n (:session state) type data))]
                  (throw+ (assoc data :message localized-message))
                  (throw e))))))
        binary?
@@ -161,8 +166,10 @@
 (register-endpoint!
  ::enums.get
  {:spec {:type ::keyword}}
- (fn [{{:keys [type]} :params} _]
-   (db/enum-values (name type) :eids? true)))
+ (fn [{{:keys [type]} :params} {:keys [session]}]
+   (map (fn [val]
+          (assoc val :name (session-i18n session (:ident val))))
+        (db/enum-values (name type) :eids? true))))
 
 (register-endpoint!
  ::i18n.cultures.list
