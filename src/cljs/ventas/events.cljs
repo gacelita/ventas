@@ -154,10 +154,7 @@
    (merge
     {:db (assoc-in db [:session :identity] user)}
     (when token
-      {:local-storage (assoc local-storage :token token)})
-    (when-not (= (:status user) :user.status/unregistered)
-      {:dispatch [:ventas.components.notificator/add
-                  {:message (i18n ::session-started)}]}))))
+      {:local-storage (assoc local-storage :token token)}))))
 
 (rf/reg-event-fx
  ::session.stop
