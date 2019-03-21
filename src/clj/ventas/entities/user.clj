@@ -87,72 +87,70 @@
 (entity/register-type!
  :user
  {:migrations
-  [[:base (utils/into-n
-           [{:db/ident :user/first-name
-             :db/valueType :db.type/string
-             :db/fulltext true
-             :db/index true
-             :db/cardinality :db.cardinality/one}
+  [[:base [{:db/ident :user/first-name
+            :db/valueType :db.type/string
+            :db/fulltext true
+            :db/index true
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/last-name
-             :db/valueType :db.type/string
-             :db/fulltext true
-             :db/index true
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/last-name
+            :db/valueType :db.type/string
+            :db/fulltext true
+            :db/index true
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/company
-             :db/valueType :db.type/string
-             :db/fulltext true
-             :db/index true
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/company
+            :db/valueType :db.type/string
+            :db/fulltext true
+            :db/index true
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/password
-             :db/valueType :db.type/string
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/password
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/email
-             :db/valueType :db.type/string
-             :db/index true
-             :db/unique :db.unique/identity
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/email
+            :db/valueType :db.type/string
+            :db/index true
+            :db/unique :db.unique/identity
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/phone
-             :db/valueType :db.type/string
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/phone
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/description
-             :db/valueType :db.type/string
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/description
+            :db/valueType :db.type/string
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/avatar
-             :db/valueType :db.type/ref
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/avatar
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/status
-             :db/valueType :db.type/ref
-             :db/cardinality :db.cardinality/one
-             :ventas/refEntityType :enum}
+           {:db/ident :user/status
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one
+            :ventas/refEntityType :enum}
 
-            {:db/ident :user/culture
-             :db/valueType :db.type/ref
-             :db/cardinality :db.cardinality/one}
+           {:db/ident :user/culture
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}
 
-            {:db/ident :user/roles
-             :db/valueType :db.type/ref
-             :db/cardinality :db.cardinality/many
-             :ventas/refEntityType :enum}
+           {:db/ident :user/roles
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/many
+            :ventas/refEntityType :enum}
 
-            {:db/ident :user.role/administrator}
+           {:db/ident :user.role/administrator}
 
-            {:db/ident :user/favorites
-             :db/valueType :db.type/ref
-             :db/cardinality :db.cardinality/many}]
-
+           {:db/ident :user/favorites
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/many}
            {:db/ident :user.status/pending}
            {:db/ident :user.status/active}
            {:db/ident :user.status/inactive}
            {:db/ident :user.status/cancelled}
-           {:db/ident :user.status/unregistered})]
+           {:db/ident :user.status/unregistered}]]
    [:add-user-role [{:db/ident :user.role/user}]]]
 
   :serialize

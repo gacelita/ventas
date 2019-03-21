@@ -101,7 +101,8 @@
       (is (= {:amount (:price variation-json)
               :lines [{:product-variation variation-json
                        :quantity 1}]
-              :status :order.status/draft
+              :status {:ident :order.status/draft
+                       :name "Draft"}
               :user (:db/id user)}
              (-> (server.ws/call-handler-with-user ::sut/users.cart.get
                                                    {}
@@ -115,7 +116,8 @@
                                         {:id (:db/id variation)}
                                         user)
       (is (= {:amount nil
-              :status :order.status/draft
+              :status {:ident :order.status/draft
+                       :name "Draft"}
               :user (:db/id user)}
              (-> (server.ws/call-handler-with-user ::sut/users.cart.get
                                                    {}
@@ -132,7 +134,8 @@
                           (update :value #(* 5 %)))
               :lines [{:product-variation variation-json
                        :quantity 5}]
-              :status :order.status/draft
+              :status {:ident :order.status/draft
+                       :name "Draft"}
               :user (:db/id user)}
              (-> (server.ws/call-handler-with-user ::sut/users.cart.get
                                                    {}

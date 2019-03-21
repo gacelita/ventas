@@ -7,6 +7,7 @@
    [ventas.database.generators :as generators]
    [ventas.entities.product :as entities.product]
    [ventas.utils :as utils]
+   [ventas.i18n :as i18n]
    [ventas.email :as email]))
 
 (defn get-amount
@@ -53,6 +54,17 @@
     :order.status/cancelled
     ;; rejected by the shop
     :order.status/rejected})
+
+(i18n/register-translations!
+ {:en_US
+  {:order.status/rejected "Rejected"
+   :order.status/cancelled "Cancelled"
+   :order.status/shipped "Shipped"
+   :order.status/ready "Ready"
+   :order.status/acknowledged "Acknowledged"
+   :order.status/paid "Paid"
+   :order.status/unpaid "Unpaid"
+   :order.status/draft "Draft"}})
 
 (spec/def :order/status
   (spec/with-gen

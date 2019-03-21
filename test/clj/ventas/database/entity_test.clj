@@ -51,10 +51,9 @@
     (sut/delete id)))
 
 (deftest enum-retractions
-  (is (= [[:db/retract 17592186045648 :user/favorites 17592186045691]
-          [:db/retract 17592186045648 :user/favorites 17592186045679]]
-         (#'sut/enum-retractions
-          {:db/id 17592186045648
-           :user/favorites [17592186045648 17592186045679 17592186045691]}
-          {:db/id 17592186045648
-           :user/favorites [17592186045648]}))))
+  (let [{:db/keys [id]} (sut/create :user {:favorites [17592186045648 17592186045679 17592186045691]})]
+    (is (= [[:db/retract id :user/favorites 17592186045691]
+            [:db/retract id :user/favorites 17592186045679]]
+           (#'sut/enum-retractions
+            {:db/id id
+             :user/favorites [17592186045648]})))))

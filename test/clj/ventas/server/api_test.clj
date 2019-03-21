@@ -110,9 +110,13 @@
                  :type))))))
 
 (deftest enums-get
-  (is (= (db/enum-values (name :order.status) :eids? true)
-         (:data (server.ws/call-request-handler {:name ::sut/enums.get
-                                                 :params {:type :order.status}})))))
+  (is (= #{:ident :id :name}
+         (-> (server.ws/call-request-handler {:name ::sut/enums.get
+                                              :params {:type :order.status}})
+             :data
+             first
+             keys
+             set))))
 
 (deftest i18n-cultures-list
   (let [fixtures (->> (ventas.database.entity/fixtures :i18n.culture)
