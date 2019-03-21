@@ -35,14 +35,15 @@
 
 (rf/reg-event-fx
  ::search
- (fn [_ [_ id query]]
+ (fn [_ [_ id search-event query]]
    {:dispatch-n
     (if (empty? query)
       [[::items.set id nil]]
       [[::query.set id query]
-       [::backend/search
-        {:params {:search query}
-         :success [::items.set id]}]])}))
+       (if search-event
+         (conj search-event query)
+         [::backend/search {:params {:search query}
+                            :success [::items.set id]}])])}))
 
 (defn- search-result-view [on-result-click {:keys [name image type] :as item}]
   [:div.search-result
@@ -53,7 +54,7 @@
    [:div.search-result__right
     [:p.search-result__name name]
     (when type
-      [:p.search-result__type (i18n (ns-kw type))])]])
+      [:p.search-result__type (i18n (keyword "schema.type" type))])]])
 
 (defn ->options [on-result-click coll]
   (map (fn [item]
@@ -63,7 +64,7 @@
           :content (r/as-element [search-result-view on-result-click item])})
        coll))
 
-(defn search-box [{:keys [id on-result-click] :as props}]
+(defn search-box [{:keys [id on-result-click search-event] :as props}]
   [base/dropdown
    (merge
     {:placeholder (i18n ::search)
@@ -72,5 +73,5 @@
      :icon "search"
      :search (fn [options _] options)
      :options (->options on-result-click @(rf/subscribe [::items id]))
-     :on-search-change #(rf/dispatch [::search id (-> % .-target .-value)])}
+     :on-search-change #(rf/dispatch [::search id search-event (-> % .-target .-value)])}
     props)])
