@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [find type update])
   (:require
    [clojure.core :as clj]
-   [clojure.core.async :refer [<! go go-loop]]
    [clojure.set :as set]
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
@@ -12,7 +11,9 @@
    [ventas.database :as db]
    [ventas.database.generators :as db.generators]
    [ventas.database.schema :as schema]
-   [ventas.utils :as utils]))
+   [ventas.i18n :refer [i18n]]
+   [ventas.utils :as utils]
+   [clojure.walk :as walk]))
 
 (defn entity? [entity]
   (when (map? entity)
@@ -40,6 +41,12 @@
 
 (spec/def ::entity-type
   (spec/keys :req-un [::attributes]))
+
+(defn enum-spec [elements]
+  (spec/with-gen
+   (spec/or :pull-eid ::db/pull-eid
+            :element elements)
+   #(gen/elements elements)))
 
 (defn kw->type [kw]
   {:pre [(keyword? kw)]}
@@ -94,7 +101,7 @@
   (let [type (:schema/type entity)]
     (cond
       (keyword? type) (keyword (name type))
-      (:db/id type)   (db/ident (:db/id type)))))
+      (:db/id type) (keyword (name (db/ident (:db/id type)))))))
 
 (defn type-properties
   "Returns the properties of an entity type"
@@ -267,10 +274,6 @@
   [type]
   (type-property type :autoresolve?))
 
-(defn component?
-  [type]
-  (type-property type :component?))
-
 (defn dependencies
   [type]
   (or (type-property type :dependencies) #{}))
@@ -279,15 +282,20 @@
   [type]
   (or (type-property type :seed-number) 30))
 
-(defn idents-with-value-type
-  "Returns the idents of an entity with the given valueType"
-  [entity value-type]
+(defn attributes-by-schema-kv
+  "Returns the attributes of an entity whose schema matches the given value for the k attribute"
+  [entity k v]
   (->> (keys entity)
        (map db/touch-eid)
-       (filter (fn [v]
-                 (= value-type (:db/valueType v))))
+       (filter (fn [attr]
+                 (= v (get attr k))))
        (map :db/ident)
        (set)))
+
+(defn idents-with-value-type
+  "Returns the idents of an entity with the given valueType"
+  [entity v]
+  (attributes-by-schema-kv entity :db/valueType v))
 
 (defn- autoresolve-ref [ref & [options]]
   (let [subentity (find ref)]
@@ -299,9 +307,9 @@
   "Resolves references to entity types that have an :autoresolve?
    property with a truthy value"
   [entity & [options]]
-  (let [ref-idents (idents-with-value-type entity :db.type/ref)]
-    (utils/mapm (fn [[ident value]]
-                  [ident (if-not (contains? ref-idents ident)
+  (let [ref-attrs (idents-with-value-type entity :db.type/ref)]
+    (utils/mapm (fn [[attr value]]
+                  [attr (if-not (contains? ref-attrs attr)
                            value
                            (cond
                              (spec/valid? (spec/coll-of number?) value)
@@ -313,8 +321,26 @@
                              :else value))])
                 entity)))
 
+(defn- serialize-enums
+  "Transforms enum values into maps of :ident and :name"
+  [entity & [{:keys [culture]}]]
+  (let [enum-attrs (attributes-by-schema-kv entity :ventas/refEntityType :enum)
+        culture-kw (some-> culture find :i18n.culture/keyword)]
+    (if-not culture-kw
+      entity
+      (utils/mapm (fn [[attr value]]
+                    [attr (if (or (= :schema/type attr)
+                                  (not (contains? enum-attrs attr)))
+                            value
+                            {:ident value
+                             :name (i18n culture-kw value)})])
+                  entity))))
+
 (defn default-serialize [entity & [{:keys [keep-type?] :as options}]]
-  (let [result (utils/dequalify-keywords (autoresolve entity options))]
+  (let [result (-> entity
+                   (serialize-enums options)
+                   (autoresolve options)
+                   (utils/dequalify-keywords))]
     (if keep-type?
       (clojure.core/update result :type #(keyword (name %)))
       (dissoc result :type))))
@@ -345,8 +371,8 @@
 
 (def ^:private default-type
   {:attributes []
-   :serialize default-serialize
-   :deserialize default-deserialize
+   :serialize #'default-serialize
+   :deserialize #'default-deserialize
    :filter-query identity
    :filter-seed identity
    :filter-create identity
@@ -367,15 +393,18 @@
   (when-not (map? refs)
     (map db/normalize-ref refs)))
 
-(defn- enum-retractions
-  "Retracts no longer present enum values:
+(defn- enum-retractions-helper
+  "Retracts no longer present enum values.
+   Assuming this is in the db:
+   {:db/id 17592186045691
+    :user/favorites [17592186045648 17592186045679]}
+
    (enum-retractions {:db/id 17592186045691
-                      :user/favorites [17592186045648 17592186045679]}
-                     {:db/id 17592186045691
                       :user/favorites [17592186045648]})
    => ([:db/retract 17592186045691 :user/favorites 17592186045679])"
-  [old-values new-values]
-  (let [ident->values-set (fn [ident values]
+  [new-values]
+  (let [old-values (find (:db/id new-values))
+        ident->values-set (fn [ident values]
                             (->> (get values ident)
                                  (normalize-refs)
                                  (set)
@@ -393,6 +422,15 @@
                             [:db/retract (:db/id new-values) ident val-to-retract])
                           diff)))))))
 
+(defn- enum-retractions [new-values]
+  (let [retractions (atom [])]
+    (walk/prewalk (fn [x]
+                    (when (:db/id x)
+                      (swap! retractions into (enum-retractions-helper x)))
+                    x)
+                  new-values)
+    @retractions))
+
 (defn lifecycle-update [{:db/keys [id] :as attrs} {:keys [append?]} transact-fn]
   (let [entity (find id)
         attrs (filter-update entity attrs)]
@@ -400,7 +438,7 @@
     (transact-fn (utils/into-n
                   [attrs]
                   (when-not append?
-                    (enum-retractions entity attrs))
+                    (enum-retractions attrs))
                   [{:db/id (d/tempid :db.part/tx)
                     :event/kind :entity.update}]))
     (let [result (find id)]
@@ -473,10 +511,17 @@
                     value (if (= value :any) '_ value)]
                 ['?id attribute value])))
        (mapcat (fn [[var attribute value]]
-                 (if (set? value)
+                 (cond
+                   (set? value)
                    (for [item value]
                      [var attribute item])
-                   [[var attribute value]])))))
+
+                   (and (sequential? value) (= :in (first value)))
+                   (let [sym (symbol (str "?" (gensym)))]
+                     [[var attribute sym]
+                      [(list 'contains? (second value) sym)]])
+
+                   :else  [[var attribute value]])))))
 
 (defn filters->wheres
   "Generates `:where` clauses"
@@ -500,6 +545,12 @@
   (map #(find (:id %))
        (db/nice-query {:find '[?id]
                        :where (filters->wheres type filters)})))
+
+(defn mass-delete
+  "Deletes all entities of the given type"
+  [type]
+  (doseq [entity (query type)]
+    (delete (:db/id entity))))
 
 (defn query-one
   "(first (query))"
@@ -531,6 +582,12 @@
 
 (defn refs-generator [type & {:keys [new?]}]
   (gen/vector (ref-generator type :new? new?)))
+
+(defn ref-spec [type]
+  (spec/with-gen ::ref (partial ref-generator type)))
+
+(defn refs-spec [type]
+  (spec/with-gen ::refs (partial refs-generator type)))
 
 (defn find-recursively [eid]
   "Finds the given eid or lookup ref, and all the refs inside it"

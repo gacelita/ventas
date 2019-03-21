@@ -6,7 +6,8 @@
    [slingshot.slingshot :refer [throw+]]
    [ventas.config :as config]
    [ventas.utils :as utils]
-   [clojure.tools.logging :as log])
+   [clojure.tools.logging :as log]
+   [ventas.database.entity :as entity])
   (:import
    (java.net ConnectException)))
 
@@ -143,11 +144,32 @@
 
 (defonce ^:private ident-config (atom {}))
 
-(defn configure-idents! [config]
+(defn configure-idents!
+  "Registers indexing options for idents.
+   Example:
+    {:product/name {:autocomplete? true}}"
+  [config]
   (swap! ident-config merge config))
 
 (defn autocomplete-idents []
   (->> @ident-config
        (filter (comp :autocomplete? val))
-       (map key)
+       (keys)
        (set)))
+
+(defonce ^:private type-config (atom {}))
+
+(defn configure-types!
+  "Registers indexing options for entity types.
+   Example:
+     {:amount {:indexable? false}}"
+  [config]
+  (swap! type-config merge config))
+
+(defn indexable-types []
+  (let [config @type-config]
+    (->> (entity/types)
+         (keys)
+         (remove (fn [type]
+                   (-> (get config type) :indexable? false?)))
+         (set))))

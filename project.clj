@@ -127,6 +127,7 @@
                  ;; CLJS
                  [alandipert/storage-atom "2.0.1"]
                  [bidi "2.1.5"]
+                 [com.andrewmcveigh/cljs-time "0.5.2"]
                  [com.cognitect/transit-cljs "0.8.256"]
                  [joelsanchez/fressian-cljs "0.2.1"]
                  [day8.re-frame/forward-events-fx "0.0.6"]

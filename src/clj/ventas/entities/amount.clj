@@ -4,7 +4,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.utils :as utils]
-   [ventas.search.indexing :as search.indexing]))
+   [ventas.search.indexing :as search.indexing]
+   [ventas.search :as search]))
 
 (spec/def :amount/keyword ::generators/keyword)
 
@@ -33,12 +34,12 @@
             :db/valueType :db.type/ref
             :db/cardinality :db.cardinality/one}]]]
 
-  :dependencies
-  #{:currency}
-
+  :dependencies #{:currency}
   :seed-number 0
-  :autoresolve? true
-  :component? true})
+  :autoresolve? true})
+
+(search/configure-types!
+ {:amount {:indexable? false}})
 
 (defmethod search.indexing/transform-entity-by-type :schema.type/amount [entity]
   (:amount/value entity))

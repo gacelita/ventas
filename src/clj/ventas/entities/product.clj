@@ -242,12 +242,12 @@
             :db/valueType :db.type/ref
             :db/cardinality :db.cardinality/one}]]]
 
-  :dependencies
-  #{:file}
-
+  :dependencies #{:file}
   :autoresolve? true
-  :component? true
   :seed-number 0})
+
+(search/configure-types!
+ {:product.image {:indexable? false}})
 
 (spec/def :product.variation/parent
   (spec/with-gen ::entity/ref #(entity/ref-generator :product)))

@@ -65,26 +65,20 @@
                  (common.utils/map-keys search.schema/ident->property))]
     (search/document->indexing-queue doc)))
 
-(defn- indexable-types []
-  (->> (entity/types)
-       (filter (fn [[k v]]
-                 (not (:component? v))))
-       (keys)))
-
 (defn reindex
   "Indexes everything"
   []
   (utils/swallow
    (search/remove-index))
   (search.schema/setup!)
-  (let [types (indexable-types)]
+  (let [types (search/indexable-types)]
     (doseq [type types]
       (let [entities (entity/query type)]
         (doseq [{:db/keys [id]} entities]
           (index-entity id))))))
 
 (defn- index-report [{:keys [tx-data]}]
-  (let [types (->> (indexable-types)
+  (let [types (->> (search/indexable-types)
                    (map name)
                    (set))
         eids (->> tx-data

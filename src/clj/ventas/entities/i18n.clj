@@ -8,7 +8,8 @@
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
    [ventas.utils :as utils :refer [mapm]]
-   [ventas.search.indexing :as search.indexing]))
+   [ventas.search.indexing :as search.indexing]
+   [ventas.search :as search]))
 
 (spec/def :i18n.culture/keyword ::generators/keyword)
 
@@ -64,9 +65,7 @@
   :serialize
   (fn [this _]
     [(:i18n.translation/culture this)
-     (:i18n.translation/value this)])
-
-  :component? true})
+     (:i18n.translation/value this)])})
 
 (defn translations-generator-for-culture [culture-id]
   (->> (entity/generate :i18n.translation)
@@ -143,8 +142,12 @@
         (serialize-literal this culture)
         (serialize-transacted this culture))))
 
-  :autoresolve? true
-  :component? true})
+  :autoresolve? true})
+
+(search/configure-types!
+ {:i18n {:indexable? false}
+  :i18n.translation {:indexable? false}
+  :i18n.culture {:indexable? false}})
 
 (defmethod search.indexing/transform-entity-by-type :schema.type/i18n [entity]
   (mapm (fn [[culture value]]
