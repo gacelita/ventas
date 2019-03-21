@@ -6,7 +6,8 @@
    [ventas.database.generators :as generators]
    [ventas.paths :as paths]
    [ventas.utils :as utils]
-   [ventas.utils.jar :as utils.jar]))
+   [ventas.utils.jar :as utils.jar]
+   [ventas.search :as search]))
 
 (defn identifier [entity]
   {:pre [(:db/id entity)]}
@@ -93,3 +94,69 @@
     (-> this
         (dissoc :url)
         ((entity/default-attr :deserialize))))})
+
+#_ "
+  :file.list represents an ordered collection of files.
+  :product/images should migrate to this at some point.
+"
+
+(spec/def :file.list.element/position number?)
+
+(spec/def :file.list.element/file
+  (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
+
+(spec/def :schema.type/file.list.element
+  (spec/keys :req [:file.list.element/position
+                   :file.list.element/file]))
+
+(entity/register-type!
+ :file.list.element
+ {:migrations
+  [[:base [{:db/ident :file.list.element/position
+            :db/valueType :db.type/long
+            :db/cardinality :db.cardinality/one}
+           {:db/ident :file.list.element/file
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/one}]]]
+
+  :dependencies #{:file}
+  :autoresolve? true
+  :seed-number 0})
+
+(spec/def :file.list/elements
+  (spec/with-gen ::entity/refs #(entity/refs-generator :file.list.element)))
+
+(spec/def :schema.type/file.list
+  (spec/keys :req [:file.list/elements]))
+
+(entity/register-type!
+ :file.list
+ {:migrations
+  [[:base [{:db/ident :file.list/elements
+            :db/valueType :db.type/ref
+            :db/cardinality :db.cardinality/many
+            :ventas/refEntityType :file.list.element
+            :db/isComponent true}]]]
+  :dependencies #{:file.list.element}
+  :autoresolve? true
+  :component? true
+  :serialize
+  (fn [this params]
+    (->> ((entity/default-attr :serialize) this params)
+         :elements
+         (sort-by :position)
+         (map :file)))
+  :seed-number 0})
+
+(search/configure-types!
+ {:file.list {:indexable? false}
+  :file.list.element {:indexable? false}})
+
+(defn ->list-entity [files]
+  {:schema/type :schema.type/file.list
+   :file.list/elements (map-indexed
+                        (fn [idx file]
+                          {:schema/type :schema.type/file.list.element
+                           :file.list.element/position idx
+                           :file.list.element/file file})
+                        files)})
