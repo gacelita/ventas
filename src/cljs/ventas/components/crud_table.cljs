@@ -7,13 +7,15 @@
    [ventas.components.base :as base]
    [ventas.server.api.admin :as api.admin]
    [ventas.routes :as routes]
-   [ventas.components.table :as table]))
+   [ventas.components.table :as table]
+   [ventas.i18n :as i18n]))
 
 (def state-key ::state)
 
 (rf/reg-event-fx
  ::remove
  (fn [_ [_ state-path id]]
+   {:pre [state-path id]}
    {:dispatch [::api.admin/admin.entities.remove
                {:params {:id id}
                 :success [::remove.next state-path id]}]}))
@@ -27,16 +29,16 @@
                 (remove #(= (:id %) id)
                         items)))))
 
-(defn action-column-component [{:keys [id]}]
+(defn action-column-component [state-path {:keys [id]}]
   [:div
    [base/button {:icon true
-                 :on-click #(rf/dispatch [::remove id])}
+                 :on-click #(rf/dispatch [::remove state-path id])}
     [base/icon {:name "remove"}]]])
 
-(def action-column
+(defn action-column [state-path]
   {:id :actions
    :label (i18n ::actions)
-   :component action-column-component
+   :component (partial #'action-column-component state-path)
    :width 110})
 
 (defn- footer [edit-route]
@@ -64,8 +66,18 @@
 
 (rf/reg-event-fx
  ::init
- (fn [_ [_ state-path {:keys [columns edit-route entity-type]}]]
-   {:dispatch [::table/init state-path
-               {:fetch-fx [::fetch entity-type]
-                :columns columns
-                :footer (partial footer edit-route)}]}))
+ (fn [{:keys [db]} [_ state-path {:keys [columns edit-route entity-type]} extra-config]]
+   {:db (assoc-in db state-path nil)
+    :dispatch [::table/init state-path
+               (merge {:fetch-fx [::fetch entity-type]
+                       :columns columns
+                       :footer (partial footer edit-route)}
+                      extra-config)]}))
+
+(i18n/register-translations!
+ {:en_US {::actions "Actions"
+          ::create "Create"
+          ::submit "Submit"}
+  :es_ES {::actions "Acciones"
+          ::create "Nuevo"
+          ::submit "Enviar"}})
