@@ -5,6 +5,8 @@
    [clojure.string :as str]
    [re-frame.core :as rf]
    [reagent.core :as reagent]
+   [cljs-time.format :as f]
+   [cljs-time.coerce :as c]
    [ventas.components.amount-input :as amount-input]
    [ventas.components.image-input :as image-input]
    [ventas.components.base :as base]
@@ -23,28 +25,37 @@
             (conj db-path :form-state :hash)
             (hash (get-data db db-path))))
 
+(defn- normalize-field-key [field]
+  (if-not (sequential? field) [field] field))
+
+(rf/reg-event-db
+ ::reset
+ (fn [db [_ db-path]]
+   (assoc-in db (conj db-path :form-state :hash) (hash (gensym)))))
+
+(defn set-field [db db-path field value & {:keys [reset-hash?]}]
+  {:pre [(vector? db-path)]}
+  (let [form-field (normalize-field-key field)
+        validators (get-in db (concat db-path [:form-state :validators]))]
+    (as-> db %
+          (assoc-in % (concat db-path [:form] form-field)
+                    value)
+          (assoc-in % (concat db-path [:form-state :validation] form-field)
+                    (:infractions (validation/validate validators field value)))
+          (if-not reset-hash?
+            %
+            (assoc-hash % db-path)))))
+
 (rf/reg-event-db
  ::set-field
- (fn [db [_ db-path field value & {:keys [reset-hash?]}]]
-   {:pre [(vector? db-path)]}
-   (let [form-field (if-not (sequential? field) [field] field)
-         validators (get-in db (concat db-path [:form-state :validators]))]
-     (as-> db %
-           (assoc-in % (concat db-path [:form] form-field)
-                     value)
-           (assoc-in % (concat db-path [:form-state :validation] form-field)
-                     (:infractions (validation/validate validators field value)))
-           (if-not reset-hash?
-             %
-             (assoc-hash % db-path))))))
+ (fn [db args]
+   (apply set-field db (drop 1 args))))
 
 (rf/reg-event-fx
  ::update-field
  (fn [{:keys [db]} [_ db-path field update-fn]]
    {:pre [(vector? db-path)]}
-   (let [field (if-not (sequential? field)
-                 [field]
-                 field)
+   (let [field (normalize-field-key field)
          new-value (update-fn (get-in db (concat db-path [:form] field)))]
      {:dispatch [::set-field db-path field new-value]})))
 
@@ -86,7 +97,7 @@
  (fn [[_ db-path]]
    (rf/subscribe [::infractions db-path]))
  (fn [infractions [_ db-path key]]
-   (get infractions key)))
+   (get-in infractions (normalize-field-key key))))
 
 (rf/reg-sub
  ::valid?
@@ -221,6 +232,12 @@
                                     (out)
                                     (set))]))}])
 
+(defmethod input :enum-tags [opts]
+  [input (assoc opts :type :tags
+                     :xform {:in #(map :db/id %)
+                             :out #(map (fn [v] {:db/id v}) %)}
+                     :forbid-additions true)])
+
 (defmethod input :amount [{:keys [value db-path key]}]
   [amount-input/input
    {:amount value
@@ -231,15 +248,16 @@
     (= type :number) (js/parseInt value 10)
     :else value))
 
-(defn- base-input [html-control {:keys [value db-path key type inline-label on-change-fx] :as args}]
-  (let [infractions @(rf/subscribe [::field.infractions db-path key])]
+(defn- base-input [html-control {:keys [value db-path key type inline-label on-change-fx xform] :as args}]
+  (let [infractions @(rf/subscribe [::field.infractions db-path key])
+        {:keys [in out] :or {in identity out identity}} xform]
     [base/input
      {:label inline-label
       :icon true}
      [html-control (merge (apply dissoc args known-keys)
-                          {:default-value (or value "")
+                          {:default-value (if value (in value) "")
                            :type (or type :text)
-                           :on-change #(let [new-value (parse-value type (-> % .-target .-value))]
+                           :on-change #(let [new-value (out (parse-value type (-> % .-target .-value)))]
                                          (rf/dispatch [::set-field db-path key new-value])
                                          (when on-change-fx
                                            (rf/dispatch (conj on-change-fx new-value))))})]
@@ -258,6 +276,10 @@
 (defmethod input :default [data]
   (base-input :input data))
 
+(defmethod input :date [data]
+  (base-input :input (assoc data :xform {:in (fn [v] (f/unparse (:date f/formatters) (c/from-date v)))
+                                         :out (fn [v] (c/to-date (f/parse (:date f/formatters) v)))})))
+
 (defn field [{:keys [db-path key label inline-label width] :as args}]
   (let [infractions @(rf/subscribe [::field.infractions db-path key])]
     [base/form-field
@@ -267,6 +289,4 @@
        [:label label])
      [input
       (merge args
-             {:value (get-in @(rf/subscribe [::data db-path]) (if (sequential? key)
-                                                                key
-                                                                [key]))})]]))
+             {:value (get-in @(rf/subscribe [::data db-path]) (normalize-field-key key))})]]))
