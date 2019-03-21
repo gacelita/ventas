@@ -45,7 +45,6 @@
       (throw result))))
 
 (alter-var-root #'*warn-on-reflection* (constantly true))
-(tn/set-refresh-dirs "dev/clj" "src/clj" "src/cljc")
 
 (defn start [& [states]]
   (-> (mount/only (or states system/default-states))
