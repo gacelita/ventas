@@ -3,7 +3,6 @@
    [buddy.hashers :as hashers]
    [clojure.spec.alpha :as spec]
    [clojure.string :as str]
-   [clojure.test.check.generators :as gen]
    [com.gfredericks.test.chuck.generators :as chuck]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
@@ -37,13 +36,11 @@
     :user.status/unregistered})
 
 (spec/def :user/status
-  (spec/with-gen
-   (spec/or :pull-eid ::db/pull-eid
-            :status statuses)
-   #(gen/elements statuses)))
+  (entity/enum-spec statuses))
 
 (def roles
-  #{:user.role/administrator})
+  #{:user.role/administrator
+    :user.role/user})
 
 (spec/def ::role
   (spec/or :pull-eid ::db/pull-eid
@@ -145,12 +142,18 @@
              :db/cardinality :db.cardinality/many
              :ventas/refEntityType :enum}
 
+            {:db/ident :user.role/administrator}
+
             {:db/ident :user/favorites
              :db/valueType :db.type/ref
              :db/cardinality :db.cardinality/many}]
 
-           (map #(hash-map :db/ident %) statuses)
-           (map #(hash-map :db/ident %) roles))]]
+           {:db/ident :user.status/pending}
+           {:db/ident :user.status/active}
+           {:db/ident :user.status/inactive}
+           {:db/ident :user.status/cancelled}
+           {:db/ident :user.status/unregistered})]
+   [:add-user-role [{:db/ident :user.role/user}]]]
 
   :serialize
   (fn [this params]
