@@ -8,7 +8,9 @@
    [ventas.utils.goog :as utils.goog]))
 
 (def ^:private base-dicts
-  {:en_US
+  {:es_ES
+   {:ventas.components.table/no-rows "Ningún elemento que mostrar"}
+   :en_US
    {:ventas.components.base/loading "Loading"
 
     :ventas.components.cart/product-added "Product added!"

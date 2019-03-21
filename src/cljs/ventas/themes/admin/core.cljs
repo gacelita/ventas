@@ -226,11 +226,6 @@
    :ventas.themes.admin.taxes/amount "Amount"
    :ventas.themes.admin.taxes/page "Taxes"
 
-   :ventas.components.crud-table/actions "Actions"
-   :ventas.components.crud-table/create "Create"
-
-   :ventas.components.crud-form/submit "Submit"
-
    :ventas.themes.admin.orders/user "User"
    :ventas.themes.admin.orders/page "Orders"
    :ventas.themes.admin.orders/status "Status"

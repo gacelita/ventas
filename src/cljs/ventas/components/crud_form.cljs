@@ -8,7 +8,8 @@
    [ventas.components.notificator :as notificator]
    [ventas.components.base :as base]
    [ventas.utils.ui :as utils.ui]
-   [ventas.components.form :as form])
+   [ventas.components.form :as form]
+   [ventas.i18n :as i18n])
   (:require-macros
    [ventas.utils :refer [ns-kw]]
    [ventas.components.crud-form]))
@@ -52,3 +53,7 @@
     component
     [base/form-button {:type "submit"}
      (i18n ::submit)]]])
+
+(i18n/register-translations!
+ {:en_US {::submit "Submit"}
+  :es_ES {::submit "Enviar"}})
