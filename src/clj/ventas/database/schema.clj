@@ -70,8 +70,15 @@
         (swap! migrations assoc (migration-index key) pair))
       (swap! migrations conj pair))))
 
+(defn register-migrations!
+  "Same as calling register-migration! many times, but makes it clear
+   that the migrations have a certain order"
+  [migrations]
+  (doseq [[key attributes] migrations]
+    (register-migration! key attributes)))
+
 (defn get-migrations []
-  @migrations)
+  (remove (comp nil? second) @migrations))
 
 (defn migrate-one! [key]
   (let [migration (get-migration key)]

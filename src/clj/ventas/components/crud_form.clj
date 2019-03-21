@@ -3,8 +3,7 @@
    [slingshot.slingshot :refer [throw+]]))
 
 (defmacro field
-  "Takes a string or a keyword. Returns a keyword where the ns is the caller ns
-   and the name is the given string, or the name of the given keyword.
+  "Automates form's `label`
    **ClojureScript only**"
   [state-path {:keys [key] :as args}]
   (if-not (:ns &env)

@@ -1,5 +1,5 @@
 (ns ventas.database.generators
-  "More user-friendly generators"
+  "User-friendly generators"
   (:require
    [clojure.spec.alpha :as spec]
    [clojure.string :as str]
