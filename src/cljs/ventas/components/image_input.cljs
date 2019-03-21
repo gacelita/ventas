@@ -35,11 +35,6 @@
                    :size "large"
                    :src url}]]]))
 
-(rf/reg-event-fx
- ::remove-image
- (fn [_ [_ on-change]]
-   {:dispatch (conj on-change nil)}))
-
 (defn image-view [on-change id]
   [:div
    [base/image {:src (image/get-url id :admin-products-edit)
@@ -49,15 +44,16 @@
    [base/button {:icon true
                  :size "mini"
                  :on-click (utils.ui/with-handler
-                            #(rf/dispatch [::remove-image on-change]))}
+                            #(rf/dispatch (conj on-change id)))}
     [base/icon {:name "remove"}]]])
 
 (rf/reg-event-fx
  ::upload
- (fn [_ [_ on-change file]]
-   {:dispatch [::events/upload
-               {:success [::upload.next on-change]
-                :file file}]}))
+ (fn [_ [_ on-change files]]
+   {:dispatch-n (for [file files]
+                  [::events/upload
+                   {:success [::upload.next on-change]
+                    :file file}])}))
 
 (rf/reg-event-fx
  ::upload.next
@@ -71,12 +67,12 @@
        {:on-click #(-> @ref (.click))}
        [base/icon {:name "plus"}]
        [:input {:type "file"
+                :multiple true
                 :ref #(reset! ref %)
                 :on-change #(rf/dispatch [::upload
                                           on-change
                                           (-> (-> % .-target .-files)
-                                              js/Array.from
-                                              first)])}]])))
+                                              js/Array.from)])}]])))
 
 (defn image-input [{:keys [on-change value]}]
   [:div.image-input
