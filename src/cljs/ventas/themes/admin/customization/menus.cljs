@@ -32,7 +32,7 @@
                           {:id :items
                            :label (i18n ::items)
                            :component items-column}
-                          crud-table/action-column]
+                          (crud-table/action-column state-path)]
                 :edit-route :admin.customization.menus.edit
                 :entity-type :menu}]}))
 

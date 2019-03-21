@@ -26,7 +26,7 @@
                           {:id :amount
                            :label (i18n ::amount)
                            :component (partial table/amount-column :amount)}
-                          crud-table/action-column]
+                          (crud-table/action-column state-path)]
                 :edit-route :admin.taxes.edit
                 :entity-type :tax}]}))
 
