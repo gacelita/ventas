@@ -73,7 +73,75 @@
                                            (str "The requested API call does not exist (" name ")"))
     :ventas.utils.images/file-not-found (fn [{:keys [path]}]
                                           (str "File not found: " path))
-    :ventas.utils/spec-invalid "Validation error"}})
+    :ventas.utils/spec-invalid "Validation error"}
+
+   :es_ES
+   {:ventas.email/new-pending-order "Nuevo pedido pendiente"
+    :ventas.database.entity/database-not-migrated "La base de datos tiene que ser migrada antes de hacer esto"
+    :ventas.database/database-connection-error "Error de conexión con la base de datos"
+    :ventas.database/transact-exception "Excepción de la base de datos"
+    :ventas.entities.configuration/access-denied (fn [{:keys [key]}]
+                                                   (str "El usuario actual no tiene acceso a la clave de configuración " key))
+
+    :ventas.email.templates.order-status-changed/heading (fn [status ref]
+                                                           (case status
+                                                             :order.status/unpaid (str "Hemos recibido tu pedido #" ref ". Te notificaremos cuando recibamos tu pago.")
+                                                             :order.status/paid (str "Hemos recibido tu pedido #" ref ". Lo prepararemos lo antes posible.")
+                                                             :order.status/acknowledged (str "Estamos preparando tu pedido #" ref ". Te notificaremos cuando lo hayamos enviado.")
+                                                             :order.status/ready (str "Tu pedido #" ref " está listo, y será actualizado cuando recibamos tu pago.")
+                                                             :order.status/shipped (str "Tu pedido #" ref " ha sido enviado.")
+                                                             :order.status/cancelled (str "Has cancelado tu pedido #" ref ".")
+                                                             :order.status/rejected (str "Tu pedido #" ref " ha sido rechazado.")))
+    :ventas.email.templates.order-status-changed/subject (fn [status ref]
+                                                           (str "Pedido #" ref " - "
+                                                                (case status
+                                                                  :order.status/unpaid "No pagado"
+                                                                  :order.status/paid "Pagado"
+                                                                  :order.status/acknowledged "Admitido"
+                                                                  :order.status/ready "Listo"
+                                                                  :order.status/shipped "Enviado"
+                                                                  :order.status/cancelled "Cancelado"
+                                                                  :order.status/rejected "Rechazado")))
+    :ventas.email.templates.order-status-changed/product "Producto"
+    :ventas.email.templates.order-status-changed/quantity "Cantidad"
+    :ventas.email.templates.order-status-changed/amount "Importe"
+    :ventas.email.templates.order-status-changed/total-amount "Importe total"
+    :ventas.email.templates.order-status-changed/shipping-address "Dirección de envío"
+    :ventas.email.templates.order-status-changed/go-to-orders "Puedes ver tus pedidos"
+    :ventas.email.templates.order-status-changed/go-to-orders-link "aquí"
+
+    :ventas.email.templates.user-registered/welcome (fn [title] (str "Bienvenido a " title "!"))
+    :ventas.email.templates.user-registered/add-an-address "Ahora es un buen momento para añadir una dirección a tu perfil, para usarla cuando realices un pedido."
+    :ventas.email.templates.user-registered/go-to-profile "Haz click aquí para ir a tu perfil"
+
+    :ventas.email.templates.password-forgotten/reset-your-password "Restablece tu contraseña"
+
+    :ventas.email.elements/hello (fn [name]
+                                   (str "Hola, " name "!"))
+    :ventas.payment-method/payment-method-not-found (fn [{:keys [method]}]
+                                                      (str "Método de pago no encontrado: " method))
+    :ventas.plugin/plugin-not-found (fn [{:keys [keyword]}]
+                                      (str "Plugin no encontrado: " keyword))
+    :ventas.search/elasticsearch-error "Error de Elasticsearch"
+    :ventas.server.api.admin/unauthorized "No autorizado: necesitas ser un administrador para realizar esta operación"
+    :ventas.server.api.user/authentication-required "Autenticación requerida: tu identidad es inválida o no existe"
+    :ventas.server.api.user/discount-not-found (fn [{:keys [code]}]
+                                                 (str "Descuento no encontrado: " code))
+    :ventas.server.api.user/entity-update-unauthorized (fn [{:keys [entity-type]}]
+                                                         (str "No autorizado: necesitas ser el dieño de esta entidad " entity-type " para actualizarla"))
+    :ventas.server.api/category-not-found (fn [{:keys [category]}]
+                                            (str "Categoría no encontrada: " category))
+    :ventas.server.api/entity-not-found (fn [{:keys [entity]}]
+                                          (str "Entidad no encontrada: " entity))
+    :ventas.server.api/invalid-credentials "Credenciales inválidas"
+    :ventas.server.api/invalid-ref (fn [{:keys [ref]}]
+                                     (str "Referencia a entidad inválida: " ref))
+    :ventas.server.api/user-not-found "Usuario no encontrado"
+    :ventas.server.ws/api-call-not-found (fn [{:keys [name]}]
+                                           (str "La llamada de API solicitada no existe (" name ")"))
+    :ventas.utils.images/file-not-found (fn [{:keys [path]}]
+                                          (str "Archivo no encontrado: " path))
+    :ventas.utils/spec-invalid "Error de validación"}})
 
 (def dicts (atom base-dicts))
 
