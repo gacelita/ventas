@@ -77,9 +77,10 @@
                    :user/status
                    :user/culture]))
 
-(defn get-name [id]
-  {:pre [id]}
-  (let [{:user/keys [first-name last-name]} (entity/find id)]
+(defn get-name [id-or-entity]
+  {:pre [id-or-entity]}
+  (let [{:user/keys [first-name last-name]}
+        (if (entity/entity? id-or-entity) id-or-entity (entity/find id-or-entity))]
     (str/join " " [first-name last-name])))
 
 (def default-culture [:i18n.culture/keyword :en_US])
