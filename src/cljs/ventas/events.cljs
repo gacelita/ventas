@@ -201,6 +201,11 @@
                                          (conj (set %) id)))})))
 
 (rf/reg-sub
+ ::culture-kw
+ (fn [db]
+   (get-in db [:session :identity :culture :keyword])))
+
+(rf/reg-sub
  ::users.favorites.favorited?
  (fn [_]
    (rf/subscribe [:db [:users.favorites]]))

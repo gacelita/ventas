@@ -5,7 +5,7 @@
   (:require
    [tongue.core :as tongue]
    [ventas.common.utils :as common.utils]
-   [ventas.utils.goog :as utils.goog]))
+   [re-frame.core :as rf]))
 
 (def ^:private base-dicts
   {:es_ES
@@ -109,4 +109,5 @@
   (build-translation-fn!))
 
 (defn i18n [kw & args]
-  (apply @translation-fn :en_US kw args))
+  (let [culture-kw @(rf/subscribe [:ventas.events/culture-kw])]
+    (apply @translation-fn (or culture-kw :en_US) kw args)))
