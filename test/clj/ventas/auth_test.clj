@@ -2,7 +2,6 @@
   (:require
    [clojure.test :refer [deftest is use-fixtures]]
    [ventas.auth :as sut]
-   [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.test-tools :as test-tools]))
 

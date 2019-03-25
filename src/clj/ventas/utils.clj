@@ -75,11 +75,13 @@
 
 (defn check [& args]
   "([spec x] [spec x form])
-     Returns true when x is valid for spec. Throws an Error if validation fails."
+   Returns true when x is valid for spec. Throws if validation fails."
   (if (apply spec/valid? args)
     true
     (throw+ {:type ::spec-invalid
              :explanation (with-out-str (apply expound/expound args))})))
+
+(def check! check)
 
 (defn update-if-exists [thing kw update-fn]
   (if (get thing kw)

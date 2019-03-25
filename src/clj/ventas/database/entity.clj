@@ -7,13 +7,14 @@
    [clojure.test.check.generators :as gen]
    [datomic.api :as d]
    [slingshot.slingshot :refer [throw+]]
-   [ventas.common.utils :as common.utils]
+   [ventas.common.utils :refer [remove-nil-vals map-vals]]
    [ventas.database :as db]
    [ventas.database.generators :as db.generators]
    [ventas.database.schema :as schema]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils :as utils]
-   [clojure.walk :as walk]))
+   [ventas.utils :as utils :refer [mapm qualify-map-keywords dequalify-keywords into-n qualify-keyword]]
+   [clojure.walk :as walk]
+   [clojure.string :as str]))
 
 (defn entity? [entity]
   (when (map? entity)
@@ -21,10 +22,11 @@
 
 (spec/def
   ::ref
-  (spec/or :eid number?
-           :entity entity?
-           :lookup-ref db/lookup-ref?
-           :pull-eid ::db/pull-eid))
+  (spec/or :eid number?                ;; 17592186046479
+           :ident keyword?             ;; :order.status/unpaid
+           :entity entity?             ;; to be created ({:schema/type :something ...})
+           :lookup-ref db/lookup-ref?  ;; [:i18n.culture/keyword :en_US]
+           :pull-eid ::db/pull-eid))   ;; {:db/id 17592186046479}
 
 (spec/def
   ::refs
@@ -192,13 +194,13 @@
   {:pre [(type-exists? (type entity))]}
   (let [spec (:schema/type entity)]
     (when (utils/spec-exists? spec)
-      (utils/check spec entity))))
+      (utils/check! spec entity))))
 
 (defn find
-  "Finds an entity by eid or lookup ref
+  "Finds an entity by ref (see ::ref spec)
    Returns nil if no entity was found"
   [eid]
-  {:pre [(or (db/lookup-ref? eid) (number? eid) (keyword? eid))]}
+  {:pre [(utils/check! ::ref eid)]}
   (let [result (db/touch-eid eid)]
     (when (entity? result)
       (filter-query result))))
@@ -215,14 +217,14 @@
   (find (db/resolve-tempid (:tempids tx) tempid)))
 
 (defn- prepare-creation-attrs [pre-entity & [initial-tempid]]
-  (utils/mapm (fn [[k v]]
-                [k (cond
-                     (entity? v) (prepare-creation-attrs v)
-                     (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
-                     :else v)])
-              (-> pre-entity
-                  (clj/update :db/id #(or % initial-tempid (db/tempid)))
-                  (filter-create))))
+  (mapm (fn [[k v]]
+          [k (cond
+               (entity? v) (prepare-creation-attrs v)
+               (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
+               :else v)])
+        (-> pre-entity
+            (clj/update :db/id #(or % initial-tempid (db/tempid)))
+            (filter-create))))
 
 (defn lifecycle-create [attrs transact-fn]
   (spec! attrs)
@@ -248,8 +250,8 @@
    (create :user {:name `Joel` :email `test@test.com`})"
   [type attributes]
   (create* (-> attributes
-               common.utils/remove-nil-vals
-               (utils/qualify-map-keywords type)
+               remove-nil-vals
+               (qualify-map-keywords type)
                (assoc :schema/type (kw->type type)))))
 
 (defn lifecycle-seed [attrs transact-fn]
@@ -297,29 +299,37 @@
   [entity v]
   (attributes-by-schema-kv entity :db/valueType v))
 
-(defn- autoresolve-ref [ref & [options]]
-  (let [subentity (find ref)]
+(defn- autoresolve-ref [options ref]
+  (let [ref (if (:db/id ref) (:db/id ref) ref)
+        subentity (find ref)]
     (if (and subentity (autoresolve? (type->kw (:schema/type subentity))))
       (serialize subentity options)
       ref)))
 
-(defn- autoresolve
-  "Resolves references to entity types that have an :autoresolve?
-   property with a truthy value"
+(defn- resolve-refs
+  "Serializes subentities, resolves references to entities that have autoresolve? enabled,
+   and normalizes pull eids."
   [entity & [options]]
   (let [ref-attrs (idents-with-value-type entity :db.type/ref)]
-    (utils/mapm (fn [[attr value]]
-                  [attr (if-not (contains? ref-attrs attr)
-                           value
-                           (cond
-                             (spec/valid? (spec/coll-of number?) value)
-                             (map #(autoresolve-ref % options) value)
+    (mapm (fn [[attr value]]
+            [attr (if (and (not (contains? ref-attrs attr))
+                           (not (str/starts-with? (name attr) "_")))
+                    value
+                    (cond
+                      (and (sequential? value) (spec/valid? entity? (first value)))
+                      (mapv #(serialize % options) value)
 
-                             (spec/valid? number? value)
-                             (autoresolve-ref value options)
+                      (spec/valid? entity? value)
+                      (serialize value options)
 
-                             :else value))])
-                entity)))
+                      (and (sequential? value) (spec/valid? ::ref (first value)))
+                      (mapv (partial autoresolve-ref options) value)
+
+                      (spec/valid? ::ref value)
+                      (autoresolve-ref options value)
+
+                      :else value))])
+          entity)))
 
 (defn- serialize-enums
   "Transforms enum values into maps of :ident and :name"
@@ -328,19 +338,21 @@
         culture-kw (some-> culture find :i18n.culture/keyword)]
     (if-not culture-kw
       entity
-      (utils/mapm (fn [[attr value]]
-                    [attr (if (or (= :schema/type attr)
-                                  (not (contains? enum-attrs attr)))
-                            value
-                            {:ident value
-                             :name (i18n culture-kw value)})])
-                  entity))))
+      (mapm (fn [[attr value]]
+              [attr (if (or (= :schema/type attr)
+                            (not (contains? enum-attrs attr)))
+                      value
+                      {:ident (if (keyword? value)
+                                value
+                                (some-> value :db/id db/touch-eid :db/ident))
+                       :name (i18n culture-kw value)})])
+            entity))))
 
 (defn default-serialize [entity & [{:keys [keep-type?] :as options}]]
   (let [result (-> entity
                    (serialize-enums options)
-                   (autoresolve options)
-                   (utils/dequalify-keywords))]
+                   (resolve-refs options)
+                   (dequalify-keywords))]
     (if keep-type?
       (clojure.core/update result :type #(keyword (name %)))
       (dissoc result :type))))
@@ -353,7 +365,7 @@
       attr)))
 
 (defn- unresolve [attrs]
-  (common.utils/map-vals unresolve* attrs))
+  (map-vals unresolve* attrs))
 
 (defn default-deserialize
   "Inverse of serialize"
@@ -365,7 +377,7 @@
         (unresolve)
         (dissoc :id)
         (dissoc :type)
-        (utils/qualify-map-keywords type)
+        (qualify-map-keywords type)
         (assoc :schema/type type)
         (assoc :db/id id))))
 
@@ -377,14 +389,14 @@
    :filter-seed identity
    :filter-create identity
    :filter-update (fn [_ data] data)
-   :before-seed (fn [_] true)
-   :before-create (fn [_] true)
-   :before-delete (fn [_] true)
-   :before-update (fn [_ _] true)
-   :after-seed (fn [_] true)
-   :after-create (fn [_] true)
-   :after-delete (fn [_] true)
-   :after-update (fn [_ _] true)})
+   :before-seed (constantly true)
+   :before-create (constantly true)
+   :before-delete (constantly true)
+   :before-update (constantly true)
+   :after-seed (constantly true)
+   :after-create (constantly true)
+   :after-delete (constantly true)
+   :after-update (constantly true)})
 
 (defn default-attr [attr-name]
   (get default-type attr-name))
@@ -435,7 +447,7 @@
   (let [entity (find id)
         attrs (filter-update entity attrs)]
     (before-update entity attrs)
-    (transact-fn (utils/into-n
+    (transact-fn (into-n
                   [attrs]
                   (when-not append?
                     (enum-retractions attrs))
@@ -451,6 +463,7 @@
    (update* {:db/id 1234567
              :user/first-name `Other name`})"
   [attrs & opts]
+  {:pre [(:db/id attrs)]}
   (check-db-migrated!)
   (lifecycle-update attrs opts db/transact))
 
@@ -463,15 +476,15 @@
   (let [entity (find id)]
     (update* (-> attrs
                  (dissoc :id)
-                 (utils/qualify-map-keywords (type entity))
+                 (qualify-map-keywords (type entity))
                  (assoc :db/id (:db/id entity))))))
 
-(defn delete [eid]
-  "Deletes an entity by eid"
-  (let [entity (find eid)]
+(defn delete [ref]
+  "Deletes an entity by ref (see ::ref spec)"
+  (let [entity (find ref)]
     (before-delete entity)
-    (db/retract-entity eid)
-    (db/transact [[:db.fn/retractEntity eid]
+    (db/retract-entity ref)
+    (db/transact [[:db.fn/retractEntity ref]
                   {:db/id (d/tempid :db.part/tx)
                    :event/kind :entity.delete}])
     (after-delete entity)))
@@ -507,7 +520,7 @@
        (map (fn [[attribute value]]
               (let [attribute (if (namespace attribute)
                                 attribute
-                                (utils/qualify-keyword attribute type))
+                                (qualify-keyword attribute type))
                     value (if (= value :any) '_ value)]
                 ['?id attribute value])))
        (mapcat (fn [[var attribute value]]
@@ -593,10 +606,10 @@
   "Finds the given eid or lookup ref, and all the refs inside it"
   (let [entity (find eid)
         ref-idents (idents-with-value-type entity :db.type/ref)]
-    (utils/mapm (fn [[k v]]
-                  [k (if (and (contains? ref-idents k) (not (keyword? v)))
-                       (if (sequential? v)
-                         (map find-recursively v)
-                         (find-recursively v))
-                       v)])
-                entity)))
+    (mapm (fn [[k v]]
+            [k (if (and (contains? ref-idents k) (not (keyword? v)))
+                 (if (sequential? v)
+                   (map find-recursively v)
+                   (find-recursively v))
+                 v)])
+          entity)))
