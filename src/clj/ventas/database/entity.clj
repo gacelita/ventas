@@ -335,17 +335,21 @@
   "Transforms enum values into maps of :ident and :name"
   [entity & [{:keys [culture]}]]
   (let [enum-attrs (attributes-by-schema-kv entity :ventas/refEntityType :enum)
-        culture-kw (some-> culture find :i18n.culture/keyword)]
+        culture-kw (some-> culture find :i18n.culture/keyword)
+        value-fn (fn [attr value]
+                   (if (or (= :schema/type attr)
+                           (not (contains? enum-attrs attr)))
+                     value
+                     {:ident (if (keyword? value)
+                               value
+                               (some-> value :db/id db/touch-eid :db/ident))
+                      :name (i18n culture-kw value)}))]
     (if-not culture-kw
       entity
       (mapm (fn [[attr value]]
-              [attr (if (or (= :schema/type attr)
-                            (not (contains? enum-attrs attr)))
-                      value
-                      {:ident (if (keyword? value)
-                                value
-                                (some-> value :db/id db/touch-eid :db/ident))
-                       :name (i18n culture-kw value)})])
+              [attr (if (or (set? value) (sequential? value))
+                      (map (partial value-fn attr) value)
+                      (value-fn attr value))])
             entity))))
 
 (defn default-serialize [entity & [{:keys [keep-type?] :as options}]]
