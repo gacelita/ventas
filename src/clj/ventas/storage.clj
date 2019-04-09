@@ -2,7 +2,9 @@
   (:require
    [clojure.java.io :as io]
    [mount.core :as mount :refer [defstate]]
-   [ventas.storage.protocol :as protocol]))
+   [ventas.storage.protocol :as protocol]
+   [clojure.string :as str])
+  (:import [java.io File]))
 
 (def
   ^{:dynamic true
@@ -15,6 +17,12 @@
     (slurp (str "storage/" key)))
   (get-public-url [_ key]
     (str "/storage/" key))
+  (list-objects [_]
+    (->> (file-seq (io/file "storage"))
+         (map (fn [file]
+                (-> (str file)
+                    (str/replace (str "src" File/separator) "")
+                    (str/replace File/separator "/"))))))
   (stat-object [_ key]
     (let [file (io/file (str "storage/" key))]
       {:length (.length file)
@@ -44,3 +52,6 @@
 
 (defn put-object [key file]
   (protocol/put-object storage-backend key file))
+
+(defn list-objects []
+  (protocol/list-objects storage-backend))
