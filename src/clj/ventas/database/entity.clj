@@ -14,7 +14,8 @@
    [ventas.i18n :refer [i18n]]
    [ventas.utils :as utils :refer [mapm qualify-map-keywords dequalify-keywords into-n qualify-keyword]]
    [clojure.walk :as walk]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [ventas.database.tx-processor :as tx-processor]))
 
 (defn entity? [entity]
   (when (map? entity)
@@ -139,13 +140,9 @@
   (let [type-fn (type-property type :deserialize)]
     (type-fn data)))
 
-(defn filter-query [entity]
+(defn after-transact [entity]
   {:pre [(entity? entity)]}
-  (call-type-fn :filter-query entity))
-
-(defn filter-seed [entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :filter-seed entity))
+  (call-type-fn :after-transact entity))
 
 (defn filter-create [entity]
   {:pre [(entity? entity)]}
@@ -154,39 +151,6 @@
 (defn filter-update [entity data]
   {:pre [(entity? entity) (map? data)]}
   (call-type-fn :filter-update entity data))
-
-(defn before-seed [entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :before-seed entity))
-
-(defn before-create [entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :before-create entity))
-
-(defn before-delete [entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :before-delete entity))
-
-(defn before-update [entity new-attrs]
-  {:pre [(entity? entity)]}
-  (call-type-fn :before-update entity new-attrs))
-
-(defn after-seed [entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :after-seed entity))
-
-(defn after-create [entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :after-create entity))
-
-(defn after-delete [entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :after-delete entity))
-
-(defn after-update
-  [entity new-entity]
-  {:pre [(entity? entity)]}
-  (call-type-fn :after-update entity new-entity))
 
 (defn spec!
   "Checks that an entity complies with its spec"
@@ -202,8 +166,7 @@
   [eid]
   {:pre [(utils/check! ::ref eid)]}
   (let [result (db/touch-eid eid)]
-    (when (entity? result)
-      (filter-query result))))
+    (and (entity? result) result)))
 
 (defn find-serialize
   "Shortcut for (serialize (find eid) params)"
@@ -228,15 +191,12 @@
 
 (defn lifecycle-create [attrs transact-fn]
   (spec! attrs)
-  (before-create attrs)
   (let [tempid (db/tempid)
         pre-entity (prepare-creation-attrs attrs tempid)
         tx (transact-fn [pre-entity
                          {:db/id (d/tempid :db.part/tx)
-                          :event/kind :entity.create}])
-        entity (transaction->entity tx tempid)]
-    (after-create entity)
-    entity))
+                          :event/kind :entity.create}])]
+    (transaction->entity tx tempid)))
 
 (defn create*
   "Creates an entity"
@@ -254,17 +214,6 @@
                (qualify-map-keywords type)
                (assoc :schema/type (kw->type type)))))
 
-(defn lifecycle-seed [attrs transact-fn]
-  (let [attrs (filter-seed attrs)
-        _ (before-seed attrs)
-        entity (lifecycle-create attrs transact-fn)]
-    (after-seed entity)))
-
-(defn seed*
-  [attrs]
-  (check-db-migrated!)
-  (lifecycle-seed attrs db/transact))
-
 (defn fixtures
   [type]
   (when-let [fixtures-fn (type-property type :fixtures)]
@@ -279,10 +228,6 @@
 (defn dependencies
   [type]
   (or (type-property type :dependencies) #{}))
-
-(defn seed-number
-  [type]
-  (or (type-property type :seed-number) 30))
 
 (defn attributes-by-schema-kv
   "Returns the attributes of an entity whose schema matches the given value for the k attribute"
@@ -389,18 +334,9 @@
   {:attributes []
    :serialize #'default-serialize
    :deserialize #'default-deserialize
-   :filter-query identity
-   :filter-seed identity
    :filter-create identity
    :filter-update (fn [_ data] data)
-   :before-seed (constantly true)
-   :before-create (constantly true)
-   :before-delete (constantly true)
-   :before-update (constantly true)
-   :after-seed (constantly true)
-   :after-create (constantly true)
-   :after-delete (constantly true)
-   :after-update (constantly true)})
+   :after-transact (constantly true)})
 
 (defn default-attr [attr-name]
   (get default-type attr-name))
@@ -450,16 +386,13 @@
 (defn lifecycle-update [{:db/keys [id] :as attrs} {:keys [append?]} transact-fn]
   (let [entity (find id)
         attrs (filter-update entity attrs)]
-    (before-update entity attrs)
     (transact-fn (into-n
                   [attrs]
                   (when-not append?
                     (enum-retractions attrs))
                   [{:db/id (d/tempid :db.part/tx)
                     :event/kind :entity.update}]))
-    (let [result (find id)]
-      (after-update entity result)
-      result)))
+    (find id)))
 
 (defn update*
   "Updates an entity.
@@ -486,12 +419,10 @@
 (defn delete [ref]
   "Deletes an entity by ref (see ::ref spec)"
   (let [entity (find ref)]
-    (before-delete entity)
     (db/retract-entity ref)
     (db/transact [[:db.fn/retractEntity ref]
                   {:db/id (d/tempid :db.part/tx)
-                   :event/kind :entity.delete}])
-    (after-delete entity)))
+                   :event/kind :entity.delete}])))
 
 (defn upsert
   [type {:keys [id] :as attributes}]
@@ -617,3 +548,19 @@
                    (find-recursively v))
                  v)])
           entity)))
+
+(defn- process-report [report]
+  (let [eid->tx-type (->> (:tx-data report)
+                      (map db/datom->map)
+                      (group-by :e)
+                      (map (fn [[eid datoms]]
+                             [eid (case (set (keys (group-by :added datoms)))
+                                    #{true false} :updated
+                                    #{false} :deleted
+                                    #{true} :added)])))]
+    (doseq [[eid tx-type] eid->tx-type]
+      (when (contains? #{:updated :added} tx-type)
+        (when-let [entity (find eid)]
+          (after-transact entity))))))
+
+(tx-processor/add-callback! ::process-report process-report)

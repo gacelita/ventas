@@ -54,6 +54,11 @@
             :method :put
             :body mapping}))
 
+(defn update-index [mapping]
+  (request {:url (make-url "_mapping/doc")
+            :method :post
+            :body mapping}))
+
 (defn remove-index []
   (request {:url (make-url)
             :method :delete}))
@@ -140,36 +145,14 @@
     ((:stop-fn indexer))))
 
 (defn document->indexing-queue [doc]
+  (prn :indexing doc)
   (core.async/put! (:chan indexer) doc))
 
-(defonce ^:private ident-config (atom {}))
+(defonce type-config (atom {}))
 
-(defn configure-idents!
-  "Registers indexing options for idents.
-   Example:
-    {:product/name {:autocomplete? true}}"
-  [config]
-  (swap! ident-config merge config))
-
-(defn autocomplete-idents []
-  (->> @ident-config
-       (filter (comp :autocomplete? val))
-       (keys)
-       (set)))
-
-(defonce ^:private type-config (atom {}))
-
-(defn configure-types!
-  "Registers indexing options for entity types.
-   Example:
-     {:amount {:indexable? false}}"
-  [config]
-  (swap! type-config merge config))
+(defn configure-type!
+  [type config]
+  (swap! type-config assoc type config))
 
 (defn indexable-types []
-  (let [config @type-config]
-    (->> (entity/types)
-         (keys)
-         (remove (fn [type]
-                   (-> (get config type) :indexable? false?)))
-         (set))))
+  (->> @type-config keys set))

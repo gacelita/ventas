@@ -38,10 +38,7 @@
   :seed-number 0
   :autoresolve? true})
 
-(search/configure-types!
- {:amount {:indexable? false}})
-
-(defmethod search.indexing/transform-entity-by-type :schema.type/amount [entity]
+(defmethod search.indexing/transform-entity-by-type :amount [entity]
   (:amount/value entity))
 
 (defn ->entity

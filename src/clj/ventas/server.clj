@@ -17,6 +17,7 @@
    [ring.middleware.session :as ring.session]
    [ring.util.mime-type :as ring.mime-type]
    [ring.util.response :as ring.response]
+   [ring.util.time :as ring.time]
    [ventas.config :as config]
    [ventas.database.entity :as entity]
    [ventas.entities.file :as entities.file]
@@ -28,7 +29,8 @@
    [ventas.server.http-ws :as server.http-ws]
    [ventas.site :as site]
    [ventas.utils :as utils]
-   [clojure.tools.logging :as log])
+   [clojure.tools.logging :as log]
+   [ventas.storage :as storage])
   (:import
    [clojure.lang Keyword])
   (:gen-class))
@@ -38,7 +40,7 @@
 (defn wrap-prone
   "If the debug mode is enabled, wraps a Ring request with the Prone library"
   [handler]
-  (if (config/get :debug)
+  (if (not= :prod (config/profile))
     (prone/wrap-exceptions handler {:app-namespaces ["ventas"]})
     handler))
 
@@ -47,41 +49,61 @@
     (ring.response/content-type response mime-type)
     response))
 
-(defn- file-path-by-eid [eid]
+(defn- filename-by-eid [eid]
   (when-let [file (entity/find eid)]
-    (entities.file/filepath file)))
+    (entities.file/filename file)))
 
-(defn- file-path-by-keyword [kw]
+(defn- filename-by-keyword [kw]
   (when-let [file (entity/find [:file/keyword kw])]
-    (entities.file/filepath file)))
+    (entities.file/filename file)))
+
+(defn storage-response [filename]
+  (if-let [file (storage/get-object filename)]
+    (let [data (storage/stat-object filename)]
+      (-> (ring.response/response file)
+          (ring.response/header "Content-Length" (:length data))
+          (add-mime-type filename)
+          (cond->
+           (:last-modified data)
+           (ring.response/header "Last-Modified" (ring.time/format-date (:last-modified data))))))
+    (compojure.route/not-found "")))
 
 (defn- handle-file [search]
-  (let [path (cond
-               (utils/->number search) (file-path-by-eid (utils/->number search))
-               (not (str/includes? search "/")) (file-path-by-keyword (keyword search))
-               :else (str (paths/resolve paths/public) search))]
-    (if-let [response (some-> path ring.response/file-response)]
-      (add-mime-type response path)
-      (compojure.route/not-found ""))))
+  (prn :handle-file search)
+  (let [filename (cond
+                   (utils/->number search) (filename-by-eid (utils/->number search))
+                   (not (str/includes? search "/")) (filename-by-keyword (keyword search)))]
+    (if filename
+      (storage-response filename)
+      (if-let [file-resp (ring.response/file-response (str (paths/resolve paths/public) search))]
+        (add-mime-type file-resp filename)
+        (compojure.route/not-found "")))))
 
 (defn- handle-websocket [format opts]
   (chord.http-kit/wrap-websocket-handler
    (partial server.ws/handle-messages format opts)
    {:format format}))
 
-(defn- handle-image [eid & {:keys [size]}]
+(defn- handle-resized-image [eid size]
+  (prn :handle-resized-image)
   (let [image (entity/find eid)
-        size-entity (and size (entity/find [:image-size/keyword size]))]
+        size-entity (entity/find [:image-size/keyword size])]
     (cond
       (not image) (compojure.route/not-found "Image not found")
-      (and size (not size-entity)) (compojure.route/not-found "Size not found")
+      (not size-entity) (compojure.route/not-found "Size not found")
       :else
-      (let [path (if size-entity
-                   @(entities.image-size/transform image size-entity)
-                   (entities.file/filepath image))]
-        (-> path
-            (ring.response/file-response)
-            (add-mime-type path))))))
+      (let [filename (entities.image-size/resized-file-key image size-entity)
+            response (storage-response filename)]
+        (if-not (fn? response)
+          response
+          (storage-response @(entities.image-size/transform image size-entity)))))))
+
+(defn- handle-image [eid]
+  (if-let [image (entity/find eid)]
+    (->> image
+         entities.file/filename
+         storage-response)
+    (compojure.route/not-found "Image not found")))
 
 (defroutes api-routes
   (POST "/http-ws/:name" req
@@ -103,10 +125,12 @@
     (handle-websocket :transit-json (select-keys req #{:server-name})))
   (GET "/files/*" {{path :*} :route-params}
     (handle-file path))
+  (GET "/storage/*" {{key :*} :route-params}
+    (storage-response key))
   (GET "/images/:image" [image]
     (handle-image (utils/->number image)))
   (GET "/images/:image/resize/:size" [image size]
-    (handle-image (utils/->number image) :size (keyword size)))
+    (handle-resized-image (utils/->number image) (keyword size)))
   (GET "/plugins/:plugin/*" {{path :* plugin :plugin} :route-params}
     (plugin/handle-request (keyword plugin) path)))
 

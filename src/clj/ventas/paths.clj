@@ -8,10 +8,6 @@
   "A path for project-wide resources, like the configuration"
   ::project-resources)
 
-(def rendered
-  "Rendered HTML fragments"
-  ::rendered)
-
 (def public
   "Files accessible via HTTP"
   ::public)
@@ -19,14 +15,6 @@
 (def public-files
   "Non-HTML public files. This is a necessary because of routing limitations."
   ::public-files)
-
-(def storage
-  "Regular file storage. This is where :file entities live."
-  ::storage)
-
-(def resized-images
-  "Resized images"
-  ::resized)
 
 (def seeds
   "Where the files for seeding live"
@@ -36,9 +24,6 @@
   {project-resources "resources"
    public [project-resources "/public"]
    public-files [public "/files"]
-   storage "storage"
-   resized-images [storage "/resized-images"]
-   rendered [storage "/rendered"]
    seeds [project-resources "/seeds"]})
 
 (defn- resolve-path [v]

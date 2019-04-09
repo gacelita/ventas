@@ -26,10 +26,6 @@
   (let [file (entity/find [:file/keyword (:file/keyword example-file)])]
     (is (= "example-file.jpg" (sut/filename file)))))
 
-(deftest filepath
-  (let [file (entity/find [:file/keyword (:file/keyword example-file)])]
-    (is (= "storage/example-file.jpg" (sut/filepath file)))))
-
 (deftest create-from-file!
   (with-test-image
    (fn [image]

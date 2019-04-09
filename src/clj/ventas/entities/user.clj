@@ -7,7 +7,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.search :as search]))
 
 (spec/def :user/first-name ::generators/string)
 
@@ -181,3 +182,21 @@
   {:pre [(or (not user) (utils/check :schema.type/user user))]}
   (or (:user/culture user)
       (:db/id (db/entity default-culture))))
+
+(search/configure-type!
+ :user
+ {:migrations
+  [[:base {:properties #:user{:description {:type "text"}
+                              :email {:type "text"}
+                              :last-name {:type "text"}
+                              :login-provider {:type "keyword"}
+                              :culture {:type "long"}
+                              :password {:type "text"}
+                              :phone {:type "text"}
+                              :favorites {:type "long"}
+                              :roles {:type "keyword"}
+                              :first-name {:type "text"}
+                              :status {:type "keyword"}
+                              :avatar {:type "long"}
+                              :facebook-id {:type "text"}
+                              :company {:type "text"}}}]]})

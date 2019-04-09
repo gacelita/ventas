@@ -393,8 +393,7 @@
          (opt :filename) string?}}
  (fn [{{:keys [bytes first? last? file-id filename]} :params} _]
    (let [file-id (if first? (gensym "temp-file") file-id)
-         path (io/as-file (str (paths/resolve paths/storage)
-                               "/" file-id))]
+         path (io/as-file (str (System/getProperty "java.io.tmpdir") "/" file-id))]
      (with-open [r (bytes/to-input-stream bytes)
                  w (-> (io/file path)
                        (io/output-stream :append (not first?)))]

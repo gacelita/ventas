@@ -9,7 +9,78 @@
 
 (def ^:private base-dicts
   {:es_ES
-   {:ventas.components.table/no-rows "Ningún elemento que mostrar"}
+   {:ventas.components.table/no-rows "Ningún elemento que mostrar"
+    :ventas.components.error/no-data "No encontrado"
+    :ventas.components.form/search "Buscar"
+    :ventas.components.crud-table/actions "Acciones"
+    :ventas.components.search-box/search "Buscar"
+    :ventas.components.search-box/product "Producto"
+    :ventas.components.search-box/category "Categoría"
+    :ventas.components.search-box/page "Página"
+
+    :ventas.components.product-filters/category "Categoría"
+
+    :ventas.components.notificator/saved "¡Guardado!"
+    :ventas.components.notificator/error "Ocurrió un error."
+
+    :ventas.events/session-started "¡Bienvenido!"
+
+    :ventas.page/not-found "404"
+    :ventas.page/not-implemented "No implementada"
+    :ventas.page/this-page-has-not-been-implemented #(str "Esta página (" % ") no ha sido implementada")
+
+    :ventas.session/unregistered-error "Tienes que ser un usuario registrado para hacer eso"
+
+    :ventas.utils.formatting/percentage "%"
+    :ventas.utils.formatting/amount ""
+
+    :ventas.utils.validation/length-error (fn [{:keys [min max]}]
+                                            (cond
+                                              (and min max) (str "La longitud debería ser mayor que " min " y menor que " max)
+                                              min (str "La longitud debería ser mayor que " min)
+                                              max (str "La longitud debería ser menor que " max)))
+    :ventas.utils.validation/email-error "Dirección de email inválida"
+    :ventas.utils.validation/required-error "Este campo es requerido"
+
+    :discount.amount.kind/amount "Importe"
+    :discount.amount.kind/percentage "Porcentaje"
+
+    :image-size.algorithm/always-resize "Siempre redimensionar"
+    :image-size.algorithm/crop-and-resize "Recortar y redimensionar"
+    :image-size.algorithm/resize-only-if-over-maximum "Redimensionar solo si supera el tamaño máximo"
+
+    :user.role/administrator "Administrador"
+    :user.role/user "Usuario"
+
+    :user.status/inactive "Inactivo"
+    :user.status/pending "Pendiente"
+    :user.status/active "Activo"
+    :user.status/cancelled "Cancelado"
+    :user.status/unregistered "No registrado"
+
+    :order.status/draft "Borrador"
+    :order.status/acknowledged "Aceptado"
+    :order.status/paid "Pagado"
+    :order.status/ready "Listo"
+    :order.status/shipped "Enviado"
+    :order.status/unpaid "No pagado"
+    :order.status/rejected "Rechazado"
+    :order.status/cancelled "Cancelado"
+
+    :entity.create "Creación"
+    :entity.delete "Eliminación"
+    :entity.update "Actualización"
+
+    :schema.type/category "Categoría"
+    :schema.type/user "Usuario"
+    :schema.type/product "Producto"
+    :schema.type/brand "Marca"
+
+    :shipping-method.pricing/price "Precio"
+    :shipping-method.pricing/weight "Peso"
+
+    :tax.kind/amount "Importe"
+    :tax.kind/percentage "Porcentaje"}
    :en_US
    {:ventas.components.base/loading "Loading"
 

@@ -101,12 +101,12 @@
 
 (defn transform-image [source-path target-dir & [options]]
   (let [target-dir (or target-dir (utils.files/get-tmp-dir))
-        target-path (str target-dir "/" (path-with-metadata source-path options))]
+        target-filename (path-with-metadata source-path options)
+        target-path (str target-dir "/" target-filename)]
     (when (and (:scale options) (or (get-in options [:resize :width])
                                     (get-in options [:resize :height])))
       (throw+ {:type ::inconsistent-parameters
                :message "Setting both :scale and :width/:height is forbidden"}))
     (io/make-parents target-path)
-    (if (.exists (io/file target-path))
-      target-path
-      (transform-image* source-path target-path options))))
+    (transform-image* source-path target-path options)
+    target-path))

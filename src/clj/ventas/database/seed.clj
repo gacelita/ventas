@@ -7,21 +7,13 @@
    [ventas.utils :as utils]
    [clojure.tools.logging :as log]))
 
-(defn- create*
-  "Wraps create* with the seed lifecycle functions"
-  [attrs]
-  (let [attrs (entity/filter-seed attrs)
-        _ (entity/before-seed attrs)
-        entity (entity/create* attrs)]
-    (entity/after-seed entity)))
-
 (defn seed-type
   "Seeds the database with n entities of a type"
   [type n]
   (doseq [fixture (entity/fixtures type)]
-    (create* fixture))
+    (entity/create* fixture))
   (doseq [attributes (entity/generate (entity/kw->type type) n)]
-    (create* attributes)))
+    (entity/create* attributes)))
 
 (defn seed-type-with-deps
   [type n]
@@ -54,8 +46,8 @@
                  :message "An entity type cannot depend on itself"}))
       (doseq [dependency dependencies]
         (when-not (entity/type-exists? dependency)
-          (throw+ {:type ::unexisting-type
-                   :message "An entity type cannot depend on an unexisting entity type"
+          (throw+ {:type ::unexistent-type
+                   :message "An entity type cannot depend on an unexistent entity type"
                    :entity-type type
                    :dependency dependency}))))))
 
@@ -65,6 +57,10 @@
   (let [types (set (keys (entity/types)))]
     (detect-circular-dependencies! types)
     (get-sorted-types* [] types)))
+
+(defn seed-number
+  [type]
+  (or (entity/type-property type :seed-number) 30))
 
 (defn seed
   "Migrates the database and transacts the fixtures.
@@ -76,4 +72,4 @@
   (log/info "Migrations done!")
   (doseq [type (get-sorted-types)]
     (log/info "Seeding type " type)
-    (seed-type type (if generate? (entity/seed-number type) 0))))
+    (seed-type type (if generate? (seed-number type) 0))))

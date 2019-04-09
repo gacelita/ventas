@@ -9,8 +9,11 @@
    [ventas.paths :as paths]
    [ventas.utils.images :as utils.images]
    [ventas.utils :as utils]
+   [ventas.utils.files :refer [basename]]
    [clojure.java.io :as io]
-   [clojure.tools.logging :as log]))
+   [clojure.tools.logging :as log]
+   [ventas.storage :as storage]
+   [ventas.utils.files :as utils.files]))
 
 (spec/def :image-size/keyword ::generators/keyword)
 
@@ -108,6 +111,12 @@
       (= "crop-and-resize" algorithm)
       (assoc :crop {:relation (/ width height)}))))
 
+(defn resized-file-key [file-entity size-entity]
+  (let [options (size-entity->configuration size-entity)]
+    (-> (entities.file/filename file-entity)
+        (utils.images/path-with-metadata options)
+        (->> (str "resized-images/")))))
+
 (defn transform
   "Transforms a :file entity representing an image, using the configuration
    given by an :image-size entity. Saves the resulting image into the corresponding
@@ -115,19 +124,22 @@
   [file-entity size-entity]
   {:pre [(= (entity/type file-entity) :file)
          (= (entity/type size-entity) :image-size)]}
+  (prn :transforming-image)
   (future
-   (utils.images/transform-image
-    (entities.file/filepath file-entity)
-    (paths/resolve paths/resized-images)
-    (size-entity->configuration size-entity))))
+   (let [source-filename (entities.file/filename file-entity)
+         middle-filepath (str (utils.files/get-tmp-dir) "/" source-filename)
+         _ (io/copy (storage/get-object source-filename) (io/file middle-filepath))
+         file-key (resized-file-key file-entity size-entity)
+         path (utils.images/transform-image
+               middle-filepath
+               nil
+               (size-entity->configuration size-entity))]
+     (storage/put-object file-key path)
+     file-key)))
 
 (defn already-transformed? [file-entity size-entity]
-  (let [source-path (entities.file/filepath file-entity)
-        options (size-entity->configuration size-entity)]
-    (-> (str (paths/resolve paths/resized-images)
-             "/" (utils.images/path-with-metadata source-path options))
-        io/file
-        .exists)))
+  (prn (:db/id file-entity) (:db/id size-entity) (storage/stat-object (resized-file-key file-entity size-entity)))
+  (storage/stat-object (resized-file-key file-entity size-entity)))
 
 (defn list-images [entity]
   (entity/call-type-fn ::list-images entity))
@@ -146,7 +158,7 @@
   (future
    (doseq [{:keys [image-size file]} (get-pending-images)]
      (log/debug {:transforming {:file (:db/id file)
-                                   :image-size (:db/id image-size)}})
+                                :image-size (:db/id image-size)}})
      @(transform file image-size))))
 
 (defn clean-storage []

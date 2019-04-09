@@ -1,13 +1,12 @@
 (ns ventas.entities.file
+  (:refer-clojure :exclude [slurp spit])
   (:require
-   [clojure.java.io :as io]
    [clojure.spec.alpha :as spec]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.paths :as paths]
-   [ventas.utils :as utils]
-   [ventas.utils.jar :as utils.jar]
-   [ventas.search :as search]))
+   [ventas.storage :as storage]
+   [mount.core :refer [defstate]]
+   [ventas.search.indexing :as search.indexing]))
 
 (defn identifier [entity]
   {:pre [(:db/id entity)]}
@@ -18,27 +17,27 @@
 (defn filename [entity]
   (str (identifier entity) "." (:file/extension entity)))
 
-(defn filepath [entity]
-  (str (paths/resolve paths/storage) "/" (filename entity)))
-
 (defn url [entity]
   (str "/files/" (identifier entity)))
 
-(defn copy-file!
+(defn spit
   "Copies a file to the corresponding path of a :file entity.
    Does not overwrite the existing file, if any."
   [entity path]
-  (let [new-path (io/file (filepath entity))]
-    (io/make-parents new-path)
-    (when-not (.exists new-path)
-      (io/copy path new-path))))
+  (storage/put-object (filename entity) path))
+
+(defn slurp
+  "Slurps the file corresponding to the :file entity"
+  [entity]
+  (storage/get-object (filename entity)))
 
 (defn create-from-file!
   "Creates a :file entity from an existing file"
   [source-path extension & [kw]]
+  (prn :create-from-file! source-path)
   (let [entity (entity/create :file {:extension extension
                                      :keyword kw})]
-    (copy-file! entity source-path)
+    (spit entity source-path)
     entity))
 
 (spec/def :file/extension
@@ -53,18 +52,6 @@
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
 
-(defn- get-seed-files [extension]
-  (let [pattern (str ".*?\\." extension)
-        files (utils/find-files (paths/resolve paths/seeds)
-                                (re-pattern pattern))]
-    (if (seq files)
-      files
-      (filter #(-> (paths/path->resource (paths/resolve paths/seeds))
-                   (str "/files/" pattern)
-                   (re-pattern)
-                   (re-matches %))
-              (utils.jar/list-resources)))))
-
 (entity/register-type!
  :file
  {:migrations
@@ -75,12 +62,6 @@
             :db/valueType :db.type/keyword
             :db/cardinality :db.cardinality/one
             :db/unique :db.unique/identity}]]]
-
-  :after-seed
-  (fn [{:file/keys [extension] :as this}]
-    (let [seed-files (get-seed-files extension)]
-      (when (seq seed-files)
-        (copy-file! this (rand-nth seed-files)))))
 
   :autoresolve? true
 
@@ -148,10 +129,6 @@
          (map :file)))
   :seed-number 0})
 
-(search/configure-types!
- {:file.list {:indexable? false}
-  :file.list.element {:indexable? false}})
-
 (defn ->list-entity [files]
   {:schema/type :schema.type/file.list
    :file.list/elements (map-indexed
@@ -160,3 +137,9 @@
                            :file.list.element/position idx
                            :file.list.element/file file})
                         files)})
+
+(defmethod search.indexing/transform-entity-by-type :file [entity]
+  (entity/serialize entity))
+
+(defmethod search.indexing/transform-entity-by-type :file.list [entity]
+  (entity/serialize entity))

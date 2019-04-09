@@ -6,61 +6,44 @@
    [ventas.utils :as utils]
    [clojure.string :as str]))
 
-(defn ident->property [ident]
-  {:pre [(keyword? ident)]}
-  (str/replace (str (namespace ident) "/" (name ident))
-               "."
-               "__"))
+(defn- find-migrated-ids []
+  (-> (search/search {:query {:term {:schema/type :es-migration}}})
+      (get-in [:body :hits :hits])
+      (->> (map (fn [hit]
+                  (-> hit :_source :es-migration/keyword (subs 1) keyword))))
+      (set)))
 
-(defn- value-type->es-type [type ref-entity-type]
-  (case type
-    :db.type/bigdec "long"
-    :db.type/boolean "boolean"
-    :db.type/float "double"
-    :db.type/keyword "keyword"
-    :db.type/long "long"
-    :db.type/ref (case ref-entity-type
-                   :i18n "text"
-                   :enum "keyword"
-                   "long")
-    :db.type/string "text"
-    "text"))
+(defn pending-migrations []
+  (let [migrated-ids (find-migrated-ids)]
+    (->> @search/type-config
+         (mapcat (fn [[kw config]]
+                   (map (fn [[migr-kw migr]]
+                          [(keyword (name kw) (name migr-kw)) migr])
+                        (:migrations config))))
+         (remove (comp migrated-ids first)))))
 
-(defn- with-culture [ident culture-kw]
-  (keyword (namespace ident)
-           (str (name ident) "." (name culture-kw))))
+(defn migrate! []
+  (doseq [[kw migr] (pending-migrations)]
+    (when (:properties migr)
+      (search/update-index
+       {:properties (:properties migr)}))
+    (search/create-document {:schema/type :es-migration
+                             :es-migration/keyword kw})))
 
-(defn- attributes->mapping [attrs]
-  (let [culture-kws (->> (entity/query :i18n.culture)
-                         (map :i18n.culture/keyword))
-        autocomplete-idents (search/autocomplete-idents)]
-    (->> attrs
-         (filter :db/valueType)
-         (map (fn [{:db/keys [ident valueType] :ventas/keys [refEntityType] :as attr}]
-                {:attr attr
-                 :value
-                 (let [type (value-type->es-type valueType refEntityType)]
-                   (merge {:type type}
-                          (when (contains? autocomplete-idents ident)
-                            {:analyzer "autocomplete"
-                             :search_analyzer "standard"})))}))
-         (reduce (fn [acc {:keys [attr value]}]
-                   (let [{:ventas/keys [refEntityType] :db/keys [ident]} attr]
-                     (if-not (= refEntityType :i18n)
-                       (assoc acc (ident->property ident) value)
-                       (merge acc (utils/mapm (fn [culture-kw]
-                                                [(ident->property (with-culture ident culture-kw))
-                                                 value])
-                                              culture-kws)))))
-                 {}))))
+(defn autocomplete-type []
+  {:type "text"
+   :analyzer "ventas/autocomplete"
+   :search_analyzer "standard"})
 
 (defn setup! []
   (search/create-index
-   {:mappings {:doc {:properties (attributes->mapping (db/schema))}}
+   {:mappings {:doc {:properties {:es-migration/keyword {:type "keyword"}
+                                  :schema/type {:type "keyword"}}}}
     :settings {:analysis {:filter {:autocomplete_filter {:type "edge_ngram"
                                                          :min_gram 1
                                                          :max_gram 20}}
-                          :analyzer {:autocomplete {:type "custom"
-                                                    :tokenizer "standard"
-                                                    :filter ["lowercase"
-                                                             "autocomplete_filter"]}}}}}))
+                          :analyzer {:ventas/autocomplete {:type "custom"
+                                                           :tokenizer "standard"
+                                                           :filter ["lowercase"
+                                                                    "autocomplete_filter"]}}}}})
+  (migrate!))

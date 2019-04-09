@@ -83,7 +83,17 @@
     translations-generator))
 
 (spec/def :schema.type/i18n
-  (spec/keys :req [:i18n/translations]))
+  (spec/and
+   (spec/keys :req [:i18n/translations])
+   (fn [{:i18n/keys [translations]}]
+     (let [entities (into (->> (filter number? translations)
+                               (map entity/find))
+                          (filter map? translations))]
+       (when (->> entities
+                  (map :i18n.translation/culture)
+                  (utils/has-duplicates?))
+         (throw+ {:type ::duplicate-translation
+                  :message "You can't add more than one translation per culture to an :i18n entity"}))))))
 
 (defn normalize-i18n [i18n]
   "Normalizes the culture refs of the translations"
@@ -123,17 +133,6 @@
   :dependencies
   #{:i18n.translation}
 
-  :before-create
-  (fn [{:i18n/keys [translations]}]
-    (let [entities (into (->> (filter number? translations)
-                              (map entity/find))
-                         (filter map? translations))]
-      (when (->> entities
-                 (map :i18n.translation/culture)
-                 (utils/has-duplicates?))
-        (throw+ {:type ::duplicate-translation
-                 :message "You can't add more than one translation per culture to an :i18n entity"}))))
-
   :serialize
   (fn [this {:keys [culture]}]
     {:pre [(or (not culture) (utils/check ::entity/ref culture))]}
@@ -144,12 +143,7 @@
 
   :autoresolve? true})
 
-(search/configure-types!
- {:i18n {:indexable? false}
-  :i18n.translation {:indexable? false}
-  :i18n.culture {:indexable? false}})
-
-(defmethod search.indexing/transform-entity-by-type :schema.type/i18n [entity]
+(defmethod search.indexing/transform-entity-by-type :i18n [entity]
   (mapm (fn [[culture value]]
           [(->> culture
                 entity/find
@@ -191,3 +185,14 @@
 
 (defn culture->kw [eid]
   (:i18n.culture/keyword (entity/find eid)))
+
+(defn- with-culture [ident culture-kw]
+  (keyword (namespace ident)
+           (str (name ident) "." (name culture-kw))))
+
+(defn es-migration [migration cultures]
+  (->> migration
+       (mapcat (fn [[ident config]]
+                 (for [culture cultures]
+                   [(with-culture ident culture) config])))
+       (into {})))

@@ -6,7 +6,8 @@
    [ventas.database.generators :as generators]
    [ventas.entities.i18n :as entities.i18n]
    [ventas.utils :refer [update-if-exists]]
-   [ventas.utils.slugs :as utils.slugs]))
+   [ventas.utils.slugs :as utils.slugs]
+   [ventas.search.schema :as search.schema]))
 
 (spec/def :brand/name ::entities.i18n/ref)
 
@@ -60,5 +61,13 @@
   :dependencies
   #{:file :i18n}})
 
-(search/configure-idents!
- {:brand/name {:autocomplete? true}})
+(search/configure-type!
+ :brand
+ {:migrations
+  [[:base {:properties
+           (merge #:brand{:keyword {:type "keyword"}
+                          :logo {:type "long"}}
+                  (entities.i18n/es-migration
+                   {:brand/description {:type "text"}
+                    :brand/name (search.schema/autocomplete-type)}
+                   [:en_US :es_ES]))}]]})

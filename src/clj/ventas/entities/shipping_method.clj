@@ -48,9 +48,6 @@
 
   :autoresolve? true})
 
-(search/configure-types!
- {:shipping-method.price {:indexable? false}})
-
 (spec/def :shipping-method/name ::entities.i18n/ref)
 
 (spec/def :shipping-method/default? boolean?)

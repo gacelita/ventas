@@ -8,8 +8,9 @@
 (def default-subsystem-mapping
   {:config '[ventas.config/config]
    :db '[ventas.database/conn]
+   :storage '[ventas.storage/storage-backend]
    :es-client '[ventas.search/elasticsearch]
-   :es-db-tx-indexer '[ventas.search.indexing/tx-report-queue-loop]
+   :tx-processor '[ventas.database.tx-processor/tx-processor]
    :es-indexer '[ventas.search/indexer]
    :server '[ventas.server/server]})
 

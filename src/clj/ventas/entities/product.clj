@@ -16,7 +16,8 @@
    [ventas.entities.image-size :as entities.image-size]
    [ventas.search.indexing :as search.indexing]
    [ventas.entities.category :as entities.category]
-   [ventas.search :as search]))
+   [ventas.search :as search]
+   [ventas.search.schema :as search.schema]))
 
 (spec/def :product/name ::entities.i18n/ref)
 
@@ -246,9 +247,6 @@
   :autoresolve? true
   :seed-number 0})
 
-(search/configure-types!
- {:product.image {:indexable? false}})
-
 (spec/def :product.variation/parent
   (spec/with-gen ::entity/ref #(entity/ref-generator :product)))
 
@@ -304,7 +302,7 @@
           (dissoc :variation-terms)
           (assoc :id (:db/id this)))))})
 
-(defmethod search.indexing/transform-entity-by-type :schema.type/product [entity]
+(defmethod search.indexing/transform-entity-by-type :product [entity]
   (update entity :product/categories #(set (mapcat entities.category/get-parents %))))
 
 (defn add-image
@@ -319,7 +317,7 @@
     (entity/update* {:db/id product-eid
                      :product/images id}
                     :append? true)
-    (entities.file/copy-file!
+    (entities.file/spit
      (entity/find file)
      (io/file path))))
 
@@ -359,5 +357,22 @@
 (defn products-with-images []
   (entity/query :product {:product/images :any}))
 
-(search/configure-idents!
- {:product/name {:autocomplete? true}})
+(search/configure-type!
+ :product
+ {:migrations
+  [[:base {:properties (merge #:product{:parent {:type "long"}
+                                        :terms {:type "long"}
+                                        :images {:type "long"}
+                                        :variation-terms {:type "long"}
+                                        :ean13 {:type "text"}
+                                        :tax {:type "long"}
+                                        :brand {:type "long"}
+                                        :reference {:type "text"}
+                                        :categories {:type "long"}
+                                        :keyword {:type "keyword"}
+                                        :active {:type "boolean"}
+                                        :condition {:type "keyword"}
+                                        :price {:type "long"}}
+                              (entities.i18n/es-migration {:product/name (search.schema/autocomplete-type)
+                                                           :product/description {:type "text"}}
+                                                          [:en_US :es_ES]))}]]})

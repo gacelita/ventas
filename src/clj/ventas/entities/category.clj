@@ -11,7 +11,8 @@
    [ventas.entities.image-size :as entities.image-size]
    [clojure.data :as data]
    [ventas.search.indexing :as search.indexing]
-   [ventas.search :as search]))
+   [ventas.search :as search]
+   [ventas.search.schema :as search.schema]))
 
 (spec/def :category/name ::entities.i18n/ref)
 
@@ -148,7 +149,7 @@
                                               name)
               :db/id))))
 
-(defmethod search.indexing/transform-entity-by-type :schema.type/category [entity]
+(defmethod search.indexing/transform-entity-by-type :category [entity]
   (assoc entity :category/full-name
                 (search.indexing/transform-entity-by-type
                  (full-name-i18n (:db/id entity)))))
@@ -202,5 +203,12 @@
   (fn [{:keys [:category/image]}]
     [image])})
 
-(search/configure-idents!
- {:category/name {:autocomplete? true}})
+(search/configure-type!
+ :category
+ {:migrations
+  [[:base {:properties (merge #:category{:image {:type "long"}
+                                         :keyword {:type "keyword"}
+                                         :parent {:type "long"}}
+                              (entities.i18n/es-migration
+                               {:category/name (search.schema/autocomplete-type)}
+                               [:en_US :es_ES]))}]]})

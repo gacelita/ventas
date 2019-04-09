@@ -8,12 +8,13 @@
    [ventas.database :as db]
    [ventas.database.schema :as schema]
    [ventas.database.seed :as seed]
+   [ventas.database.tx-processor :as tx-processor]
    [ventas.email.templates.core]
    [ventas.entities.core]
    [ventas.events :as events]
    [ventas.i18n.cldr :as cldr]
    [ventas.search :as search]
-   [ventas.search.indexing :as search.indexing]
+   [ventas.search.indexing]
    [ventas.server :as server]
    [ventas.server.api.core]
    [ventas.entities.file :as entities.file])
@@ -24,7 +25,7 @@
                            #'db/conn
                            #'search/elasticsearch
                            #'search/indexer
-                           #'search.indexing/tx-report-queue-loop
+                           #'tx-processor/tx-processor
                            #'server/server])]
     (apply mount/start states)
     (core.async/put! (events/pub :init) true)))

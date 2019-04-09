@@ -162,7 +162,7 @@
   :dependencies
   #{:address :user :amount :shipping-method}
 
-  :after-update
+  :after-transact
   (fn [entity new-entity]
     (let [old (:order/status entity)
           new (:order/status new-entity)]

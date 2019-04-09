@@ -8,31 +8,21 @@
    [ventas.database :as db]
    [mount.core :refer [defstate]]
    [clojure.set :as set]
-   [clojure.tools.logging :as log]))
+   [clojure.tools.logging :as log]
+   [clojure.string :as str]
+   [ventas.database.tx-processor :as tx-processor]))
 
 (defmulti transform-entity-by-type
           "Transforms `entity` depending on its :schema/type.
            The result will be indexed in ES."
-          (fn [entity] (:schema/type entity)))
+          (fn [entity] (keyword (name (:schema/type entity)))))
 
 (defmethod transform-entity-by-type :default [entity]
   entity)
 
-(defn- ref->es [{:schema/keys [type] :as entity}]
-  (if (contains? #{:schema.type/i18n
-                   :schema.type/amount} type)
-    (transform-entity-by-type entity)
-    (:db/id entity)))
-
-(defn- value->es [v]
-  (cond
-    (number? v)
-    (if-let [entity (entity/find v)]
-      (ref->es entity)
-      v)
-    :default v))
-
-(defn- expand-i18n-entity [e [a v]]
+(defn- expand-i18n-entity
+  "Deprecated"
+  [e [a v]]
   (if-not (map? v)
     (assoc e a v)
     (merge e
@@ -44,26 +34,41 @@
 (defn- db-id->document-id [e]
   (set/rename-keys e {:db/id :document/id}))
 
-(defn index-entity [eid]
-  (let [doc (->> (entity/find eid)
-                 ;; Does transformations depending on the entity type
-                 transform-entity-by-type
-                 ;; Resolves value refs (currently i18n and amount)
-                 (map (fn [[a v]]
-                        [a (value->es v)]))
-                 ;; Expands i18n entities, such that this:
-                 ;; :product/name {:en_US "Shirt"
-                 ;;                :es_ES "Camiseta"}
-                 ;; turns into this:
-                 ;; :product/name__en_US "Shirt"
-                 ;; :product/name__es_ES "Camiseta"
-                 (reduce expand-i18n-entity
-                         {})
-                 ;; Change :db/id to :document/id, as that's what the indexer expects
-                 (db-id->document-id)
-                 ;; product.taxonomy/keyword -> product__taxonomy/keyword
-                 (common.utils/map-keys search.schema/ident->property))]
-    (search/document->indexing-queue doc)))
+(defn ident->property [ident]
+  {:pre [(keyword? ident)]}
+  (str/replace (str (namespace ident) "/" (name ident))
+               "."
+               "__"))
+
+(defn- resolve-component-refs [entity]
+  (let [attrs (entity/attributes-by-schema-kv entity :db/isComponent true)]
+    (reduce (fn [acc attr]
+              (let [value (get acc attr)]
+                (if-let [subentity (and (number? value) (entity/find value))]
+                  (assoc acc attr (transform-entity-by-type subentity))
+                  acc)))
+            entity
+            attrs)))
+
+(defn entity->doc [entity]
+  (->> entity
+       ;; Does transformations depending on the entity type
+       transform-entity-by-type
+       ;; Resolves component refs like :i18n and turns them into values
+       resolve-component-refs
+       ;; Changes :db/id to :document/id, as that's what the indexer expects
+       (db-id->document-id)
+       ;; product.taxonomy/keyword -> product__taxonomy/keyword
+       (common.utils/map-keys ident->property)))
+
+(defn index-entity [entity]
+  (->> entity
+       (entity->doc)
+       (search/document->indexing-queue)))
+
+(defn reindex-type [type]
+  (doseq [entity (entity/query type)]
+    (index-entity entity)))
 
 (defn reindex
   "Indexes everything"
@@ -73,39 +78,19 @@
   (search.schema/setup!)
   (let [types (search/indexable-types)]
     (doseq [type types]
-      (let [entities (entity/query type)]
-        (doseq [{:db/keys [id]} entities]
-          (index-entity id))))))
+      (reindex-type type))))
 
 (defn- index-report [{:keys [tx-data]}]
-  (let [types (->> (search/indexable-types)
-                   (map name)
-                   (set))
-        eids (->> tx-data
-                  (map db/datom->map)
-                  (filter (fn [{:keys [e a]}]
-                            (let [type (namespace a)]
-                              (and (not= type "event")
-                                   (contains? types type)))))
-                  (map :e))]
-    (doseq [eid eids]
-      (index-entity eid))))
+  (let [types (set (search/indexable-types))
+        entities (->> tx-data
+                      (map #(.e %))
+                      (set)
+                      (map (fn [eid]
+                             (when-let [entity (entity/find eid)]
+                               (when (contains? types (:schema/type entity))
+                                 entity))))
+                      (remove nil?))]
+    (doseq [entity entities]
+      (index-entity entity))))
 
-(defn start-tx-report-queue-loop! []
-  (future
-   (loop []
-     (when-not (Thread/interrupted)
-       (utils/interruptible-try
-        (when-let [report (.take (db/tx-report-queue))]
-          (index-report report)))
-       (recur)))))
-
-(defstate tx-report-queue-loop
-  :start
-  (do
-    (log/info "Starting tx-report-queue loop")
-    (start-tx-report-queue-loop!))
-  :stop
-  (do
-    (log/info "Stopping tx-report-queue loop")
-    (future-cancel tx-report-queue-loop)))
+(tx-processor/add-callback! ::indexer index-report)
