@@ -39,6 +39,7 @@
     :ventas.email.templates.order-status-changed/amount "Amount"
     :ventas.email.templates.order-status-changed/total-amount "Total amount"
     :ventas.email.templates.order-status-changed/shipping-address "Shipping address"
+    :ventas.email.templates.order-status-changed/no-shipping-address "This order has no shipping address"
     :ventas.email.templates.order-status-changed/go-to-orders "You can see your orders"
     :ventas.email.templates.order-status-changed/go-to-orders-link "here"
 
@@ -107,6 +108,7 @@
     :ventas.email.templates.order-status-changed/amount "Importe"
     :ventas.email.templates.order-status-changed/total-amount "Importe total"
     :ventas.email.templates.order-status-changed/shipping-address "Dirección de envío"
+    :ventas.email.templates.order-status-changed/no-shipping-address "Este pedido no tiene una dirección de envío"
     :ventas.email.templates.order-status-changed/go-to-orders "Puedes ver tus pedidos"
     :ventas.email.templates.order-status-changed/go-to-orders-link "aquí"
 

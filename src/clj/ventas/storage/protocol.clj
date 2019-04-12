@@ -4,5 +4,6 @@
   (get-object [this key])
   (get-public-url [this key])
   (stat-object [this key])
-  (list-objects [this])
+  (remove-object [this key])
+  (list-objects [this] [this prefix])
   (put-object [this key file]))

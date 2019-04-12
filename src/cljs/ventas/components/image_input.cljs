@@ -35,6 +35,11 @@
                    :size "large"
                    :src url}]]]))
 
+(rf/reg-event-fx
+ ::remove-image
+ (fn [_ [_ on-change]]
+   {:dispatch (conj on-change nil)}))
+
 (defn image-view [on-change id]
   [:div
    [base/image {:src (image/get-url id :admin-products-edit)
@@ -44,7 +49,7 @@
    [base/button {:icon true
                  :size "mini"
                  :on-click (utils.ui/with-handler
-                            #(rf/dispatch (conj on-change id)))}
+                            #(rf/dispatch [::remove-image on-change]))}
     [base/icon {:name "remove"}]]])
 
 (rf/reg-event-fx
@@ -57,8 +62,8 @@
 
 (rf/reg-event-fx
  ::upload.next
- (fn [_ [_ on-change {:db/keys [id]}]]
-   {:dispatch (conj on-change id)}))
+ (fn [_ [_ on-change entity]]
+   {:dispatch (conj on-change entity)}))
 
 (defn- image-placeholder [{:keys [on-change]}]
   (let [ref (atom nil)]

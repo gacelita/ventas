@@ -145,7 +145,7 @@
     ((:stop-fn indexer))))
 
 (defn document->indexing-queue [doc]
-  (prn :indexing doc)
+  (log/debug "Indexing document" doc)
   (core.async/put! (:chan indexer) doc))
 
 (defonce type-config (atom {}))

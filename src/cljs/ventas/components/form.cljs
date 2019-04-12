@@ -154,10 +154,8 @@
 
 (rf/reg-event-fx
  ::image.set
- (fn [_ [_ db-path key value]]
-   {:dispatch [::set-field db-path key {:db/id value
-                                        :schema/type :schema.type/file
-                                        :file/extension "jpg"}]}))
+ (fn [_ [_ db-path key entity]]
+   {:dispatch [::set-field db-path key entity]}))
 
 (defmethod input :image [{:keys [value db-path key]}]
   [image-input/image-input

@@ -57,7 +57,7 @@
        ;; Resolves component refs like :i18n and turns them into values
        resolve-component-refs
        ;; Changes :db/id to :document/id, as that's what the indexer expects
-       (db-id->document-id)
+       db-id->document-id
        ;; product.taxonomy/keyword -> product__taxonomy/keyword
        (common.utils/map-keys ident->property)))
 
@@ -87,10 +87,24 @@
                       (set)
                       (map (fn [eid]
                              (when-let [entity (entity/find eid)]
-                               (when (contains? types (:schema/type entity))
+                               (when (contains? types (keyword (name (:schema/type entity))))
                                  entity))))
                       (remove nil?))]
     (doseq [entity entities]
       (index-entity entity))))
 
-(tx-processor/add-callback! ::indexer index-report)
+(defn- remove-entities [{:keys [tx-data]}]
+  (let [type-id (:db/id (db/touch-eid :schema/type))
+        types (set (search/indexable-types))
+        ids (->> tx-data
+                 (filter #(and (= (.a %) type-id)
+                               (= (.added %) false)
+                               (some-> (.v %) db/touch-eid :db/ident name keyword types)))
+                 (map #(.e %)))]
+    (doseq [id ids]
+      (log/info "Removing from ES the entity" id)
+      (search/remove-document id))))
+
+(tx-processor/add-callback! ::remover #'remove-entities)
+
+(tx-processor/add-callback! ::indexer #'index-report)

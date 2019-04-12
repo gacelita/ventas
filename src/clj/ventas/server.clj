@@ -20,8 +20,7 @@
    [ring.util.time :as ring.time]
    [ventas.config :as config]
    [ventas.database.entity :as entity]
-   [ventas.entities.file :as entities.file]
-   [ventas.entities.image-size :as entities.image-size]
+   [ventas.entities.file :as file]
    [ventas.paths :as paths]
    [ventas.plugin :as plugin]
    [ventas.server.admin-spa :as admin-spa]
@@ -51,11 +50,11 @@
 
 (defn- filename-by-eid [eid]
   (when-let [file (entity/find eid)]
-    (entities.file/filename file)))
+    (file/filename file)))
 
 (defn- filename-by-keyword [kw]
   (when-let [file (entity/find [:file/keyword kw])]
-    (entities.file/filename file)))
+    (file/filename file)))
 
 (defn storage-response [filename]
   (if-let [file (storage/get-object filename)]
@@ -69,7 +68,6 @@
     (compojure.route/not-found "")))
 
 (defn- handle-file [search]
-  (prn :handle-file search)
   (let [filename (cond
                    (utils/->number search) (filename-by-eid (utils/->number search))
                    (not (str/includes? search "/")) (filename-by-keyword (keyword search)))]
@@ -85,23 +83,22 @@
    {:format format}))
 
 (defn- handle-resized-image [eid size]
-  (prn :handle-resized-image)
   (let [image (entity/find eid)
         size-entity (entity/find [:image-size/keyword size])]
     (cond
       (not image) (compojure.route/not-found "Image not found")
       (not size-entity) (compojure.route/not-found "Size not found")
       :else
-      (let [filename (entities.image-size/resized-file-key image size-entity)
+      (let [filename (file/resized-file-key image size-entity)
             response (storage-response filename)]
         (if-not (fn? response)
           response
-          (storage-response @(entities.image-size/transform image size-entity)))))))
+          (storage-response @(file/transform image size-entity)))))))
 
 (defn- handle-image [eid]
   (if-let [image (entity/find eid)]
     (->> image
-         entities.file/filename
+         file/filename
          storage-response)
     (compojure.route/not-found "Image not found")))
 

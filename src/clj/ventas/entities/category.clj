@@ -197,11 +197,7 @@
   (fn [this]
     (-> this
         (dissoc :image)
-        ((entity/default-attr :deserialize))))
-
-  ::entities.image-size/list-images
-  (fn [{:keys [:category/image]}]
-    [image])})
+        ((entity/default-attr :deserialize))))})
 
 (search/configure-type!
  :category

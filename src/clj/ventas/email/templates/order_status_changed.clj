@@ -54,9 +54,10 @@
            [:strong (amount->str amount)])]])
       [:br]
       [:h4 (i18n culture-kw ::shipping-address)]
-      (let [{:keys [first-name last-name address address-second-line
-                    zip city state country]} (entity/serialize (entity/find shipping-address)
-                                                               {:culture (:user/culture user)})]
+      (if-let [{:keys [first-name last-name address address-second-line zip city state country]}
+               (some-> shipping-address
+                       (entity/find)
+                       (entity/serialize {:culture (:user/culture user)}))]
         [:div.address-content
          [:span first-name " " last-name]
          [:br]
@@ -64,7 +65,9 @@
          [:br]
          [:span zip " " city " " (:name state)]
          [:br]
-         [:span (:name country)]])
+         [:span (:name country)]]
+        [:div
+         [:p (i18n culture-kw ::no-shipping-address)]])
       [:br]
       [:p (i18n culture-kw ::go-to-orders)
        " "

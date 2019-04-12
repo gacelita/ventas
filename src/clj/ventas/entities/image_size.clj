@@ -5,15 +5,8 @@
    [ventas.database :as db]
    [ventas.database.entity :as entity]
    [ventas.database.generators :as generators]
-   [ventas.entities.file :as entities.file]
-   [ventas.paths :as paths]
-   [ventas.utils.images :as utils.images]
    [ventas.utils :as utils]
-   [ventas.utils.files :refer [basename]]
-   [clojure.java.io :as io]
-   [clojure.tools.logging :as log]
-   [ventas.storage :as storage]
-   [ventas.utils.files :as utils.files]))
+   [ventas.utils.files :refer [basename]]))
 
 (spec/def :image-size/keyword ::generators/keyword)
 
@@ -44,28 +37,12 @@
        :min 0.0
        :max 1.0})))
 
-(def ^:private gen-entities
-  #{:schema.type/brand
-    :schema.type/category
-    :schema.type/product
-    :schema.type/user})
-
-(spec/def ::entity
-  (spec/with-gen
-   (spec/or :pull-eid ::db/pull-eid
-            :entity :schema/type)
-   #(gen/elements gen-entities)))
-
-(spec/def :image-size/entities
-  (spec/coll-of ::entity))
-
 (spec/def :schema.type/image-size
   (spec/keys :req [:image-size/keyword
                    :image-size/width
                    :image-size/height
                    :image-size/algorithm]
-             :opt [:image-size/quality
-                   :image-size/entities]))
+             :opt [:image-size/quality]))
 
 (entity/register-type!
  :image-size
@@ -98,73 +75,7 @@
              :db/cardinality :db.cardinality/many
              :ventas/refEntityType :enum}]
 
-           (map #(hash-map :db/ident %) algorithms))]]})
-
-(defn size-entity->configuration [{:image-size/keys [width height algorithm quality]}]
-  (let [algorithm (name algorithm)]
-    (cond-> {:quality (or quality 1)
-             :progressive true
-             :resize {:width width
-                      :height height}}
-      (= "resize-only-if-over-maximum" algorithm)
-      (assoc-in [:resize :allow-smaller?] true)
-      (= "crop-and-resize" algorithm)
-      (assoc :crop {:relation (/ width height)}))))
-
-(defn resized-file-key [file-entity size-entity]
-  (let [options (size-entity->configuration size-entity)]
-    (-> (entities.file/filename file-entity)
-        (utils.images/path-with-metadata options)
-        (->> (str "resized-images/")))))
-
-(defn transform
-  "Transforms a :file entity representing an image, using the configuration
-   given by an :image-size entity. Saves the resulting image into the corresponding
-   path, and returns given path (just returns the path if nothing has to be done)"
-  [file-entity size-entity]
-  {:pre [(= (entity/type file-entity) :file)
-         (= (entity/type size-entity) :image-size)]}
-  (prn :transforming-image)
-  (future
-   (let [source-filename (entities.file/filename file-entity)
-         middle-filepath (str (utils.files/get-tmp-dir) "/" source-filename)
-         _ (io/copy (storage/get-object source-filename) (io/file middle-filepath))
-         file-key (resized-file-key file-entity size-entity)
-         path (utils.images/transform-image
-               middle-filepath
-               nil
-               (size-entity->configuration size-entity))]
-     (storage/put-object file-key path)
-     file-key)))
-
-(defn already-transformed? [file-entity size-entity]
-  (prn (:db/id file-entity) (:db/id size-entity) (storage/stat-object (resized-file-key file-entity size-entity)))
-  (storage/stat-object (resized-file-key file-entity size-entity)))
-
-(defn list-images [entity]
-  (entity/call-type-fn ::list-images entity))
-
-(defn get-pending-images []
-  (remove nil?
-          (for [{:image-size/keys [entities] :as image-size} (entity/query :image-size)
-                entity-type entities
-                entity (entity/query (keyword (name entity-type)))
-                file-entity (map entity/find (list-images entity))]
-            (when-not (already-transformed? file-entity image-size)
-              {:image-size image-size
-               :file file-entity}))))
-
-(defn transform-all []
-  (future
-   (doseq [{:keys [image-size file]} (get-pending-images)]
-     (log/debug {:transforming {:file (:db/id file)
-                                :image-size (:db/id image-size)}})
-     @(transform file image-size))))
-
-(defn clean-storage []
-  (doseq [file (.listFiles (io/file (paths/resolve ::paths/resized)))]
-    (io/delete-file file))
-  true)
-
-(defn entities []
-  (entity/types-with-property ::list-images))
+           (map #(hash-map :db/ident %) algorithms))]
+   [:deprecate-entities [{:db/id :image-size/entities
+                          :schema/deprecated true
+                          :schema/see-instead :file/image-sizes}]]]})

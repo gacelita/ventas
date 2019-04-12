@@ -163,12 +163,17 @@
   #{:address :user :amount :shipping-method}
 
   :after-transact
-  (fn [entity new-entity]
-    (let [old (:order/status entity)
-          new (:order/status new-entity)]
+  (fn [entity datoms]
+    (let [old (some->> datoms
+                       (filter (fn [datom] (and (= (:e datom) (:db/id entity))
+                                                (= (:a datom) :order/status)
+                                                (= (:added datom) false))))
+                       (first)
+                       :v)
+          new (:order/status entity)]
       (when (and old new (not= old new) (not= new :order.status/draft))
-        (email/send-template! :order-status-changed {:order new-entity
-                                                     :user (entity/find (:order/user new-entity))}))))
+        (email/send-template! :order-status-changed {:order entity
+                                                     :user (entity/find (:order/user entity))}))))
 
   :serialize
   (fn [this params]

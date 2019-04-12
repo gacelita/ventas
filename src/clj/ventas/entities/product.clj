@@ -212,17 +212,7 @@
                                       (assoc file :position position)))
                                (sort-by :position)
                                (map #(dissoc % :position))
-                               (into []))))))
-
-  ::entities.image-size/list-images
-  (fn [{:keys [:product/images]}]
-    (when images
-      (->> (db/q
-            {:find '[?file-id]
-             :in '[$ [?product-image-ids ...]]
-             :where '[[?product-image-ids :product.image/file ?file-id]]}
-            [images])
-           (map first))))})
+                               (into []))))))})
 
 (spec/def :product.image/position number?)
 
@@ -376,3 +366,5 @@
                               (entities.i18n/es-migration {:product/name (search.schema/autocomplete-type)
                                                            :product/description {:type "text"}}
                                                           [:en_US :es_ES]))}]]})
+
+;; @TODO Stop using :product.image and start using :file.list

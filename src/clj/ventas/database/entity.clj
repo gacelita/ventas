@@ -140,9 +140,9 @@
   (let [type-fn (type-property type :deserialize)]
     (type-fn data)))
 
-(defn after-transact [entity]
+(defn after-transact [entity datoms]
   {:pre [(entity? entity)]}
-  (call-type-fn :after-transact entity))
+  (call-type-fn :after-transact entity datoms))
 
 (defn filter-create [entity]
   {:pre [(entity? entity)]}
@@ -490,9 +490,10 @@
    Accepts optional `wheres` clauses"
   [type & [filters]]
   (check-db-migrated!)
-  (map #(find (:id %))
-       (db/nice-query {:find '[?id]
-                       :where (filters->wheres type filters)})))
+  (->> (db/nice-query {:find '[?id]
+                       :where (filters->wheres type filters)})
+       (map (comp find :id))
+       (remove false?)))
 
 (defn mass-delete
   "Deletes all entities of the given type"
@@ -550,17 +551,17 @@
           entity)))
 
 (defn- process-report [report]
-  (let [eid->tx-type (->> (:tx-data report)
-                      (map db/datom->map)
-                      (group-by :e)
-                      (map (fn [[eid datoms]]
-                             [eid (case (set (keys (group-by :added datoms)))
-                                    #{true false} :updated
-                                    #{false} :deleted
-                                    #{true} :added)])))]
+  (let [datoms (map db/datom->map (:tx-data report))
+        eid->tx-type (->> datoms
+                          (group-by :e)
+                          (map (fn [[eid datoms]]
+                                 [eid (case (set (keys (group-by :added datoms)))
+                                        #{true false} :updated
+                                        #{false} :deleted
+                                        #{true} :added)])))]
     (doseq [[eid tx-type] eid->tx-type]
       (when (contains? #{:updated :added} tx-type)
         (when-let [entity (find eid)]
-          (after-transact entity))))))
+          (after-transact entity datoms))))))
 
-(tx-processor/add-callback! ::process-report process-report)
+(tx-processor/add-callback! ::process-report #'process-report)
