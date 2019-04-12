@@ -4,6 +4,7 @@
    [ventas.database.entity :as entity]
    [ventas.utils :as utils]
    [ventas.search :as search]
+   [datomic.api :as d]
    [ventas.search.schema :as search.schema]
    [ventas.database :as db]
    [mount.core :refer [defstate]]
@@ -80,18 +81,35 @@
     (doseq [type types]
       (reindex-type type))))
 
+(defn- ancestors-with-type
+  "Many thanks to @benoit on the clojurians slack for this function"
+  [eid]
+  (d/q '[:find ?p ?ident
+         :in $ % ?child
+         :where (ancestor ?p ?child)
+         [?p :schema/type ?type]
+         [?type :db/ident ?ident]]
+       (db/db)
+       '[[(parent ?p ?e)
+          [?p ?attr ?e]
+          [?attr :db/valueType :db.type/ref]]
+         [(ancestor ?a ?e)
+          (parent ?a ?e)]
+         [(ancestor ?a ?e)
+          (parent ?p ?e)
+          (ancestor ?a ?p)]]
+       eid))
+
 (defn- index-report [{:keys [tx-data]}]
-  (let [types (set (search/indexable-types))
-        entities (->> tx-data
-                      (map #(.e %))
-                      (set)
-                      (map (fn [eid]
-                             (when-let [entity (entity/find eid)]
-                               (when (contains? types (keyword (name (:schema/type entity))))
-                                 entity))))
-                      (remove nil?))]
-    (doseq [entity entities]
-      (index-entity entity))))
+  (let [types (set (search/indexable-types))]
+    (doseq [eid (->> tx-data (map #(.e %)) (set))]
+      (let [type (:schema/type (entity/find eid))]
+        (doseq [eid (->> (cond-> (set (ancestors-with-type eid))
+                                 type (conj [eid type]))
+                         (filter (fn [[_ type]]
+                                   (types (keyword (name type)))))
+                         (map first))]
+          (index-entity (entity/find eid)))))))
 
 (defn- remove-entities [{:keys [tx-data]}]
   (let [type-id (:db/id (db/touch-eid :schema/type))
@@ -106,5 +124,4 @@
       (search/remove-document id))))
 
 (tx-processor/add-callback! ::remover #'remove-entities)
-
 (tx-processor/add-callback! ::indexer #'index-report)
