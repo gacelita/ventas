@@ -137,6 +137,10 @@
 
 .admin__content {
     width: 100%;
+
+    @media (max-width: 767px) {
+        margin-bottom: 40px;
+    }
 }
 
 .admin__default-content {

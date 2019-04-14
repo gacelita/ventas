@@ -11,7 +11,8 @@
    [ventas.database.generators :as db.generators]
    [ventas.utils :as utils]
    [perseverance.core :as p]
-   [clojure.tools.logging :as log])
+   [clojure.tools.logging :as log]
+   [ventas.common.utils :as common.utils])
   (:import
    [datomic Datom Connection]
    [datomic.query EntityMap]
@@ -71,7 +72,7 @@
     @(apply d/transact conn args)
     (catch Throwable e
       (throw+ {:type ::transact-exception
-               :message (.getMessage e)
+               :exception-message (.getMessage e)
                :args args}))))
 
 (def ^:dynamic transact transact*)
@@ -182,18 +183,17 @@
        :where [:db.part/db :db.install/partition ?p]
               [?p :db/ident ?ident]]))
 
+(defn- EntityMap->eid
+  [v]
+  (cond
+    (instance? EntityMap v) (:db/id v)
+    (set? v) (map EntityMap->eid v)
+    :else v))
+
 (defn EntityMaps->eids
   "EntityMap -> eid"
   [m]
-  (utils/mapm
-   (fn [[k v]]
-     [k (cond
-          (instance? EntityMap v) (:db/id v)
-          (set? v) (cond
-                     (instance? EntityMap (first v)) (map :db/id v)
-                     :else v)
-          :else v)])
-   m))
+  (common.utils/map-vals EntityMap->eid m))
 
 (defn touch-eid
   "Touches an entity by eid"

@@ -245,11 +245,12 @@
   (attributes-by-schema-kv entity :db/valueType v))
 
 (defn- autoresolve-ref [options ref]
-  (let [ref (if (:db/id ref) (:db/id ref) ref)
-        subentity (find ref)]
-    (if (and subentity (autoresolve? (type->kw (:schema/type subentity))))
-      (serialize subentity options)
-      ref)))
+  (when ref
+    (let [ref (if (:db/id ref) (:db/id ref) ref)
+          subentity (find ref)]
+      (if (and subentity (autoresolve? (type->kw (:schema/type subentity))))
+        (serialize subentity options)
+        ref))))
 
 (defn- resolve-refs
   "Serializes subentities, resolves references to entities that have autoresolve? enabled,
@@ -285,10 +286,12 @@
                    (if (or (= :schema/type attr)
                            (not (contains? enum-attrs attr)))
                      value
-                     {:ident (if (keyword? value)
-                               value
-                               (some-> value :db/id db/touch-eid :db/ident))
-                      :name (i18n culture-kw value)}))]
+                     (let [ident (if (keyword? value)
+                                   value
+                                   (some-> value :db/id db/touch-eid :db/ident))]
+                       {:ident ident
+                        :id (:db/id (db/touch-eid ident))
+                        :name (i18n culture-kw value)})))]
     (if-not culture-kw
       entity
       (mapm (fn [[attr value]]
@@ -345,53 +348,64 @@
   (when-not (map? refs)
     (map db/normalize-ref refs)))
 
-(defn- enum-retractions-helper
-  "Retracts no longer present enum values.
-   Assuming this is in the db:
-   {:db/id 17592186045691
-    :user/favorites [17592186045648 17592186045679]}
+(defn- cardinality-many-retractions [eid ident old-value]
+  (->> old-value
+       (normalize-refs)
+       (distinct)
+       (remove nil?)
+       (map (fn [val-to-retract]
+              [:db/retract eid ident val-to-retract]))))
 
-   (enum-retractions {:db/id 17592186045691
-                      :user/favorites [17592186045648]})
-   => ([:db/retract 17592186045691 :user/favorites 17592186045679])"
-  [new-values]
-  (let [old-values (find (:db/id new-values))
-        ident->values-set (fn [ident values]
-                            (->> (get values ident)
-                                 (normalize-refs)
-                                 (set)
-                                 (not-empty)))]
+(defn- cardinality-one-retractions [eid ident old-value]
+  [[:db/retract eid ident old-value]])
+
+(defn- get-retractions-helper
+  "- Retracts present values for the :db.cardinality/many attributes that
+     are present within `new-values`
+   - Retracts present values for the :db.cardinality/one attributes that
+     are present within `new-values` which have a nil value"
+  [{:db/keys [id] :as new-values}]
+  (let [old-values (find id)]
     (->> (set (keys new-values))
          (map db/touch-eid)
-         (filter #(and (= (:db/cardinality %) :db.cardinality/many)
-                       (= (:db/valueType %) :db.type/ref)))
-         (map :db/ident)
-         (mapcat (fn [ident]
-                   (let [new-vals (ident->values-set ident new-values)
-                         old-vals (ident->values-set ident old-values)
-                         diff (set/difference old-vals new-vals)]
-                     (map (fn [val-to-retract]
-                            [:db/retract (:db/id new-values) ident val-to-retract])
-                          diff)))))))
+         (filter some?)
+         (mapcat (fn [{:db/keys [cardinality ident]}]
+                   (let [old-value (get old-values ident)]
+                     (case cardinality
+                       :db.cardinality/many
+                       (when (not-empty old-value)
+                         (cardinality-many-retractions id ident old-value))
+                       :db.cardinality/one
+                       (when old-value
+                         (cardinality-one-retractions id ident old-value)))))))))
 
-(defn- enum-retractions [new-values]
+(defn- get-retractions [new-values]
   (let [retractions (atom [])]
     (walk/prewalk (fn [x]
                     (when (:db/id x)
-                      (swap! retractions into (enum-retractions-helper x)))
+                      (swap! retractions into (get-retractions-helper x)))
                     x)
                   new-values)
-    @retractions))
+    (not-empty @retractions)))
+
+(defn- recursively-remove-nils [v]
+  (walk/prewalk (fn [v]
+                  (if (map? v)
+                    (->> v
+                         (remove (comp nil? val))
+                         (into {}))
+                    v))
+                v))
 
 (defn lifecycle-update [{:db/keys [id] :as attrs} {:keys [append?]} transact-fn]
   (let [entity (find id)
         attrs (filter-update entity attrs)]
-    (transact-fn (into-n
-                  [attrs]
-                  (when-not append?
-                    (enum-retractions attrs))
-                  [{:db/id (d/tempid :db.part/tx)
-                    :event/kind :entity.update}]))
+    (when-let [retractions (and (not append?) (get-retractions attrs))]
+      ;; transact the retractions first, to avoid datoms conflict
+      (transact-fn retractions))
+    (transact-fn [(recursively-remove-nils attrs)
+                  {:db/id (d/tempid :db.part/tx)
+                   :event/kind :entity.update}])
     (find id)))
 
 (defn update*

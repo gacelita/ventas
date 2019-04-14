@@ -4,7 +4,8 @@
    [postal.core :as postal]
    [ventas.email.templates :as templates]
    [ventas.entities.configuration :as entities.configuration]
-   [ventas.i18n :refer [i18n]]))
+   [ventas.i18n :refer [i18n]]
+   [clojure.tools.logging :as log]))
 
 (defn- get-config []
   (let [encryption? (entities.configuration/get :email.encryption.enabled)
@@ -31,6 +32,7 @@
   [args]
   (let [{:keys [from] :as config} (get-config)]
     (when from
+      (log/info "Sending email to" (:to args))
       (postal/send-message config
                            (merge args {:from from})))))
 

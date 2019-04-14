@@ -7,13 +7,15 @@
    [reagent.core :as reagent]
    [cljs-time.format :as f]
    [cljs-time.coerce :as c]
+   [clojure.walk :as walk]
    [ventas.components.amount-input :as amount-input]
    [ventas.components.image-input :as image-input]
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.validation :as validation]
-   [ventas.components.colorpicker :as colorpicker]))
+   [ventas.components.colorpicker :as colorpicker]
+   [reagent.core :as r]))
 
 (def state-key ::state)
 
@@ -276,15 +278,20 @@
 
 (defmethod input :date [data]
   (base-input :input (assoc data :xform {:in (fn [v] (f/unparse (:date f/formatters) (c/from-date v)))
-                                         :out (fn [v] (c/to-date (f/parse (:date f/formatters) v)))})))
+                                         :out (fn [v]
+                                                (and (seq v)
+                                                     (c/to-date (f/parse (:date f/formatters) v))))})))
 
-(defn field [{:keys [db-path key label inline-label width] :as args}]
+(defn field [{:keys [db-path key label inline-label description width] :as args}]
   (let [infractions @(rf/subscribe [::field.infractions db-path key])]
     [base/form-field
      {:width width
       :error (and (some? infractions) (seq infractions))}
      (when-not inline-label
-       [:label label])
+       (if description
+         [base/popup {:trigger (r/as-element [:label label])
+                      :content description}]
+         [:label label]))
      [input
       (merge args
              {:value (get-in @(rf/subscribe [::data db-path]) (normalize-field-key key))})]]))

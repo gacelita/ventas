@@ -3,7 +3,7 @@
   (:require
    [chord.client :as chord]
    [chord.format.fressian]
-   [cljs.core.async :refer [<! >! chan close! timeout]]
+   [cljs.core.async :refer [<! >! chan close! timeout alts!]]
    [re-frame.core :as rf]
    [reagent.core :as reagent]
    [ventas.server.api :as api]
@@ -96,8 +96,12 @@
   "Receives messages from output-channel and send them to the server"
   [output-channel websocket-channel]
   (go-loop []
-    (let [message (<! output-channel)]
-      (>! websocket-channel message)
+    (let [[message ch] (alts! [output-channel (timeout 10000)])]
+      (if (= output-channel ch)
+        (>! websocket-channel message)
+        (>! websocket-channel {:type :request
+                               :id (str (gensym "ping"))
+                               :name :ventas.server.api/ping}))
       (recur))))
 
 (defn- websocket-url [format]

@@ -126,6 +126,10 @@
     result))
 
 (register-endpoint!
+  ::ping
+  (constantly :pong))
+
+(register-endpoint!
  ::categories.get
  {:spec {:id ::ref}}
  (fn [{{:keys [id]} :params} {:keys [session]}]
@@ -383,6 +387,11 @@
   (-> s
       (str/split #"\.")
       (last)))
+
+(register-endpoint!
+  ::ping
+  {:binary? true}
+  (constantly :pong))
 
 (register-endpoint!
  ::upload

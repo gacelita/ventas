@@ -40,7 +40,7 @@
  (fn [_ [_ on-change]]
    {:dispatch (conj on-change nil)}))
 
-(defn image-view [on-change id]
+(defn image-view [{:keys [id on-remove]}]
   [:div
    [base/image {:src (image/get-url id :admin-products-edit)
                 :size "small"
@@ -49,7 +49,7 @@
    [base/button {:icon true
                  :size "mini"
                  :on-click (utils.ui/with-handler
-                            #(rf/dispatch [::remove-image on-change]))}
+                            #(rf/dispatch on-remove))}
     [base/icon {:name "remove"}]]])
 
 (rf/reg-event-fx
@@ -82,6 +82,7 @@
 (defn image-input [{:keys [on-change value]}]
   [:div.image-input
    (if value
-     ^{:key value} [image-view on-change value]
+     ^{:key value} [image-view {:id value
+                                :on-remove on-change}]
      [image-placeholder {:on-change on-change}])
    [image-modal]])

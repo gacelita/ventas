@@ -54,6 +54,6 @@
   (let [{:db/keys [id]} (sut/create :user {:favorites [17592186045648 17592186045679 17592186045691]})]
     (is (= [[:db/retract id :user/favorites 17592186045691]
             [:db/retract id :user/favorites 17592186045679]]
-           (#'sut/enum-retractions
+           (#'sut/get-retractions
             {:db/id id
              :user/favorites [17592186045648]})))))

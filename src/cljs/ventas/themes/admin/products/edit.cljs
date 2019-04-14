@@ -82,7 +82,8 @@
 (defn image-view [{:product.image/keys [file]}]
   (let [{:db/keys [id]} file]
     [:div.admin-products-edit__image
-     [image-input/image-view [::remove-image] id]]))
+     [image-input/image-view {:id id
+                              :on-remove [::remove-image id]}]]))
 
 (rf/reg-event-fx
  ::init
