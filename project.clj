@@ -104,7 +104,7 @@
                  [byte-streams "0.2.4"]
 
                  ;; Image processing
-                 [fivetonine/collage "0.2.1"]
+                 [net.coobird/thumbnailator "0.4.7"]
 
                  ;; ZIP
                  [net.lingala.zip4j/zip4j "1.3.2"]

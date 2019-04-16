@@ -1,10 +1,12 @@
 (ns ventas.utils.images
   (:require
    [clojure.java.io :as io]
-   [fivetonine.collage.core :as collage]
-   [fivetonine.collage.util :as util]
    [slingshot.slingshot :refer [throw+]]
-   [ventas.utils.files :as utils.files]))
+   [ventas.utils.files :as utils.files])
+  (:import [javax.imageio ImageIO]
+           [net.coobird.thumbnailator Thumbnails]
+           [java.awt.image BufferedImage]
+           [net.coobird.thumbnailator.resizers.configurations ScalingMode]))
 
 (defn path-with-metadata [path options]
   (str (utils.files/basename path)
@@ -50,54 +52,46 @@
                                      :target-relation 1})]
         (adapt-dimensions-to-relation* {:width width :height height} target-relation)))))
 
-(defn- crop-image [image {:keys [offset size relation] :as options}]
+(defn- crop-image [builder metadata {:keys [offset size relation]}]
   (if relation
     (let [relation (* 1.0 relation)
-          source-width (.getWidth image)
-          source-height (.getHeight image)
           {:keys [width height]} (adapt-dimensions-to-relation
-                                  {:width source-width
-                                   :height source-height
+                                  {:width (:width metadata)
+                                   :height (:height metadata)
                                    :target-relation relation})]
-      (recur image {:offset [(- (/ source-width 2.0) (/ width 2.0))
-                             (- (/ source-height 2.0) (/ height 2.0))]
-                    :size [width height]}))
-    (collage/crop image
-                  (first offset)
-                  (second offset)
-                  (first size)
-                  (second size))))
+      (recur builder metadata {:offset [(- (/ (:width metadata) 2.0) (/ width 2.0))
+                                        (- (/ (:height metadata) 2.0) (/ height 2.0))]
+                               :size [width height]}))
+    (.sourceRegion builder
+                   (first offset)
+                   (second offset)
+                   (first size)
+                   (second size))))
 
-(defn- resize-image* [image width height]
-  (let [width-scale (/ width (.getWidth image))
-        height-scale (/ height (.getHeight image))]
-    (collage/scale image (min width-scale height-scale))))
+(defn resize-image [builder metadata {:keys [width height allow-smaller?]}]
+  (if (and allow-smaller? (< (:width metadata) width) (< (:height metadata) height))
+    builder
+    (let [width-scale (/ width (:width metadata))
+          height-scale (/ height (:height metadata))]
+      (.scale builder (min width-scale height-scale)))))
 
-(defn- resize-image [image {:keys [width height allow-smaller?]}]
-  "Limits the size of `image` to the specified `width` and `height`, without altering
-   image ratio.
-   Extra options:
-     allow-smaller?: if the image is within the defined bounds, do nothing to it"
-  (if allow-smaller?
-    (let [w (.getWidth image)
-          h (.getHeight image)]
-      (if (and (< w width) (< h height))
-        image
-        (resize-image* image width height)))
-    (resize-image* image width height)))
-
-(defn- transform-image* [source-path target-path {:keys [quality progressive crop scale resize] :as options}]
+(defn transform-image* [source-path target-path {:keys [resize scale crop quality]}]
   (when-not (.exists (io/file source-path))
     (throw+ {:type ::file-not-found
              :path source-path}))
-  (-> (util/load-image source-path)
-      (cond->
-       crop (crop-image crop)
-       scale (collage/scale scale)
-       resize (resize-image resize))
-      (util/save target-path
-                 :quality quality
-                 :progressive progressive)))
+  (let [^BufferedImage buffered-image (ImageIO/read (io/file source-path))
+        metadata {:width (.getWidth buffered-image)
+                  :height (.getHeight buffered-image)}]
+    (-> [buffered-image]
+        into-array
+        Thumbnails/of
+        (.scalingMode ScalingMode/PROGRESSIVE_BILINEAR)
+        (cond-> crop (crop-image metadata crop)
+                scale (.scale scale)
+                resize (resize-image metadata resize)
+                quality (.outputQuality (double quality))
+                (and (not scale) (not resize)) (.scale 1))
+        (.toFile (io/file target-path)))))
 
 (defn transform-image [source-path target-dir & [options]]
   (let [target-dir (or target-dir (utils.files/get-tmp-dir))
