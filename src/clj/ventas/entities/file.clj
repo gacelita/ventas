@@ -212,7 +212,7 @@
   "Transforms a :file entity representing an image, using the configuration
    given by an :image-size entity. Saves the resulting image into the corresponding
    path, and returns given path (just returns the path if nothing has to be done)"
-  [file-entity size-entity]
+  [file-entity size-entity & [{:keys [overwrite?]}]]
   {:pre [(= (entity/type file-entity) :file)
          (= (entity/type size-entity) :image-size)]}
   (log/info "Transforming" (:db/id file-entity) ", size:" (:image-size/keyword size-entity))
@@ -223,7 +223,7 @@
        (log/warn "Couldn't transform" (:db/id file-entity) ":" source-filename "not found")
        (let [file-key (resized-file-key file-entity size-entity)]
          (log/debug "File key: "file-key)
-         (if (storage/stat-object file-key)
+         (if (and (not overwrite?) (storage/stat-object file-key))
            (log/info (str (:db/id file-entity)) "already transformed for size" (:image-size/keyword size-entity))
            (let [middle-filepath (str (utils.files/get-tmp-dir) "/" source-filename)
                  _ (io/copy source-file (io/file middle-filepath))
@@ -234,11 +234,11 @@
              (storage/put-object file-key path)))
          file-key)))))
 
-(defn transform-all []
+(defn transform-all [& [{:keys [overwrite?] :as opts}]]
   (future
    (doseq [image (entity/query :file {:file/extension [:in image-extensions]})]
      (doseq [size (image-sizes image)]
-       @(transform image size)))))
+       @(transform image size opts)))))
 
 (defn clean-storage []
   (doseq [key (storage/list-objects "resized-images")]
