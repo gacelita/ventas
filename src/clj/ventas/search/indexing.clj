@@ -121,7 +121,10 @@
                  (map #(.e %)))]
     (doseq [id ids]
       (log/info "Removing from ES the entity" id)
-      (search/remove-document id))))
+      (try
+        (search/remove-document id)
+        (catch Throwable e
+          (log/warn e (str "Exception removing " id " from ES")))))))
 
 (tx-processor/add-callback! ::remover #'remove-entities)
 (tx-processor/add-callback! ::indexer #'index-report)
