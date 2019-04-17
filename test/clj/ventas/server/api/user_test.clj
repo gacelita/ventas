@@ -92,16 +92,17 @@
         product (entity/create* example-product)
         variation (entity/create :product.variation {:parent (:db/id product)
                                                      :terms #{}})
-        variation-json (entity/serialize variation {:culture [:i18n.culture/keyword :en_US]})]
+        serialized-variation (entity/serialize variation {:culture [:i18n.culture/keyword :en_US]})]
 
     (testing "cart add"
       (server.ws/call-handler-with-user ::sut/users.cart.add
                                         {:id (:db/id variation)}
                                         user)
-      (is (= {:amount (:price variation-json)
-              :lines [{:product-variation variation-json
+      (is (= {:amount (:price serialized-variation)
+              :lines [{:product-variation serialized-variation
                        :quantity 1}]
               :status {:ident :order.status/draft
+                       :id (db/entid :order.status/draft)
                        :name "Draft"}
               :user (:db/id user)}
              (-> (server.ws/call-handler-with-user ::sut/users.cart.get
@@ -117,6 +118,7 @@
                                         user)
       (is (= {:amount nil
               :status {:ident :order.status/draft
+                       :id (db/entid :order.status/draft)
                        :name "Draft"}
               :user (:db/id user)}
              (-> (server.ws/call-handler-with-user ::sut/users.cart.get
@@ -130,11 +132,12 @@
                                         {:id (:db/id variation)
                                          :quantity 5}
                                         user)
-      (is (= {:amount (-> (:price variation-json)
+      (is (= {:amount (-> (:price serialized-variation)
                           (update :value #(* 5 %)))
-              :lines [{:product-variation variation-json
+              :lines [{:product-variation serialized-variation
                        :quantity 5}]
               :status {:ident :order.status/draft
+                       :id (db/entid :order.status/draft)
                        :name "Draft"}
               :user (:db/id user)}
              (-> (server.ws/call-handler-with-user ::sut/users.cart.get
@@ -155,7 +158,7 @@
                                       {:id (:db/id variation)}
                                       user)
 
-    (is (= [(:db/id variation)]
+    (is (= #{(:db/id variation)}
            (-> (server.ws/call-handler-with-user ::sut/users.favorites.enumerate
                                                  {}
                                                  user)
