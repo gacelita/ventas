@@ -1,13 +1,10 @@
-{:npm-deps {"react" "^16.5.2"
+{:npm-deps {"react" "^16.8.4"
             "js-image-zoom" "^0.5.0"
-            "moment" "^2.22.2"
-            "react-color" "^2.14.1"
+            "moment" "^2.24.0"
+            "react-color" "^2.17.0"
             "react-date-range" "^0.9.4"
-            "react-dom" "^16.5.2"
-            "react-sortable-tree" "^2.2.0"
+            "react-dom" "^16.8.4"
+            "react-sortable-tree" "^2.6.0"
             "react-sortable-tree-theme-minimal" "0.0.14"
             "semantic-ui-react" "^0.82.5"
             "create-react-class" "^15.6.3"}}
-
-
-
