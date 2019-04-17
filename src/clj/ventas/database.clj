@@ -112,6 +112,11 @@
   [t]
   (-> (log) (d/tx-range t nil) first))
 
+(defn entid
+  "entid wrapper"
+  [& args]
+  (apply d/entid (db) args))
+
 (defn entity
   "entity wrapper"
   [& args]
@@ -187,7 +192,7 @@
   [v]
   (cond
     (instance? EntityMap v) (:db/id v)
-    (set? v) (map EntityMap->eid v)
+    (set? v) (set (map EntityMap->eid v))
     :else v))
 
 (defn EntityMaps->eids
