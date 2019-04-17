@@ -100,7 +100,7 @@
           (ancestor ?a ?p)]]
        eid))
 
-(defn- index-report [{:keys [tx-data]}]
+(defn- index-tx [{:keys [tx-data]}]
   (let [types (set (search/indexable-types))]
     (doseq [eid (->> tx-data (map #(.e %)) (set))]
       (let [type (:schema/type (entity/find eid))]
@@ -127,4 +127,4 @@
           (log/warn e (str "Exception removing " id " from ES")))))))
 
 (tx-processor/add-callback! ::remover #'remove-entities)
-(tx-processor/add-callback! ::indexer #'index-report)
+(tx-processor/add-callback! ::indexer #'index-tx)

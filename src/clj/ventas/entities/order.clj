@@ -163,15 +163,13 @@
   #{:address :user :amount :shipping-method}
 
   :after-transact
-  (fn [entity datoms]
-    (let [old (some->> datoms
-                       (filter (fn [datom] (and (= (:e datom) (:db/id entity))
-                                                (= (:a datom) :order/status)
-                                                (= (:added datom) false))))
-                       (first)
-                       :v)
-          new (:order/status entity)]
-      (when (and old new (not= old new) (not= new :order.status/draft))
+  (fn [entity tx]
+    (let [old-status (:order/status (with-redefs [db/db (constantly (:db-before tx))]
+                                      (entity/find (:db/id entity))))
+          new-status (:order/status entity)]
+      (when (and old-status new-status
+                 (not= old-status new-status)
+                 (not= new-status :order.status/draft))
         (email/send-template! :order-status-changed {:order entity
                                                      :user (entity/find (:order/user entity))}))))
 

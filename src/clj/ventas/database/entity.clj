@@ -137,9 +137,9 @@
   (let [type-fn (type-property type :deserialize)]
     (type-fn data)))
 
-(defn after-transact [entity datoms]
+(defn after-transact [entity tx]
   {:pre [(entity? entity)]}
-  (call-type-fn :after-transact entity datoms))
+  (call-type-fn :after-transact entity tx))
 
 (defn filter-create [entity]
   {:pre [(entity? entity)]}
@@ -572,8 +572,8 @@
                  v)])
           entity)))
 
-(defn- process-report [report]
-  (let [datoms (map db/datom->map (:tx-data report))
+(defn- process-tx [tx]
+  (let [datoms (map db/datom->map (:tx-data tx))
         eid->tx-type (->> datoms
                           (group-by :e)
                           (map (fn [[eid datoms]]
@@ -584,6 +584,6 @@
     (doseq [[eid tx-type] eid->tx-type]
       (when (contains? #{:updated :added} tx-type)
         (when-let [entity (find eid)]
-          (after-transact entity datoms))))))
+          (after-transact entity tx))))))
 
-(tx-processor/add-callback! ::process-report #'process-report)
+(tx-processor/add-callback! ::process-tx #'process-tx)
