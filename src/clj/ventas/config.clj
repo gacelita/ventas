@@ -24,16 +24,16 @@
            (when custom-config
              [:merge [(prepare-config custom-config)]]))))
 
-(defstate config
-  :start
-  (do
-    (log/info "Loading configuration")
-    (let [{:keys [auth-secret] :as config-data} (load-config)]
-      (log/debug config-data)
-      (when (and (= :prod (profile)) (or (empty? auth-secret) (= auth-secret "CHANGEME")))
-        (throw (Exception. (str ":auth-secret is empty or has not been changed.\n"
-                                "Either edit resources/config.edn or add an AUTH_SECRET environment variable, and try again."))))
-      (atom config-data))))
+(defn start-config! []
+  (log/info "Loading configuration")
+  (let [{:keys [auth-secret] :as config-data} (load-config)]
+    (log/debug config-data)
+    (when (and (= :prod (profile)) (or (empty? auth-secret) (= auth-secret "CHANGEME")))
+      (throw (Exception. (str ":auth-secret is empty or has not been changed.\n"
+                              "Either edit resources/config.edn or add an AUTH_SECRET environment variable, and try again."))))
+    (atom config-data)))
+
+(defstate config :start (start-config!))
 
 (defn set
   [k-or-ks v]
