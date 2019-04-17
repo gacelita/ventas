@@ -54,14 +54,14 @@
 
 (i18n/register-translations!
  {:en_US
-  {:ventas.themes.admin.configuration.email/email.from "From address"
-   :ventas.themes.admin.configuration.email/email.encryption.enabled "Enable encryption?"
-   :ventas.themes.admin.configuration.email/email.encryption.type "Encryption type"
-   :ventas.themes.admin.configuration.email/email.smtp.enabled "Use SMTP server?"
-   :ventas.themes.admin.configuration.email/email.smtp.host "SMTP host"
-   :ventas.themes.admin.configuration.email/email.smtp.port "SMTP port"
-   :ventas.themes.admin.configuration.email/email.smtp.user "SMTP user"
-   :ventas.themes.admin.configuration.email/email.smtp.password "SMTP password"
+  {:ventas.themes.admin.configuration.email/from "From address"
+   :ventas.themes.admin.configuration.email/encryption-enabled? "Enable encryption?"
+   :ventas.themes.admin.configuration.email/encryption-type "Encryption type"
+   :ventas.themes.admin.configuration.email/smtp-enabled? "Use SMTP server?"
+   :ventas.themes.admin.configuration.email/host "SMTP host"
+   :ventas.themes.admin.configuration.email/port "SMTP port"
+   :ventas.themes.admin.configuration.email/user "SMTP user"
+   :ventas.themes.admin.configuration.email/pass "SMTP password"
    :ventas.themes.admin.configuration.email/submit "Submit"
    :ventas.themes.admin.configuration.email/ssl "SSL"
    :ventas.themes.admin.configuration.email/tls "TLS"
