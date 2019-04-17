@@ -172,15 +172,16 @@
          :source-map true}
 
   :profiles {:dev {:repl-options {:init-ns repl
-                                  :nrepl-middleware [shadow.cljs.devtools.server.nrepl/cljs-load-file
-                                                     shadow.cljs.devtools.server.nrepl/cljs-eval
-                                                     shadow.cljs.devtools.server.nrepl/cljs-select]
+                                  :nrepl-middleware [shadow.cljs.devtools.server.nrepl04/cljs-load-file
+                                                     shadow.cljs.devtools.server.nrepl04/cljs-eval
+                                                     shadow.cljs.devtools.server.nrepl04/cljs-select]
                                   :timeout 120000}
                    :dependencies [[binaryage/devtools "0.9.10"]
                                   [org.clojure/tools.namespace "0.3.0-alpha4"]
                                   [deraen/sass4clj "0.3.1" :exclusions [org.apache.commons/commons-compress]]
                                   [devcards "0.2.4" :exclusions [cljsjs/react cljsjs/react-dom org.clojure/clojurescript]]
-                                  [thheller/shadow-cljs "2.7.21" :exclusions [org.clojure/tools.reader
+                                  [thheller/shadow-cljs "2.8.31" :exclusions [org.clojure/tools.reader
+                                                                              org.clojure/clojure
                                                                               com.google.guava/guava
                                                                               org.clojure/tools.cli
                                                                               commons-codec
