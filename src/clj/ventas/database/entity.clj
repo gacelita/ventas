@@ -15,7 +15,9 @@
    [ventas.utils :as utils :refer [mapm qualify-map-keywords dequalify-keywords into-n qualify-keyword]]
    [clojure.walk :as walk]
    [clojure.string :as str]
-   [ventas.database.tx-processor :as tx-processor]))
+   [ventas.database.tx-processor :as tx-processor]
+   [clojure.data :as data])
+  (:import (datomic.db DbId)))
 
 (defn entity? [entity]
   (when (map? entity)
@@ -40,10 +42,7 @@
 (spec/def ::entity
   (spec/keys :req [:schema/type]))
 
-(spec/def ::attributes sequential?)
-
-(spec/def ::entity-type
-  (spec/keys :req-un [::attributes]))
+(spec/def ::entity-type map?)
 
 (defn enum-spec [elements]
   (spec/with-gen
@@ -179,20 +178,22 @@
   [tx tempid]
   (find (db/resolve-tempid (:tempids tx) tempid)))
 
-(defn- prepare-creation-attrs [pre-entity & [initial-tempid]]
-  (mapm (fn [[k v]]
-          [k (cond
-               (entity? v) (prepare-creation-attrs v)
-               (and (coll? v) (entity? (first v))) (map prepare-creation-attrs v)
-               :else v)])
-        (-> pre-entity
-            (clj/update :db/id #(or % initial-tempid (db/tempid)))
-            (filter-create))))
+(defn- prepare-transact-attrs [filter-fn pre-entity & [initial-tempid]]
+  (if-not (map? pre-entity)
+    pre-entity
+    (-> pre-entity
+        (filter-fn)
+        (->> (mapm (fn [[k v]]
+                     [k (cond
+                          (map? v) (prepare-transact-attrs filter-fn v)
+                          (coll? v) (map (partial prepare-transact-attrs filter-fn) v)
+                          :else v)])))
+        (clj/update :db/id #(or % initial-tempid (db/tempid))))))
 
 (defn lifecycle-create [attrs transact-fn]
   (spec! attrs)
   (let [tempid (db/tempid)
-        pre-entity (prepare-creation-attrs attrs tempid)
+        pre-entity (prepare-transact-attrs filter-create attrs tempid)
         tx (transact-fn [pre-entity
                          {:db/id (d/tempid :db.part/tx)
                           :event/kind :entity.create}])]
@@ -262,14 +263,15 @@
                            (not (str/starts-with? (name attr) "_")))
                     value
                     (cond
-                      (and (sequential? value) (spec/valid? entity? (first value)))
-                      (mapv #(serialize % options) value)
+                      (sequential? value)
+                      (map (fn [v]
+                             (cond (entity? v) (serialize v options)
+                                   (spec/valid? ::ref v) (autoresolve-ref options v)
+                                   :else v))
+                           value)
 
                       (spec/valid? entity? value)
                       (serialize value options)
-
-                      (and (sequential? value) (spec/valid? ::ref (first value)))
-                      (mapv (partial autoresolve-ref options) value)
 
                       (spec/valid? ::ref value)
                       (autoresolve-ref options value)
@@ -348,16 +350,15 @@
   (when-not (map? refs)
     (map db/normalize-ref refs)))
 
-(defn- cardinality-many-retractions [eid ident old-value]
-  (->> old-value
-       (normalize-refs)
-       (distinct)
-       (remove nil?)
-       (map (fn [val-to-retract]
-              [:db/retract eid ident val-to-retract]))))
-
-(defn- cardinality-one-retractions [eid ident old-value]
-  [[:db/retract eid ident old-value]])
+(defn- cardinality-many-retractions [eid ident old-value new-value]
+  (let [->refs (fn [v]
+                 (->> v (normalize-refs) (remove nil?) (set)))
+        old-refs (->refs old-value)
+        new-refs (->refs new-value)
+        [only-old-refs] (data/diff old-refs new-refs)]
+    (->> only-old-refs
+         (map (fn [val-to-retract]
+                [:db/retract eid ident val-to-retract])))))
 
 (defn- get-retractions-helper
   "- Retracts present values for the :db.cardinality/many attributes that
@@ -370,14 +371,16 @@
          (map db/touch-eid)
          (filter some?)
          (mapcat (fn [{:db/keys [cardinality ident]}]
-                   (let [old-value (get old-values ident)]
+                   (let [old-value (get old-values ident)
+                         new-value (get new-values ident)]
                      (case cardinality
                        :db.cardinality/many
-                       (when (not-empty old-value)
-                         (cardinality-many-retractions id ident old-value))
+                       (when (and (not-empty old-value)
+                                  (not (spec/valid? ::ref new-value)))
+                         (cardinality-many-retractions id ident old-value new-value))
                        :db.cardinality/one
-                       (when old-value
-                         (cardinality-one-retractions id ident old-value)))))))))
+                       (when (and old-value (nil? new-value))
+                         [[:db/retract id ident old-value]]))))))))
 
 (defn- get-retractions [new-values]
   (let [retractions (atom [])]
@@ -390,22 +393,30 @@
 
 (defn- recursively-remove-nils [v]
   (walk/prewalk (fn [v]
-                  (if (map? v)
+                  (if (and (map? v) (not (db/dbid? v)))
                     (->> v
                          (remove (comp nil? val))
                          (into {}))
                     v))
                 v))
 
+(defn- resolve-tempids [attrs tx-result]
+  (walk/prewalk (fn [v]
+                  (if (db/dbid? v)
+                    (db/resolve-tempid (:tempids tx-result) v)
+                    v))
+                attrs))
+
 (defn lifecycle-update [{:db/keys [id] :as attrs} {:keys [append?]} transact-fn]
-  (let [entity (find id)
-        attrs (filter-update entity attrs)]
-    (when-let [retractions (and (not append?) (get-retractions attrs))]
-      ;; transact the retractions first, to avoid datoms conflict
+  (let [attrs (prepare-transact-attrs (fn [new-attrs]
+                                        (if-let [old-entity (some-> (:db/id new-attrs) find)]
+                                          (filter-update old-entity new-attrs)
+                                          new-attrs)) attrs)
+        tx-result (transact-fn [(recursively-remove-nils attrs)
+                                {:db/id (d/tempid :db.part/tx)
+                                 :event/kind :entity.update}])]
+    (when-let [retractions (and (not append?) (get-retractions (resolve-tempids attrs tx-result)))]
       (transact-fn retractions))
-    (transact-fn [(recursively-remove-nils attrs)
-                  {:db/id (d/tempid :db.part/tx)
-                   :event/kind :entity.update}])
     (find id)))
 
 (defn update*
@@ -432,11 +443,10 @@
 
 (defn delete [ref]
   "Deletes an entity by ref (see ::ref spec)"
-  (let [entity (find ref)]
-    (db/retract-entity ref)
-    (db/transact [[:db.fn/retractEntity ref]
-                  {:db/id (d/tempid :db.part/tx)
-                   :event/kind :entity.delete}])))
+  (db/retract-entity ref)
+  (db/transact [[:db.fn/retractEntity ref]
+                {:db/id (d/tempid :db.part/tx)
+                 :event/kind :entity.delete}]))
 
 (defn upsert
   [type {:keys [id] :as attributes}]
@@ -558,7 +568,7 @@
         ref-idents (idents-with-value-type entity :db.type/ref)]
     (mapm (fn [[k v]]
             [k (if (and (contains? ref-idents k) (not (keyword? v)))
-                 (if (sequential? v)
+                 (if (or (set? v) (sequential? v))
                    (map find-recursively v)
                    (find-recursively v))
                  v)])
