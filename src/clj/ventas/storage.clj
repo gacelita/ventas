@@ -11,45 +11,45 @@
     :doc "Should contain a StorageBackend implementation"}
   storage-backend)
 
-(defn- key->path [key]
-  (str "storage/" key))
+(defn- key->path [base-path key]
+  (str base-path (when key (str "/" key))))
 
-(defn- key->file [key]
-  (io/file (key->path key)))
+(defn- key->file [base-path key]
+  (io/file (key->path base-path key)))
 
-(defrecord LocalStorageBackend []
+(defrecord LocalStorageBackend [base-path]
   protocol/StorageBackend
   (get-object [_ key]
-    (slurp (key->path key)))
+    (slurp (key->path base-path key)))
   (get-public-url [_ key]
-    (str "/" (key->path key)))
+    (str "/" (key->path base-path key)))
   (list-objects [this]
     (protocol/list-objects this ""))
   (list-objects [_ prefix]
-    (->> (file-seq (io/file (str "storage" (when prefix (str "/" prefix)))))
+    (->> (file-seq (io/file (key->path base-path prefix)))
          (map (fn [file]
                 (-> (str file)
                     (str/replace (str "src" File/separator) "")
                     (str/replace File/separator "/"))))))
   (remove-object [_ key]
-   (io/delete-file (key->file key) true))
+   (io/delete-file (key->file base-path key) true))
   (stat-object [_ key]
-    (let [file (key->file key)]
+    (let [file (key->file base-path key)]
       {:length (.length file)
        :last-modified (-> (.lastModified file)
                           (/ 1000) (long) (* 1000)
                           (java.util.Date.))}))
   (put-object [_ key file]
-    (let [target-file (key->file key)]
+    (let [target-file (key->file base-path key)]
       (io/make-parents target-file)
       (when-not (.exists target-file)
         (io/copy file target-file)))))
 
 (defstate storage-backend
   :start
-  (do
-    (.mkdir (io/file "storage"))
-    (->LocalStorageBackend)))
+  (let [base-path "storage"]
+    (.mkdir (io/file base-path))
+    (->LocalStorageBackend base-path)))
 
 (defn get-object [key]
   (protocol/get-object storage-backend key))
