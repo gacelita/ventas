@@ -11,7 +11,8 @@
    [ventas.server.api :as api]
    [ventas.search.entities :as search.entities]
    [ventas.server.pagination :as pagination]
-   [ventas.utils :as utils]))
+   [ventas.utils :as utils]
+   [ventas.email :as email]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
@@ -168,6 +169,17 @@
     (let [product (entity/upsert* product)]
       (doseq [variation variations]
         (entity/upsert* (assoc variation :product.variation/parent (:db/id product)))))))
+
+(register-admin-endpoint!
+ ::admin.email-configuration.get
+ (fn [_ _]
+   (email/get-config)))
+
+(register-admin-endpoint!
+ ::admin.email-configuration.set
+ (fn [{config :params} _]
+   (email/save-config! config)
+   nil))
 
 (register-admin-endpoint!
  ::admin.configuration.set

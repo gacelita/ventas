@@ -57,9 +57,19 @@
             :db/valueType :db.type/string
             :db/cardinality :db.cardinality/one}]]]})
 
-(defn- save-config! [config]
-  (entity/upsert* (merge {:db/ident :email-config}
-                         config)))
+(defn save-config! [config]
+  (entity/upsert*
+   (ventas.common.utils/remove-nil-vals
+    {:db/ident :email-config
+     :schema/type :schema.type/email-config
+     :email-config/smtp-host (:host config)
+     :email-config/smtp-port (:port config)
+     :email-config/smtp-user (:user config)
+     :email-config/smtp-password (:pass config)
+     :email-config/from-address (:from config)
+     :email-config/encryption-enabled? (or (:ssl config) (:tls config))
+     :email-config/encryption-type (cond (:ssl config) :email-config.encryption-type/ssl
+                                         (:tls config) :email-config.encryption-type/tls)})))
 
 (defn- get-config-from-db []
   (let [entity (entity/find :email-config)

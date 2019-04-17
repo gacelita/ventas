@@ -5,7 +5,6 @@
    [ventas.components.base :as base]
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
-   [ventas.server.api :as backend]
    [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
    [ventas.themes.admin.skeleton :as admin.skeleton]
@@ -16,11 +15,24 @@
 
 (def state-key ::state)
 
+(defn- ->form [data]
+  (assoc data :encryption-enabled? (or (:ssl data) (:tls data))
+              :smtp-enabled? (boolean (:host data))
+              :encryption-type (cond
+                                 (:ssl data) "ssl"
+                                 (:tls data) "tls")))
+
+(defn- ->entity [form]
+  (let [encryption-type (keyword (get form :encryption-type))]
+    (-> form
+        (dissoc :encryption-enabled? :encryption-type :smtp-enabled? :ssl :tls)
+        (cond-> (and encryption-type (:encryption-enabled? form)) (assoc encryption-type true)))))
+
 (rf/reg-event-fx
  ::submit
  (fn [{:keys [db]} _]
-   {:dispatch [::api.admin/admin.configuration.set
-               {:params (get-in db [state-key :form])
+   {:dispatch [::api.admin/admin.email-configuration.set
+               {:params (->entity (get-in db [state-key :form]))
                 :success [::notificator/notify-saved]}]}))
 
 (defn- field [{:keys [key] :as args}]
@@ -35,33 +47,32 @@
                     :title (i18n ::page)}
       [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-       [field {:key :email.from}]
+       [field {:key :from}]
 
-       [field {:key :email.encryption.enabled
+       [field {:key :encryption-enabled?
                :type :toggle}]
 
-       (when (:email.encryption.enabled data)
-         [field {:key :email.encryption.type
+       (when (:encryption-enabled? data)
+         [field {:key :encryption-type
                  :type :radio
                  :options [{:value "ssl"
                             :text (i18n ::ssl)}
                            {:value "tls"
                             :text (i18n ::tls)}]}])
 
-       [field {:key :email.smtp.enabled
+       [field {:key :smtp-enabled?
                :type :toggle}]
 
-       (when (:email.smtp.enabled data)
+       (when (:smtp-enabled? data)
          [:div
+          [field {:key :host}]
 
-          [field {:key :email.smtp.host}]
-
-          [field {:key :email.smtp.port
+          [field {:key :port
                   :type :number}]
 
-          [field {:key :email.smtp.user}]
+          [field {:key :user}]
 
-          [field {:key :email.smtp.password
+          [field {:key :pass
                   :type :password}]])
 
        [base/divider {:hidden true}]
@@ -76,18 +87,15 @@
     [content]]])
 
 (rf/reg-event-fx
+ ::init.next
+ (fn [_ [_ data]]
+   {:dispatch [::form/populate [state-key] (->form data)]}))
+
+(rf/reg-event-fx
  ::init
  (fn [_ _]
-   {:dispatch [::backend/configuration.get
-               {:params #{:email.from
-                          :email.encryption.enabled
-                          :email.encryption.type
-                          :email.smtp.enabled
-                          :email.smtp.host
-                          :email.smtp.port
-                          :email.smtp.user
-                          :email.smtp.password}
-                :success [::form/populate [state-key]]}]}))
+   {:dispatch [::api.admin/admin.email-configuration.get
+               {:success [::init.next]}]}))
 
 (routes/define-route!
  :admin.configuration.email
