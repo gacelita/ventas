@@ -17,7 +17,8 @@
    [datomic Datom Connection]
    [datomic.query EntityMap]
    [java.util.concurrent ExecutionException]
-   [clojure.lang ExceptionInfo]))
+   [clojure.lang ExceptionInfo]
+   (datomic.db DbId)))
 
 (defn start-db! []
   (p/retriable
@@ -47,6 +48,9 @@
 
 (defn connected? []
   (instance? Connection conn))
+
+(defn dbid? [v]
+  (instance? DbId v))
 
 (defn q
   "q wrapper"
@@ -200,15 +204,20 @@
   [m]
   (common.utils/map-vals EntityMap->eid m))
 
+(defn etouch [ref]
+  (some-> ref entity d/touch))
+
 (defn touch-eid
-  "Touches an entity by eid"
-  [eid]
-  {:pre [eid]}
-  (when-let [entity (entity eid)]
-    (let [result (d/touch entity)]
-      (-> (into {} result)
-          (assoc :db/id (:db/id result))
-          (EntityMaps->eids)))))
+  "Touches an entity by eid, returns a shallow version of it
+   This is currently overused in ventas, the entity API is much better and
+   this function is quite wasteful considering the whole entity is touched
+   but only the :db/ids are returned"
+  [ref]
+  {:pre [ref]}
+  (when-let [result (etouch ref)]
+    (-> (into {} result)
+        (assoc :db/id (:db/id result))
+        (EntityMaps->eids))))
 
 (defn normalize-ref
   "Normalizes a database reference.

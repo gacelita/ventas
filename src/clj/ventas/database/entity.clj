@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [find type update])
   (:require
    [clojure.core :as clj]
-   [clojure.set :as set]
    [clojure.spec.alpha :as spec]
    [clojure.test.check.generators :as gen]
    [datomic.api :as d]
@@ -16,8 +15,7 @@
    [clojure.walk :as walk]
    [clojure.string :as str]
    [ventas.database.tx-processor :as tx-processor]
-   [clojure.data :as data])
-  (:import (datomic.db DbId)))
+   [clojure.data :as data]))
 
 (defn entity? [entity]
   (when (map? entity)

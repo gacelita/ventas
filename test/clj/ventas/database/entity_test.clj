@@ -43,7 +43,7 @@
 (deftest entities-remove
   (let [{id :db/id} (sut/create :user test-user-attrs)]
     (sut/delete id)
-    (is (= nil (sut/find id)))))
+    (is (not (sut/find id)))))
 
 (deftest entities-find
   (let [{id :db/id :as user} (sut/create :user test-user-attrs)]
