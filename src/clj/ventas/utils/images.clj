@@ -19,6 +19,17 @@
 (defn- landscape? [relation]
   (<= 1 relation))
 
+;; these functions make this way easier to test
+
+(defn- source-region [builder x y w h]
+  (.sourceRegion builder x y w h))
+
+(defn- scale-to [builder factor]
+  (.scale builder factor))
+
+(defn- output-quality [builder quality]
+  (.outputQuality builder quality))
+
 (defn- scale-dimensions* [scale {:keys [width height]}]
   {:width (* 1.0 scale width)
    :height (* 1.0 scale height)})
@@ -62,7 +73,7 @@
       (recur builder metadata {:offset [(- (/ (:width metadata) 2.0) (/ width 2.0))
                                         (- (/ (:height metadata) 2.0) (/ height 2.0))]
                                :size [width height]}))
-    (.sourceRegion builder
+    (source-region builder
                    (first offset)
                    (second offset)
                    (first size)
@@ -73,7 +84,7 @@
     builder
     (let [width-scale (/ width (:width metadata))
           height-scale (/ height (:height metadata))]
-      (.scale builder (min width-scale height-scale)))))
+      (scale-to builder (min width-scale height-scale)))))
 
 (defn transform-image* [source-path target-path {:keys [resize scale crop quality]}]
   (when-not (.exists (io/file source-path))
@@ -87,10 +98,10 @@
         Thumbnails/of
         (.scalingMode ScalingMode/PROGRESSIVE_BILINEAR)
         (cond-> crop (crop-image metadata crop)
-                scale (.scale scale)
+                scale (scale-to scale)
                 resize (resize-image metadata resize)
-                quality (.outputQuality (double quality))
-                (and (not scale) (not resize)) (.scale 1))
+                quality (output-quality (double quality))
+                (and (not scale) (not resize)) (scale-to 1))
         (.toFile (io/file target-path)))))
 
 (defn transform-image [source-path target-dir & [options]]
