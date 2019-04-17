@@ -65,7 +65,8 @@
      (when-not (= (:db/id user) (:address/user address))
        (throw+ {:type ::entity-update-unauthorized
                 :entity-type :address}))
-     (entity/delete id))))
+     (entity/delete id)
+     true)))
 
 (register-user-endpoint!
  ::users.cart.get
