@@ -27,11 +27,7 @@
 (defn send-request!
   "Sends a request and calls the callback with the response"
   [{:keys [params channel-key callback] request-name :name} & {:keys [binary?]}]
-  (log/debug ::send-request!
-             {:name request-name
-              :params params
-              :channel-key channel-key
-              :binary? binary?})
+  (log/debug ::send-request! request-name params)
   (let [request-channel (chan)
         request-id (str (gensym (str "request-" (name request-name) "-")))
         output-channel (get @output-channels (if binary? :fressian :transit-json))]
@@ -81,7 +77,7 @@
   "Receives messages from the server and calls an appropiate dispatcher"
   (go-loop []
     (let [{:keys [type] :as message} (:message (<! websocket-channel))]
-      (log/debug ::receive-messages! message)
+      (log/debug ::receive-messages! (:id message) (:data message))
       (case type
         :event (ws-event-dispatch message)
         :response (ws-response-dispatch message)
