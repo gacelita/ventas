@@ -180,7 +180,7 @@
                                   [org.clojure/tools.namespace "0.3.0-alpha4"]
                                   [deraen/sass4clj "0.3.1" :exclusions [org.apache.commons/commons-compress]]
                                   [devcards "0.2.4" :exclusions [cljsjs/react cljsjs/react-dom org.clojure/clojurescript]]
-                                  [thheller/shadow-cljs "2.8.31" :exclusions [org.clojure/tools.reader
+                                  [thheller/shadow-cljs "2.7.21" :exclusions [org.clojure/tools.reader
                                                                               org.clojure/clojure
                                                                               com.google.guava/guava
                                                                               org.clojure/tools.cli
