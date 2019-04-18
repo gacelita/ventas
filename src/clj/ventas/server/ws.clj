@@ -147,7 +147,6 @@
   (let [client-id (uuid-v4)]
     (go-loop []
       (when-let [{{:keys [id] :as message} :message} (<! channel)]
-        (log/debug "Received binary message" message)
         (let [response (handle-binary-request
                         message
                         {:client-id client-id
