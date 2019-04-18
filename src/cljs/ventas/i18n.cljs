@@ -5,6 +5,7 @@
   (:require
    [tongue.core :as tongue]
    [ventas.common.utils :as common.utils]
+   [ventas.session :as session]
    [re-frame.core :as rf]))
 
 (def ^:private base-dicts
@@ -180,5 +181,5 @@
   (build-translation-fn!))
 
 (defn i18n [kw & args]
-  (let [culture-kw @(rf/subscribe [:ventas.events/culture-kw])]
+  (let [culture-kw @(rf/subscribe [::session/culture-keyword])]
     (apply @translation-fn (or culture-kw :en_US) kw args)))

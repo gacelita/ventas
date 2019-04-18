@@ -77,7 +77,8 @@
   "Receives messages from the server and calls an appropiate dispatcher"
   (go-loop []
     (let [{:keys [type] :as message} (:message (<! websocket-channel))]
-      (log/debug ::receive-messages! (:id message) (:data message))
+      (when (not= (:data message) :pong)
+        (log/debug ::receive-messages! (:id message) (:data message)))
       (case type
         :event (ws-event-dispatch message)
         :response (ws-response-dispatch message)

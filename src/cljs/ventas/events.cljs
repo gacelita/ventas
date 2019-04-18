@@ -7,7 +7,8 @@
    [ventas.server.api.admin :as api.admin]
    [ventas.server.api.user :as api.user]
    [ventas.i18n :refer [i18n]]
-   [ventas.utils.logging :as log])
+   [ventas.utils.logging :as log]
+   [ventas.session :as session])
   (:require-macros
    [ventas.events]))
 
@@ -199,11 +200,6 @@
       :db (update db :users.favorites #(if (contains? favorites id)
                                          (disj (set %) id)
                                          (conj (set %) id)))})))
-
-(rf/reg-sub
- ::culture-kw
- (fn [db]
-   (get-in db [:session :identity :culture :keyword])))
 
 (rf/reg-sub
  ::users.favorites.favorited?

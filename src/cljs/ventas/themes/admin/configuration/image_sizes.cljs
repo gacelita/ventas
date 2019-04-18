@@ -34,8 +34,7 @@
     [base/icon {:name "remove"}]]])
 
 (defn- algorithm-column [{:keys [algorithm]}]
-  [:span
-   (i18n algorithm)])
+  [:span (:name algorithm)])
 
 (defn- footer []
   [base/button {:on-click #(routes/go-to :admin.configuration.image-sizes.edit :id 0)}

@@ -9,6 +9,7 @@
    [ventas.events :as events]
    [ventas.server.api.admin :as api.admin]
    [ventas.i18n :refer [i18n]]
+   [ventas.components.image-input :as image-input]
    [ventas.themes.admin.skeleton :as admin.skeleton]
    [ventas.routes :as routes]
    [ventas.utils.logging :refer [debug error info trace warn]]
@@ -149,33 +150,31 @@
 
 (defn content []
   [form/form [state-key]
-   (let [{{:keys [culture]} :identity} @(rf/subscribe [:db [:session]])]
-     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+   [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-      [base/segment {:color "orange"
-                     :title (i18n ::shipping-method)}
+    [base/segment {:color "orange"
+                   :title (i18n ::shipping-method)}
 
-       [field {:key :shipping-method/name
-               :type :i18n
-               :culture culture}]
+     [field {:key :shipping-method/name
+             :type :i18n}]
 
-       [field {:key :shipping-method/default?
-               :type :toggle}]
+     [field {:key :shipping-method/default?
+             :type :toggle}]
 
-       [field {:key :shipping-method/manipulation-fee
-               :type :amount}]
+     [field {:key :shipping-method/manipulation-fee
+             :type :amount}]
 
-       [field {:key [:shipping-method/pricing :db/id]
-               :type :combobox
-               :options @(rf/subscribe [:db [:enums :shipping-method.pricing]])}]
+     [field {:key [:shipping-method/pricing :db/id]
+             :type :combobox
+             :options @(rf/subscribe [:db [:enums :shipping-method.pricing]])}]
 
-       [prices-table]
+     [prices-table]
 
-       [field {:key :shipping-method/logo
-               :type :image}]]
+     [field {:key :shipping-method/logo
+             :type ::image-input/image}]]
 
-      [base/form-button {:type "submit"}
-       (i18n ::submit)]])])
+    [base/form-button {:type "submit"}
+     (i18n ::submit)]]])
 
 (defn page []
   [admin.skeleton/skeleton

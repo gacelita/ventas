@@ -29,7 +29,7 @@
        (assoc-in [state-key :table :total] total))))
 
 (defn- type-column [{:keys [type]}]
-  [:span (i18n type)])
+  [:span (:name type)])
 
 (defn- entity-type-column [{:keys [entity-type]}]
   [:span (str/capitalize (name entity-type))])

@@ -82,6 +82,7 @@
    :ventas.themes.admin.configuration.image-sizes/keyword "ID"
 
    :ventas.themes.admin.configuration.image-sizes.edit/algorithm "Algorithm"
+   :ventas.themes.admin.configuration.image-sizes.edit/page "Edit image size"
    :ventas.themes.admin.configuration.image-sizes.edit/name "Name"
    :ventas.themes.admin.configuration.image-sizes.edit/keyword "Keyword"
    :ventas.themes.admin.configuration.image-sizes.edit/width "Width"
@@ -90,6 +91,8 @@
    :ventas.themes.admin.configuration.image-sizes.edit/amount "Amount"
    :ventas.themes.admin.configuration.image-sizes.edit/submit "Submit"
    :ventas.themes.admin.configuration.image-sizes.edit/saved-notification "Saved!"
+
+   :ventas.themes.admin.customization/page "Customization"
 
    :ventas.themes.admin.customization.customize/page "Customize"
    :ventas.themes.admin.customization.customize/name "Name"

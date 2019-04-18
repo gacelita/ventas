@@ -58,51 +58,48 @@
 
 (defn- content []
   [form/form [state-key]
-   (let [{{:keys [culture]} :identity} @(rf/subscribe [:db [:session]])
-         data @(rf/subscribe [::form/data [state-key]])]
 
-     [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
+   [base/form {:on-submit (utils.ui/with-handler #(rf/dispatch [::submit]))}
 
-      [base/segment {:color "orange"
-                     :title (i18n ::page)}
+    [base/segment {:color "orange"
+                   :title (i18n ::page)}
 
-       [field {:key :discount/name
-               :type :i18n
-               :culture culture}]
+     [field {:key :discount/name
+             :type :i18n}]
 
-       [field {:key :discount/code
-               :type :text}]
+     [field {:key :discount/code
+             :type :text}]
 
-       [field {:key :discount/active?
-               :type :toggle}]
+     [field {:key :discount/active?
+             :type :toggle}]
 
-       [field {:key :discount/max-uses-per-customer
-               :type :number}]
+     [field {:key :discount/max-uses-per-customer
+             :type :number}]
 
-       [field {:key :discount/max-uses
-               :type :number}]
+     [field {:key :discount/max-uses
+             :type :number}]
 
-       [field {:key :discount/free-shipping?
-               :type :toggle}]
+     [field {:key :discount/free-shipping?
+             :type :toggle}]
 
-       [admin.common/entity-search-field
-        {:label (i18n ::product)
-         :db-path [state-key]
-         :key [:discount/product :db/id]
-         :attrs #{:product/name}
-         :selected-option @(rf/subscribe [:db [state-key :product]])}]
+     [admin.common/entity-search-field
+      {:label (i18n ::product)
+       :db-path [state-key]
+       :key [:discount/product :db/id]
+       :attrs #{:product/name}
+       :selected-option @(rf/subscribe [:db [state-key :product]])}]
 
-       [field {:key :discount/amount
-               :type :amount}]
+     [field {:key :discount/amount
+             :type :amount}]
 
-       [field {:key :discount/amount.tax-included?
-               :type :toggle}]
+     [field {:key :discount/amount.tax-included?
+             :type :toggle}]
 
-       [field {:key [:discount/amount.kind :db/id]
-               :type :combobox
-               :options @(rf/subscribe [:db [:enums :discount.amount.kind]])}]
+     [field {:key [:discount/amount.kind :db/id]
+             :type :combobox
+             :options @(rf/subscribe [:db [:enums :discount.amount.kind]])}]
 
-       [base/form-button {:type "submit"} (i18n ::submit)]]])])
+     [base/form-button {:type "submit"} (i18n ::submit)]]]])
 
 (defn page []
   [admin.skeleton/skeleton

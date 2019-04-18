@@ -175,7 +175,7 @@
               "")]
            [base/table-cell (utils.formatting/amount->str (:amount order))]
            [base/table-cell (utils.formatting/format-date (:created-at order))]
-           [base/table-cell (i18n (:status order))]])))]])
+           [base/table-cell (:name (:status order))]])))]])
 
 (defn- content []
   [base/grid {:stackable true :columns 2}

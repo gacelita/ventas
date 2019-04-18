@@ -17,10 +17,10 @@
                          :i18n.translation/value text
                          :i18n.translation/culture {:db/id culture}})})
 
-(defn- on-change-handler [{:keys [translations callback id]}]
+(defn- on-change-handler [{:keys [translations callback]}]
   (callback (to-i18n-entity translations)))
 
-(defn- culture-view [{:keys [translations culture id label on-change control]}]
+(defn- culture-view [{:keys [translations culture label on-change control]}]
   [base/form-input {:label label}
    [:div.i18n-input__culture
     (let [culture-data (->> @(rf/subscribe [:db [:cultures]])

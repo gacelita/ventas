@@ -5,6 +5,7 @@
    [ventas.components.colorpicker :as colorpicker]
    [ventas.components.form :as form]
    [ventas.components.notificator :as notificator]
+   [ventas.components.image-input :as image-input]
    [ventas.components.popover :as popover]
    [ventas.events :as events]
    [ventas.server.api :as backend]
@@ -100,9 +101,9 @@
 
 (def ^:private fields
   (atom {:customization/name {:type :text}
-         :customization/logo {:type :image
+         :customization/logo {:type ::image-input/image
                               :inline true}
-         :customization/header-image {:type :image}
+         :customization/header-image {:type ::image-input/image}
          :customization/background-color {:type :color}
          :customization/foreground-color {:type :color}
          :customization/product-listing-mode {:type :radio

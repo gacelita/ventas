@@ -1,10 +1,8 @@
 (ns ventas.session
   (:require
    [cljs.core.async :as core.async :refer [>! chan go]]
-   [re-frame.core :as rf]
-   [ventas.components.notificator :as notificator]
-   [ventas.events :as events]
-   [ventas.i18n :refer [i18n]]))
+   [day8.re-frame.forward-events-fx]
+   [re-frame.core :as rf]))
 
 (def ready
   "A value will be put here when the session is ready"
@@ -14,7 +12,7 @@
  ::listen-to-events
  (fn [_ _]
    {:forward-events {:register ::listener
-                     :events #{::events/session.start ::events/session.error}
+                     :events #{:ventas.events/session.start :ventas.events/session.error}
                      :dispatch-to [::session-done]}}))
 
 (rf/dispatch [::listen-to-events])
@@ -22,7 +20,7 @@
 (rf/reg-event-fx
  ::session-done
  (fn [_ [_ [event-kw message]]]
-   (core.async/put! ready {:success (= event-kw ::events/session.start)
+   (core.async/put! ready {:success (= event-kw :ventas.events/session.start)
                            :message message})
    {:forward-events {:unregister ::listener}}))
 
@@ -30,6 +28,24 @@
   (get-in db [:session :identity]))
 
 (rf/reg-sub ::identity get-identity)
+
+(rf/reg-sub
+ ::culture
+ :<- [::identity]
+ (fn [identity]
+   (:culture identity)))
+
+(rf/reg-sub
+ ::culture-keyword
+ :<- [::culture]
+ (fn [culture]
+   (:keyword culture)))
+
+(rf/reg-sub
+ ::culture-id
+ :<- [::culture]
+ (fn [culture]
+   (:id culture)))
 
 (defn- identity-valid? [{:keys [id status]}]
   (and id
@@ -41,12 +57,3 @@
    (rf/subscribe [::identity]))
  identity-valid?)
 
-(rf/reg-event-fx
- ::require-identity
- (fn [{:keys [db]} _]
-   (let [{:keys [status] :as identity} (get-identity db)]
-     (when-not (identity-valid? identity)
-       (merge {:go-to [:frontend.login]}
-              (when (= :user.status/unregistered status)
-                {:dispatch [::notificator/add {:message (i18n ::unregistered-error)
-                                               :theme "error"}]}))))))

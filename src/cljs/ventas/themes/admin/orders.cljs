@@ -19,7 +19,7 @@
     [base/icon {:name "remove"}]]])
 
 (defn- status-column [{:keys [status]}]
-  [:span (i18n status)])
+  [:span (:name status)])
 
 (rf/reg-event-fx
  ::fetch

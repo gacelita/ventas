@@ -152,7 +152,7 @@
    {:dispatch [::search-box/items.set id (map #(set/rename-keys % {:route :id})
                                               items)]}))
 
-(defn item-modal [culture]
+(defn item-modal []
   (let [{:keys [open path]} @(rf/subscribe [:db [state-key :item-modal]])]
     [base/modal {:size "small"
                  :open open
@@ -168,8 +168,7 @@
            (crud-form/field
             state-path
             {:key :menu.item/name
-             :type :i18n
-             :culture culture})
+             :type :i18n})
            (let [items @(rf/subscribe [::search-box/items search-box-id])
                  query @(rf/subscribe [::search-box/query search-box-id])]
              [search-box
@@ -231,8 +230,7 @@
       (crud-form/field
        state-path
        {:key :menu/name
-        :type :i18n
-        :culture culture})
+        :type :i18n})
 
       (let [field :menu/items
             field-data (get form field)]
@@ -257,7 +255,7 @@
                        :on-click (utils.ui/with-handler
                                   #(rf/dispatch [::edit-item]))}
           (i18n ::add-menu-item)]])]
-     [item-modal culture]]))
+     [item-modal]]))
 
 (declare menu->db)
 
