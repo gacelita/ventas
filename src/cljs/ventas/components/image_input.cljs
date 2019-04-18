@@ -4,7 +4,9 @@
    [ventas.events :as events]
    [re-frame.core :as rf]
    [ventas.components.image :as image]
-   [ventas.utils.ui :as utils.ui]))
+   [ventas.utils.ui :as utils.ui]
+   [ventas.components.form :as form]
+   [ventas.components.draggable-list :as draggable-list]))
 
 (def state-key ::state)
 
@@ -35,11 +37,6 @@
                    :size "large"
                    :src url}]]]))
 
-(rf/reg-event-fx
- ::remove-image
- (fn [_ [_ on-change]]
-   {:dispatch (conj on-change nil)}))
-
 (defn image-view [{:keys [id on-remove]}]
   [:div
    [base/image {:src (image/get-url id :admin-products-edit)
@@ -65,6 +62,11 @@
  (fn [_ [_ on-change entity]]
    {:dispatch (conj on-change entity)}))
 
+(rf/reg-event-fx
+ ::image.set
+ (fn [_ [_ db-path key entity]]
+   {:dispatch [::form/set-field db-path key entity]}))
+
 (defn- image-placeholder [{:keys [on-change]}]
   (let [ref (atom nil)]
     (fn []
@@ -82,7 +84,56 @@
 (defn image-input [{:keys [on-change value]}]
   [:div.image-input
    (if value
-     ^{:key value} [image-view {:id value
-                                :on-remove on-change}]
+     ^{:key value}
+     [image-view {:id value
+                  :on-remove on-change}]
      [image-placeholder {:on-change on-change}])
    [image-modal]])
+
+(defmethod form/input ::image [{:keys [value db-path key]}]
+  [image-input
+   {:on-change [::image.set db-path key]
+    :value (:db/id value)}])
+
+;; images input
+
+(defn- assoc-file [list file]
+  (let [list (or list {:schema/type :schema.type/file.list
+                       :file.list/elements []})]
+    (update list :file.list/elements conj {:schema/type :schema.type/file.list.element
+                                           :file.list.element/file file
+                                           :file.list.element/position (count (:file.list/elements list))})))
+
+(defn- dissoc-file [list file]
+  (update list :file.list/elements
+          (fn [elements]
+            (remove #(= (get-in % [:file.list.element/file :db/id]) (:db/id file))
+                    elements))))
+
+(rf/reg-event-fx
+ ::list-element.upload
+ (fn [_ [_ db-path key file]]
+   {:dispatch [::form/update-field db-path key #(assoc-file % file)]}))
+
+(rf/reg-event-fx
+ ::list-element.remove
+ (fn [_ [_ db-path key file-id]]
+   {:dispatch [::form/update-field db-path key #(dissoc-file % {:db/id file-id})]}))
+
+(defn list-image-view [db-path key {:db/keys [id]}]
+  [:div.image-input__list-element
+   [image-view {:id id
+                :on-remove [::list-element.remove db-path key id]}]])
+
+(defmethod form/input ::image-list [{:keys [value db-path key]}]
+  [base/form-field {:class "image-input__list"}
+   [base/image-group
+    [draggable-list/main-view
+     {:on-reorder (fn [items]
+                    (let [files (map #(nth % 3) items)]
+                      (rf/dispatch [::form/set-field db-path key (reduce assoc-file nil files)])))}
+     (for [{:file.list.element/keys [file position]} (:file.list/elements value)]
+       ^{:key position}
+       [list-image-view db-path key file])]
+    [image-placeholder
+     {:on-change [::list-element.upload db-path key]}]]])

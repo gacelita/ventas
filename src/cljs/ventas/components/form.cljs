@@ -7,11 +7,10 @@
    [reagent.core :as reagent]
    [cljs-time.format :as f]
    [cljs-time.coerce :as c]
-   [clojure.walk :as walk]
    [ventas.components.amount-input :as amount-input]
-   [ventas.components.image-input :as image-input]
    [ventas.components.base :as base]
    [ventas.components.i18n-input :as i18n-input]
+   [ventas.session :as session]
    [ventas.i18n :refer [i18n]]
    [ventas.utils.validation :as validation]
    [ventas.components.colorpicker :as colorpicker]
@@ -143,26 +142,15 @@
 (defmethod input :i18n [{:keys [value db-path key culture]}]
   [i18n-input/input
    {:entity value
-    :culture (or culture (get-in @(rf/subscribe [:db [:session]])
-                                 [:identity :culture]))
+    :culture (or culture @(rf/subscribe [::session/culture-id]))
     :on-change #(rf/dispatch [::set-field db-path key %])}])
 
 (defmethod input :i18n-textarea [{:keys [value db-path key culture]}]
   [i18n-input/input
    {:entity value
-    :culture culture
+    :culture (or culture @(rf/subscribe [::session/culture-id]))
     :control :textarea
     :on-change #(rf/dispatch [::set-field db-path key %])}])
-
-(rf/reg-event-fx
- ::image.set
- (fn [_ [_ db-path key entity]]
-   {:dispatch [::set-field db-path key entity]}))
-
-(defmethod input :image [{:keys [value db-path key]}]
-  [image-input/image-input
-   {:on-change [::image.set db-path key]
-    :value (:db/id value)}])
 
 (rf/reg-event-fx
  ::on-color-change

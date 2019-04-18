@@ -103,15 +103,6 @@
                                 (api/serialize-with-session session)))))))))
 
 (register-admin-endpoint!
- ::admin.image-sizes.entities.list
- (fn [_ _]
-   (comment
-    (->> (entities.image-size/entities)
-         (map (comp utils/dequalify-keywords db/touch-eid))))
-   ;; @todo implement this again?
-   nil))
-
-(register-admin-endpoint!
  ::admin.events.list
  {:middlewares [pagination/wrap-sort
                 pagination/wrap-paginate]
@@ -131,8 +122,8 @@
    (let [{:order/keys [lines shipping-method shipping-address]} (entity/find id)]
      {:order (db/pull '[*] id)
       :status-history (entities.order/status-history id)
-      :shipping {:method (api/find-serialize-with-session session shipping-method)
-                 :address (api/find-serialize-with-session session shipping-address)}
+      :shipping {:method (some->> shipping-method (api/find-serialize-with-session session))
+                 :address (some->> shipping-address (api/find-serialize-with-session session))}
       :lines (map (partial api/find-serialize-with-session session)
                   lines)})))
 

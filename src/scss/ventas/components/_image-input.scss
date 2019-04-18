@@ -34,3 +34,38 @@
         display: none;
     }
 }
+
+
+.image-input__list-element {
+    display: inline-block;
+    position: relative;
+
+    img.ui.image {
+        margin: 0;
+    }
+
+    .ui.icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+}
+
+.image-input__list {
+    .ui.small.image {
+        height: 150px;
+    }
+
+    .draggable-list {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+
+    .draggable-list__item {
+        display: inline-block;
+    }
+
+    .image-input__placeholder {
+        margin: 0px;
+    }
+}

@@ -87,8 +87,9 @@
 
 (rf/reg-event-fx
  ::init
- (fn [_ _]
-   {:dispatch-n [[::api.admin/admin.entities.list
+ (fn [{:keys [db]} _]
+   {:db (assoc db state-key {})
+    :dispatch-n [[::api.admin/admin.entities.list
                   {:params {:type :product.term}
                    :success [:db [state-key :product.terms]]}]
                  [::api.admin/admin.entities.list
@@ -224,13 +225,12 @@
        [image-input/image-placeholder
         {:on-change [::upload.next]}]]])])
 
-(defn- description-view [culture]
+(defn- description-view []
   [base/segment {:title "Description"
                  :color "orange"}
 
-   [product-field {:key :product/description
-           :type        :i18n-textarea
-           :culture     culture}]
+   [product-field {:key  :product/description
+                   :type :i18n-textarea}]
 
    [product-field {:key [:product/brand :db/id]
            :type        :combobox
@@ -271,12 +271,11 @@
   [base/segment {:color "orange"
                  :title "Product"}
 
-   [product-field {:key :product/name
-           :type        :i18n
-           :culture     culture}]
+   [product-field {:key  :product/name
+                   :type :i18n}]
 
-   [product-field {:key :product/active
-           :type        :toggle}]
+   [product-field {:key  :product/active
+                   :type :toggle}]
 
    [product-field {:key :product/reference}]
 
@@ -294,7 +293,8 @@
        [base/divider {:hidden true}]
        [description-view culture]
        [base/divider {:hidden true}]
-       [images-view form]
+       [product-field {:key  :product/images
+                       :type ::image-input/image-list}]
        [base/divider {:hidden true}]
        [terms-view]
        [base/divider {:hidden true}]

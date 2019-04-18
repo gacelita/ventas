@@ -34,11 +34,12 @@
   (if (:category/image entity)
     (entity/find-serialize (:category/image entity) params)
     (when-let [image-eid (db/nice-query-attr
-                          {:find ['?id]
+                          {:find ['?file-id]
                            :in {'?category (:db/id entity)}
                            :where '[[?product :product/categories ?category]
-                                    [?product :product/images ?image]
-                                    [?image :product.image/file ?id]]})]
+                                    [?product :product/images ?fl]
+                                    [?fl :file.list/elements ?fle]
+                                    [?fle :file.list.element/file ?file-id]]})]
       (entity/find-serialize image-eid params))))
 
 (defn categories-with-products []
@@ -65,7 +66,7 @@
                  :ventas/slug)]
     (if (map? slug)
       slug
-      (entity/find-recursively slug))))
+      (db/map-etouch slug))))
 
 (defn- add-slug-to-category [entity]
   (let [source (:category/name entity)]

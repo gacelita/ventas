@@ -11,7 +11,8 @@
    [clojure.tools.logging :as log]
    [ventas.utils.files :as utils.files]
    [clojure.java.io :as io]
-   [ventas.database :as db]))
+   [ventas.database :as db]
+   [clojure.core :as clj]))
 
 (defn identifier [entity]
   {:pre [(:db/id entity)]}
@@ -29,12 +30,12 @@
   "Copies a file to the corresponding path of a :file entity.
    Does not overwrite the existing file, if any."
   [entity path]
-  (storage/put-object (filename entity) path))
+  (storage/put-object (filename entity) (if (string? path) (io/file path) path)))
 
 (defn slurp
   "Slurps the file corresponding to the :file entity"
   [entity]
-  (storage/get-object (filename entity)))
+  (clj/slurp (storage/get-object (filename entity))))
 
 (defn create-from-file!
   "Creates a :file entity from an existing file"
@@ -55,11 +56,6 @@
 
 (spec/def ::ref
   (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
-
-(def image-extensions #{"jpg" "jpeg" "png" "gif" "webp"})
-
-(defn- image? [file-entity]
-  (contains? image-extensions (:file/extension file-entity)))
 
 (defn- image-sizes [file-entity]
   (->> (db/nice-query {:find '[?sizes]
@@ -171,14 +167,15 @@
          (map :file)))
   :seed-number 0})
 
-(defn ->list-entity [files]
+(defn ->list-entity [files & [image-sizes]]
   {:schema/type :schema.type/file.list
    :file.list/elements (map-indexed
                         (fn [idx file]
                           {:schema/type :schema.type/file.list.element
                            :file.list.element/position idx
                            :file.list.element/file file})
-                        files)})
+                        files)
+   :file.list/image-sizes image-sizes})
 
 (defmethod search.indexing/transform-entity-by-type :file [entity]
   (entity/serialize entity))
@@ -218,27 +215,38 @@
   (log/info "Transforming" (:db/id file-entity) ", size:" (:image-size/keyword size-entity))
   (future
    (let [source-filename (filename file-entity)
-         source-file (storage/get-object source-filename)]
-     (if-not source-file
+         source-stream (storage/get-object source-filename)]
+     (if-not source-stream
        (log/warn "Couldn't transform" (:db/id file-entity) ":" source-filename "not found")
        (let [file-key (resized-file-key file-entity size-entity)]
-         (log/debug "File key: "file-key)
+         (log/debug "File key: " file-key)
          (if (and (not overwrite?) (storage/stat-object file-key))
            (log/info (str (:db/id file-entity)) "already transformed for size" (:image-size/keyword size-entity))
-           (let [middle-filepath (str (utils.files/get-tmp-dir) "/" source-filename)
-                 _ (io/copy source-file (io/file middle-filepath))
-                 path (utils.images/transform-image
-                       middle-filepath
-                       nil
-                       (size-entity->configuration size-entity))]
-             (storage/put-object file-key path)))
+           (let [middle-filepath (str (utils.files/get-tmp-dir) "/" source-filename)]
+             (with-open [stream source-stream]
+               (io/copy stream (io/file middle-filepath))
+               (let [path (utils.images/transform-image
+                           middle-filepath
+                           nil
+                           (size-entity->configuration size-entity))]
+                 (storage/put-object file-key path)))))
          file-key)))))
 
-(defn transform-all [& [{:keys [overwrite?] :as opts}]]
+(defn files-with-image-sizes []
+  (->> (db/nice-query {:find '[?file-eid]
+                       :where '[(or-join [?file-eid ?sizes]
+                                         (and [?fle :file.list.element/file ?file-eid]
+                                              [?fl :file.list/elements ?fle]
+                                              [?fl :file.list/image-sizes _])
+                                         [?file-eid :file/image-sizes _])]})
+       (map :file-eid)
+       (map entity/find)))
+
+(defn transform-all [& [opts]]
   (future
-   (doseq [image (entity/query :file {:file/extension [:in image-extensions]})]
-     (doseq [size (image-sizes image)]
-       @(transform image size opts)))))
+   (doseq [file (files-with-image-sizes)]
+     (doseq [size (image-sizes file)]
+       @(transform file size opts)))))
 
 (defn clean-storage []
   (doseq [key (storage/list-objects "resized-images")]

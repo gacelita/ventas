@@ -1,38 +1,4 @@
 
-.admin-products-edit__image {
-    display: inline-block;
-    position: relative;
-
-    img.ui.image {
-        margin: 0;
-    }
-
-    .ui.icon {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-    }
-}
-
-.admin-products-edit__images {
-    .ui.small.image {
-        height: 150px;
-    }
-
-    .draggable-list {
-        margin-right: 5px;
-        margin-bottom: 5px;
-    }
-
-    .draggable-list__item {
-        display: inline-block;
-    }
-
-    .image-input__placeholder {
-        margin: 0px;
-    }
-}
-
 .admin-products-edit__variations {
     .field {
         width: 80px;

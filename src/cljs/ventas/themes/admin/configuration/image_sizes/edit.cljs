@@ -38,8 +38,6 @@
                      [::api.admin/admin.entities.pull
                       {:params {:id id}
                        :success [::form/populate [state-key]]}]))
-                 [::api.admin/admin.image-sizes.entities.list
-                  {:success [:db [state-key :entities]]}]
                  [::events/enums.get :image-size.algorithm]]}))
 
 (defn- field [{:keys [key] :as args}]
@@ -60,16 +58,7 @@
      [field {:key :image-size/height}]
      [field {:key [:image-size/algorithm :db/id]
              :type :combobox
-             :options @(rf/subscribe [:db [:enums :image-size.algorithm]])}]
-     [field {:key :image-size/entities
-             :type :tags
-             :forbid-additions true
-             :xform {:in #(map :db/id %)
-                     :out #(map (fn [v] {:db/id v}) %)}
-             :options (map (fn [{:keys [ident id]}]
-                             {:text (i18n ident)
-                              :value id})
-                           @(rf/subscribe [:db [state-key :entities]]))}]]
+             :options @(rf/subscribe [:db [:enums :image-size.algorithm]])}]]
 
     [base/divider {:hidden true}]
 

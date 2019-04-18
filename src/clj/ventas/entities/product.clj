@@ -63,7 +63,7 @@
 
 (spec/def :product/images
   (spec/with-gen ::entity/refs
-    #(entity/refs-generator :product.image)))
+    #(entity/refs-generator :file.list)))
 
 (spec/def :product/variation-terms
   (spec/with-gen ::entity/refs
@@ -186,7 +186,11 @@
              :db/valueType :db.type/ref
              :db/cardinality :db.cardinality/one}]
 
-           (map #(hash-map :db/ident %) conditions))]]
+           (map #(hash-map :db/ident %) conditions))]
+   [:images-ref-entity-type [{:db/id :product/images
+                              :ventas/refEntityType :file.list}]]
+   [:images-cardinality-one [{:db/id :product/images
+                              :db/cardinality :db.cardinality/one}]]]
 
   :dependencies
   #{:brand :tax :file :category :product.term :amount}
@@ -205,37 +209,7 @@
   (fn [this params]
     (-> ((entity/default-attr :serialize) this params)
         (update :terms serialize-terms)
-        (update :variation-terms serialize-terms)
-        (update :images (fn [images]
-                          (->> images
-                               (map (fn [{:keys [file position]}]
-                                      (assoc file :position position)))
-                               (sort-by :position)
-                               (map #(dissoc % :position))
-                               (into []))))))})
-
-(spec/def :product.image/position number?)
-
-(spec/def :product.image/file
-  (spec/with-gen ::entity/ref #(entity/ref-generator :file)))
-
-(spec/def :schema.type/product.image
-  (spec/keys :req [:product.image/position
-                   :product.image/file]))
-
-(entity/register-type!
- :product.image
- {:migrations
-  [[:base [{:db/ident :product.image/position
-            :db/valueType :db.type/long
-            :db/cardinality :db.cardinality/one}
-           {:db/ident :product.image/file
-            :db/valueType :db.type/ref
-            :db/cardinality :db.cardinality/one}]]]
-
-  :dependencies #{:file}
-  :autoresolve? true
-  :seed-number 0})
+        (update :variation-terms serialize-terms)))})
 
 (spec/def :product.variation/parent
   (spec/with-gen ::entity/ref #(entity/ref-generator :product)))
@@ -298,18 +272,18 @@
 (defn add-image
   "Meant for development"
   [product-eid path]
-  (let [file {:file/extension (utils.files/extension path)
-              :schema/type :schema.type/file}
-        image {:schema/type :schema.type/product.image
-               :product.image/position 0
-               :product.image/file file}
-        {:product.image/keys [file] :db/keys [id]} (entity/create* image)]
-    (entity/update* {:db/id product-eid
-                     :product/images id}
-                    :append? true)
-    (entities.file/spit
-     (entity/find file)
-     (io/file path))))
+  (let [tempid (db/tempid)
+        new-product (entity/update* {:db/id product-eid
+                                     :product/images
+                                     {:schema/type :schema.type/file.list.element
+                                      :file.list.element/position 0
+                                      :file.list.element/file
+                                      {:file/extension (utils.files/extension path)
+                                       :db/id tempid
+                                       :schema/type :schema.type/file}}})
+        tx (:tx (meta new-product))
+        file-id (db/resolve-tempid (:tempids tx) tempid)]
+    (entities.file/spit (entity/find file-id) path)))
 
 (defn- find-variation* [ref terms]
   (if-let [variation (entity/query-one :product.variation {:parent ref
@@ -352,7 +326,6 @@
  {:migrations
   [[:base {:properties (merge #:product{:parent {:type "long"}
                                         :terms {:type "long"}
-                                        :images {:type "long"}
                                         :variation-terms {:type "long"}
                                         :ean13 {:type "text"}
                                         :tax {:type "long"}
@@ -366,5 +339,3 @@
                               (entities.i18n/es-migration {:product/name (search.schema/autocomplete-type)
                                                            :product/description {:type "text"}}
                                                           [:en_US :es_ES]))}]]})
-
-;; @TODO Stop using :product.image and start using :file.list
