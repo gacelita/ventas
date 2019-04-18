@@ -74,7 +74,47 @@
                                            (str "The requested API call does not exist (" name ")"))
     :ventas.utils.images/file-not-found (fn [{:keys [path]}]
                                           (str "File not found: " path))
-    :ventas.utils/spec-invalid "Validation error"}
+    :ventas.utils/spec-invalid "Validation error"
+
+    :discount.amount.kind/amount "Amount"
+    :discount.amount.kind/percentage "Percentage"
+
+    :image-size.algorithm/always-resize "Always resize"
+    :image-size.algorithm/crop-and-resize "Crop and resize"
+    :image-size.algorithm/resize-only-if-over-maximum "Resize only if over maximum"
+
+    :user.role/administrator "Administrator"
+    :user.role/user "User"
+
+    :user.status/inactive "Inactive"
+    :user.status/pending "Pending"
+    :user.status/active "Active"
+    :user.status/cancelled "Cancelled"
+    :user.status/unregistered "Unregistered"
+
+    :order.status/draft "Draft"
+    :order.status/acknowledged "Acknowledged"
+    :order.status/paid "Paid"
+    :order.status/ready "Ready"
+    :order.status/shipped "Shipped"
+    :order.status/unpaid "Unpaid"
+    :order.status/rejected "Rejected"
+    :order.status/cancelled "Cancelled"
+
+    :entity.create "Creation"
+    :entity.delete "Deletion"
+    :entity.update "Update"
+
+    :schema.type/category "Category"
+    :schema.type/user "User"
+    :schema.type/product "Product"
+    :schema.type/brand "Brand"
+
+    :shipping-method.pricing/price "Price"
+    :shipping-method.pricing/weight "Weight"
+
+    :tax.kind/amount "Amount"
+    :tax.kind/percentage "Percentage"}
 
    :es_ES
    {:ventas.email/new-pending-order "Nuevo pedido pendiente"
@@ -143,7 +183,48 @@
                                            (str "La llamada de API solicitada no existe (" name ")"))
     :ventas.utils.images/file-not-found (fn [{:keys [path]}]
                                           (str "Archivo no encontrado: " path))
-    :ventas.utils/spec-invalid "Error de validación"}})
+    :ventas.utils/spec-invalid "Error de validación"
+
+
+    :discount.amount.kind/amount "Importe"
+    :discount.amount.kind/percentage "Porcentaje"
+
+    :image-size.algorithm/always-resize "Siempre redimensionar"
+    :image-size.algorithm/crop-and-resize "Recortar y redimensionar"
+    :image-size.algorithm/resize-only-if-over-maximum "Redimensionar solo si supera el tamaño máximo"
+
+    :user.role/administrator "Administrador"
+    :user.role/user "Usuario"
+
+    :user.status/inactive "Inactivo"
+    :user.status/pending "Pendiente"
+    :user.status/active "Activo"
+    :user.status/cancelled "Cancelado"
+    :user.status/unregistered "No registrado"
+
+    :order.status/draft "Borrador"
+    :order.status/acknowledged "Aceptado"
+    :order.status/paid "Pagado"
+    :order.status/ready "Listo"
+    :order.status/shipped "Enviado"
+    :order.status/unpaid "No pagado"
+    :order.status/rejected "Rechazado"
+    :order.status/cancelled "Cancelado"
+
+    :entity.create "Creación"
+    :entity.delete "Eliminación"
+    :entity.update "Actualización"
+
+    :schema.type/category "Categoría"
+    :schema.type/user "Usuario"
+    :schema.type/product "Producto"
+    :schema.type/brand "Marca"
+
+    :shipping-method.pricing/price "Precio"
+    :shipping-method.pricing/weight "Peso"
+
+    :tax.kind/amount "Importe"
+    :tax.kind/percentage "Porcentaje"}})
 
 (def dicts (atom base-dicts))
 
