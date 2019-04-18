@@ -20,7 +20,9 @@
 (defrecord LocalStorageBackend [base-path]
   protocol/StorageBackend
   (get-object [_ key]
-    (slurp (key->path base-path key)))
+    (let [file (key->file base-path key)]
+      (when (.exists file)
+        (io/input-stream file))))
   (get-public-url [_ key]
     (str "/" (key->path base-path key)))
   (list-objects [this]
@@ -35,12 +37,14 @@
    (io/delete-file (key->file base-path key) true))
   (stat-object [_ key]
     (let [file (key->file base-path key)]
-      {:length (.length file)
-       :last-modified (-> (.lastModified file)
-                          (/ 1000) (long) (* 1000)
-                          (java.util.Date.))}))
+      (when (.exists file)
+        {:length (.length file)
+         :last-modified (-> (.lastModified file)
+                            (/ 1000) (long) (* 1000)
+                            (java.util.Date.))})))
   (put-object [_ key file]
-    (let [target-file (key->file base-path key)]
+    (let [target-file (key->file base-path key)
+          file (if (string? file) (io/file file) file)]
       (io/make-parents target-file)
       (when-not (.exists target-file)
         (io/copy file target-file)))))
