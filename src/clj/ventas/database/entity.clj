@@ -177,7 +177,8 @@
   (find (db/resolve-tempid (:tempids tx) tempid)))
 
 (defn- prepare-transact-attrs [filter-fn pre-entity & [initial-tempid]]
-  (if-not (map? pre-entity)
+  (if (or (not (map? pre-entity))
+          (db/dbid? pre-entity))
     pre-entity
     (-> pre-entity
         (filter-fn)
@@ -195,7 +196,8 @@
         tx (transact-fn [pre-entity
                          {:db/id (d/tempid :db.part/tx)
                           :event/kind :entity.create}])]
-    (transaction->entity tx tempid)))
+    (with-meta (transaction->entity tx tempid)
+               {:tx tx})))
 
 (defn create*
   "Creates an entity"
@@ -261,7 +263,7 @@
                            (not (str/starts-with? (name attr) "_")))
                     value
                     (cond
-                      (sequential? value)
+                      (or (set? value) (sequential? value))
                       (map (fn [v]
                              (cond (entity? v) (serialize v options)
                                    (spec/valid? ::ref v) (autoresolve-ref options v)
@@ -406,16 +408,16 @@
                 attrs))
 
 (defn lifecycle-update [{:db/keys [id] :as attrs} {:keys [append?]} transact-fn]
-  (let [attrs (prepare-transact-attrs (fn [new-attrs]
-                                        (if-let [old-entity (some-> (:db/id new-attrs) find)]
+  (let [attrs (prepare-transact-attrs (fn [{:db/keys [id] :as new-attrs}]
+                                        (if-let [old-entity (and id (not (db/dbid? id)) (find id))]
                                           (filter-update old-entity new-attrs)
                                           new-attrs)) attrs)
-        tx-result (transact-fn [(recursively-remove-nils attrs)
-                                {:db/id (d/tempid :db.part/tx)
-                                 :event/kind :entity.update}])]
-    (when-let [retractions (and (not append?) (get-retractions (resolve-tempids attrs tx-result)))]
+        tx (transact-fn [(recursively-remove-nils attrs)
+                         {:db/id (d/tempid :db.part/tx)
+                          :event/kind :entity.update}])]
+    (when-let [retractions (and (not append?) (get-retractions (resolve-tempids attrs tx)))]
       (transact-fn retractions))
-    (find id)))
+    (with-meta (find id) {:tx tx})))
 
 (defn update*
   "Updates an entity.
@@ -559,18 +561,6 @@
 
 (defn refs-spec [type]
   (spec/with-gen ::refs (partial refs-generator type)))
-
-(defn find-recursively [eid]
-  "Finds the given eid or lookup ref, and all the refs inside it"
-  (let [entity (find eid)
-        ref-idents (idents-with-value-type entity :db.type/ref)]
-    (mapm (fn [[k v]]
-            [k (if (and (contains? ref-idents k) (not (keyword? v)))
-                 (if (or (set? v) (sequential? v))
-                   (map find-recursively v)
-                   (find-recursively v))
-                 v)])
-          entity)))
 
 (defn- process-tx [tx]
   (let [datoms (map db/datom->map (:tx-data tx))
