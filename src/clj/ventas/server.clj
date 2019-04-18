@@ -78,6 +78,7 @@
         (compojure.route/not-found "")))))
 
 (defn- handle-websocket [format opts]
+  (log/debug "Handling websocket" format)
   (chord.http-kit/wrap-websocket-handler
    (partial server.ws/handle-messages format opts)
    {:format format}))
