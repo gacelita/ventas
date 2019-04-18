@@ -93,7 +93,9 @@
             response (storage-response filename)]
         (if-not (fn? response)
           response
-          (storage-response @(file/transform image size-entity)))))))
+          (if-let [filename @(file/transform image size-entity)]
+            (storage-response filename)
+            (compojure.route/not-found "File not found")))))))
 
 (defn- handle-image [eid]
   (if-let [image (entity/find eid)]
