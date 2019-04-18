@@ -12,7 +12,7 @@
    [ventas.utils :as utils]
    [perseverance.core :as p]
    [clojure.tools.logging :as log]
-   [ventas.common.utils :as common.utils])
+   [ventas.common.utils :refer [map-vals]])
   (:import
    [datomic Datom Connection]
    [datomic.query EntityMap]
@@ -192,20 +192,40 @@
        :where [:db.part/db :db.install/partition ?p]
               [?p :db/ident ?ident]]))
 
-(defn- EntityMap->eid
+
+;; entity api
+
+(defn etouch
+  "Prefer this over touch-eid"
+  [ref]
+  (some-> ref entity d/touch))
+
+(defn- EntityMap->map [m]
+  (-> (into {} m)
+      (assoc :db/id (:db/id m))))
+
+(defn- map-etouch-entity-transformer [v]
+  (->> (EntityMap->map v)
+       (map-vals (fn [v]
+                   (cond
+                     (instance? EntityMap v) (map-etouch-entity-transformer v)
+                     (or (sequential? v) (set? v)) (map map-etouch-entity-transformer v)
+                     :else v)))))
+
+(defn map-etouch
+  "Like etouch but returns a proper map
+   Worse than etouch but better than touch-eid"
+  [ref]
+  (some-> (etouch ref)
+          (map-etouch-entity-transformer)))
+
+(defn- touch-eid-value-transformer
+  "Terrible function used just for touch-eid. Let it remain that way"
   [v]
   (cond
     (instance? EntityMap v) (:db/id v)
-    (set? v) (set (map EntityMap->eid v))
+    (set? v) (set (map touch-eid-value-transformer v))
     :else v))
-
-(defn EntityMaps->eids
-  "EntityMap -> eid"
-  [m]
-  (common.utils/map-vals EntityMap->eid m))
-
-(defn etouch [ref]
-  (some-> ref entity d/touch))
 
 (defn touch-eid
   "Touches an entity by eid, returns a shallow version of it
@@ -214,10 +234,10 @@
    but only the :db/ids are returned"
   [ref]
   {:pre [ref]}
-  (when-let [result (etouch ref)]
-    (-> (into {} result)
-        (assoc :db/id (:db/id result))
-        (EntityMaps->eids))))
+  (some->> (etouch ref)
+           (EntityMap->map)
+           (map-vals touch-eid-value-transformer)))
+
 
 (defn normalize-ref
   "Normalizes a database reference.
