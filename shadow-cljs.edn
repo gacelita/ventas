@@ -1,6 +1,5 @@
-{:source-paths ["dev/cljs" "src/cljs" "src/cljc" "src/clj" "test/cljs" "test/cljc"]
+{:lein {:profile "+dev"}
  :nrepl {:port 4002}
- :dependencies [[ventas-core "0.0.14-SNAPSHOT"]]
  :builds {:admin {:target :browser
                   :asset-path "files/js/admin"
                   :output-to "resources/public/files/js/admin/main.js"
