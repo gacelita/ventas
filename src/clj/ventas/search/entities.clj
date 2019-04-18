@@ -4,7 +4,8 @@
    [ventas.database.entity :as entity]
    [ventas.database :as db]
    [ventas.utils :as utils]
-   [ventas.search :as search]))
+   [ventas.search :as search]
+   [ventas.search.indexing :refer [subfield-property]]))
 
 (defn- prepare-search-attrs
   "Applies the culture to the idents that refer to i18n entities.
@@ -12,11 +13,10 @@
    :product/reference -> :product/reference"
   [attrs culture-kw]
   (for [attr attrs]
-    (let [{:ventas/keys [refEntityType]} (db/touch-eid attr)]
+    (let [{:ventas/keys [refEntityType]} (db/etouch attr)]
       (if-not (= refEntityType :i18n)
         attr
-        (keyword (namespace attr)
-                 (str (name attr) "__" (name culture-kw)))))))
+        (subfield-property attr culture-kw)))))
 
 (defn search
   "Fulltext search for `search` in the given `attrs`"

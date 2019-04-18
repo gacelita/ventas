@@ -4,6 +4,7 @@
    [ventas.database.entity :as entity]
    [ventas.entities.product :as entities.product]
    [ventas.search :as search]
+   [ventas.search.indexing :refer [subfield-property]]
    [ventas.utils :as utils]))
 
 (defn- get-product-category-filter [categories]
@@ -37,11 +38,6 @@
 (def sorting-field->es
   {:price "product/price"})
 
-(defn i18n-field [field culture-kw]
-  (keyword (namespace field)
-           (str (name field)
-                "__" (name culture-kw))))
-
 (defn- get-products-query [{:keys [terms categories name price]} culture-kw]
   {:pre [culture-kw]}
   (utils/into-n
@@ -56,7 +52,7 @@
      [{:range {:product/price {:gte (:min price)
                                :lte (:max price)}}}])
    (when name
-     [{:match {(i18n-field :product/name culture-kw) name}}])))
+     [{:match {(subfield-property :product/name culture-kw) name}}])))
 
 (defn search [filters {:keys [items-per-page page sorting]} culture]
   (let [culture-kw (some-> culture

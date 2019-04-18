@@ -21,19 +21,12 @@
 (defmethod transform-entity-by-type :default [entity]
   entity)
 
-(defn- expand-i18n-entity
-  "Deprecated"
-  [e [a v]]
-  (if-not (map? v)
-    (assoc e a v)
-    (merge e
-           (->> v
-                (common.utils/map-keys
-                 #(keyword (namespace a)
-                           (str (name a) "__" (name %))))))))
-
 (defn- db-id->document-id [e]
   (set/rename-keys e {:db/id :document/id}))
+
+(defn subfield-property [field subfield]
+  (keyword (namespace field)
+           (str (name field) "." (name subfield))))
 
 (defn ident->property [ident]
   {:pre [(keyword? ident)]}
