@@ -267,7 +267,7 @@
                                                                       {:term {:product/variation-terms (db/normalize-ref [:product.term/keyword :test-term-a-2])}}]}}]}}
                                     {:term {:product/categories (db/normalize-ref [:category/keyword :test-category])}}
                                     {:range {:product/price {:gte 0 :lte 10}}}
-                                    {:match {:product/name__en_US "Example"}}]}}
+                                    {:match {:product/name.en_US "Example"}}]}}
               :size 10}
              (first @params))))))
 
@@ -410,8 +410,8 @@
       (server.ws/call-request-handler {:name ::sut/search
                                        :params {:search "Test"}})
       (is (= [{:_source false
-               :query {:bool {:should [{:match {:brand/name__en_US "Test"}}
-                                       {:match {:category/name__en_US "Test"}}
-                                       {:match {:product/name__en_US "Test"}}]}}}]
+               :query {:bool {:should [{:match {:brand/name.en_US "Test"}}
+                                       {:match {:category/name.en_US "Test"}}
+                                       {:match {:product/name.en_US "Test"}}]}}}]
              @search-params)))))
 
