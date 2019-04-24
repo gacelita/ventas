@@ -6,8 +6,7 @@
    [slingshot.slingshot :refer [throw+]]
    [ventas.config :as config]
    [ventas.utils :as utils]
-   [clojure.tools.logging :as log]
-   [ventas.database.entity :as entity])
+   [clojure.tools.logging :as log])
   (:import
    (java.net ConnectException)))
 
