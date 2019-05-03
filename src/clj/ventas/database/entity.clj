@@ -181,7 +181,7 @@
           (db/dbid? pre-entity))
     pre-entity
     (-> pre-entity
-        (filter-fn)
+        (cond-> (entity? pre-entity) (filter-fn))
         (->> (mapm (fn [[k v]]
                      [k (cond
                           (map? v) (prepare-transact-attrs filter-fn v)
