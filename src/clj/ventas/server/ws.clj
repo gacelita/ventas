@@ -58,6 +58,7 @@
     (catch Throwable e
       (when throw?
         (throw e))
+      (log/error e)
       (error-response message e))))
 
 (defn- store-response-channel! [{:keys [channel-key id params data]}]
