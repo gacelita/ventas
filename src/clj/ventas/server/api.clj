@@ -28,7 +28,8 @@
    [ventas.server.ws :as server.ws]
    [ventas.site :as site]
    [ventas.utils :as utils]
-   [ventas.utils.slugs :as utils.slugs]))
+   [ventas.utils.slugs :as utils.slugs]
+   [ventas.server.ws :as ws]))
 
 (defonce available-requests (atom {}))
 
@@ -121,8 +122,8 @@
                  (string? ref) (utils.slugs/resolve-by-slug ref)
                  (db/lookup-ref? ref) (:db/id (db/entity ref)))]
     (when-not result
-      (throw+ {:type ::invalid-ref
-               :ref ref}))
+      (ws/bad-request! {:type ::invalid-ref
+                        :ref  ref}))
     result))
 
 (register-endpoint!
@@ -135,8 +136,8 @@
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [category (entity/find (resolve-ref id :category/keyword))]
      (when-not category
-       (throw+ {:type ::category-not-found
-                :category id}))
+       (ws/bad-request! {:type ::category-not-found
+                         :category id}))
      (serialize-with-session session category))))
 
 (register-endpoint!
@@ -163,8 +164,8 @@
  (fn [{{:keys [id]} :params} {:keys [session]}]
    (let [entity (entity/find (resolve-ref id))]
      (when-not entity
-       (throw+ {:type ::entity-not-found
-                :entity id}))
+       (ws/bad-request! {:type ::entity-not-found
+                         :entity id}))
      (serialize-with-session session entity))))
 
 (register-endpoint!
@@ -311,11 +312,11 @@
  (fn [{{:keys [email password]} :params} {:keys [session]}]
    (let [user (entity/query-one :user {:email email})]
      (when-not user
-       (throw+ {:type ::user-not-found
-                :email email}))
+       (ws/bad-request! {:type ::user-not-found
+                         :email email}))
      (when-not (hashers/check password (:user/password user))
-       (throw+ {:type ::invalid-credentials
-                :email email}))
+       (ws/bad-request! {:type ::invalid-credentials
+                         :email email}))
      (let [token (auth/user->token user)]
        (set-user session user)
        {:user (entity/serialize user)

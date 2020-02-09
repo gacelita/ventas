@@ -11,13 +11,13 @@
    [ventas.server.api :as api]
    [ventas.search.entities :as search.entities]
    [ventas.server.pagination :as pagination]
-   [ventas.utils :as utils]
+   [ventas.server.ws :as ws]
    [ventas.email :as email]))
 
 (defn- admin-check! [session]
   (let [{:user/keys [roles]} (api/get-user session)]
     (when-not (contains? roles :user.role/administrator)
-      (throw+ {:type ::unauthorized}))))
+      (ws/bad-request! {:type ::unauthorized}))))
 
 (defn register-admin-endpoint!
   ([kw f]

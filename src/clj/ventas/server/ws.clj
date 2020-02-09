@@ -23,6 +23,9 @@
 (def ^:private response-channels
   (atom {}))
 
+(defn bad-request! [ex-data]
+  (throw+ (merge ex-data {:reason :bad-request})))
+
 (defmulti handle-event
   (fn [{:keys [name]} _]
     name))
@@ -32,8 +35,8 @@
     name))
 
 (defmethod handle-request :default [{:keys [name]} _]
-  (throw+ {:type ::api-call-not-found
-           :name name}))
+  (bad-request! {:type   ::api-call-not-found
+                 :name   name}))
 
 (defn exception->message [e]
   (or (ex-data e)
@@ -56,9 +59,11 @@
        :data response
        :realtime? (utils/chan? response)})
     (catch Throwable e
-      (when throw?
-        (throw e))
-      (log/error e)
+      (let [reason (:reason (ex-data e))]
+        (cond
+          (= reason :bad-request) (log/warn e)
+          throw?                  (throw e)
+          :else                   (log/error e)))
       (error-response message e))))
 
 (defn- store-response-channel! [{:keys [channel-key id params data]}]

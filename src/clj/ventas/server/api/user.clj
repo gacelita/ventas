@@ -1,7 +1,7 @@
 (ns ventas.server.api.user
   (:require
    [buddy.hashers :as hashers]
-   [slingshot.slingshot :refer [throw+]]
+   [slingshot.slingshot :refer [throw+ try+]]
    [ventas.common.utils :as common.utils]
    [ventas.database :as db]
    [ventas.database.entity :as entity]
@@ -10,12 +10,13 @@
    [ventas.entities.user :as entities.user]
    [ventas.payment-method :as payment-method]
    [ventas.server.api :as api]
-   [ventas.server.pagination :as pagination]))
+   [ventas.server.pagination :as pagination]
+   [ventas.server.ws :as ws]))
 
 (defn- user-check! [session]
   (let [{:db/keys [id]} (api/get-user session)]
     (when-not id
-      (throw+ {:type ::authentication-required}))))
+      (ws/bad-request! {:type ::authentication-required}))))
 
 (defn register-user-endpoint!
   ([kw f]
@@ -63,8 +64,8 @@
    (let [user (api/get-user session)
          address (entity/find id)]
      (when-not (= (:db/id user) (:address/user address))
-       (throw+ {:type ::entity-update-unauthorized
-                :entity-type :address}))
+       (ws/bad-request! {:type ::entity-update-unauthorized
+                         :entity-type :address}))
      (entity/delete id)
      true)))
 
@@ -162,8 +163,8 @@
        (let [cart (entities.user/get-cart user)]
          (entity/update* (assoc cart :discount (:db/id discount)))
          (api/find-serialize-with-session session (:db/id cart)))
-       (throw+ {:type ::discount-not-found
-                :code code})))))
+       (ws/bad-request! {:type ::discount-not-found
+                         :code code})))))
 
 (register-user-endpoint!
  ::users.cart.order
@@ -172,18 +173,21 @@
    (let [user (api/get-user session)
          cart (entities.user/get-cart user)]
      (when-not cart
-       (throw+ {:type ::cart-not-found}))
+       (ws/bad-request! {:type ::cart-not-found}))
      (when (= (:user/status user) :user.status/unregistered)
        (entity/update* (assoc user :user/email email)))
-     (let [shipping-address (if-not (number? shipping-address)
-                              (:db/id (entity/upsert :address (merge shipping-address
-                                                                     {:user (:db/id user)})))
-                              shipping-address)
-           cart (entity/update*
-                 (merge cart {:order/shipping-address shipping-address
-                              :order/shipping-method shipping-method
-                              :order/payment-method payment-method}))]
-       (payment-method/pay! cart payment-params)))))
+     (try+
+       (let [shipping-address (if-not (number? shipping-address)
+                                (:db/id (entity/upsert :address (merge shipping-address
+                                                                       {:user (:db/id user)})))
+                                shipping-address)
+             cart             (entity/update*
+                               (merge cart {:order/shipping-address shipping-address
+                                            :order/shipping-method  shipping-method
+                                            :order/payment-method   payment-method}))]
+         (payment-method/pay! cart payment-params))
+       (catch [:type ::payment-method/payment-method-not-found] {:keys [type]}
+         (ws/bad-request! {:type type}))))))
 
 (register-user-endpoint!
  ::users.orders.list
