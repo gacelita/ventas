@@ -5,13 +5,9 @@
 [![Clojars Project](https://img.shields.io/clojars/v/ventas-core.svg)](https://clojars.org/ventas-core)
 [![License](https://img.shields.io/badge/License-EPL%201.0-red.svg)](https://opensource.org/licenses/EPL-1.0)
 
-ventas is a WIP ecommerce platform written entirely in Clojure.
-
-For any questions I'm usually available at the `#ventas` channel in [clojurians](clojurians.slack.com). You can also open an issue, or contact me by email (you'll find it in `project.clj`) .
+ventas was a WIP ecommerce platform written entirely in Clojure.
 
 [Documentation](./doc)
-
-[Demo instance](https://ventas.kazer.es) and [source for the demo instance](https://github.com/joelsanchez/ventas-demo)
 
 ### Motivation
 
